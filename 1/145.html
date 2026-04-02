@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Traverse Mastermind: World-Class Engineering Visualizer</title>
+    <style>
+        :root {
+            --bg-deep: #020408;
+            --panel-hex: #0f172a;
+            --accent-cyan: #00f2ff;
+            --accent-purple: #a855f7;
+            --accent-amber: #fbbf24;
+            --text-primary: #f8fafc;
+            --text-dim: #64748b;
+            --node-stroke: rgba(0, 242, 255, 0.3);
+            --gradient-1: #0f172a;
+            --gradient-2: #020617;
+            --glow-cyan: 0 0 20px rgba(0, 242, 255, 0.3);
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            touch-action: none; 
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HUD & Overlay */
+        #hud-top {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .glass-header {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            padding: 20px 28px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            pointer-events: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        h1 { font-size: 1.2rem; letter-spacing: 4px; color: var(--accent-cyan); text-transform: uppercase; font-weight: 900; }
+        .badge { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 2px; display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+        .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; animation: pulse 2s infinite; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        .interaction-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            pointer-events: none;
+            white-space: nowrap;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Canvas & SVG Styling */
+        #canvas-wrapper {
+            flex-grow: 1;
+            cursor: grab;
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(0, 242, 255, 0.04) 1px, transparent 0);
+            background-size: 50px 50px;
+        }
+
+        #canvas-wrapper:active { cursor: grabbing; }
+
+        .connector {
+            fill: none;
+            stroke: url(#lineGrad);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+        }
+
+        .node-path {
+            fill: url(#nodeGrad);
+            stroke: var(--node-stroke);
+            stroke-width: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .node-main { stroke: var(--accent-cyan); stroke-width: 3; filter: drop-shadow(var(--glow-cyan)); }
+
+        .logic-label {
+            background: var(--accent-amber);
+            color: #000;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 5px 12px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.3);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Formula Card Styling */
+        .def-box {
+            background: rgba(7, 10, 18, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 4px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            pointer-events: auto;
+        }
+
+        .def-title { color: #fff; font-weight: 800; margin-bottom: 10px; display: block; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; font-size: 14px; letter-spacing: 1px;}
+        .formula-line { display: flex; flex-direction: column; margin-bottom: 12px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border-left: 2px solid var(--accent-cyan); }
+        .formula-label { font-size: 9px; color: var(--text-dim); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+        .formula-val { font-family: 'Monaco', 'Courier New', monospace; color: var(--accent-cyan); font-size: 12px; font-weight: 600; }
+        
+        .method-use { font-style: normal; color: var(--accent-purple); font-size: 10px; font-weight: 700; text-transform: uppercase; margin-top: 6px; display: flex; align-items: center; gap: 5px; }
+        .method-use::before { content: '◈'; color: var(--accent-purple); }
+
+        .main-label { fill: #fff; font-weight: 800; font-size: 14px; text-transform: uppercase; pointer-events: none; letter-spacing: 1px; }
+        [data-level="0"] .main-label { font-size: 22px; fill: var(--accent-cyan); letter-spacing: 4px; }
+    </style>
+</head>
+<body>
+
+    <div id="hud-top">
+        <div class="glass-header">
+            <h1>Traverse Mastermind</h1>
+            <div class="badge">
+                <div class="status-dot"></div>
+                VERIFIED ACCURACY • SINIKAR 4.0 • HIGH-PRECISION RENDER
+            </div>
+        </div>
+    </div>
+
+    <div class="interaction-hint">
+        Scroll to Zoom • Drag to Explore • Click Formulas
+    </div>
+
+    <div id="canvas-wrapper">
+        <svg id="main-svg" width="100%" height="100%">
+            <defs>
+                <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#020617;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="lineGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:var(--accent-purple);stop-opacity:0.3" />
+                    <stop offset="100%" style="stop-color:var(--accent-cyan);stop-opacity:1" />
+                </linearGradient>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="var(--accent-cyan)" />
+                </marker>
+            </defs>
+            <g id="viewport"></g>
+        </svg>
+    </div>
+
+<script>
+    const treeData = {
+        name: "Checks on Closed Traverse",
+        children: [
+            {
+                name: "Methods of Check",
+                children: [
+                    { 
+                        name: "Angular Measurement", 
+                        def: "Verify geometric closure of observed polygon angles.", 
+                        formulas: [
+                            { l: "Internal Angles Check", v: "Σθ = (2n - 4) × 90°" },
+                            { l: "External Angles Check", v: "Σθ = (2n + 4) × 90°" },
+                            { l: "Deflection Angles", v: "Σθ_def = 360°" }
+                        ]
+                    },
+                    { 
+                        name: "Linear Measurement", 
+                        def: "Calculated via local rectangular coordinates (Latitude/Departure).",
+                        formulas: [
+                            { l: "Latitude Summation", v: "ΣL = Σ(l·cosθ) = 0" },
+                            { l: "Departure Summation", v: "ΣD = Σ(l·sinθ) = 0" },
+                            { l: "Closing Error (e)", v: "e = √[(ΣL)² + (ΣD)²]" }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Correction of Error",
+                logic: "If Error > Permissible Limit",
+                children: [
+                    { 
+                        name: "Bowditch Rule", 
+                        def: "Used when linear & angular precision are consistent.",
+                        usage: "Proportional to length of sides",
+                        formulas: [
+                            { l: "Correction in Latitude", v: "c_l = -ΣL × (l / Σl)" },
+                            { l: "Correction in Departure", v: "c_d = -ΣD × (l / Σl)" }
+                        ]
+                    },
+                    { 
+                        name: "Transit Rule", 
+                        def: "Used when angular measurements are more precise.",
+                        usage: "Used for Theodolite traverses",
+                        formulas: [
+                            { l: "Correction in Latitude", v: "c_l = -ΣL × (|L| / Σ|L|)" },
+                            { l: "Correction in Departure", v: "c_d = -ΣD × (|D| / Σ|D|)" }
+                        ]
+                    },
+                    { 
+                        name: "Graphical Method", 
+                        def: "Visual Parallel adjustment of the traverse skeleton.",
+                        usage: "Rough surveys / Plane table",
+                        formulas: [
+                            { l: "Technique", v: "Parallel Vector Distribution" }
+                        ]
+                    }
+                ]
+            }
+        ]
+    };
+
+    const viewport = document.getElementById('viewport');
+    const svg = document.getElementById('main-svg');
+    
+    let state = {
+        scale: 0.75,
+        x: window.innerWidth / 2,
+        y: 80,
+        isDragging: false,
+        lastX: 0,
+        lastY: 0
+    };
+
+    function render(node, x, y, level, parentX, parentY) {
+        const width = level === 0 ? 340 : 240;
+        const height = level === 0 ? 70 : 50;
+
+        // Draw Connector Path with Arrowheads
+        if (parentX !== undefined) {
+            const connector = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            const midY = (y + parentY) / 2;
+            const d = `M ${parentX} ${parentY + height/2} C ${parentX} ${midY}, ${x} ${midY}, ${x} ${y - height/2 - 8}`;
+            connector.setAttribute("d", d);
+            connector.setAttribute("class", "connector");
+            connector.setAttribute("marker-end", "url(#arrowhead)");
+            viewport.appendChild(connector);
+
+            // Logic Label
+            if (node.logic) {
+                const foreignObj = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+                foreignObj.setAttribute("x", x - 100);
+                foreignObj.setAttribute("y", midY - 15);
+                foreignObj.setAttribute("width", 200);
+                foreignObj.setAttribute("height", 40);
+                
+                const div = document.createElement("div");
+                div.style.display = "flex";
+                div.style.justifyContent = "center";
+                div.innerHTML = `<div class="logic-label">${node.logic}</div>`;
+                foreignObj.appendChild(div);
+                viewport.appendChild(foreignObj);
+            }
+        }
+
+        // Node Group
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("transform", `translate(${x}, ${y})`);
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", -width/2);
+        rect.setAttribute("y", -height/2);
+        rect.setAttribute("width", width);
+        rect.setAttribute("height", height);
+        rect.setAttribute("rx", 14);
+        rect.setAttribute("class", level === 0 ? "node-path node-main" : "node-path");
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("class", "main-label");
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dy", "7");
+        text.textContent = node.name;
+
+        g.appendChild(rect);
+        g.appendChild(text);
+
+        // Technical Detail Box
+        if (node.formulas) {
+            const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+            fo.setAttribute("x", -width/2);
+            fo.setAttribute("y", height/2 + 10);
+            fo.setAttribute("width", width);
+            fo.setAttribute("height", 400);
+
+            const div = document.createElement("div");
+            div.className = "def-box";
+            
+            let formulaHTML = node.formulas.map(f => `
+                <div class="formula-line">
+                    <span class="formula-label">${f.l}</span>
+                    <span class="formula-val">${f.v}</span>
+                </div>
+            `).join('');
+
+            div.innerHTML = `
+                <span class="def-title">${node.name}</span>
+                <p style="margin-bottom:12px; font-size:11px; opacity:0.8">${node.def}</p>
+                ${formulaHTML}
+                ${node.usage ? `<div class="method-use">${node.usage}</div>` : ''}
+            `;
+            
+            fo.appendChild(div);
+            g.appendChild(fo);
+        }
+
+        viewport.appendChild(g);
+
+        if (node.children) {
+            const xGap = level === 0 ? 850 : 280; 
+            const totalW = (node.children.length - 1) * xGap;
+            node.children.forEach((child, i) => {
+                const cx = x - totalW / 2 + i * xGap;
+                const cy = y + 380;
+                render(child, cx, cy, level + 1, x, y);
+            });
+        }
+    }
+
+    function update() {
+        viewport.setAttribute("transform", `translate(${state.x}, ${state.y}) scale(${state.scale})`);
+    }
+
+    const wrapper = document.getElementById('canvas-wrapper');
+
+    wrapper.addEventListener('mousedown', (e) => {
+        state.isDragging = true;
+        state.lastX = e.clientX;
+        state.lastY = e.clientY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!state.isDragging) return;
+        state.x += e.clientX - state.lastX;
+        state.y += e.clientY - state.lastY;
+        state.lastX = e.clientX;
+        state.lastY = e.clientY;
+        update();
+    });
+
+    window.addEventListener('mouseup', () => state.isDragging = false);
+
+    window.addEventListener('wheel', (e) => {
+        const delta = e.deltaY > 0 ? 0.92 : 1.08;
+        const newScale = Math.min(Math.max(state.scale * delta, 0.15), 3);
+        
+        const rect = svg.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        const zoomPointX = (mouseX - state.x) / state.scale;
+        const zoomPointY = (mouseY - state.y) / state.scale;
+        
+        state.x = mouseX - zoomPointX * newScale;
+        state.y = mouseY - zoomPointY * newScale;
+        state.scale = newScale;
+        
+        update();
+    }, { passive: false });
+
+    // Touch Handling (Pinch-to-zoom)
+    let initialDist = 0;
+    wrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            state.isDragging = true;
+            state.lastX = e.touches[0].clientX;
+            state.lastY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            initialDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        }
+    });
+
+    wrapper.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && state.isDragging) {
+            state.x += e.touches[0].clientX - state.lastX;
+            state.y += e.touches[0].clientY - state.lastY;
+            state.lastX = e.touches[0].clientX;
+            state.lastY = e.touches[0].clientY;
+            update();
+        } else if (e.touches.length === 2) {
+            const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+            const delta = dist / initialDist;
+            state.scale = Math.min(Math.max(state.scale * delta, 0.15), 3);
+            initialDist = dist;
+            update();
+        }
+    });
+
+    wrapper.addEventListener('touchend', () => { state.isDragging = false; });
+
+    render(treeData, 0, 0, 0);
+    update();
+
+    window.onresize = () => {
+        state.x = window.innerWidth / 2;
+        update();
+    };
+</script>
+</body>
+</html>
+

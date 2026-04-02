@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theodolite Fundamental Lines Simulator</title>
+    <style>
+        :root {
+            /* Interactive Variables driven by JS */
+            --err-plate: 15deg;
+            --err-trunnion: -20deg;
+            --err-collimation: 25deg;
+            --err-altitude: -18deg;
+            --err-vernier: 30deg;
+            --bubble-offset: 40px;
+            --collimation-glow: 0.3;
+            --perfect-glow: 0;
+
+            /* Design System */
+            --bg-base: #0b0c10;
+            --bg-surface: #1f2833;
+            --bg-panel: #151a22;
+            --text-main: #c5c6c7;
+            --text-bright: #ffffff;
+            --accent-cyan: #66fcf1;
+            --accent-teal: #45a29e;
+            --accent-red: #ff4b4b;
+            --accent-green: #4bffa5;
+            --accent-yellow: #f2e141;
+            
+            --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            grid-template-rows: 80px 1fr;
+            height: 100vh;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid rgba(102, 252, 241, 0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .header h1 {
+            color: var(--accent-cyan);
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .header .subtitle {
+            margin-left: 20px;
+            padding-left: 20px;
+            border-left: 1px solid var(--text-main);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .viewer {
+            position: relative;
+            background: radial-gradient(circle at 50% 50%, #1a222c 0%, #0b0c10 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* SVG Animation & Physics Styles */
+        svg {
+            width: 100%;
+            height: 100%;
+            max-height: 800px;
+            filter: drop-shadow(0 0 30px rgba(102, 252, 241, 0.05));
+        }
+
+        /* Dynamic Transforms based on CSS Variables */
+        .plate-level-group {
+            transform-origin: 400px 420px;
+            transform: rotateZ(var(--err-plate));
+            transition: transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .trunnion-group {
+            transform-origin: 400px 300px;
+            transform: rotateZ(var(--err-trunnion));
+            transition: transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .telescope-group {
+            transform-origin: 400px 300px;
+            transform: rotateZ(var(--err-collimation));
+            transition: transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .altitude-level-group {
+            transform-origin: 400px 240px;
+            transform: rotateZ(var(--err-altitude));
+            transition: transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .vertical-circle-vernier {
+            transform-origin: 400px 300px;
+            transform: rotateZ(var(--err-vernier));
+            transition: transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .bubble-anim {
+            transform: translateX(var(--bubble-offset));
+            transition: transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .collimation-beam {
+            opacity: var(--collimation-glow);
+            transition: opacity 0.1s ease;
+        }
+
+        .perfect-indicator {
+            opacity: var(--perfect-glow);
+            transition: opacity 0.3s ease;
+        }
+
+        /* Side Panel / Controls */
+        .side-panel {
+            background: var(--bg-panel);
+            border-left: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .control-box {
+            background: var(--bg-surface);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(102, 252, 241, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .control-header h2 {
+            font-size: 1.1rem;
+            color: var(--text-bright);
+        }
+
+        .status-badge {
+            background: rgba(255, 75, 75, 0.2);
+            color: var(--accent-red);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge.aligned {
+            background: rgba(75, 255, 165, 0.2);
+            color: var(--accent-green);
+            box-shadow: 0 0 10px rgba(75, 255, 165, 0.4);
+        }
+
+        /* Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #3a4750;
+            border-radius: 3px;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -7px;
+            box-shadow: 0 0 15px var(--accent-cyan);
+            transition: transform 0.1s ease;
+        }
+        
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Relations List */
+        .relations-container h3 {
+            font-size: 1rem;
+            color: var(--accent-cyan);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .relation-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            position: relative;
+            padding-left: 45px;
+            transition: all 0.3s ease;
+            color: #9ea4ab;
+        }
+
+        .relation-item::before {
+            content: attr(data-num);
+            position: absolute;
+            left: 12px;
+            top: 15px;
+            width: 20px;
+            height: 20px;
+            background: #3a4750;
+            color: var(--bg-base);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .relation-item.active {
+            background: rgba(75, 255, 165, 0.05);
+            border-color: rgba(75, 255, 165, 0.3);
+            color: var(--text-bright);
+        }
+
+        .relation-item.active::before {
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        .relation-item .highlight {
+            color: var(--text-bright);
+            font-weight: 600;
+        }
+
+        /* Legend */
+        .legend {
+            margin-top: auto;
+            padding-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.75rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                grid-template-rows: 60px 50vh auto;
+                height: auto;
+            }
+            .viewer {
+                border-bottom: 1px solid #333;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <header class="header">
+            <h1>Edu-SVG</h1>
+            <div class="subtitle">Theodolite Fundamental Lines Simulator</div>
+        </header>
+
+        <main class="viewer">
+            <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                    <linearGradient id="metal-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#2a2e35"/>
+                        <stop offset="40%" stop-color="#4a505c"/>
+                        <stop offset="60%" stop-color="#1f2228"/>
+                        <stop offset="100%" stop-color="#111316"/>
+                    </linearGradient>
+                    
+                    <linearGradient id="metal-light" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#8e9eab"/>
+                        <stop offset="50%" stop-color="#eef2f3"/>
+                        <stop offset="100%" stop-color="#8e9eab"/>
+                    </linearGradient>
+
+                    <linearGradient id="brass" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#b8860b"/>
+                        <stop offset="50%" stop-color="#ffd700"/>
+                        <stop offset="100%" stop-color="#8b6508"/>
+                    </linearGradient>
+
+                    <linearGradient id="glass" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="rgba(255,255,255,0.6)"/>
+                        <stop offset="30%" stop-color="rgba(102,252,241,0.1)"/>
+                        <stop offset="70%" stop-color="rgba(102,252,241,0.1)"/>
+                        <stop offset="100%" stop-color="rgba(255,255,255,0.4)"/>
+                    </linearGradient>
+
+                    <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="4" result="blur1"/>
+                        <feGaussianBlur stdDeviation="8" result="blur2"/>
+                        <feMerge>
+                            <feMergeNode in="blur2"/>
+                            <feMergeNode in="blur1"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    
+                    <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="4" result="blur1"/>
+                        <feGaussianBlur stdDeviation="8" result="blur2"/>
+                        <feMerge>
+                            <feMergeNode in="blur2"/>
+                            <feMergeNode in="blur1"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+
+                    <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="blur1"/>
+                        <feMerge>
+                            <feMergeNode in="blur1"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    
+                    <filter id="glow-yellow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="blur1"/>
+                        <feMerge>
+                            <feMergeNode in="blur1"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <path d="M 0 300 L 800 300 M 400 0 L 400 600" stroke="rgba(255,255,255,0.03)" stroke-width="1" stroke-dasharray="5,5"/>
+
+                <g id="base-structure">
+                    <path d="M 280 480 C 280 500, 520 500, 520 480 C 520 460, 280 460, 280 480 Z" fill="url(#metal-dark)" stroke="#111" stroke-width="2"/>
+                    <path d="M 280 480 L 280 500 C 280 520, 520 520, 520 500 L 520 480 Z" fill="url(#metal-dark)"/>
+                    
+                    <path d="M 350 440 C 350 450, 450 450, 450 440 C 450 430, 350 430, 350 440 Z" fill="url(#metal-light)"/>
+                    <path d="M 350 440 L 350 480 C 350 490, 450 490, 450 480 L 450 440 Z" fill="url(#metal-light)"/>
+                </g>
+
+                <path d="M 400 100 L 400 550" stroke="var(--accent-cyan)" stroke-width="3" filter="url(#glow-cyan)" stroke-linecap="round"/>
+                
+                <path d="M 395 550 L 405 550 C 405 570 402 585 400 595 C 398 585 395 570 395 550 Z" fill="url(#brass)" stroke="#553f00"/>
+
+                <g id="horizontal-plate">
+                    <path d="M 240 420 C 240 445, 560 445, 560 420 C 560 395, 240 395, 240 420 Z" fill="url(#metal-dark)" stroke="#4a505c" stroke-width="2"/>
+                    <path d="M 240 420 L 240 435 C 240 460, 560 460, 560 435 L 560 420 Z" fill="url(#metal-dark)"/>
+                    <path d="M 250 432 L 250 437 M 300 445 L 300 450 M 400 452 L 400 457 M 500 445 L 500 450 M 550 432 L 550 437" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+                </g>
+
+                <g class="plate-level-group">
+                    <path d="M 330 415 C 325 415, 325 425, 330 425 L 470 425 C 475 425, 475 415, 470 415 Z" fill="url(#glass)" stroke="#888" stroke-width="1"/>
+                    <path d="M 390 415 L 390 425 M 410 415 L 410 425" stroke="#111" stroke-width="1"/>
+                    <path class="bubble-anim" d="M 392 417 C 390 417, 390 423, 392 423 L 408 423 C 410 423, 410 417, 408 417 Z" fill="rgba(102, 252, 241, 0.8)"/>
+                    
+                    <path d="M 280 420 L 520 420" stroke="var(--accent-yellow)" stroke-width="2" stroke-dasharray="6,4" filter="url(#glow-yellow)"/>
+                </g>
+
+                <path d="M 360 410 C 360 410, 360 300, 370 300 C 370 300, 380 300, 380 410 Z" fill="url(#metal-dark)"/>
+                <path d="M 440 410 C 440 410, 440 300, 430 300 C 430 300, 420 300, 420 410 Z" fill="url(#metal-dark)"/>
+
+                <g class="trunnion-group">
+                    <path d="M 230 310 L 230 290 L 570 290 L 570 310 Z" fill="url(#metal-light)"/>
+                    <path d="M 230 300 C 225 300, 225 310, 230 310 C 235 310, 235 300, 230 300 Z" fill="#666" transform="translate(0, -5)"/>
+                    <path d="M 570 300 C 565 300, 565 310, 570 310 C 575 310, 575 300, 570 300 Z" fill="#ccc" transform="translate(0, -5)"/>
+
+                    <path d="M 180 300 L 620 300" stroke="var(--accent-green)" stroke-width="3" filter="url(#glow-green)"/>
+                    
+                    <g id="vertical-circle">
+                        <path d="M 425 210 C 415 210, 415 390, 425 390 C 435 390, 435 210, 425 210 Z" fill="url(#metal-dark)" stroke="#333" stroke-width="1.5"/>
+                        <path d="M 426 220 C 418 220, 418 380, 426 380 C 434 380, 434 220, 426 220 Z" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                        
+                        <g class="vertical-circle-vernier">
+                            <path d="M 420 300 L 430 300" stroke="var(--accent-cyan)" stroke-width="2" filter="url(#glow-cyan)"/>
+                            <text x="435" y="304" fill="var(--accent-cyan)" font-size="12" font-weight="bold">0°</text>
+                        </g>
+                    </g>
+                </g>
+
+                <g class="telescope-group">
+                    <path d="M 280 275 L 280 325 L 350 315 L 350 285 Z" fill="url(#metal-dark)"/>
+                    <path d="M 350 285 L 350 315 L 450 315 L 450 285 Z" fill="url(#metal-light)"/>
+                    <path d="M 450 285 L 450 315 L 530 308 L 530 292 Z" fill="url(#metal-dark)"/>
+                    <path d="M 280 275 C 275 275, 275 325, 280 325 C 285 325, 285 275, 280 275 Z" fill="url(#glass)"/>
+                    <path d="M 530 292 C 528 292, 528 308, 530 308 C 532 308, 532 292, 530 292 Z" fill="rgba(30,30,30,0.9)"/>
+
+                    <path d="M 120 300 L 680 300" stroke="var(--accent-red)" stroke-width="3" filter="url(#glow-red)" class="collimation-beam"/>
+                    <path d="M 120 300 L 680 300" stroke="#fff" stroke-width="1" class="collimation-beam"/>
+
+                    <g class="altitude-level-group">
+                        <path d="M 340 240 C 335 240, 335 250, 340 250 L 460 250 C 465 250, 465 240, 460 240 Z" fill="url(#glass)" stroke="#888" stroke-width="1"/>
+                        <path d="M 360 250 L 360 285 M 440 250 L 440 285" stroke="url(#metal-dark)" stroke-width="4"/>
+                        <path d="M 390 240 L 390 250 M 410 240 L 410 250" stroke="#111" stroke-width="1"/>
+                        <path class="bubble-anim" d="M 392 242 C 390 242, 390 248, 392 248 L 408 248 C 410 248, 410 242, 408 242 Z" fill="rgba(102, 252, 241, 0.8)"/>
+                        
+                        <path d="M 250 245 L 550 245" stroke="var(--accent-yellow)" stroke-width="2" stroke-dasharray="6,4" filter="url(#glow-yellow)"/>
+                    </g>
+                </g>
+
+                <path d="M 395 300 C 395 295, 405 295, 405 300 C 405 305, 395 305, 395 300 Z" fill="#fff" class="perfect-indicator" filter="url(#glow-cyan)"/>
+
+                <g font-family="sans-serif" font-size="11" font-weight="600" fill="rgba(255,255,255,0.7)">
+                    <text x="355" y="105" fill="var(--accent-cyan)">Vertical Axis</text>
+                    <text x="590" y="285" fill="var(--accent-green)">Horizontal (Trunnion) Axis</text>
+                    <text x="130" y="285" fill="var(--accent-red)">Line of Collimation</text>
+                    <text x="230" y="235" fill="var(--accent-yellow)">Axis of Altitude Level</text>
+                    <text x="240" y="410" fill="var(--accent-yellow)">Axis of Plate Level</text>
+                    <text x="445" y="210">Vertical Circle</text>
+                    <text x="490" y="465">Horizontal Circle</text>
+                    <text x="350" y="585" fill="#ffd700">Plumb Bob</text>
+                </g>
+            </svg>
+        </main>
+
+        <aside class="side-panel">
+            <div class="control-box">
+                <div class="control-header">
+                    <h2>Instrument Calibration</h2>
+                    <span class="status-badge" id="statusBadge">Uncalibrated</span>
+                </div>
+                <input type="range" id="calSlider" min="0" max="100" value="0">
+                <div class="slider-labels">
+                    <span>Misaligned</span>
+                    <span>Perfect Adjustment</span>
+                </div>
+            </div>
+
+            <div class="relations-container">
+                <h3>Fundamental Relationships</h3>
+                <div id="rel1" class="relation-item" data-num="1">
+                    The <span class="highlight" style="color:var(--accent-yellow)">axis of the plate level</span> must lie in a plane perpendicular to the <span class="highlight" style="color:var(--accent-cyan)">vertical axis</span>. The vertical axis will be truly vertical when the bubble is in the centre of its run.
+                </div>
+                <div id="rel2" class="relation-item" data-num="2">
+                    The <span class="highlight" style="color:var(--accent-red)">line of collimation</span> must be perpendicular to the <span class="highlight" style="color:var(--accent-green)">horizontal axis</span> at its intersection with the vertical axis.
+                </div>
+                <div id="rel3" class="relation-item" data-num="3">
+                    The <span class="highlight" style="color:var(--accent-green)">horizontal axis</span> must be perpendicular to the <span class="highlight" style="color:var(--accent-cyan)">vertical axis</span>.
+                </div>
+                <div id="rel4" class="relation-item" data-num="4">
+                    The <span class="highlight" style="color:var(--accent-yellow)">axis of the altitude level</span> (or telescope level) must be parallel to <span class="highlight" style="color:var(--accent-red)">line of collimation</span>.
+                </div>
+                <div id="rel5" class="relation-item" data-num="5">
+                    The vertical circle vernier must read zero when the <span class="highlight" style="color:var(--accent-red)">line of collimation</span> is horizontal.
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color" style="background:var(--accent-cyan)"></div> Vertical Axis</div>
+                <div class="legend-item"><div class="legend-color" style="background:var(--accent-green)"></div> Horizontal Axis</div>
+                <div class="legend-item"><div class="legend-color" style="background:var(--accent-red)"></div> Line of Collimation</div>
+                <div class="legend-item"><div class="legend-color" style="background:var(--accent-yellow)"></div> Bubble Levels</div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slider = document.getElementById('calSlider');
+            const root = document.documentElement;
+            const statusBadge = document.getElementById('statusBadge');
+            
+            // Map rules to specific calibration thresholds (percentages)
+            const rules = [
+                { el: document.getElementById('rel1'), threshold: 20 },
+                { el: document.getElementById('rel3'), threshold: 40 },
+                { el: document.getElementById('rel2'), threshold: 60 },
+                { el: document.getElementById('rel4'), threshold: 80 },
+                { el: document.getElementById('rel5'), threshold: 95 }
+            ];
+
+            // Initial Maximum Errors (Degrees and Pixels)
+            const maxErrors = {
+                plate: 12,        // Tilt of plate level
+                trunnion: -15,    // Tilt of trunnion cross-axis
+                collimation: 20,  // Skew of telescope relative to trunnion
+                altitude: -12,    // Tilt of altitude level relative to telescope
+                vernier: 25,      // Offset of the vertical circle zero
+                bubbleOffset: 30  // Pixels off-center for the bubble
+            };
+
+            function updatePhysics(value) {
+                const progress = value / 100;      // 0.0 to 1.0
+                const errorFactor = 1 - progress;  // 1.0 to 0.0
+
+                // Apply mathematical easing for physical "snapping" into place
+                const easeError = Math.pow(errorFactor, 1.5); 
+
+                // Dynamically update CSS custom properties to drive SVG transforms
+                root.style.setProperty('--err-plate', `${maxErrors.plate * easeError}deg`);
+                root.style.setProperty('--err-trunnion', `${maxErrors.trunnion * easeError}deg`);
+                root.style.setProperty('--err-collimation', `${maxErrors.collimation * easeError}deg`);
+                root.style.setProperty('--err-altitude', `${maxErrors.altitude * easeError}deg`);
+                root.style.setProperty('--err-vernier', `${maxErrors.vernier * easeError}deg`);
+                
+                // Animate the bubble levels into the center
+                root.style.setProperty('--bubble-offset', `${maxErrors.bubbleOffset * easeError}px`);
+
+                // Intensify the collimation beam as it aligns
+                root.style.setProperty('--collimation-glow', `${0.3 + (0.7 * progress)}`);
+                
+                // Trigger perfect alignment node
+                root.style.setProperty('--perfect-glow', value == 100 ? '1' : '0');
+
+                // UI Updates
+                if (value == 100) {
+                    statusBadge.textContent = "Perfect Adjustment";
+                    statusBadge.classList.add('aligned');
+                } else {
+                    statusBadge.textContent = `Calibrating: ${value}%`;
+                    statusBadge.classList.remove('aligned');
+                }
+
+                // Activate relations text as physics resolve
+                rules.forEach(rule => {
+                    if (value >= rule.threshold) {
+                        rule.el.classList.add('active');
+                    } else {
+                        rule.el.classList.remove('active');
+                    }
+                });
+            }
+
+            // Listen to interactive input
+            slider.addEventListener('input', (e) => {
+                updatePhysics(e.target.value);
+            });
+
+            // Initialize state
+            updatePhysics(0);
+        });
+    </script>
+</body>
+</html>

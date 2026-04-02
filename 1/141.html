@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Theodolite Classification: Engineering Mind Map</title>
+    <style>
+        :root {
+            --bg-deep: #030712;
+            --panel-bg: #111827;
+            --accent-primary: #38bdf8;
+            --accent-secondary: #818cf8;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --node-border: rgba(56, 189, 248, 0.4);
+            --gradient-start: #1e293b;
+            --gradient-end: #0f172a;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: none; 
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HUD UI */
+        #ui-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .header-content {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            pointer-events: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        h1 { font-size: 1.2rem; letter-spacing: 2px; color: var(--accent-primary); text-transform: uppercase; }
+        .version-tag { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 1px; font-weight: bold; }
+
+        .hint {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.05);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* SVG Layout */
+        #canvas-area {
+            flex-grow: 1;
+            cursor: grab;
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+            background-size: 60px 60px;
+        }
+
+        #canvas-area:active { cursor: grabbing; }
+
+        .link {
+            fill: none;
+            stroke: url(#linkGrad);
+            stroke-width: 2.5;
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            animation: drawLink 2.5s ease-out forwards;
+        }
+
+        @keyframes drawLink { to { stroke-dashoffset: 0; } }
+
+        .node-rect {
+            fill: url(#nodeGrad);
+            stroke: var(--node-border);
+            stroke-width: 1.5;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
+        }
+
+        /* Exam Notes Styles */
+        .note-container {
+            background: rgba(15, 23, 42, 0.98);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-left: 4px solid var(--accent-primary);
+            border-radius: 8px;
+            padding: 14px;
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.6;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.7);
+        }
+
+        .note-header { 
+            color: white; 
+            font-weight: 800; 
+            margin-bottom: 6px; 
+            display: block; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            font-size: 13px;
+        }
+
+        .exam-point {
+            display: block;
+            margin-top: 4px;
+            padding-left: 12px;
+            position: relative;
+        }
+
+        .exam-point::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-secondary);
+        }
+
+        .label-text { fill: white; font-weight: 700; font-size: 14px; text-transform: uppercase; pointer-events: none; }
+        [data-level="0"] .label-text { font-size: 22px; fill: var(--accent-primary); letter-spacing: 3px; }
+    </style>
+</head>
+<body>
+
+    <div id="ui-header">
+        <div class="header-content">
+            <h1>Theodolite Classification</h1>
+            <div class="version-tag">ENGINEERING SERIES • EXAM READY • V4.0</div>
+        </div>
+    </div>
+
+    <div class="hint">
+        Pan: 1 Finger / Zoom: Pinch or Scroll
+    </div>
+
+    <div id="canvas-area">
+        <svg id="svg-root" width="100%" height="100%">
+            <defs>
+                <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:var(--gradient-start);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:var(--gradient-end);stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="linkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:var(--accent-secondary);stop-opacity:0.4" />
+                    <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <g id="viewport-group"></g>
+        </svg>
+    </div>
+
+<script>
+    const surveyData = {
+        name: "Theodolites",
+        children: [
+            {
+                name: "Primary Theodolites",
+                children: [
+                    { 
+                        name: "Transit Theodolite", 
+                        note: "Deflection angle Can be Measured Easily",
+                        points: [
+                            "Telescope can be revolved through 180° in vertical plane.",
+                            "Ranging a line can be Done By Backsighting",
+                            "Essential for prolonging lines and changing faces."
+                        ]
+                    },
+                    { 
+                        name: "Non-Transit", 
+                        note: "The 'Plain' or 'Y' theodolite.",
+                        points: [
+                            "Telescope cannot be revolved through 180° vertically.",
+                            "Limited utility in modern surveying.",
+                            "Mainly used for measuring horizontal angles only."
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Secondary Theodolites",
+                children: [
+                    { 
+                        name: "Analog (Optical)", 
+                        note: "High precision manual device.",
+                        points: [
+                            "Graduations Provided for Hz and Vt angle readings.",
+                            "Readings taken via internal optical micrometers.",
+                            "Durable and works without power."
+                        ]
+                    },
+                    { 
+                        name: "Vernier Theodolite", 
+                        note: "Mechanical precision.",
+                        points: [
+                            "Uses mechanical vernier scales for fractional readings.",
+                            "Commonly used in engineering education.",
+                            "Usually reads up to 20 seconds of an arc."
+                        ]
+                    },
+                    { 
+                        name: "Digital Theodolite", 
+                        note: "Electronic efficiency.",
+                        points: [
+                            "Features automatic digital LCD readout.",
+                            "Eliminates manual reading and parallax errors.",
+                            "Often integrates with data loggers for GIS."
+                        ]
+                    }
+                ]
+            }
+        ]
+    };
+
+    const viewport = document.getElementById('viewport-group');
+    let viewState = {
+        scale: 0.75,
+        x: window.innerWidth / 2,
+        y: 80,
+        isPanning: false,
+        lastX: 0,
+        lastY: 0,
+        pinchDist: 0,
+        pinchScale: 0.75
+    };
+
+    function renderNode(node, x, y, level, parentX, parentY) {
+        const isLeaf = !node.children || node.children.length === 0;
+        const w = level === 0 ? 250 : 180;
+        const h = level === 0 ? 70 : 50;
+
+        // Connections
+        if (parentX !== undefined) {
+            const link = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            const midY = (y + parentY) / 2;
+            const d = `M ${parentX} ${parentY + (level === 1 ? 35 : 25)} C ${parentX} ${midY}, ${x} ${midY}, ${x} ${y - 25}`;
+            link.setAttribute("d", d);
+            link.setAttribute("class", "link");
+            viewport.appendChild(link);
+        }
+
+        // Create Container
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("transform", `translate(${x}, ${y})`);
+        g.setAttribute("data-level", level);
+
+        // Rect
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", -w/2);
+        rect.setAttribute("y", -h/2);
+        rect.setAttribute("width", w);
+        rect.setAttribute("height", h);
+        rect.setAttribute("rx", 12);
+        rect.setAttribute("class", "node-rect");
+
+        // Label
+        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        txt.setAttribute("class", "label-text");
+        txt.setAttribute("text-anchor", "middle");
+        txt.setAttribute("dy", "5");
+        txt.textContent = node.name;
+
+        g.appendChild(rect);
+        g.appendChild(txt);
+
+        // Exam Notes (Auto-placed)
+        if (isLeaf && node.points) {
+            const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+            fo.setAttribute("x", -w/2);
+            fo.setAttribute("y", 40);
+            fo.setAttribute("width", w + 60); // Slightly wider for comfort
+            fo.setAttribute("height", 250);
+            fo.style.transform = `translateX(-30px)`; // Center alignment correction
+
+            const div = document.createElement("div");
+            div.className = "note-container";
+            let pointsHtml = node.points.map(p => `<span class="exam-point">${p}</span>`).join('');
+            div.innerHTML = `<span class="note-header">${node.name}</span><i style="color:var(--accent-primary); font-size:10px; display:block; margin-bottom:8px;">${node.note}</i>${pointsHtml}`;
+            
+            fo.appendChild(div);
+            g.appendChild(fo);
+        }
+
+        viewport.appendChild(g);
+
+        if (node.children) {
+            // High xGap for Level 0 to keep Primary vs Secondary separate
+            const xSpacing = level === 0 ? 1000 : 260; 
+            const totalWidth = (node.children.length - 1) * xSpacing;
+            node.children.forEach((child, i) => {
+                const childX = x - totalWidth / 2 + i * xSpacing;
+                const childY = y + (level === 0 ? 250 : 320);
+                renderNode(child, childX, childY, level + 1, x, y);
+            });
+        }
+    }
+
+    function applyTransform() {
+        viewport.setAttribute("transform", `translate(${viewState.x}, ${viewState.y}) scale(${viewState.scale})`);
+    }
+
+    const canvas = document.getElementById('canvas-area');
+
+    // Input Handling
+    const onStart = (ex, ey) => {
+        viewState.isPanning = true;
+        viewState.lastX = ex;
+        viewState.lastY = ey;
+    };
+
+    const onMove = (e) => {
+        // Pinch Zoom
+        if (e.touches && e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+
+            if (!viewState.pinchDist) {
+                viewState.pinchDist = dist;
+                viewState.pinchScale = viewState.scale;
+            } else {
+                const factor = dist / viewState.pinchDist;
+                viewState.scale = Math.min(Math.max(viewState.pinchScale * factor, 0.1), 3);
+                applyTransform();
+            }
+            return;
+        }
+
+        if (!viewState.isPanning) return;
+        const ex = e.touches ? e.touches[0].clientX : e.clientX;
+        const ey = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        viewState.x += ex - viewState.lastX;
+        viewState.y += ey - viewState.lastY;
+        viewState.lastX = ex;
+        viewState.lastY = ey;
+        applyTransform();
+    };
+
+    const onEnd = () => {
+        viewState.isPanning = false;
+        viewState.pinchDist = 0;
+    };
+
+    canvas.addEventListener('mousedown', (e) => onStart(e.clientX, e.clientY));
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
+
+    canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) onStart(e.touches[0].clientX, e.touches[0].clientY);
+    });
+    wrapper = canvas; 
+    wrapper.addEventListener('touchmove', onMove);
+    wrapper.addEventListener('touchend', onEnd);
+
+    window.addEventListener('wheel', (e) => {
+        const d = e.deltaY > 0 ? 0.9 : 1.1;
+        viewState.scale = Math.min(Math.max(viewState.scale * d, 0.1), 3);
+        applyTransform();
+    }, { passive: false });
+
+    // Bootstrap
+    renderNode(surveyData, 0, 0, 0);
+    applyTransform();
+
+    window.onresize = () => {
+        viewState.x = window.innerWidth / 2;
+        applyTransform();
+    };
+</script>
+</body>
+</html>

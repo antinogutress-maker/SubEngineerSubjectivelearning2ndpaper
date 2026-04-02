@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Surveying Scale: Optimized Engineering Visualizer</title>
+    <style>
+        :root {
+            --bg-deep: #05070a;
+            --panel-hex: #0f172a;
+            --accent-cyan: #00f2ff;
+            --accent-purple: #7c3aed;
+            --text-primary: #f1f5f9;
+            --text-dim: #94a3b8;
+            --node-stroke: rgba(0, 242, 255, 0.4);
+            --gradient-1: #1e293b;
+            --gradient-2: #020617;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Inter', -apple-system, sans-serif;
+            touch-action: none; 
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #hud-top {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .glass-header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            pointer-events: auto;
+        }
+
+        h1 { font-size: 1.1rem; letter-spacing: 2px; color: var(--accent-cyan); text-transform: uppercase; }
+        .badge { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 1px; }
+
+        .interaction-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        #canvas-wrapper {
+            flex-grow: 1;
+            cursor: grab;
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 50px 50px;
+        }
+
+        #canvas-wrapper:active { cursor: grabbing; }
+
+        .connector {
+            fill: none;
+            stroke: url(#lineGrad);
+            stroke-width: 2;
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            animation: drawLine 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes drawLine { to { stroke-dashoffset: 0; } }
+
+        .node-path {
+            fill: url(#nodeGrad);
+            stroke: var(--node-stroke);
+            stroke-width: 1.5;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+        }
+
+        .def-box {
+            background: rgba(10, 15, 25, 0.98);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            border-top: 3px solid var(--accent-cyan);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-dim);
+            font-size: 11px;
+            line-height: 1.5;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            pointer-events: none;
+        }
+
+        .def-title { color: white; font-weight: 700; margin-bottom: 6px; display: block; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; font-size: 12px;}
+        .def-example { color: var(--accent-cyan); display: block; margin-top: 8px; font-weight: 600; font-family: monospace; background: rgba(0, 242, 255, 0.1); padding: 4px; border-radius: 4px; }
+
+        .main-label { fill: white; font-weight: 700; font-size: 13px; text-transform: uppercase; pointer-events: none; }
+        [data-level="0"] .main-label { font-size: 20px; fill: var(--accent-cyan); }
+    </style>
+</head>
+<body>
+
+    <div id="hud-top">
+        <div class="glass-header">
+            <h1>Scale Mastermind</h1>
+            <div class="badge">SPACING FIX • PINCH-ZOOM ENABLED • AUTO-DEFINITIONS</div>
+        </div>
+    </div>
+
+    <div class="interaction-hint">
+        Pinch to Zoom • Drag to Pan • Auto-layout fixed intersection
+    </div>
+
+    <div id="canvas-wrapper">
+        <svg id="main-svg" width="100%" height="100%">
+            <defs>
+                <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:var(--gradient-1);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:var(--gradient-2);stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:var(--accent-purple);stop-opacity:0.6" />
+                    <stop offset="100%" style="stop-color:var(--accent-cyan);stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <g id="viewport"></g>
+        </svg>
+    </div>
+
+<script>
+    const treeData = {
+        name: "Scale",
+        children: [
+            {
+                name: "Methods of Scaling",
+                children: [
+                    { name: "Numerical Scale", def: "A verbal statement relating map distance to ground distance.", ex: "1 cm = 100 m" },
+                    { name: "Graphical Scale", def: "A line subdivided into units; expands/shrinks with the map paper.", ex: "300m Line Graph" },
+                    { name: "Rep. Fraction (RF)", def: "Unitless ratio where map and ground units are identical.", ex: "1 : 50,000" }
+                ]
+            },
+            {
+                name: "Types of Scales",
+                children: [
+                    { name: "Plain Scale", def: "Measures two consecutive dimensions like meters and decimeters.", ex: "Reading 3.4 m" },
+                    { name: "Diagonal Scale", def: "Uses similar triangle logic to read three consecutive units accurately.", ex: "Reading 4.56 m" },
+                    {
+                        name: "Vernier Scale",
+                        children: [
+                            { name: "Direct Vernier", def: "Vernier divisions are shorter than main scale; moves in same direction.", ex: "Theodolite Scale" },
+                            { name: "Retrograde", def: "Vernier divisions are longer than main scale; moves in opposite direction.", ex: "Precise Comparison" }
+                        ]
+                    },
+                    { name: "Scale of Chords", def: "Used to plot or measure angles graphically based on chord lengths.", ex: "Angle 45° set" },
+                    { name: "Comparative", def: "Scales having the same RF but expressing different units (Metric/Imperial).", ex: "Miles & KM Map" }
+                ]
+            }
+        ]
+    };
+
+    const viewport = document.getElementById('viewport');
+    let state = {
+        scale: 0.7,
+        x: window.innerWidth / 2,
+        y: 80,
+        isDragging: false,
+        lastX: 0,
+        lastY: 0,
+        initialPinchDist: 0,
+        initialScale: 0.7
+    };
+
+    function createBezierRect(w, h) {
+        const r = 10;
+        return `M ${-w/2+r} ${-h/2} L ${w/2-r} ${-h/2} Q ${w/2} ${-h/2} ${w/2} ${-h/2+r} L ${w/2} ${h/2-r} Q ${w/2} ${h/2} ${w/2-r} ${h/2} L ${-w/2+r} ${h/2} Q ${-w/2} ${hh/2} ${-w/2} ${h/2-r} L ${-w/2} ${-h/2+r} Q ${-w/2} ${-h/2} ${-w/2+r} ${-h/2} Z`;
+    }
+
+    // Explicit path logic for the node
+    function getRectPath(w, h) {
+        return `M ${-w/2},${-h/2} h ${w} v ${h} h ${-w} z`;
+    }
+
+    function render(node, x, y, level, parentX, parentY) {
+        const isLeaf = !node.children || node.children.length === 0;
+        const width = level === 0 ? 220 : 170;
+        const height = level === 0 ? 60 : 45;
+
+        // Draw Connector Path
+        if (parentX !== undefined) {
+            const connector = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            const midY = (y + parentY) / 2;
+            const d = `M ${parentX} ${parentY + (level === 1 ? 30 : 22)} C ${parentX} ${midY}, ${x} ${midY}, ${x} ${y - 22}`;
+            connector.setAttribute("d", d);
+            connector.setAttribute("class", "connector");
+            viewport.appendChild(connector);
+        }
+
+        // Node Group
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("transform", `translate(${x}, ${y})`);
+        g.setAttribute("data-level", level);
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", -width/2);
+        rect.setAttribute("y", -height/2);
+        rect.setAttribute("width", width);
+        rect.setAttribute("height", height);
+        rect.setAttribute("rx", 10);
+        rect.setAttribute("class", "node-path");
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("class", "main-label");
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dy", "5");
+        text.textContent = node.name;
+
+        g.appendChild(rect);
+        g.appendChild(text);
+
+        // Auto-placed Definition Box (Leaves only)
+        if (isLeaf && node.def) {
+            const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+            fo.setAttribute("x", -width/2);
+            fo.setAttribute("y", 30);
+            fo.setAttribute("width", width);
+            fo.setAttribute("height", 200);
+
+            const div = document.createElement("div");
+            div.className = "def-box";
+            div.innerHTML = `<span class="def-title">${node.name}</span>${node.def}<span class="def-example">EX: ${node.ex}</span>`;
+            
+            fo.appendChild(div);
+            g.appendChild(fo);
+        }
+
+        viewport.appendChild(g);
+
+        if (node.children) {
+            // FIX: Significant increase in xGap for level 0 to separate the two main branches
+            const xGap = level === 0 ? 1000 : 200; 
+            const totalW = (node.children.length - 1) * xGap;
+            node.children.forEach((child, i) => {
+                const cx = x - totalW / 2 + i * xGap;
+                const cy = y + (level === 0 ? 220 : 280);
+                render(child, cx, cy, level + 1, x, y);
+            });
+        }
+    }
+
+    function update() {
+        viewport.setAttribute("transform", `translate(${state.x}, ${state.y}) scale(${state.scale})`);
+    }
+
+    const wrapper = document.getElementById('canvas-wrapper');
+
+    const handleStart = (ex, ey) => {
+        state.isDragging = true;
+        state.lastX = ex;
+        state.lastY = ey;
+    };
+
+    const handleMove = (e) => {
+        if (e.touches && e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (!state.initialPinchDist) {
+                state.initialPinchDist = dist;
+                state.initialScale = state.scale;
+            } else {
+                const zoomFactor = dist / state.initialPinchDist;
+                state.scale = Math.min(Math.max(state.initialScale * zoomFactor, 0.1), 3);
+                update();
+            }
+            return;
+        }
+
+        if (!state.isDragging) return;
+        const ex = e.touches ? e.touches[0].clientX : e.clientX;
+        const ey = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        state.x += ex - state.lastX;
+        state.y += ey - state.lastY;
+        state.lastX = ex;
+        state.lastY = ey;
+        update();
+    };
+
+    const handleEnd = () => {
+        state.isDragging = false;
+        state.initialPinchDist = 0;
+    };
+
+    wrapper.addEventListener('mousedown', (e) => handleStart(e.clientX, e.clientY));
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+
+    wrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) handleStart(e.touches[0].clientX, e.touches[0].clientY);
+    });
+    wrapper.addEventListener('touchmove', handleMove);
+    wrapper.addEventListener('touchend', handleEnd);
+
+    window.addEventListener('wheel', (e) => {
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        state.scale = Math.min(Math.max(state.scale * delta, 0.1), 3);
+        update();
+    }, { passive: false });
+
+    render(treeData, 0, 0, 0);
+    update();
+
+    window.onresize = () => {
+        state.x = window.innerWidth / 2;
+        update();
+    };
+</script>
+</body>
+</html>
+

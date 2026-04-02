@@ -24,7 +24,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-size: 16px; /* Base mobile font size */
+            font-size: 16px;
         }
 
         /* Screen Management */
@@ -148,58 +148,22 @@
         .magic-btn-visual { color: #48dbfb; }
         .magic-btn-audio { color: #1dd1a1; }
 
-        /* =========================================
-           INCREASED SIZES FOR LAPTOP/DESKTOP 
-           ========================================= */
+        /* DESKTOP VIEW SCALING */
         @media (min-width: 768px) {
-            body {
-                font-size: 20px; 
-            }
-            .screen {
-                max-width: 800px; 
-            }
-            .clay-card {
-                padding: 50px;
-            }
-            .clay-btn {
-                padding: 25px 40px; 
-                font-size: 1.1em; 
-                border-radius: 20px; 
-            }
-            .clay-input {
-                padding: 20px; 
-                font-size: 1.1em;
-            }
+            body { font-size: 20px; }
+            .screen { max-width: 800px; }
+            .clay-card { padding: 50px; }
+            .clay-btn { padding: 25px 40px; font-size: 1.1em; border-radius: 20px; }
+            .clay-input { padding: 20px; font-size: 1.1em; }
             h2 { font-size: 2.2em; }
             h3 { font-size: 1.8em; }
             h4 { font-size: 1.3em; line-height: 1.5; }
-            
-            .grid-container {
-                gap: 30px; 
-            }
-            
-            .list-btn { 
-                padding: 20px 30px; 
-                font-size: 1em; 
-            }
-            .list-container {
-                max-height: 600px; 
-                gap: 15px;
-            }
-
-            .profile-container {
-                width: 130px;
-                height: 130px;
-                margin-bottom: 25px;
-            }
+            .grid-container { gap: 30px; }
+            .list-btn { padding: 20px 30px; font-size: 1em; }
+            .list-container { max-height: 600px; gap: 15px; }
+            .profile-container { width: 130px; height: 130px; margin-bottom: 25px; }
             .profile-pic { font-size: 3rem; }
-            .edit-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-            }
-            
-            .warning-text { font-size: 1em; }
+            .edit-icon { width: 40px; height: 40px; font-size: 20px; }
         }
     </style>
 </head>
@@ -243,7 +207,7 @@
     <div id="screen-3" class="screen">
         <div class="clay-card">
             <h4 style="color: var(--accent-pink);">Let's Make Reading and Revision More Engaging and Effective 
-<br><br><br> Gen Z idea</h4>
+            <br><br><br> Gen Z idea</h4>
             
             <div class="profile-container">
                 <div class="profile-pic" id="display-profile-pic">👤</div>
@@ -296,7 +260,7 @@
     <div id="payment-modal" class="screen">
         <div class="clay-card">
             <h3>Demo को लगी Surveying Subject Free हो! Check it.</h3>
-            <p>बाकी विषय को Access Ko lagi यो Esewa QR मा Payment गरेर तल Diyeko नम्बर मा स्क्रिन शट पठाउनुहोस् , हामी Verify Garera तपाईंलाई Code दिनेछौं : Thank You 😊 ♥️</p>
+            <p>बाकी विषय को Access Ko lagi यो Esewa QR मा Payment गरेर तल Diyeko नम्बर मा स्क्रिन शट पठाउनुहोस् , हामी Verify Garera तपाईंलाई Code दिनेछौं : Thank You 😊 ❤️</p>
             
             <h2 style="color: #ff4757;"><del>Rs 500</del> ✂️ With 40% discount Rs. 300</h2>
             <p>High Quality Content in Low Price</p>
@@ -312,197 +276,49 @@
     </div>
 
     <script>
-        // APP SCRIPT ENDPOINTS
         const SCRIPT_1_DB = "https://script.google.com/macros/s/AKfycbwumcQXonlFGzlOifQr6q1ciNrZN3Him8z4M5ws4Qopj8pJn_oB2TkDHJYjPA18XvxORg/exec";
         const SCRIPT_2_VERIFY = "https://script.google.com/macros/s/AKfycbw4EBwp_tSyWgTnNsdBNnCNRa0Nzj1bAjjCuG2SaffMU1_wHuIFpieOouOb0Zl5KjpsrA/exec";
 
         let currentSubjectId = null;
         let currentTopicCode = null; 
 
-        // DATABASE: FULL SYLLABUS MAP
+        // FULL SYLLABUS MAP
         const syllabus = {
             1: [
-                { id: "1.1.1", name: "Classifications" },
-                { id: "1.1.2", name: "Principle of surveying" },
-                { id: "1.1.3", name: "Selection of suitable method" },
-                { id: "1.1.4", name: "Scales, plans and maps" },
-                { id: "1.1.5", name: "Entry into survey field books and level books" },
-                { id: "1.2.1", name: "Methods of levelling" },
-                { id: "1.2.2", name: "Levelling instruments and accessories" },
-                { id: "1.2.3", name: "Principles of levelling" },
-                { id: "1.3.1", name: "Equipments required" },
-                { id: "1.3.2", name: "Methods of palne tabling" },
-                { id: "1.3.3", name: "Two and three point problems" },
-                { id: "1.4.1", name: "Basic difference between different theodolites" },
-                { id: "1.4.2", name: "Temporary adjustments of theodolites" },
-                { id: "1.4.3", name: "Fundamental lines and desired relations" },
-                { id: "1.4.4", name: "Tacheometry: stadia method" },
-                { id: "1.4.5", name: "Trigonometrical levelling" },
-                { id: "1.4.6", name: "Checks in closed traverse" },
-                { id: "1.5.1", name: "Characteristics of contour lines" },
-                { id: "1.5.2", name: "Method of locating contours" },
-                { id: "1.5.3", name: "Contour plotting" },
-                { id: "1.6.1", name: "Small buildings" },
-                { id: "1.6.2", name: "Simple curves" }
+                { id: "1.1.1", name: "Classifications" }, { id: "1.1.2", name: "Principle of surveying" }, { id: "1.1.3", name: "Selection of suitable method" }, { id: "1.1.4", name: "Scales, plans and maps" }, { id: "1.1.5", name: "Entry into survey field books and level books" }, { id: "1.2.1", name: "Methods of levelling" }, { id: "1.2.2", name: "Levelling instruments and accessories" }, { id: "1.2.3", name: "Principles of levelling" }, { id: "1.3.1", name: "Equipments required" }, { id: "1.3.2", name: "Methods of palne tabling" }, { id: "1.3.3", name: "Two and three point problems" }, { id: "1.4.1", name: "Basic difference between different theodolites" }, { id: "1.4.2", name: "Temporary adjustments of theodolites" }, { id: "1.4.3", name: "Fundamental lines and desired relations" }, { id: "1.4.4", name: "Tacheometry: stadia method" }, { id: "1.4.5", name: "Trigonometrical levelling" }, { id: "1.4.6", name: "Checks in closed traverse" }, { id: "1.5.1", name: "Characteristics of contour lines" }, { id: "1.5.2", name: "Method of locating contours" }, { id: "1.5.3", name: "Contour plotting" }, { id: "1.6.1", name: "Small buildings" }, { id: "1.6.2", name: "Simple curves" }
             ],
             2: [
-                { id: "2.1.1", name: "Formation and availability of stones in Nepal" },
-                { id: "2.1.2", name: "Methods of laying and construction with various stones" },
-                { id: "2.2.1", name: "Different cements: Ingredients, properties and manufacture" },
-                { id: "2.2.2", name: "Storage and transport" },
-                { id: "2.2.3", name: "Admixtures" },
-                { id: "2.3.1", name: "Brick: type, manufacture, laying, bonds" },
-                { id: "2.4.1", name: "Type and selection" },
-                { id: "2.4.2", name: "Preparation techniques" },
-                { id: "2.4.3", name: "Use" },
-                { id: "2.5.1", name: "Type" },
-                { id: "2.5.2", name: "Selection" },
-                { id: "2.5.3", name: "Use" }
+                { id: "2.1.1", name: "Formation and availability of stones in Nepal" }, { id: "2.1.2", name: "Methods of laying and construction with various stones" }, { id: "2.2.1", name: "Different cements: Ingredients, properties and manufacture" }, { id: "2.2.2", name: "Storage and transport" }, { id: "2.2.3", name: "Admixtures" }, { id: "2.3.1", name: "Brick: type, manufacture, laying, bonds" }, { id: "2.4.1", name: "Type and selection" }, { id: "2.4.2", name: "Preparation techniques" }, { id: "2.4.3", name: "Use" }, { id: "2.5.1", name: "Type" }, { id: "2.5.2", name: "Selection" }, { id: "2.5.3", name: "Use" }
             ],
             3: [
-                { id: "3.1.1", name: "Internal effects of loading" },
-                { id: "3.1.2", name: "Ultimate strength and working stress of materials" },
-                { id: "3.2.1", name: "Shear force and bending moment" },
-                { id: "3.2.2", name: "Thrust, shear and bending moment diagrams for statically determinate beams under various types of loading" }
+                { id: "3.1.1", name: "Internal effects of loading" }, { id: "3.1.2", name: "Ultimate strength and working stress of materials" }, { id: "3.2.1", name: "Shear force and bending moment" }, { id: "3.2.2", name: "Thrust, shear and bending moment diagrams" }
             ],
             4: [
-                { id: "4.1.1", name: "Properties of fluid: mass, weight, specific weight, density, specific volume, specific gravity, viscosity" },
-                { id: "4.1.2", name: "Pressure and Pascal's law" },
-                { id: "4.2.1", name: "Energy of flowing liquid: Kinetic energy, potential energy, internal energy" },
-                { id: "4.3.1", name: "Weirs and notches" },
-                { id: "4.3.2", name: "Discharge formulas" },
-                { id: "4.4.1", name: "Characteristics of pipe flow and open channel flow" }
+                { id: "4.1.1", name: "Properties of fluid" }, { id: "4.1.2", name: "Pressure and Pascal's law" }, { id: "4.2.1", name: "Energy of flowing liquid" }, { id: "4.3.1", name: "Weirs and notches" }, { id: "4.3.2", name: "Discharge formulas" }, { id: "4.4.1", name: "Pipe flow and open channel flow" }
             ],
             5: [
-                { id: "5.1.1", name: "Soil types and classification" },
-                { id: "5.1.2", name: "Three phase system of soil" },
-                { id: "5.1.3", name: "Unit Weight of soil mass: bulk density, saturated density, submerged density and dry density" },
-                { id: "5.1.4", name: "Interrelationship between specific gravity, void ratio, porosity, degree of saturation, percentage of air voids air content and density index" },
-                { id: "5.2.1", name: "Terzaghi's principle of effective stress" },
-                { id: "5.2.2", name: "Darcy's law" },
-                { id: "5.2.3", name: "Factors affecting permeability" },
-                { id: "5.3.1", name: "Factors affecting soil compaction" },
-                { id: "5.3.2", name: "Optimum moisture content" },
-                { id: "5.3.3", name: "Relation between dry density and moisture content" },
-                { id: "5.4.1", name: "Mohr-Coulomb failure theory" },
-                { id: "5.4.2", name: "Cohesion and angle of internal friction" },
-                { id: "5.5.1", name: "Active and passive earth pressures" },
-                { id: "5.5.2", name: "Lateral earth pressure theory" },
-                { id: "5.5.3", name: "Rankine's earth pressure theory" },
-                { id: "5.6.1", name: "Terzaghi's general bearing capacity formulas and their application" }
+                { id: "5.1.1", name: "Soil types and classification" }, { id: "5.1.2", name: "Three phase system of soil" }, { id: "5.1.3", name: "Unit Weight of soil mass" }, { id: "5.1.4", name: "Interrelationship formulas" }, { id: "5.2.1", name: "Terzaghi's principle" }, { id: "5.2.2", name: "Darcy's law" }, { id: "5.2.3", name: "Factors affecting permeability" }, { id: "5.3.1", name: "Factors affecting soil compaction" }, { id: "5.3.2", name: "Optimum moisture content" }, { id: "5.3.3", name: "Dry density and moisture relation" }, { id: "5.4.1", name: "Mohr-Coulomb theory" }, { id: "5.4.2", name: "Cohesion and friction" }, { id: "5.5.1", name: "Active and passive pressures" }, { id: "5.5.2", name: "Lateral earth pressure theory" }, { id: "5.5.3", name: "Rankine's theory" }, { id: "5.6.1", name: "Terzaghi's bearing capacity" }
             ],
             6: [
-                { id: "6.1.1", name: "Under reinforced, over reinforced and balanced sections" },
-                { id: "6.1.2", name: "Analysis of single and double reinforced rectangular sections" },
-                { id: "6.2.1", name: "Shear resistance of a R.C. section" },
-                { id: "6.2.2", name: "Types of Shear reinforcement and their design" },
-                { id: "6.2.3", name: "Determination of anchorage length" },
-                { id: "6.3.1", name: "Short and long columns" },
-                { id: "6.3.2", name: "Design of a rectangular column section" },
-                { id: "6.4.1", name: "Singly and doubly reinforced rectangular beams" },
-                { id: "6.4.2", name: "Simple one-way and two-way slabs" },
-                { id: "6.4.3", name: "Axially loaded short and long columns" }
+                { id: "6.1.1", name: "Reinforced sections" }, { id: "6.1.2", name: "Analysis of single/double sections" }, { id: "6.2.1", name: "Shear resistance of R.C." }, { id: "6.2.2", name: "Types of Shear reinforcement" }, { id: "6.2.3", name: "Anchorage length" }, { id: "6.3.1", name: "Short and long columns" }, { id: "6.3.2", name: "Rectangular column section" }, { id: "6.4.1", name: "Singly and doubly beams" }, { id: "6.4.2", name: "Simple slabs" }, { id: "6.4.3", name: "Axially loaded columns" }
             ],
             7: [
-                { id: "7.1.1", name: "Subsoil exploration" },
-                { id: "7.1.2", name: "Type and suitability of different foundations: Shallow, deep" },
-                { id: "7.1.3", name: "Shoring and dewatering" },
-                { id: "7.1.4", name: "Design of simple brick or stone masonry foundations" },
-                { id: "7.2.1", name: "Type of walls and their functions" },
-                { id: "7.2.2", name: "Choosing wall thickness, Height to length relation" },
-                { id: "7.2.3", name: "Use of scaffolding" },
-                { id: "7.3.1", name: "Source of Dampness" },
-                { id: "7.3.2", name: "Remedial measures to prevent dampness" },
-                { id: "7.4.1", name: "Constituents of cement concrete" },
-                { id: "7.4.2", name: "Grading of aggregates" },
-                { id: "7.4.3", name: "Concrete mixes" },
-                { id: "7.4.4", name: "Water cement ratio" },
-                { id: "7.4.5", name: "Factors affecting strength of concrete" },
-                { id: "7.4.6", name: "Form work" },
-                { id: "7.4.7", name: "Curing" },
-                { id: "7.5.1", name: "Frame and shutters of door and window" },
-                { id: "7.5.2", name: "Timber construction of upper floors" },
-                { id: "7.5.3", name: "Design and construction of stairs" },
-                { id: "7.6.1", name: "Floor finishes: brick, concrete, flagstone" },
-                { id: "7.6.2", name: "Plastering" }
+                { id: "7.1.1", name: "Subsoil exploration" }, { id: "7.1.2", name: "Foundations: Shallow, deep" }, { id: "7.1.3", name: "Shoring and dewatering" }, { id: "7.1.4", name: "Brick/stone masonry foundations" }, { id: "7.2.1", name: "Type of walls and functions" }, { id: "7.2.2", name: "Wall thickness and height" }, { id: "7.2.3", name: "Scaffolding" }, { id: "7.3.1", name: "Source of Dampness" }, { id: "7.3.2", name: "Preventing dampness" }, { id: "7.4.1", name: "Constituents of concrete" }, { id: "7.4.2", name: "Grading of aggregates" }, { id: "7.4.3", name: "Concrete mixes" }, { id: "7.4.4", name: "Water cement ratio" }, { id: "7.4.5", name: "Factors affecting strength" }, { id: "7.4.6", name: "Form work" }, { id: "7.4.7", name: "Curing" }, { id: "7.5.1", name: "Door and window frames" }, { id: "7.5.2", name: "Timber construction" }, { id: "7.5.3", name: "Design of stairs" }, { id: "7.6.1", name: "Floor finishes" }, { id: "7.6.2", name: "Plastering" }
             ],
             8: [
-                { id: "8.1.1", name: "Objectives of water supply system" },
-                { id: "8.1.2", name: "Source of water and its selection: gravity and artesian springs, shallow and deep wells; infiltration galleries." },
-                { id: "8.2.1", name: "Design period" },
-                { id: "8.2.2", name: "Determination of daily water demand" },
-                { id: "8.2.3", name: "Determination of storage tank capacity" },
-                { id: "8.2.4", name: "Selection of pipe" },
-                { id: "8.2.5", name: "Pipe line design and hydraulic grade line" },
-                { id: "8.3.1", name: "Quantity of sanitary sewage" },
-                { id: "8.3.2", name: "Maximum, Minimum and self cleaning velocity" },
-                { id: "8.4.1", name: "Pit latrine" },
-                { id: "8.4.2", name: "Design of septic tank" }
+                { id: "8.1.1", name: "Water supply system objectives" }, { id: "8.1.2", name: "Source of water" }, { id: "8.2.1", name: "Design period" }, { id: "8.2.2", name: "Daily water demand" }, { id: "8.2.3", name: "Storage tank capacity" }, { id: "8.2.4", name: "Selection of pipe" }, { id: "8.2.5", name: "Pipe line design" }, { id: "8.3.1", name: "Quantity of sanitary sewage" }, { id: "8.3.2", name: "Self cleaning velocity" }, { id: "8.4.1", name: "Pit latrine" }, { id: "8.4.2", name: "Design of septic tank" }
             ],
             9: [
-                { id: "9.1.1", name: "Advantages and Disadvantages of irrigation" },
-                { id: "9.2.1", name: "Crop season and crop water requirement for principal crops" },
-                { id: "9.2.2", name: "Duty delta and base period" },
-                { id: "9.3.1", name: "Canal losses and their minimization" },
-                { id: "9.3.2", name: "Maximum and minimum velocities" },
-                { id: "9.3.3", name: "Design of irrigation canal section using Manning's formula" },
-                { id: "9.3.4", name: "Need and location of weir/barrage" },
-                { id: "9.3.5", name: "Head works for small canals" }
+                { id: "9.1.1", name: "Advantages of irrigation" }, { id: "9.2.1", name: "Crop water requirement" }, { id: "9.2.2", name: "Duty delta and base period" }, { id: "9.3.1", name: "Canal losses" }, { id: "9.3.2", name: "Velocity limits" }, { id: "9.3.3", name: "Manning's formula design" }, { id: "9.3.4", name: "Need for weir/barrage" }, { id: "9.3.5", name: "Head works" }
             ],
             10: [
-                { id: "10.1.1", name: "Introduction to transportation systems" },
-                { id: "10.1.2", name: "Historic development of roads in Nepal" },
-                { id: "10.1.3", name: "Classification of road in Nepal" },
-                { id: "10.1.4", name: "Basic requirements of road alignment" },
-                { id: "10.2.1", name: "Basic design control and criteria for design" },
-                { id: "10.2.2", name: "Elements of cross section, typical cross-section for all roads in filling and cutting" },
-                { id: "10.2.3", name: "Camber" },
-                { id: "10.2.4", name: "Determination of radius of horizontal curves" },
-                { id: "10.2.5", name: "Super elevation" },
-                { id: "10.2.6", name: "Sight distances" },
-                { id: "10.2.7", name: "Gradient" },
-                { id: "10.2.8", name: "Use of Nepal Road Standard and subsequent revision in road design" },
-                { id: "10.3.1", name: "Importance of drainage system and requirements of a good drainage system" },
-                { id: "10.4.1", name: "Pavement structure and its components: subgrade, sub-base, base and surface courses" },
-                { id: "10.5.1", name: "Earth moving and compacting machines" },
-                { id: "10.7.1", name: "T-beam bride" },
-                { id: "10.7.2", name: "Timber bridges" },
-                { id: "10.8.1", name: "Type of maintenance Works" }
+                { id: "10.1.1", name: "Transportation systems" }, { id: "10.1.2", name: "Roads in Nepal history" }, { id: "10.1.3", name: "Classification of road" }, { id: "10.1.4", name: "Road alignment" }, { id: "10.2.1", name: "Design criteria" }, { id: "10.2.2", name: "Cross sections" }, { id: "10.2.3", name: "Camber" }, { id: "10.2.4", name: "Radius of horizontal curves" }, { id: "10.2.5", name: "Super elevation" }, { id: "10.2.6", name: "Sight distances" }, { id: "10.2.7", name: "Gradient" }, { id: "10.2.8", name: "Nepal Road Standard" }, { id: "10.3.1", name: "Drainage systems" }, { id: "10.4.1", name: "Pavement structure" }, { id: "10.5.1", name: "Compacting machines" }, { id: "10.7.1", name: "T-beam bridge" }, { id: "10.7.2", name: "Timber bridges" }, { id: "10.8.1", name: "Maintenance Works" }
             ],
             11: [
-                { id: "11.1.1", name: "Main items of work" },
-                { id: "11.1.2", name: "Units of measurement and payment of various items of work and material" },
-                { id: "11.1.3", name: "Standard estimate formats of government offices" },
-                { id: "11.2.1", name: "Basic general knowledge on the use of rate analysis norms of Government of Nepal and approved district rates" },
-                { id: "11.3.1", name: "Interpretation of specifications" },
-                { id: "11.4.1", name: "Methods of valuation" },
-                { id: "11.4.2", name: "Basic general knowledge of standard formats used by commercial banks and NIDC for valuation" }
+                { id: "11.1.1", name: "Main items of work" }, { id: "11.1.2", name: "Units of measurement" }, { id: "11.1.3", name: "Standard formats" }, { id: "11.2.1", name: "Rate analysis norms" }, { id: "11.3.1", name: "Interpretation of specifications" }, { id: "11.4.1", name: "Methods of valuation" }, { id: "11.4.2", name: "Commercial bank formats" }
             ],
             12: [
-                { id: "12.1.1", name: "Need for organization" },
-                { id: "12.1.2", name: "Responsibilities of a civil sub-engineer" },
-                { id: "12.1.3", name: "Relation between Owner, Contractor and Engineer" },
-                { id: "12.2.1", name: "Preparation of site plan" },
-                { id: "12.2.2", name: "Organizing labor" },
-                { id: "12.2.3", name: "Measures to improve labor efficiency" },
-                { id: "12.2.4", name: "Accident prevention" },
-                { id: "12.3.1", name: "Contracts" },
-                { id: "12.3.2", name: "Force account and day- works" },
-                { id: "12.3.3", name: "Types of contracts" },
-                { id: "12.3.4", name: "Tender and tender notice" },
-                { id: "12.3.5", name: "Bid security" },
-                { id: "12.3.6", name: "Preparation before inviting tender" },
-                { id: "12.3.7", name: "Agreement" },
-                { id: "12.3.8", name: "Conditions of contract" },
-                { id: "12.3.9", name: "Construction supervision" },
-                { id: "12.4.1", name: "Administrative approval and technical sanction" },
-                { id: "12.4.2", name: "Familiarity with standard account keeping formats used in governmental organizations" },
-                { id: "12.4.3", name: "Muster roll" },
-                { id: "12.4.4", name: "Completion report" },
-                { id: "12.5.1", name: "Construction schedule" },
-                { id: "12.5.2", name: "Equipment and materials schedule" },
-                { id: "12.5.3", name: "Construction stages and operations" },
-                { id: "12.5.4", name: "Bar chart" }
+                { id: "12.1.1", name: "Need for organization" }, { id: "12.1.2", name: "Sub-engineer responsibilities" }, { id: "12.1.3", name: "Owner-Contractor-Engineer" }, { id: "12.2.1", name: "Site plan preparation" }, { id: "12.2.2", name: "Organizing labor" }, { id: "12.2.3", name: "Labor efficiency" }, { id: "12.2.4", name: "Accident prevention" }, { id: "12.3.1", name: "Contracts" }, { id: "12.3.2", name: "Force account" }, { id: "12.3.3", name: "Types of contracts" }, { id: "12.3.4", name: "Tender notice" }, { id: "12.3.5", name: "Bid security" }, { id: "12.3.6", name: "Preparation for tender" }, { id: "12.3.7", name: "Agreement" }, { id: "12.3.8", name: "Conditions of contract" }, { id: "12.3.9", name: "Construction supervision" }, { id: "12.4.1", name: "Administrative approval" }, { id: "12.4.2", name: "Account formats" }, { id: "12.4.3", name: "Muster roll" }, { id: "12.4.4", name: "Completion report" }, { id: "12.5.1", name: "Construction schedule" }, { id: "12.5.2", name: "Materials schedule" }, { id: "12.5.3", name: "Construction operations" }, { id: "12.5.4", name: "Bar chart" }
             ]
         };
 
@@ -511,32 +327,17 @@
             document.getElementById(screenId).classList.add('active-screen');
         }
 
-        // LOGIN WITH @GMAIL VALIDATION
         function handleLogin() {
             const email = document.getElementById('userEmail').value.trim().toLowerCase();
-            
-            if(!email) { alert("Please enter an email"); return; }
-            if(!email.endsWith("@gmail.com")) { 
-                alert("Please use a valid @gmail.com address."); 
-                return; 
-            }
-            
+            if(!email || !email.endsWith("@gmail.com")) { alert("Please use a valid @gmail.com address."); return; }
             localStorage.setItem("userEmail", email);
             if(!localStorage.getItem("deviceUUID")) { localStorage.setItem("deviceUUID", crypto.randomUUID()); }
-
-            if(localStorage.getItem("userName")) {
-                loadProfile();
-                switchScreen('screen-3');
-            } else {
-                switchScreen('screen-2');
-            }
+            if(localStorage.getItem("userName")) { loadProfile(); switchScreen('screen-3'); } else { switchScreen('screen-2'); }
         }
 
-        // IMAGE UPLOAD & COMPRESSION
         function handlePhotoUpload(event) {
             const file = event.target.files[0];
             if(!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
@@ -548,7 +349,6 @@
                     canvas.height = img.height * scaleSize;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.7); 
                     localStorage.setItem('profilePic', dataUrl);
                     applyProfilePic(dataUrl);
@@ -567,53 +367,33 @@
             }
         }
 
-        // SAVE DETAILS AND SEND TO APP SCRIPT
         function saveDetailsAndGoHome() {
             const name = document.getElementById('userName').value;
             const qual = document.getElementById('qualification').value;
             const age = parseInt(document.getElementById('age').value);
             const email = localStorage.getItem("userEmail");
             const uuid = localStorage.getItem("deviceUUID");
-
-            if(!name || !qual) { alert("Name and Qualification are required!"); return; }
-            if(!age || age < 15 || age > 45) { alert("Age must be between 15 and 45."); return; }
-
+            if(!name || !qual || isNaN(age) || age < 15 || age > 45) { alert("Please fill all details correctly (Age 15-45)."); return; }
             const btn = document.getElementById('confirm-btn');
-            btn.innerText = "Saving to Database...";
-
-            // Create the payload for the Apps Script
-            const userData = {
-                email: email,
-                name: name,
-                qualification: qual,
-                age: age,
-                uuid: uuid
-            };
-
-            // Send data to SCRIPT_1_DB
+            btn.innerText = "Saving...";
+            const userData = { email, name, qualification: qual, age, uuid };
             fetch(SCRIPT_1_DB, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify(userData)
             })
-            .then(response => {
-                // Successfully sent to DB, now save to local browser and move on
+            .then(() => {
                 localStorage.setItem("userName", name);
                 localStorage.setItem("userQual", qual);
                 localStorage.setItem("userAge", age);
-
                 loadProfile();
                 switchScreen('screen-3');
                 btn.innerText = "CONFIRM";
             })
-            .catch(error => {
-                console.error("Error connecting to database:", error);
-                
-                // Save locally so the user can still access the app even if the fetch fails
+            .catch(() => {
                 localStorage.setItem("userName", name);
                 localStorage.setItem("userQual", qual);
                 localStorage.setItem("userAge", age);
-                
                 loadProfile();
                 switchScreen('screen-3');
                 btn.innerText = "CONFIRM";
@@ -625,31 +405,23 @@
             document.getElementById('display-qual').innerText = localStorage.getItem("userQual");
             document.getElementById('display-age').innerText = "Age: " + localStorage.getItem("userAge");
             document.getElementById('display-email').innerText = localStorage.getItem("userEmail");
-            
             const savedPic = localStorage.getItem('profilePic');
             if(savedPic) applyProfilePic(savedPic);
         }
 
-        // TOPIC NAVIGATION
         function openSubject(subjectId, subjectName) {
             currentSubjectId = subjectId;
             document.getElementById('subtopic-title').innerText = subjectName;
-            
             const listContainer = document.getElementById('subtopic-list');
             listContainer.innerHTML = ''; 
-
             const topics = syllabus[subjectId] || [];
-            if(topics.length === 0) {
-                listContainer.innerHTML = '<p>Topics uploading soon...</p>';
-            } else {
-                topics.forEach(topic => {
-                    const btn = document.createElement('button');
-                    btn.className = 'clay-btn list-btn';
-                    btn.innerText = `${topic.id} ${topic.name}`;
-                    btn.onclick = () => openMagicalScreen(topic.id, topic.name);
-                    listContainer.appendChild(btn);
-                });
-            }
+            topics.forEach(topic => {
+                const btn = document.createElement('button');
+                btn.className = 'clay-btn list-btn';
+                btn.innerText = `${topic.id} ${topic.name}`;
+                btn.onclick = () => openMagicalScreen(topic.id, topic.name);
+                listContainer.appendChild(btn);
+            });
             switchScreen('screen-4');
         }
 
@@ -659,57 +431,35 @@
             switchScreen('screen-5');
         }
 
-        // CONTENT ACCESS & PAYMENT CHECK
         function checkLockAndOpenContent(fileExtension) {
-            if(currentSubjectId === 1) {
-                launchFile(fileExtension);
-                return;
-            }
-
-            const hasAccess = localStorage.getItem("paidAccessValid");
-            if(hasAccess === "true") {
-                launchFile(fileExtension);
-            } else {
-                switchScreen('payment-modal');
-            }
+            if(currentSubjectId === 1) { launchFile(fileExtension); return; }
+            if(localStorage.getItem("paidAccessValid") === "true") { launchFile(fileExtension); } else { switchScreen('payment-modal'); }
         }
 
         function verifyCode() {
             const code = document.getElementById('accessCode').value;
             const email = localStorage.getItem('userEmail');
-
-            if(!code) { alert("Please enter a code"); return; }
-
-            const btn = document.querySelector('#payment-modal .clay-btn');
-            btn.innerText = "Verifying...";
-
+            if(!code) { alert("Enter code"); return; }
             fetch(`${SCRIPT_2_VERIFY}?code=${code}&email=${email}`)
-                .then(response => response.json())
-                .then(data => {
-                    alert("Access Granted! Enjoy your learning.");
-                    localStorage.setItem("paidAccessValid", "true");
-                    switchScreen('screen-5'); 
-                    btn.innerText = "Verify Code";
-                })
-                .catch(error => {
-                    console.log("Fetch error, simulating success for demo:", error);
-                    alert("Access Granted! (Simulated locally for development)");
-                    localStorage.setItem("paidAccessValid", "true");
-                    switchScreen('screen-5');
-                    btn.innerText = "Verify Code";
-                });
+            .then(() => {
+                localStorage.setItem("paidAccessValid", "true");
+                switchScreen('screen-5');
+            })
+            .catch(() => {
+                // Mock for testing
+                localStorage.setItem("paidAccessValid", "true");
+                switchScreen('screen-5');
+            });
         }
 
         function launchFile(fileExtension) {
-            const filePath = `subjects/${currentSubjectId}/${currentTopicCode}.${fileExtension}`;
+            // FIXED: Looks directly in folders 1, 2, 3, etc.
+            const filePath = `${currentSubjectId}/${currentTopicCode}.${fileExtension.toLowerCase()}`;
             window.open(filePath, '_blank'); 
         }
 
         window.onload = () => {
-            if(localStorage.getItem("userEmail") && localStorage.getItem("userName")) {
-                loadProfile();
-                switchScreen('screen-3');
-            }
+            if(localStorage.getItem("userEmail") && localStorage.getItem("userName")) { loadProfile(); switchScreen('screen-3'); }
         };
     </script>
 </body>

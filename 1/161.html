@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civil Engineering: Exam Mastery</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #e2e8f0;
+            padding: 5px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            gap: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s;
+            color: #64748b;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .content-section { display: none; animation: fadeIn 0.4s ease; }
+        .content-section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 6px solid var(--secondary);
+        }
+
+        h2 { color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        h3 { color: var(--secondary); margin: 20px 0 10px; }
+
+        .definition {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 15px;
+            border-radius: 8px;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .method-list { list-style: none; margin-bottom: 20px; }
+        .method-list li {
+            padding: 8px 0 8px 30px;
+            position: relative;
+        }
+        .method-list li::before {
+            content: "📍";
+            position: absolute;
+            left: 0;
+        }
+
+        .deep-dive {
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 6px solid var(--accent);
+        }
+
+        .step-box {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .exam-gold {
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 20px;
+            border: 1px solid #a7f3d0;
+        }
+
+        .formula-box {
+            background: #1e293b;
+            color: #38bdf8;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .mnemonic {
+            display: inline-block;
+            background: #ede9fe;
+            color: #5b21b6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Setting Out</h1>
+        <p>Simplified Study Guide for High Marks</p>
+    </header>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('building')">Building Layout</button>
+        <button class="tab-btn" onclick="switchTab('curve')">Circular Curves</button>
+    </div>
+
+    <!-- BUILDING SECTION -->
+    <div id="building" class="content-section active">
+        <div class="card">
+            <h2>Setting Out Buildings</h2>
+            <div class="definition">
+                "The process of establishing the center lines of walls and excavation trenches on the ground based on the structural plan."
+            </div>
+
+            <h3>All Methods for Small Buildings:</h3>
+            <ul class="method-list">
+                <li><strong>Circumference Method:</strong> Setting out the outer boundary of the building.</li>
+                <li><strong>Center-Line Method:</strong> The standard engineering approach for foundations.</li>
+                <li><strong>3-4-5 Method:</strong> A geometric tool used within any layout to check for squareness.</li>
+            </ul>
+
+            <div class="deep-dive">
+                <h3>⭐ Detail Focus: The Center-Line Method</h3>
+                <p>This is the most reliable method because it directly relates to the column and wall axes. It uses string lines to represent the center of every structural element.</p>
+                
+                <div class="step-box"><strong>Step 1: Establishment of Baseline</strong><br>A main baseline is established parallel to a permanent feature (like a road). The first wall center is located from this line.</div>
+                
+                <div class="step-box"><strong>Step 2: Marking Main Corners</strong><br>The four main corners of the building are located using theodolite or tape (via 3-4-5 rule) to ensure they are perfectly rectangular.</div>
+                
+                <div class="step-box"><strong>Step 3: Fixing Profile Boards (Batter Boards)</strong><br>Wooden boards are driven into the ground approx. 2m outside the building area. This ensures they aren't disturbed during excavation.</div>
+                
+                <div class="step-box"><strong>Step 4: Stretching String Lines</strong><br>Nails are driven into the profile boards. String (nylon twine) is stretched between nails to represent the center lines of all walls.</div>
+                
+                <div class="step-box"><strong>Step 5: Transferring to Ground</strong><br>Plumb bobs are dropped from the string intersections to mark the center line on the soil. Trench widths are then measured out from these center lines.</div>
+
+                <div class="exam-gold">
+                    HIGH-MARK TIP: Mention that the "Height" or "Level" of the profile boards is usually set to the Plinth Level using a Leveling instrument. This allows the boards to serve as a reference for both position AND depth.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CURVE SECTION -->
+    <div id="curve" class="content-section">
+        <div class="card">
+            <h2>Setting Out Simple Circular Curves</h2>
+            <div class="definition">
+                "Connecting two straight paths (tangents) with a single circular arc of constant radius (R)."
+            </div>
+
+            <h3>Methods Categorized:</h3>
+            <p><strong>1. Linear Methods (Tape only):</strong></p>
+            <ul class="method-list">
+                <li>Offsets from Long Chord</li>
+                <li>Successive Bisection of Arcs</li>
+                <li>Offsets from Tangents</li>
+            </ul>
+            <p><strong>2. Angular Methods (Instruments):</strong></p>
+            <ul class="method-list">
+                <li>Rankine’s Method (Single Theodolite)</li>
+                <li>Two-Theodolite Method (No Tape needed)</li>
+                <li>Tacheometric Method</li>
+            </ul>
+
+            <div class="deep-dive">
+                <h3>⭐ Detail Focus: Rankine's Method (Deflection Angles)</h3>
+                <p>This is the standard high-accuracy method used in actual field work and the most common exam question.</p>
+                
+                <p><strong>The Core Formula:</strong></p>
+                <div class="formula-box">
+                    δ = (1718.9 × c) / R (minutes)
+                </div>
+                <p><small>δ = Deflection angle, c = Chord length, R = Radius</small></p>
+
+                <div class="step-box"><strong>Step 1:</strong> Set up theodolite at the Tangent Point (T₁).</div>
+                <div class="step-box"><strong>Step 2:</strong> Sight the point of intersection (V) with a reading of 0°0'0".</div>
+                <div class="step-box"><strong>Step 3:</strong> Calculate the first deflection angle (δ₁) for the first chord.</div>
+                <div class="step-box"><strong>Step 4:</strong> Turn the theodolite to angle δ₁ and measure distance 'c' from T₁ to locate the first point.</div>
+                <div class="step-box"><strong>Step 5:</strong> Repeat for subsequent points using cumulative angles.</div>
+
+                <div class="exam-gold">
+                    EXAM TIP: Always draw a small sketch of a curve showing T₁, T₂, R, and the deflection angle Δ. This easily adds 2-3 extra marks!
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <span class="mnemonic">MNEMONIC</span> 
+                    <strong>R-A-T:</strong> <b>R</b>ankine = <b>A</b>ngular + <b>T</b>ape.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(tabId) {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        document.getElementById(tabId).classList.add('active');
+        const activeBtn = Array.from(document.querySelectorAll('.tab-btn'))
+            .find(btn => btn.getAttribute('onclick').includes(tabId));
+        activeBtn.classList.add('active');
+    }
+</script>
+
+</body>
+</html>
+

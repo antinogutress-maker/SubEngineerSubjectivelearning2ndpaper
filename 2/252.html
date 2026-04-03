@@ -238,15 +238,34 @@
     <!-- ========================================== -->
     <script>
         const MASTER_GAME_DATA = {
-            gameTitle: "Application of Paints",
-            // The steps MUST be in the correct sequential order here.
+            gameTitle: "Application of Paint (General Solid Surfaces)",
+            // The steps are in the correct sequential order for general surfaces like masonry or metal.
             steps: [
-                { id: 1, title: "Preparation of Surface", note: "The surface is thoroughly cleaned, rubbed with sandpaper, and freed from dirt, dust, or grease." },
-                { id: 2, title: "Knotting", note: "Knots in woodwork are covered with a sealing substance to prevent resin from exuding and ruining the paint." },
-                { id: 3, title: "Priming", note: "The first coat (primer) is applied to fill the pores of the surface and provide good adhesion." },
-                { id: 4, title: "Stopping", note: "Nail holes, cracks, and dents are filled with putty and rubbed smooth after the primer has dried." },
-                { id: 5, title: "Undercoating", note: "The second coat is applied to build up the surface, hide the background, and provide a uniform color base." },
-                { id: 6, title: "Finishing", note: "The final coat is applied carefully to provide the desired weather resistance, protection, and glossy appearance." }
+                { 
+                    id: 1, 
+                    title: "Surface Preparation", 
+                    note: "The surface is cleaned of dust, grease, and loose scales. For metal, rust is removed; for masonry, efflorescence is brushed off." 
+                },
+                { 
+                    id: 2, 
+                    title: "Priming", 
+                    note: "An initial coat (primer) is applied to seal the surface, prevent suction, and provide a strong bond for subsequent layers." 
+                },
+                { 
+                    id: 3, 
+                    title: "Stopping", 
+                    note: "Small cracks, holes, or surface irregularities are filled with appropriate fillers or putty to create a level plane." 
+                },
+                { 
+                    id: 4, 
+                    title: "Undercoating", 
+                    note: "This coat provides opacity, builds up the film thickness, and ensures a uniform color before the final finish is applied." 
+                },
+                { 
+                    id: 5, 
+                    title: "Finishing", 
+                    note: "The final coat is applied to provide the desired texture, gloss, and a durable protective layer against the environment." 
+                }
             ]
        
         };

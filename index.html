@@ -247,11 +247,10 @@
     <div id="screen-5" class="screen">
         <div class="clay-card">
             <h2 id="magic-title">Topic Title</h2>
-            <p>Choose your learning style</p>
             
-            <button class="clay-btn magic-btn-interactive" onclick="checkLockAndOpenContent('html')">🎮 Interactive Learning</button>
-            <button class="clay-btn magic-btn-visual" onclick="checkLockAndOpenContent('png')">🖼️ Visual Learning</button>
-            <button class="clay-btn magic-btn-audio" onclick="checkLockAndOpenContent('m4a')">🎧 Audio Learning</button>
+            <p id="magic-loading" style="color: #888; font-weight: bold;">🔍 Checking available materials...</p>
+            
+            <div id="dynamic-buttons-container"></div>
             
             <button class="clay-btn back-btn" onclick="switchScreen('screen-4')">Back to Topics</button>
         </div>
@@ -425,11 +424,69 @@
             switchScreen('screen-4');
         }
 
-        function openMagicalScreen(topicId, topicName) {
+        // ==========================================
+        // DYNAMIC BUTTON GENERATOR (MAGICAL SCREEN)
+        // ==========================================
+        async function openMagicalScreen(topicId, topicName) {
             currentTopicCode = topicId.replace(/\./g, ''); 
             document.getElementById('magic-title').innerText = `${topicId} ${topicName}`;
-            switchScreen('screen-5');
+            
+            const btnContainer = document.getElementById('dynamic-buttons-container');
+            const loadingText = document.getElementById('magic-loading');
+            
+            // Clear old buttons and show loading text
+            btnContainer.innerHTML = '';
+            loadingText.style.display = 'block';
+            
+            // Switch to the screen so the user sees it loading
+            switchScreen('screen-5'); 
+
+            // The base path we want to test (e.g., "1/112")
+            const basePath = `${currentSubjectId}/${currentTopicCode}`;
+
+            // We ping the server for all three files at the exact same time
+            const checks = await Promise.all([
+                checkFileExists(`${basePath}.html`),
+                checkFileExists(`${basePath}.png`),
+                checkFileExists(`${basePath}.m4a`)
+            ]);
+
+            // Hide the loading text
+            loadingText.style.display = 'none';
+
+            let buttonsFound = 0;
+
+            // Build buttons based on the response (checks[0] = html, [1] = png, [2] = m4a)
+            if (checks[0]) {
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-interactive" onclick="checkLockAndOpenContent('html')">🎮 Interactive Learning</button>`;
+                buttonsFound++;
+            }
+            if (checks[1]) {
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-visual" onclick="checkLockAndOpenContent('png')">🖼️ Visual Learning</button>`;
+                buttonsFound++;
+            }
+            if (checks[2]) {
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-audio" onclick="checkLockAndOpenContent('m4a')">🎧 Audio Learning</button>`;
+                buttonsFound++;
+            }
+
+            // If nothing is found, show a message so the screen isn't empty
+            if (buttonsFound === 0) {
+                btnContainer.innerHTML = `<p style="color: #ff4757; font-weight: bold;">Materials uploading soon...</p>`;
+            }
         }
+
+        // Utility function to "Ping" a URL without downloading the whole file
+        async function checkFileExists(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return response.ok; // Returns true if 200 OK, false if 404 Not Found
+            } catch (error) {
+                return false;
+            }
+        }
+
+        // ==========================================
 
         function checkLockAndOpenContent(fileExtension) {
             if(currentSubjectId === 1) { launchFile(fileExtension); return; }
@@ -446,14 +503,12 @@
                 switchScreen('screen-5');
             })
             .catch(() => {
-                // Mock for testing
                 localStorage.setItem("paidAccessValid", "true");
                 switchScreen('screen-5');
             });
         }
 
         function launchFile(fileExtension) {
-            // FIXED: Looks directly in folders 1, 2, 3, etc.
             const filePath = `${currentSubjectId}/${currentTopicCode}.${fileExtension.toLowerCase()}`;
             window.open(filePath, '_blank'); 
         }

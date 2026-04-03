@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Dry Process Cement Flowchart</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+        :root {
+            /* Core HUD Colors */
+            --bg-void: #060913;
+            --panel-bg: rgba(10, 15, 30, 0.7);
+            --panel-border: rgba(0, 240, 255, 0.2);
+            --text-glow: #e2e8f0;
+            
+            /* Highly Vibrant Material Colors */
+            --c-lime: #00ffff;    /* Cyan Limestone */
+            --c-clay: #ff8c00;    /* Amber Clay */
+            --c-mix:  #39ff14;    /* Neon Green Raw Mix */
+            --c-fire: #ff0055;    /* Intense Magenta/Red Fire */
+            --c-clink: #b800e6;   /* Purple Glowing Clinker */
+            --c-gyps: #ffffff;    /* Pure White Gypsum */
+            --c-cem:  #8ab4f8;    /* Silver-Blue Cement */
+
+            /* Dynamic Physics Speeds */
+            --speed-global: 3s;
+            --gear-speed: 4s;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-void);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.05) 0%, transparent 60%),
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 50px 50px, 50px 50px;
+            color: var(--text-glow);
+            font-family: 'Rajdhani', sans-serif;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* --- Automated Dashboard --- */
+        .dashboard {
+            width: 420px;
+            height: 100%;
+            background: var(--panel-bg);
+            border-right: 2px solid var(--panel-border);
+            box-shadow: 15px 0 50px rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            padding: 35px;
+            z-index: 10;
+            backdrop-filter: blur(15px);
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--c-lime);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        .header p {
+            color: #8ab4f8;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+        }
+
+        /* Telemetry Panel */
+        .telemetry {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .metric-box {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-box::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--active-color, var(--c-lime));
+            box-shadow: 0 0 10px var(--active-color, var(--c-lime));
+        }
+
+        .metric-label { font-size: 0.85rem; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px; }
+        .metric-value { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 700; margin-top: 5px; color: #fff; }
+
+        /* Auto-Stepping Status Cards */
+        .status-display {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .status-display::-webkit-scrollbar { width: 4px; }
+        .status-display::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 4px; }
+
+        .status-card {
+            border-left: 3px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.02);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        .status-card::after {
+            content: ''; position: absolute; top: 50%; left: -3px; width: 3px; height: 0%;
+            background: var(--card-color);
+            transition: height 0.5s ease, top 0.5s ease;
+            box-shadow: 0 0 15px var(--card-color);
+        }
+
+        .status-card.active {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(10px);
+        }
+
+        .status-card.active::after { top: 0; height: 100%; }
+
+        .status-card h3 { 
+            font-size: 1.2rem; 
+            margin-bottom: 8px; 
+            color: var(--card-color);
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+        .status-card p { font-size: 0.95rem; color: #94a3b8; line-height: 1.5; }
+
+        /* --- Simulator Canvas --- */
+        .canvas-container {
+            flex-grow: 1;
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 40px;
+            background: radial-gradient(circle at center, rgba(0, 240, 255, 0.03) 0%, transparent 70%);
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            max-height: 2400px;
+            max-width: 1600px;
+            filter: drop-shadow(0 25px 50px rgba(0,0,0,0.9));
+        }
+
+        /* --- Animations & Engineering Physics --- */
+        
+        /* Continuous Particle Flow */
+        .particle {
+            offset-path: var(--path);
+            animation: flow var(--speed-global) linear infinite;
+            animation-delay: var(--delay);
+            opacity: 0.9;
+        }
+
+        @keyframes flow {
+            0% { offset-distance: 0%; transform: rotate(0deg) scale(0.9); }
+            100% { offset-distance: 100%; transform: rotate(360deg) scale(0.9); }
+        }
+
+        /* Smooth Counter-Rotating Crushers */
+        .roller-ccw {
+            animation: spin-ccw var(--gear-speed) linear infinite;
+            transform-box: fill-box; transform-origin: center;
+        }
+        .roller-cw {
+            animation: spin-cw var(--gear-speed) linear infinite;
+            transform-box: fill-box; transform-origin: center;
+        }
+
+        @keyframes spin-cw { 100% { transform: rotate(360deg); } }
+        @keyframes spin-ccw { 100% { transform: rotate(-360deg); } }
+
+        /* Kiln Rotation */
+        .kiln-body {
+            animation: spin-cw 10s linear infinite;
+            transform-box: fill-box; transform-origin: center;
+        }
+
+        /* Flame Physics */
+        .flame-core {
+            transform-box: fill-box;
+            transform-origin: bottom center;
+            animation: intense-flicker 0.15s infinite alternate;
+        }
+
+        @keyframes intense-flicker {
+            0% { transform: scaleX(0.98) scaleY(0.95) rotate(-1deg); opacity: 0.9; filter: brightness(1); }
+            100% { transform: scaleX(1.02) scaleY(1.05) rotate(1deg); opacity: 1; filter: brightness(1.3); }
+        }
+
+        /* Text Styling */
+        .flow-text { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; fill: #e2e8f0; letter-spacing: 1px; }
+        .flow-text-bg { fill: rgba(10, 15, 30, 0.85); stroke-width: 1.5; }
+        
+        /* Glowing Lines */
+        .glow-line {
+            fill: none;
+            stroke-width: 4;
+            stroke-dasharray: 10 15;
+            animation: march 1s linear infinite;
+        }
+
+        @keyframes march { to { stroke-dashoffset: -25; } }
+        
+        .pipe-base { stroke-linejoin: round; stroke-linecap: round; fill: none; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <div class="header">
+            <h1>Automated System</h1>
+            <p>Dry Process Cement Synthesis</p>
+        </div>
+
+        <div class="telemetry">
+            <div class="metric-box" style="--active-color: var(--c-fire);">
+                <div class="metric-label">Kiln Temp</div>
+                <div class="metric-value" id="kiln-temp">1450°C</div>
+            </div>
+            <div class="metric-box" style="--active-color: var(--c-mix);">
+                <div class="metric-label">Feed Rate</div>
+                <div class="metric-value" id="feed-rate">450 t/h</div>
+            </div>
+            <div class="metric-box" style="--active-color: var(--c-cem);">
+                <div class="metric-label">Output</div>
+                <div class="metric-value" id="output-rate">420 t/h</div>
+            </div>
+            <div class="metric-box" style="--active-color: var(--c-lime);">
+                <div class="metric-label">System Status</div>
+                <div class="metric-value" style="color: var(--c-lime); font-size: 1.1rem; line-height: 1.4rem; margin-top: 8px;">ONLINE<br>OPTIMAL</div>
+            </div>
+        </div>
+
+        <div class="status-display" id="tour-panel">
+            <div class="status-card" id="step-1" style="--card-color: var(--c-lime);">
+                <h3>1. Raw Extraction</h3>
+                <p>Limestone and Clay are fed continuously. Smooth counter-rotating crushers break them down before fine grinding in tube mills.</p>
+            </div>
+            <div class="status-card" id="step-2" style="--card-color: var(--c-mix);">
+                <h3>2. Blending Phase</h3>
+                <p>Ground materials are stored in silos and precisely blended into a chemically optimal Raw Mix.</p>
+            </div>
+            <div class="status-card" id="step-3" style="--card-color: var(--c-fire);">
+                <h3>3. Thermal Synthesis</h3>
+                <p>The Raw Mix enters the rotating kiln. Intense heat (up to 1450°C) triggers chemical fusion, forming glowing clinker nodules.</p>
+            </div>
+            <div class="status-card" id="step-4" style="--card-color: var(--c-clink);">
+                <h3>4. Cooling & Milling</h3>
+                <p>Red-hot clinkers are rapidly cooled. They undergo fine grinding alongside 3-5% Gypsum to regulate setting times.</p>
+            </div>
+            <div class="status-card" id="step-5" style="--card-color: var(--c-cem);">
+                <h3>5. Dispatch</h3>
+                <p>The final automated flow routes the finished Portland Cement to massive dispatch silos for immediate distribution.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <svg viewBox="0 0 1600 2400" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <filter id="shadow-deep"><feDropShadow dx="0" dy="20" stdDeviation="15" flood-color="#000" flood-opacity="0.9"/></filter>
+                <filter id="glow-lime"><feGaussianBlur stdDeviation="8" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
+                <filter id="glow-fire"><feGaussianBlur stdDeviation="15" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
+                <filter id="glow-clink"><feGaussianBlur stdDeviation="10" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
+
+                <linearGradient id="metal-v" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#0f172a"/><stop offset="25%" stop-color="#334155"/><stop offset="50%" stop-color="#94a3b8"/><stop offset="75%" stop-color="#1e293b"/><stop offset="100%" stop-color="#020617"/>
+                </linearGradient>
+                <linearGradient id="metal-h" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#0f172a"/><stop offset="25%" stop-color="#334155"/><stop offset="50%" stop-color="#94a3b8"/><stop offset="75%" stop-color="#1e293b"/><stop offset="100%" stop-color="#020617"/>
+                </linearGradient>
+                
+                <linearGradient id="grad-fire" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="20%" stop-color="#ffea00"/>
+                    <stop offset="50%" stop-color="#ff0055"/>
+                    <stop offset="100%" stop-color="#4a0018" stop-opacity="0"/>
+                </linearGradient>
+
+                <linearGradient id="grad-kiln-heat" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#ff0055" stop-opacity="0.8"/>
+                    <stop offset="50%" stop-color="#ffea00" stop-opacity="0.9"/>
+                    <stop offset="100%" stop-color="#ff0055" stop-opacity="0.8"/>
+                </linearGradient>
+
+                <g id="pt-lime"><path d="M-6,-4 L2,-8 L8,-1 L3,7 L-5,6 L-9,0 Z" fill="var(--c-lime)" filter="url(#glow-lime)"/></g>
+                <g id="pt-clay"><path d="M-5,-5 Q-2,-8 4,-4 T6,3 Q2,7 -4,5 T-5,-5 Z" fill="var(--c-clay)"/></g>
+                <g id="pt-mix"><path d="M-4,-4 L0,-6 L5,-3 L6,2 L2,6 L-4,4 Z" fill="var(--c-mix)" filter="url(#glow-lime)"/></g>
+                <g id="pt-clink"><path d="M-7,-2 L0,-8 L6,-3 L8,4 L1,8 L-6,6 L-9,0 Z" fill="var(--c-clink)" filter="url(#glow-clink)"/></g>
+                <g id="pt-gyps"><path d="M-4,-6 L4,-6 L6,0 L4,6 L-4,6 L-6,0 Z" fill="var(--c-gyps)"/></g>
+                <g id="pt-cem"><path d="M-3,-3 L3,-3 L5,0 L3,3 L-3,3 L-5,0 Z" fill="var(--c-cem)"/></g>
+
+                <g id="roller">
+                    <path d="M-30,-10 C-30,-20 -20,-30 -10,-30 L-5,-40 L5,-40 L10,-30 C20,-30 30,-20 30,-10 L40,-5 L40,5 L30,10 C30,20 20,30 10,30 L5,40 L-5,40 L-10,30 C-20,30 -30,20 -30,10 L-40,5 L-40,-5 Z" fill="url(#metal-v)" stroke="#0f172a" stroke-width="3"/>
+                    <path d="M-15,-5 C-15,-10 -10,-15 -5,-15 C0,-15 5,-10 5,-5 C5,0 0,5 -5,5 C-10,5 -15,0 -15,-5 Z" fill="#020617"/> </g>
+            </defs>
+
+            <g class="pipe-base" stroke="#060913" stroke-width="24" filter="url(#shadow-deep)">
+                <path d="M 400 150 L 400 350"/><path d="M 400 450 L 400 600"/><path d="M 400 700 L 400 800"/><path d="M 400 900 L 400 950 L 800 950 L 800 1050"/>
+                <path d="M 1200 150 L 1200 350"/><path d="M 1200 450 L 1200 600"/><path d="M 1200 700 L 1200 800"/><path d="M 1200 900 L 1200 950 L 800 950"/>
+                <path d="M 800 1100 L 800 1200 L 500 1200 L 500 1250"/>
+                <path d="M 500 1250 L 1100 1350"/><path d="M 1100 1350 L 1100 1500 L 800 1500 L 800 1550"/>
+                <path d="M 800 1620 L 800 1700 L 600 1700 L 600 1750"/>
+                <path d="M 1300 1600 L 1300 1750 L 1000 1750"/>
+                <path d="M 800 1850 L 800 2000"/>
+            </g>
+
+            <g class="pipe-base" stroke="url(#metal-v)" stroke-width="14">
+                <path d="M 400 150 L 400 350"/><path d="M 400 450 L 400 600"/><path d="M 400 700 L 400 800"/><path d="M 400 900 L 400 950 L 800 950 L 800 1050"/>
+                <path d="M 1200 150 L 1200 350"/><path d="M 1200 450 L 1200 600"/><path d="M 1200 700 L 1200 800"/><path d="M 1200 900 L 1200 950 L 800 950"/>
+                <path d="M 800 1100 L 800 1200 L 500 1200 L 500 1250"/>
+                <path d="M 1100 1350 L 1100 1500 L 800 1500 L 800 1550"/>
+                <path d="M 800 1620 L 800 1700 L 600 1700 L 600 1750"/>
+                <path d="M 1300 1600 L 1300 1750 L 1000 1750"/>
+                <path d="M 800 1850 L 800 2000"/>
+            </g>
+
+            <g>
+                <path d="M 400 150 L 400 350" class="glow-line" stroke="var(--c-lime)" filter="url(#glow-lime)"/>
+                <path d="M 1200 150 L 1200 350" class="glow-line" stroke="var(--c-clay)"/>
+                <path d="M 800 1100 L 800 1200 L 500 1200 L 500 1250" class="glow-line" stroke="var(--c-mix)" filter="url(#glow-lime)"/>
+                <path d="M 1100 1350 L 1100 1500 L 800 1500 L 800 1550" class="glow-line" stroke="var(--c-clink)" filter="url(#glow-clink)"/>
+                <path d="M 800 1850 L 800 2000" class="glow-line" stroke="var(--c-cem)"/>
+            </g>
+
+            <g filter="url(#shadow-deep)">
+                
+                <path d="M 220 50 L 580 50 L 480 150 L 320 150 Z" fill="url(#metal-v)"/>
+                <path d="M 250 20 L 550 20 L 570 70 L 230 70 Z" class="flow-text-bg" stroke="var(--c-lime)"/>
+                <text x="400" y="55" text-anchor="middle" class="flow-text" fill="var(--c-lime)" filter="url(#glow-lime)">LIMESTONE EXTRACTION</text>
+
+                <path d="M 280 320 L 520 320 L 480 470 L 320 470 Z" fill="url(#metal-v)"/>
+                <use href="#roller" x="350" y="395" class="roller-cw" />
+                <use href="#roller" x="450" y="395" class="roller-ccw" />
+                <path d="M 300 330 L 500 330 L 510 370 L 290 370 Z" class="flow-text-bg" stroke="var(--c-lime)"/>
+                <text x="400" y="355" text-anchor="middle" class="flow-text">Primary Crushing</text>
+
+                <path d="M 250 600 C 200 600 200 700 250 700 L 550 700 C 600 700 600 600 550 600 Z" fill="url(#metal-h)"/>
+                <path d="M 270 630 L 530 630 L 530 670 L 270 670 Z" class="flow-text-bg" stroke="var(--c-lime)"/>
+                <text x="400" y="655" text-anchor="middle" class="flow-text">Fine Grinding (Tube Mill)</text>
+
+                <path d="M 300 800 C 300 730 500 730 500 800 L 500 900 L 450 970 L 350 970 L 300 900 Z" fill="url(#metal-v)"/>
+                <path d="M 320 840 L 480 840 L 480 880 L 320 880 Z" class="flow-text-bg" stroke="var(--c-lime)"/>
+                <text x="400" y="865" text-anchor="middle" class="flow-text">Storage Silos</text>
+
+
+                <path d="M 1020 50 L 1380 50 L 1280 150 L 1120 150 Z" fill="url(#metal-v)"/>
+                <path d="M 1050 20 L 1350 20 L 1370 70 L 1030 70 Z" class="flow-text-bg" stroke="var(--c-clay)"/>
+                <text x="1200" y="55" text-anchor="middle" class="flow-text" fill="var(--c-clay)">CLAY EXTRACTION</text>
+
+                <path d="M 1080 320 L 1320 320 L 1280 470 L 1120 470 Z" fill="url(#metal-v)"/>
+                <use href="#roller" x="1150" y="395" class="roller-cw" />
+                <use href="#roller" x="1250" y="395" class="roller-ccw" />
+                <path d="M 1100 330 L 1300 330 L 1310 370 L 1090 370 Z" class="flow-text-bg" stroke="var(--c-clay)"/>
+                <text x="1200" y="355" text-anchor="middle" class="flow-text">Primary Crushing</text>
+
+                <path d="M 1050 600 C 1000 600 1000 700 1050 700 L 1350 700 C 1400 700 1400 600 1350 600 Z" fill="url(#metal-h)"/>
+                <path d="M 1070 630 L 1330 630 L 1330 670 L 1070 670 Z" class="flow-text-bg" stroke="var(--c-clay)"/>
+                <text x="1200" y="655" text-anchor="middle" class="flow-text">Fine Grinding (Tube Mill)</text>
+
+                <path d="M 1100 800 C 1100 730 1300 730 1300 800 L 1300 900 L 1250 970 L 1150 970 L 1100 900 Z" fill="url(#metal-v)"/>
+                <path d="M 1120 840 L 1280 840 L 1280 880 L 1120 880 Z" class="flow-text-bg" stroke="var(--c-clay)"/>
+                <text x="1200" y="865" text-anchor="middle" class="flow-text">Storage Silos</text>
+
+
+                <path d="M 650 1030 L 950 1030 L 900 1150 L 700 1150 Z" fill="url(#metal-v)"/>
+                <path d="M 500 980 L 1100 980 L 1120 1050 L 480 1050 Z" class="flow-text-bg" stroke="var(--c-mix)"/>
+                <text x="800" y="1025" text-anchor="middle" class="flow-text" fill="var(--c-mix)" filter="url(#glow-lime)">PRECISE BLENDING (RAW MIX)</text>
+
+                <path d="M 680 1160 L 920 1160 L 930 1200 L 670 1200 Z" class="flow-text-bg" stroke="var(--c-mix)"/>
+                <text x="800" y="1185" text-anchor="middle" class="flow-text">Kiln Feed System</text>
+
+
+                <g>
+                    <path d="M 530 1300 L 650 1300 L 670 1350 L 510 1350 Z" fill="#0f172a"/>
+                    <path d="M 950 1370 L 1070 1370 L 1090 1420 L 930 1420 Z" fill="#0f172a"/>
+                    
+                    <path d="M 460 1200 L 1140 1315 C 1160 1320 1160 1420 1140 1430 L 460 1315 C 440 1310 440 1210 460 1200 Z" fill="url(#metal-h)" stroke="#020617" stroke-width="4"/>
+                    
+                    <path d="M 600 1230 L 1100 1310 C 1120 1320 1120 1390 1100 1400 L 600 1320 Z" fill="url(#grad-kiln-heat)" style="mix-blend-mode: overlay;"/>
+
+                    <path d="M 560 1220 L 620 1230 L 600 1345 L 540 1335 Z" fill="#020617" stroke="#334155" stroke-width="2"/>
+                    <path d="M 980 1290 L 1040 1300 L 1020 1415 L 960 1405 Z" fill="#020617" stroke="#334155" stroke-width="2"/>
+
+                    <path d="M 1140 1355 L 1280 1355 L 1290 1395 L 1140 1395 Z" fill="url(#metal-v)"/>
+                    <path d="M 1180 1250 L 1480 1250 L 1490 1300 L 1170 1300 Z" class="flow-text-bg" stroke="var(--c-fire)"/>
+                    <path d="M 1330 1300 L 1330 1355 L 1260 1375" fill="none" stroke="var(--c-fire)" stroke-width="3" stroke-dasharray="10 5" class="glow-line"/>
+                    <text x="1330" y="1280" text-anchor="middle" class="flow-text" fill="var(--c-fire)" filter="url(#glow-fire)">FUEL INJECTION SYSTEM</text>
+
+                    <g filter="url(#glow-fire)" class="flame-core">
+                        <path d="M 1120 1375 C 900 1360 600 1320 500 1260 C 650 1290 900 1320 1120 1340 Z" fill="#ff0055"/>
+                        <path d="M 1120 1365 C 950 1360 700 1310 600 1270 C 700 1290 950 1330 1120 1345 Z" fill="#ffea00"/>
+                        <path d="M 1120 1360 C 1000 1360 800 1320 750 1280 C 800 1300 1000 1340 1120 1350 Z" fill="#ffffff"/>
+                    </g>
+                </g>
+                
+                <path d="M 680 1430 L 920 1430 L 940 1480 L 660 1480 Z" class="flow-text-bg" stroke="var(--c-fire)"/>
+                <text x="800" y="1460" text-anchor="middle" class="flow-text" fill="var(--c-fire)">ROTARY KILN BURNING</text>
+
+
+                <path d="M 670 1550 L 930 1550 L 940 1590 L 660 1590 Z" class="flow-text-bg" stroke="var(--c-clink)"/>
+                <text x="800" y="1575" text-anchor="middle" class="flow-text" fill="var(--c-clink)" filter="url(#glow-clink)">CLINKER FORMATION</text>
+
+                <path d="M 600 1620 L 1000 1620 L 950 1710 L 650 1710 Z" fill="url(#metal-v)"/>
+                <path d="M 630 1650 L 970 1650" stroke="#ff0055" stroke-width="6" stroke-dasharray="15 10" class="flame-core"/>
+                <path d="M 640 1680 L 960 1680" stroke="#ffea00" stroke-width="4" stroke-dasharray="15 10" class="flame-core" style="animation-delay: 0.1s;"/>
+                
+                <path d="M 400 1640 L 580 1640 L 590 1690 L 390 1690 Z" class="flow-text-bg" stroke="var(--c-clink)"/>
+                <text x="490" y="1670" text-anchor="middle" class="flow-text">Rapid Clinker Coolers</text>
+
+
+                <path d="M 1220 1500 L 1380 1500 L 1340 1600 L 1260 1600 Z" fill="url(#metal-v)"/>
+                <path d="M 1390 1530 L 1580 1530 L 1590 1580 L 1380 1580 Z" class="flow-text-bg" stroke="var(--c-gyps)"/>
+                <path d="M 1480 1580 L 1480 1650 L 1300 1650 L 1300 1600" fill="none" stroke="var(--c-gyps)" stroke-width="3" stroke-dasharray="8 8" class="glow-line"/>
+                <text x="1485" y="1555" text-anchor="middle" class="flow-text" fill="var(--c-gyps)">Gypsum Injection (3-5%)</text>
+
+                <path d="M 550 1750 C 500 1750 500 1850 550 1850 L 1050 1850 C 1100 1850 1100 1750 1050 1750 Z" fill="url(#metal-h)"/>
+                <path d="M 650 1880 L 950 1880 L 960 1930 L 640 1930 Z" class="flow-text-bg" stroke="var(--c-cem)"/>
+                <text x="800" y="1910" text-anchor="middle" class="flow-text">Finish Fine Grinding</text>
+
+
+                <path d="M 650 2000 C 650 1930 950 1930 950 2000 L 950 2150 L 880 2220 L 720 2220 L 650 2150 Z" fill="url(#metal-v)"/>
+                
+                <path d="M 600 2250 L 1000 2250 L 1020 2310 L 580 2310 Z" class="flow-text-bg" stroke="var(--c-cem)"/>
+                <text x="800" y="2285" text-anchor="middle" class="flow-text" fill="var(--c-cem)" filter="url(#glow-lime)" font-size="20">WEIGHING, PACKING & DISPATCH</text>
+            </g>
+
+            <g>
+                <use href="#pt-lime" class="particle" style="--path: path('M 400 150 L 400 350'); --delay: 0s;" />
+                <use href="#pt-lime" class="particle" style="--path: path('M 400 150 L 400 350'); --delay: -1s;" />
+                <use href="#pt-lime" class="particle" style="--path: path('M 400 150 L 400 350'); --delay: -2s;" />
+                
+                <use href="#pt-lime" class="particle" style="--path: path('M 400 450 L 400 600'); --delay: -0.5s;" />
+                <use href="#pt-lime" class="particle" style="--path: path('M 400 450 L 400 600'); --delay: -1.5s;" />
+                
+                <use href="#pt-lime" class="particle" style="--path: path('M 400 700 L 400 800'); --delay: 0s;" />
+                <use href="#pt-lime" class="particle" style="--path: path('M 400 700 L 400 800'); --delay: -1.5s;" />
+
+                <use href="#pt-clay" class="particle" style="--path: path('M 1200 150 L 1200 350'); --delay: -0.5s;" />
+                <use href="#pt-clay" class="particle" style="--path: path('M 1200 150 L 1200 350'); --delay: -1.5s;" />
+                <use href="#pt-clay" class="particle" style="--path: path('M 1200 150 L 1200 350'); --delay: -2.5s;" />
+                
+                <use href="#pt-clay" class="particle" style="--path: path('M 1200 450 L 1200 600'); --delay: 0s;" />
+                <use href="#pt-clay" class="particle" style="--path: path('M 1200 450 L 1200 600'); --delay: -1s;" />
+                
+                <use href="#pt-clay" class="particle" style="--path: path('M 1200 700 L 1200 800'); --delay: -0.5s;" />
+                <use href="#pt-clay" class="particle" style="--path: path('M 1200 700 L 1200 800'); --delay: -2s;" />
+            </g>
+
+            <g>
+                <use href="#pt-lime" class="particle" style="--path: path('M 400 900 L 400 950 L 800 950 L 800 1050'); --delay: 0s;" />
+                <use href="#pt-lime" class="particle" style="--path: path('M 400 900 L 400 950 L 800 950 L 800 1050'); --delay: -1.5s;" />
+                <use href="#pt-clay" class="particle" style="--path: path('M 1200 900 L 1200 950 L 800 950 L 800 1050'); --delay: -0.75s;" />
+                <use href="#pt-clay" class="particle" style="--path: path('M 1200 900 L 1200 950 L 800 950 L 800 1050'); --delay: -2.25s;" />
+                
+                <use href="#pt-mix" class="particle" style="--path: path('M 800 1100 L 800 1200 L 500 1200 L 500 1250'); --delay: 0s;" />
+                <use href="#pt-mix" class="particle" style="--path: path('M 800 1100 L 800 1200 L 500 1200 L 500 1250'); --delay: -1s;" />
+                <use href="#pt-mix" class="particle" style="--path: path('M 800 1100 L 800 1200 L 500 1200 L 500 1250'); --delay: -2s;" />
+            </g>
+
+            <g>
+                <use href="#pt-mix" class="particle" style="--path: path('M 500 1250 L 700 1280'); --delay: 0s; --speed-global: 1.5s;" />
+                <use href="#pt-mix" class="particle" style="--path: path('M 500 1250 L 700 1280'); --delay: -0.75s; --speed-global: 1.5s;" />
+                
+                <use href="#pt-clink" class="particle" style="--path: path('M 850 1310 L 1100 1350'); --delay: 0s; --speed-global: 1.5s;" />
+                <use href="#pt-clink" class="particle" style="--path: path('M 850 1310 L 1100 1350'); --delay: -0.75s; --speed-global: 1.5s;" />
+            </g>
+
+            <g>
+                <use href="#pt-clink" class="particle" style="--path: path('M 1100 1350 L 1100 1500 L 800 1500 L 800 1550'); --delay: 0s;" />
+                <use href="#pt-clink" class="particle" style="--path: path('M 1100 1350 L 1100 1500 L 800 1500 L 800 1550'); --delay: -1s;" />
+                <use href="#pt-clink" class="particle" style="--path: path('M 1100 1350 L 1100 1500 L 800 1500 L 800 1550'); --delay: -2s;" />
+                
+                <use href="#pt-clink" class="particle" style="--path: path('M 800 1620 L 800 1700 L 600 1700 L 600 1750'); --delay: 0s;" />
+                <use href="#pt-clink" class="particle" style="--path: path('M 800 1620 L 800 1700 L 600 1700 L 600 1750'); --delay: -1.5s;" />
+
+                <use href="#pt-gyps" class="particle" style="--path: path('M 1300 1600 L 1300 1750 L 1000 1750'); --delay: -0.2s;" />
+                <use href="#pt-gyps" class="particle" style="--path: path('M 1300 1600 L 1300 1750 L 1000 1750'); --delay: -1.7s;" />
+            </g>
+
+            <g>
+                <use href="#pt-cem" class="particle" style="--path: path('M 800 1850 L 800 2000'); --delay: 0s;" />
+                <use href="#pt-cem" class="particle" style="--path: path('M 800 1850 L 800 2000'); --delay: -0.4s;" />
+                <use href="#pt-cem" class="particle" style="--path: path('M 800 1850 L 800 2000'); --delay: -0.8s;" />
+                <use href="#pt-cem" class="particle" style="--path: path('M 800 1850 L 800 2000'); --delay: -1.2s;" />
+                <use href="#pt-cem" class="particle" style="--path: path('M 800 1850 L 800 2000'); --delay: -1.6s;" />
+                <use href="#pt-cem" class="particle" style="--path: path('M 800 1850 L 800 2000'); --delay: -2.0s;" />
+                <use href="#pt-cem" class="particle" style="--path: path('M 800 1850 L 800 2000'); --delay: -2.4s;" />
+                <use href="#pt-cem" class="particle" style="--path: path('M 800 1850 L 800 2000'); --delay: -2.8s;" />
+            </g>
+
+        </svg>
+    </div>
+
+    <script>
+        // Automatic System Tour Logic
+        const steps = [
+            document.getElementById('step-1'),
+            document.getElementById('step-2'),
+            document.getElementById('step-3'),
+            document.getElementById('step-4'),
+            document.getElementById('step-5')
+        ];
+        
+        let currentStep = 0;
+        const panel = document.getElementById('tour-panel');
+
+        function autoCycle() {
+            // Remove active class from all
+            steps.forEach(step => step.classList.remove('active'));
+            
+            // Add to current
+            const activeStep = steps[currentStep];
+            activeStep.classList.add('active');
+            
+            // Smooth scroll panel to keep active card in view
+            activeStep.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Increment
+            currentStep = (currentStep + 1) % steps.length;
+        }
+
+        // Run cycle every 4 seconds
+        setInterval(autoCycle, 4000);
+        autoCycle(); // Init first step immediately
+
+        // Live Telemetry Simulation
+        const kilnTemp = document.getElementById('kiln-temp');
+        const feedRate = document.getElementById('feed-rate');
+        const outputRate = document.getElementById('output-rate');
+
+        setInterval(() => {
+            // Simulate slight variations in heavy machinery
+            const baseTemp = 1450;
+            const tempJitter = Math.floor(Math.random() * 11) - 5; // -5 to +5
+            kilnTemp.innerText = `${baseTemp + tempJitter}°C`;
+
+            const baseFeed = 450;
+            const feedJitter = Math.floor(Math.random() * 7) - 3;
+            feedRate.innerText = `${baseFeed + feedJitter} t/h`;
+
+            const baseOut = 420;
+            const outJitter = Math.floor(Math.random() * 5) - 2;
+            outputRate.innerText = `${baseOut + outJitter} t/h`;
+            
+        }, 2000);
+    </script>
+</body>
+</html>

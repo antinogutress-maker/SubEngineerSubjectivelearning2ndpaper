@@ -2,374 +2,428 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Closed Traverse Analysis Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Traverse Mastermind: World-Class Engineering Visualizer</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-primary: #38bdf8;
-            --accent-secondary: #818cf8;
-            --text-main: #f1f5f9;
-            --text-dim: #94a3b8;
-            --danger: #ef4444;
-            --success: #22c55e;
-            --flow-speed: 2s;
-            --node-glow: rgba(56, 189, 248, 0.3);
+            --bg-deep: #020408;
+            --panel-hex: #0f172a;
+            --accent-cyan: #00f2ff;
+            --accent-purple: #a855f7;
+            --accent-amber: #fbbf24;
+            --text-primary: #f8fafc;
+            --text-dim: #64748b;
+            --node-stroke: rgba(0, 242, 255, 0.3);
+            --gradient-1: #0f172a;
+            --gradient-2: #020617;
+            --glow-cyan: 0 0 20px rgba(0, 242, 255, 0.3);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            touch-action: none; 
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            overflow: hidden;
             height: 100vh;
+            width: 100vw;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
-        /* --- Dashboard Layout --- */
-        header {
-            padding: 1.5rem 2rem;
-            background: rgba(30, 41, 59, 0.5);
+        /* HUD & Overlay */
+        #hud-top {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .glass-header {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            padding: 20px 28px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            pointer-events: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        h1 { font-size: 1.2rem; letter-spacing: 4px; color: var(--accent-cyan); text-transform: uppercase; font-weight: 900; }
+        .badge { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 2px; display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+        .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; animation: pulse 2s infinite; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        .interaction-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            pointer-events: none;
+            white-space: nowrap;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .main-container {
-            display: grid;
-            grid-template-columns: 1fr 350px;
+        /* Canvas & SVG Styling */
+        #canvas-wrapper {
             flex-grow: 1;
-            gap: 1rem;
-            padding: 1rem;
-            height: calc(100vh - 80px);
-        }
-
-        .canvas-area {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.2);
-        }
-
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .control-panel, .info-panel {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* --- SVG Mindmap Styles --- */
-        #mindmap-svg {
-            width: 100%;
-            height: 100%;
             cursor: grab;
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(0, 242, 255, 0.04) 1px, transparent 0);
+            background-size: 50px 50px;
         }
+
+        #canvas-wrapper:active { cursor: grabbing; }
 
         .connector {
             fill: none;
-            stroke: var(--text-dim);
-            stroke-width: 2;
-            stroke-dasharray: 8, 4;
-            transition: stroke 0.3s, stroke-width 0.3s;
+            stroke: url(#lineGrad);
+            stroke-width: 2.5;
+            stroke-linecap: round;
         }
 
-        .connector.active {
-            stroke: var(--accent-primary);
-            stroke-width: 3;
-            animation: flow var(--flow-speed) linear infinite;
+        .node-path {
+            fill: url(#nodeGrad);
+            stroke: var(--node-stroke);
+            stroke-width: 1.5;
+            transition: all 0.3s ease;
         }
 
-        @keyframes flow {
-            from { stroke-dashoffset: 24; }
-            to { stroke-dashoffset: 0; }
-        }
+        .node-main { stroke: var(--accent-cyan); stroke-width: 3; filter: drop-shadow(var(--glow-cyan)); }
 
-        .node {
-            cursor: pointer;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .node:hover {
-            transform: scale(1.05);
-        }
-
-        .node-rect {
-            fill: #1e293b;
-            stroke: var(--accent-secondary);
-            stroke-width: 2;
-            filter: drop-shadow(0 0 8px var(--node-glow));
-        }
-
-        .node-text {
-            fill: var(--text-main);
-            font-size: 14px;
-            font-weight: 600;
-            pointer-events: none;
+        .logic-label {
+            background: var(--accent-amber);
+            color: #000;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 5px 12px;
+            border-radius: 6px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.3);
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 99px;
-            font-size: 12px;
-            font-weight: bold;
+        /* Formula Card Styling */
+        .def-box {
+            background: rgba(7, 10, 18, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 4px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            pointer-events: auto;
         }
 
-        /* --- Interactive UI Elements --- */
-        .slider-group {
-            margin-top: 1.5rem;
-        }
+        .def-title { color: #fff; font-weight: 800; margin-bottom: 10px; display: block; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; font-size: 14px; letter-spacing: 1px;}
+        .formula-line { display: flex; flex-direction: column; margin-bottom: 12px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border-left: 2px solid var(--accent-cyan); }
+        .formula-label { font-size: 9px; color: var(--text-dim); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+        .formula-val { font-family: 'Monaco', 'Courier New', monospace; color: var(--accent-cyan); font-size: 12px; font-weight: 600; }
+        
+        .method-use { font-style: normal; color: var(--accent-purple); font-size: 10px; font-weight: 700; text-transform: uppercase; margin-top: 6px; display: flex; align-items: center; gap: 5px; }
+        .method-use::before { content: '◈'; color: var(--accent-purple); }
 
-        input[type=range] {
-            width: 100%;
-            margin-top: 10px;
-            accent-color: var(--accent-primary);
-        }
-
-        .note-card {
-            margin-top: 10px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 3px solid var(--accent-primary);
-            font-size: 14px;
-            line-height: 1.5;
-            color: var(--text-dim);
-            display: none;
-            animation: slideIn 0.3s ease-out forwards;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        h2 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--accent-primary); }
-        h3 { font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text-dim); }
-
+        .main-label { fill: #fff; font-weight: 800; font-size: 14px; text-transform: uppercase; pointer-events: none; letter-spacing: 1px; }
+        [data-level="0"] .main-label { font-size: 22px; fill: var(--accent-cyan); letter-spacing: 4px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div>
-            <h1 style="font-size: 1.5rem;">Surveying: <span style="color: var(--accent-primary)">Closed Traverse Analysis</span></h1>
-            <p style="font-size: 0.8rem; color: var(--text-dim)">Interactive Error Correction & Check Methodology</p>
-        </div>
-        <div id="error-status" class="status-badge" style="background: rgba(34, 197, 94, 0.2); color: var(--success);">
-            ERROR WITHIN LIMITS
-        </div>
-    </header>
-
-    <main class="main-container">
-        <div class="canvas-area">
-            <svg id="mindmap-svg" viewBox="0 0 800 600">
-                <defs>
-                    <linearGradient id="gradNode" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#334155;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#1e293b;stop-opacity:1" />
-                    </linearGradient>
-                    
-                    <filter id="glow">
-                        <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-                        <feMerge>
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                </defs>
-
-                <path id="path-main-methods" class="connector active" d="M 400 300 C 400 200, 250 200, 200 150" />
-                <path id="path-methods-angular" class="connector active" d="M 200 120 C 150 120, 100 100, 80 80" />
-                <path id="path-methods-linear" class="connector active" d="M 200 120 C 250 120, 300 100, 320 80" />
-                
-                <path id="path-main-correction" class="connector" d="M 400 300 C 400 450, 250 450, 200 500" />
-                <path id="path-corr-bowditch" class="connector" d="M 200 530 C 150 530, 100 550, 80 580" />
-                <path id="path-corr-transit" class="connector" d="M 200 530 C 200 560, 200 570, 200 580" />
-                <path id="path-corr-graphical" class="connector" d="M 200 530 C 250 530, 300 550, 320 580" />
-
-                <g class="node" transform="translate(400, 300)" onclick="showNote('root')">
-                    <path class="node-rect" d="M -90 -25 L 90 -25 Q 100 -25 100 -15 L 100 15 Q 100 25 90 25 L -90 25 Q -100 25 -100 15 L -100 -15 Q -100 -25 -90 -25" />
-                    <text class="node-text" text-anchor="middle" dy="5">Checks in Closed Traverse</text>
-                </g>
-
-                <g class="node" transform="translate(200, 120)" onclick="showNote('methods')">
-                    <path class="node-rect" d="M -70 -20 L 70 -20 Q 80 -20 80 -10 L 80 10 Q 80 20 70 20 L -70 20 Q -80 20 -80 10 L -80 -10 Q -80 -20 -70 -20" />
-                    <text class="node-text" text-anchor="middle" dy="5">Methods of Check</text>
-                </g>
-
-                <g class="node" transform="translate(80, 60)" onclick="showNote('angular')">
-                    <path class="node-rect" style="stroke: var(--accent-primary);" d="M -50 -15 L 50 -15 Q 60 -15 60 -5 L 60 5 Q 60 15 50 15 L -50 15 Q -60 15 -60 5 L -60 -5 Q -60 -15 -50 -15" />
-                    <text class="node-text" style="font-size: 10px;" text-anchor="middle" dy="4">Angular Measurement</text>
-                </g>
-
-                <g class="node" transform="translate(320, 60)" onclick="showNote('linear')">
-                    <path class="node-rect" style="stroke: var(--accent-primary);" d="M -50 -15 L 50 -15 Q 60 -15 60 -5 L 60 5 Q 60 15 50 15 L -50 15 Q -60 15 -60 5 L -60 -5 Q -60 -15 -50 -15" />
-                    <text class="node-text" style="font-size: 10px;" text-anchor="middle" dy="4">Linear Measurement</text>
-                </g>
-
-                <g id="correction-node-group" class="node" transform="translate(200, 515)" style="opacity: 0.3;" onclick="showNote('correction')">
-                    <path class="node-rect" style="stroke: var(--danger);" d="M -70 -20 L 70 -20 Q 80 -20 80 -10 L 80 10 Q 80 20 70 20 L -70 20 Q -80 20 -80 10 L -80 -10 Q -80 -20 -70 -20" />
-                    <text class="node-text" text-anchor="middle" dy="5">Correction of Error</text>
-                </g>
-
-                <g id="rules-group" style="opacity: 0.3;">
-                    <g class="node" transform="translate(80, 590)" onclick="showNote('bowditch')">
-                        <text class="node-text" style="font-size: 11px; fill: var(--accent-secondary)" text-anchor="middle">Bowditch Rule</text>
-                    </g>
-                    <g class="node" transform="translate(200, 590)" onclick="showNote('transit')">
-                        <text class="node-text" style="font-size: 11px; fill: var(--accent-secondary)" text-anchor="middle">Transit Rule</text>
-                    </g>
-                    <g class="node" transform="translate(320, 590)" onclick="showNote('graphical')">
-                        <text class="node-text" style="font-size: 11px; fill: var(--accent-secondary)" text-anchor="middle">Graphical Method</text>
-                    </g>
-                </g>
-            </svg>
-        </div>
-
-        <div class="sidebar">
-            <div class="control-panel">
-                <h2>Simulator Controls</h2>
-                <div class="slider-group">
-                    <h3>Observed Error (mm)</h3>
-                    <input type="range" id="error-slider" min="0" max="100" value="20">
-                    <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 12px; color: var(--text-dim)">
-                        <span>0mm</span>
-                        <span id="slider-val">20mm</span>
-                        <span>100mm</span>
-                    </div>
-                </div>
-                <div style="margin-top: 20px; font-size: 13px; color: var(--text-dim)">
-                    <strong>Permissible Limit:</strong> <span style="color: var(--accent-primary)">50mm</span>
-                </div>
-            </div>
-
-            <div class="info-panel">
-                <h2>Technical Notes</h2>
-                <div id="default-note" style="color: var(--text-dim); font-size: 14px;">
-                    Select a node in the diagram to view detailed surveying principles and formulas.
-                </div>
-                
-                <div id="note-root" class="note-card">
-                    <strong>Closed Traverse:</strong> A series of connected lines whose end point coincides with the starting point. Essential for mapping and large-scale engineering.
-                </div>
-
-                <div id="note-angular" class="note-card">
-                    <strong>Angular Check:</strong> Sum of interior angles must equal <strong>(2n - 4) x 90°</strong>, where 'n' is the number of sides.
-                </div>
-
-                <div id="note-linear" class="note-card">
-                    <strong>Linear Check:</strong> The algebraic sum of Latitudes (ΣL) and Departures (ΣD) must both equal zero.
-                </div>
-
-                <div id="note-bowditch" class="note-card">
-                    <strong>Bowditch Rule:</strong> Also known as the Compass Rule. Used when linear and angular measurements are equally precise. Correction is proportional to the length of the side.
-                </div>
-
-                <div id="note-transit" class="note-card">
-                    <strong>Transit Rule:</strong> Used when angular measurements are more precise than linear measurements (e.g., using a high-precision theodolite).
-                </div>
-
-                <div id="note-graphical" class="note-card">
-                    <strong>Graphical Method:</strong> Used for rough traverses where corrections are applied visually to the plotted points, often using a "correction line" construction.
-                </div>
-
-                <div id="note-correction" class="note-card" style="border-left-color: var(--danger);">
-                    <strong>Adjustment:</strong> If the closing error exceeds the permissible limit, the work must be re-run in the field. If within limits, mathematical balancing (Bowditch/Transit) is applied.
-                </div>
+    <div id="hud-top">
+        <div class="glass-header">
+            <h1>Traverse Mastermind</h1>
+            <div class="badge">
+                <div class="status-dot"></div>
+                VERIFIED ACCURACY • SINIKAR 4.0 • HIGH-PRECISION RENDER
             </div>
         </div>
-    </main>
+    </div>
 
-    <script>
-        const errorSlider = document.getElementById('error-slider');
-        const sliderValDisplay = document.getElementById('slider-val');
-        const errorStatus = document.getElementById('error-status');
-        const correctionNode = document.getElementById('correction-node-group');
-        const rulesGroup = document.getElementById('rules-group');
-        
-        // Path elements
-        const pathMainCorr = document.getElementById('path-main-correction');
-        const pathB = document.getElementById('path-corr-bowditch');
-        const pathT = document.getElementById('path-corr-transit');
-        const pathG = document.getElementById('path-corr-graphical');
+    <div class="interaction-hint">
+        Scroll to Zoom • Drag to Explore • Click Formulas
+    </div>
 
-        const PERMISSIBLE_LIMIT = 50;
+    <div id="canvas-wrapper">
+        <svg id="main-svg" width="100%" height="100%">
+            <defs>
+                <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#020617;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="lineGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:var(--accent-purple);stop-opacity:0.3" />
+                    <stop offset="100%" style="stop-color:var(--accent-cyan);stop-opacity:1" />
+                </linearGradient>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="var(--accent-cyan)" />
+                </marker>
+            </defs>
+            <g id="viewport"></g>
+        </svg>
+    </div>
 
-        errorSlider.addEventListener('input', (e) => {
-            const val = parseInt(e.target.value);
-            sliderValDisplay.textContent = val + 'mm';
-            
-            if (val > PERMISSIBLE_LIMIT) {
-                // ERROR EXCEEDED
-                errorStatus.textContent = 'ERROR > LIMIT: CORRECTION REQUIRED';
-                errorStatus.style.background = 'rgba(239, 68, 68, 0.2)';
-                errorStatus.style.color = 'var(--danger)';
-                
-                // Activate SVG elements
-                correctionNode.style.opacity = '1';
-                rulesGroup.style.opacity = '1';
-                pathMainCorr.classList.add('active');
-                pathB.classList.add('active');
-                pathT.classList.add('active');
-                pathG.classList.add('active');
-                
-                // Update global CSS for "Pulse"
-                document.documentElement.style.setProperty('--node-glow', 'rgba(239, 68, 68, 0.4)');
-            } else {
-                // WITHIN LIMITS
-                errorStatus.textContent = 'ERROR WITHIN LIMITS';
-                errorStatus.style.background = 'rgba(34, 197, 94, 0.2)';
-                errorStatus.style.color = 'var(--success)';
-                
-                // Deactivate SVG elements
-                correctionNode.style.opacity = '0.3';
-                rulesGroup.style.opacity = '0.3';
-                pathMainCorr.classList.remove('active');
-                pathB.classList.remove('active');
-                pathT.classList.remove('active');
-                pathG.classList.remove('active');
-
-                document.documentElement.style.setProperty('--node-glow', 'rgba(56, 189, 248, 0.3)');
+<script>
+    const treeData = {
+        name: "Checks on Closed Traverse",
+        children: [
+            {
+                name: "Methods of Check",
+                children: [
+                    { 
+                        name: "Angular Measurement", 
+                        def: "Verify geometric closure of observed polygon angles.", 
+                        formulas: [
+                            { l: "Internal Angles Check", v: "Σθ = (2n - 4) × 90°" },
+                            { l: "External Angles Check", v: "Σθ = (2n + 4) × 90°" },
+                            { l: "Deflection Angles", v: "Σθ_def = 360°" }
+                        ]
+                    },
+                    { 
+                        name: "Linear Measurement", 
+                        def: "Calculated via local rectangular coordinates (Latitude/Departure).",
+                        formulas: [
+                            { l: "Latitude Summation", v: "ΣL = Σ(l·cosθ) = 0" },
+                            { l: "Departure Summation", v: "ΣD = Σ(l·sinθ) = 0" },
+                            { l: "Closing Error (e)", v: "e = √[(ΣL)² + (ΣD)²]" }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Correction of Error",
+                logic: "If Error > Permissible Limit",
+                children: [
+                    { 
+                        name: "Bowditch Rule", 
+                        def: "Used when linear & angular precision are consistent.",
+                        usage: "Proportional to length of sides",
+                        formulas: [
+                            { l: "Correction in Latitude", v: "c_l = -ΣL × (l / Σl)" },
+                            { l: "Correction in Departure", v: "c_d = -ΣD × (l / Σl)" }
+                        ]
+                    },
+                    { 
+                        name: "Transit Rule", 
+                        def: "Used when angular measurements are more precise.",
+                        usage: "Used for Theodolite traverses",
+                        formulas: [
+                            { l: "Correction in Latitude", v: "c_l = -ΣL × (|L| / Σ|L|)" },
+                            { l: "Correction in Departure", v: "c_d = -ΣD × (|D| / Σ|D|)" }
+                        ]
+                    },
+                    { 
+                        name: "Graphical Method", 
+                        def: "Visual Parallel adjustment of the traverse skeleton.",
+                        usage: "Rough surveys / Plane table",
+                        formulas: [
+                            { l: "Technique", v: "Parallel Vector Distribution" }
+                        ]
+                    }
+                ]
             }
-        });
+        ]
+    };
 
-        function showNote(id) {
-            // Hide all notes
-            document.querySelectorAll('.note-card').forEach(card => card.style.display = 'none');
-            document.getElementById('default-note').style.display = 'none';
-            
-            // Show selected note
-            const target = document.getElementById('note-' + id);
-            if (target) {
-                target.style.display = 'block';
-            } else if (id === 'methods') {
-                document.getElementById('note-angular').style.display = 'block';
-                document.getElementById('note-linear').style.display = 'block';
+    const viewport = document.getElementById('viewport');
+    const svg = document.getElementById('main-svg');
+    
+    let state = {
+        scale: 0.75,
+        x: window.innerWidth / 2,
+        y: 80,
+        isDragging: false,
+        lastX: 0,
+        lastY: 0
+    };
+
+    function render(node, x, y, level, parentX, parentY) {
+        const width = level === 0 ? 340 : 240;
+        const height = level === 0 ? 70 : 50;
+
+        // Draw Connector Path with Arrowheads
+        if (parentX !== undefined) {
+            const connector = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            const midY = (y + parentY) / 2;
+            const d = `M ${parentX} ${parentY + height/2} C ${parentX} ${midY}, ${x} ${midY}, ${x} ${y - height/2 - 8}`;
+            connector.setAttribute("d", d);
+            connector.setAttribute("class", "connector");
+            connector.setAttribute("marker-end", "url(#arrowhead)");
+            viewport.appendChild(connector);
+
+            // Logic Label
+            if (node.logic) {
+                const foreignObj = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+                foreignObj.setAttribute("x", x - 100);
+                foreignObj.setAttribute("y", midY - 15);
+                foreignObj.setAttribute("width", 200);
+                foreignObj.setAttribute("height", 40);
+                
+                const div = document.createElement("div");
+                div.style.display = "flex";
+                div.style.justifyContent = "center";
+                div.innerHTML = `<div class="logic-label">${node.logic}</div>`;
+                foreignObj.appendChild(div);
+                viewport.appendChild(foreignObj);
             }
         }
 
-        // Initialize view
-        showNote('root');
-    </script>
+        // Node Group
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("transform", `translate(${x}, ${y})`);
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", -width/2);
+        rect.setAttribute("y", -height/2);
+        rect.setAttribute("width", width);
+        rect.setAttribute("height", height);
+        rect.setAttribute("rx", 14);
+        rect.setAttribute("class", level === 0 ? "node-path node-main" : "node-path");
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("class", "main-label");
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dy", "7");
+        text.textContent = node.name;
+
+        g.appendChild(rect);
+        g.appendChild(text);
+
+        // Technical Detail Box
+        if (node.formulas) {
+            const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+            fo.setAttribute("x", -width/2);
+            fo.setAttribute("y", height/2 + 10);
+            fo.setAttribute("width", width);
+            fo.setAttribute("height", 400);
+
+            const div = document.createElement("div");
+            div.className = "def-box";
+            
+            let formulaHTML = node.formulas.map(f => `
+                <div class="formula-line">
+                    <span class="formula-label">${f.l}</span>
+                    <span class="formula-val">${f.v}</span>
+                </div>
+            `).join('');
+
+            div.innerHTML = `
+                <span class="def-title">${node.name}</span>
+                <p style="margin-bottom:12px; font-size:11px; opacity:0.8">${node.def}</p>
+                ${formulaHTML}
+                ${node.usage ? `<div class="method-use">${node.usage}</div>` : ''}
+            `;
+            
+            fo.appendChild(div);
+            g.appendChild(fo);
+        }
+
+        viewport.appendChild(g);
+
+        if (node.children) {
+            const xGap = level === 0 ? 850 : 280; 
+            const totalW = (node.children.length - 1) * xGap;
+            node.children.forEach((child, i) => {
+                const cx = x - totalW / 2 + i * xGap;
+                const cy = y + 380;
+                render(child, cx, cy, level + 1, x, y);
+            });
+        }
+    }
+
+    function update() {
+        viewport.setAttribute("transform", `translate(${state.x}, ${state.y}) scale(${state.scale})`);
+    }
+
+    const wrapper = document.getElementById('canvas-wrapper');
+
+    wrapper.addEventListener('mousedown', (e) => {
+        state.isDragging = true;
+        state.lastX = e.clientX;
+        state.lastY = e.clientY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!state.isDragging) return;
+        state.x += e.clientX - state.lastX;
+        state.y += e.clientY - state.lastY;
+        state.lastX = e.clientX;
+        state.lastY = e.clientY;
+        update();
+    });
+
+    window.addEventListener('mouseup', () => state.isDragging = false);
+
+    window.addEventListener('wheel', (e) => {
+        const delta = e.deltaY > 0 ? 0.92 : 1.08;
+        const newScale = Math.min(Math.max(state.scale * delta, 0.15), 3);
+        
+        const rect = svg.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        const zoomPointX = (mouseX - state.x) / state.scale;
+        const zoomPointY = (mouseY - state.y) / state.scale;
+        
+        state.x = mouseX - zoomPointX * newScale;
+        state.y = mouseY - zoomPointY * newScale;
+        state.scale = newScale;
+        
+        update();
+    }, { passive: false });
+
+    // Touch Handling (Pinch-to-zoom)
+    let initialDist = 0;
+    wrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            state.isDragging = true;
+            state.lastX = e.touches[0].clientX;
+            state.lastY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            initialDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        }
+    });
+
+    wrapper.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && state.isDragging) {
+            state.x += e.touches[0].clientX - state.lastX;
+            state.y += e.touches[0].clientY - state.lastY;
+            state.lastX = e.touches[0].clientX;
+            state.lastY = e.touches[0].clientY;
+            update();
+        } else if (e.touches.length === 2) {
+            const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+            const delta = dist / initialDist;
+            state.scale = Math.min(Math.max(state.scale * delta, 0.15), 3);
+            initialDist = dist;
+            update();
+        }
+    });
+
+    wrapper.addEventListener('touchend', () => { state.isDragging = false; });
+
+    render(treeData, 0, 0, 0);
+    update();
+
+    window.onresize = () => {
+        state.x = window.innerWidth / 2;
+        update();
+    };
+</script>
 </body>
 </html>
 

@@ -22,13 +22,7 @@
             --c-clink: #d946ef;   /* Clinker Purple/Magenta */
             --c-gyps: #f1f5f9;    /* Gypsum White */
             --c-cem:  #94a3b8;    /* Cement Silver */
-
             --c-accent: #eab308;  /* Construction/Safety Yellow */
-
-            /* Animation Speeds */
-            --flow-speed: 2s;
-            --gear-speed: 3s;
-            --kiln-speed: 6s;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -115,13 +109,13 @@
         .status-card h3 { font-size: 1.15rem; margin-bottom: 6px; color: var(--card-color); text-shadow: 0 0 8px rgba(255,255,255,0.1); }
         .status-card p { font-size: 0.9rem; color: #94a3b8; line-height: 1.4; }
 
-        /* --- Realistic Simulator Canvas --- */
+        /* --- Simulator Canvas --- */
         .canvas-container {
             flex-grow: 1;
             position: relative;
             height: 100%;
             display: flex;
-            align-items: flex-start; /* Allow scrolling */
+            align-items: flex-start;
             justify-content: center;
             overflow: auto;
             padding: 40px;
@@ -137,47 +131,54 @@
             filter: drop-shadow(0 30px 60px rgba(0,0,0,0.95));
         }
 
-        /* --- World-Class SVG Animations --- */
-        
-        /* Material Flow Animation */
-        .flow-path {
-            stroke-dasharray: 15 10;
-            animation: flow-anim var(--flow-speed) linear infinite;
+        /* --- Particle Flow Dynamics --- */
+        .particle-rock {
+            offset-path: var(--path);
+            animation: flow-rock var(--speed) linear infinite;
+            animation-delay: var(--delay);
+            opacity: 0;
         }
-        .flow-conveyor {
-            stroke-dasharray: 10 5;
-            animation: flow-anim 1.5s linear infinite;
+        @keyframes flow-rock {
+            0% { offset-distance: 0%; opacity: 0; transform: scale(0.5) rotate(0deg); }
+            5% { opacity: 1; transform: scale(1) rotate(45deg); }
+            90% { opacity: 1; transform: scale(1) rotate(315deg); }
+            100% { offset-distance: 100%; opacity: 0; transform: scale(0.5) rotate(360deg); }
         }
-        @keyframes flow-anim { to { stroke-dashoffset: -25; } }
 
-        /* Machine Rotations */
+        .particle-dust {
+            offset-path: var(--path);
+            animation: flow-dust var(--speed) linear infinite;
+            animation-delay: var(--delay);
+            opacity: 0;
+        }
+        @keyframes flow-dust {
+            0% { offset-distance: 0%; opacity: 0; transform: scale(0.3); }
+            15% { opacity: 0.85; transform: scale(1.3); }
+            85% { opacity: 0.85; transform: scale(1); }
+            100% { offset-distance: 100%; opacity: 0; transform: scale(0.3); }
+        }
+
+        /* Continuous Animations */
         .spin-cw { transform-box: fill-box; transform-origin: center; animation: spin 4s linear infinite; }
         .spin-ccw { transform-box: fill-box; transform-origin: center; animation: spin 4s linear infinite reverse; }
         .spin-fast { transform-box: fill-box; transform-origin: center; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Kiln Rolling */
-        .roll-kiln {
-            stroke-dasharray: 40 20;
-            animation: roll-anim 8s linear infinite;
-        }
+        .roll-kiln { stroke-dasharray: 40 20; animation: roll-anim 8s linear infinite; }
         @keyframes roll-anim { to { stroke-dashoffset: -60; } }
 
-        /* Dynamic Flame */
         .flame-anim { transform-box: fill-box; transform-origin: left center; animation: flicker 0.1s infinite alternate; }
         @keyframes flicker {
             0% { transform: scaleX(0.95) scaleY(0.98); opacity: 0.85; filter: brightness(1); }
             100% { transform: scaleX(1.05) scaleY(1.02); opacity: 1; filter: brightness(1.4); }
         }
 
-        /* Heat Glow */
         .pulsing-heat { animation: pulse-heat 2s infinite alternate; }
         @keyframes pulse-heat {
             0% { filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.5)); }
             100% { filter: drop-shadow(0 0 40px rgba(239, 68, 68, 1)); }
         }
 
-        /* Smoke/Steam */
         .smoke { opacity: 0; animation: rise 4s ease-in infinite; transform-box: fill-box; transform-origin: bottom center; }
         .smoke:nth-child(2) { animation-delay: 1.3s; }
         .smoke:nth-child(3) { animation-delay: 2.6s; }
@@ -185,21 +186,15 @@
             0% { transform: translateY(0) scale(0.5); opacity: 0.6; }
             100% { transform: translateY(-80px) scale(2); opacity: 0; }
         }
-
-        /* Text Labels */
-        .label-bg { fill: rgba(15, 23, 42, 0.9); stroke: rgba(255,255,255,0.1); stroke-width: 1; rx: 6; }
-        .label-txt { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; fill: #f8fafc; letter-spacing: 1px; }
-        
     </style>
 </head>
 <body>
 
-
+    
 
     <div class="canvas-container" id="canvas-wrapper">
         <svg viewBox="0 0 1600 2200" preserveAspectRatio="xMidYMid meet">
             <defs>
-                <!-- Shadows & Glows -->
                 <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
                     <feDropShadow dx="0" dy="15" stdDeviation="12" flood-color="#000" flood-opacity="0.8"/>
                 </filter>
@@ -212,7 +207,6 @@
                     <feComposite in="SourceGraphic" in2="blur" operator="over"/>
                 </filter>
 
-                <!-- Realistic Volumetric Metal Gradients -->
                 <linearGradient id="metal-v" x1="0" y1="0" x2="1" y2="0">
                     <stop offset="0%" stop-color="#1e293b"/>
                     <stop offset="20%" stop-color="#475569"/>
@@ -228,7 +222,6 @@
                     <stop offset="100%" stop-color="#0f172a"/>
                 </linearGradient>
 
-                <!-- Pipe & Cylinder Gradients -->
                 <linearGradient id="pipe-grad" x1="0" y1="0" x2="1" y2="0">
                     <stop offset="0%" stop-color="#334155"/>
                     <stop offset="50%" stop-color="#cbd5e1"/>
@@ -242,7 +235,6 @@
                     <stop offset="100%" stop-color="rgba(15,23,42,0.9)"/>
                 </linearGradient>
 
-                <!-- Specialized Gradients -->
                 <linearGradient id="accent-grad" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0%" stop-color="#fde047"/>
                     <stop offset="100%" stop-color="#ca8a04"/>
@@ -261,14 +253,25 @@
                     <stop offset="100%" stop-color="#ffffff" stop-opacity="1"/>
                 </linearGradient>
 
-                <!-- Reusable SVG Components -->
+                <!-- Reusable SVG Shapes & Particles -->
                 <g id="gear">
                     <circle cx="0" cy="0" r="18" fill="#1e293b" stroke="#64748b" stroke-width="4"/>
                     <path d="M-4,-24 L4,-24 L6,-16 L-6,-16 Z M-4,24 L4,24 L6,16 L-6,16 Z M-24,-4 L-24,4 L-16,6 L-16,-6 Z M24,-4 L24,4 L16,6 L16,-6 Z M-17,-17 L-11,-23 L-8,-16 L-16,-8 Z M17,17 L11,23 L8,16 L16,8 Z M17,-17 L11,-23 L8,-16 L16,-8 Z M-17,17 L-11,23 L-8,16 L-16,8 Z" fill="#64748b"/>
                     <circle cx="0" cy="0" r="6" fill="#0f172a"/>
                 </g>
-                <g id="conveyor-roller">
-                    <circle cx="0" cy="0" r="8" fill="url(#metal-h)" stroke="#0f172a" stroke-width="2"/>
+                
+                <!-- Particle Definitions -->
+                <g id="pt-rock">
+                    <path d="M-7,-5 L2,-8 L8,-3 L5,6 L-4,8 L-9,2 Z" />
+                </g>
+                <g id="pt-clinker">
+                    <path d="M-8,-4 L0,-9 L8,-3 L9,5 L3,9 L-6,6 Z" filter="url(#glow-bright)" />
+                </g>
+                <g id="pt-dust">
+                    <circle cx="0" cy="0" r="6" />
+                    <circle cx="-5" cy="4" r="4" opacity="0.8"/>
+                    <circle cx="5" cy="-2" r="3" opacity="0.6"/>
+                    <circle cx="-2" cy="-6" r="3" opacity="0.5"/>
                 </g>
             </defs>
 
@@ -286,21 +289,16 @@
             <!-- STAGE 1: EXTRACTION & CRUSHING             -->
             <!-- ========================================== -->
             
-            <!-- Limestone Line (Left) -->
             <g transform="translate(300, 150)" filter="url(#drop-shadow)">
-                <!-- Hopper -->
                 <path d="M -80,0 L 80,0 L 40,80 L -40,80 Z" fill="url(#accent-grad)" stroke="#ca8a04" stroke-width="3"/>
                 <path d="M -80,0 L -70,-20 L 70,-20 L 80,0 Z" fill="#475569"/>
-                <!-- Crusher Body -->
                 <rect x="-50" y="80" width="100" height="90" fill="url(#metal-v)" rx="10"/>
                 <rect x="-40" y="90" width="80" height="70" fill="#0f172a" rx="5"/>
-                <!-- Jaw Crushers / Gears -->
                 <use href="#gear" x="-15" y="125" class="spin-cw" />
                 <use href="#gear" x="15" y="125" class="spin-ccw" />
                 <path d="M -30,170 L 30,170 L 20,200 L -20,200 Z" fill="url(#metal-v)"/>
             </g>
 
-            <!-- Clay Line (Right) -->
             <g transform="translate(1300, 150)" filter="url(#drop-shadow)">
                 <path d="M -60,0 L 60,0 L 30,80 L -30,80 Z" fill="url(#metal-v)" stroke="#475569" stroke-width="3"/>
                 <path d="M -60,0 L -50,-20 L 50,-20 L 60,0 Z" fill="#475569"/>
@@ -311,49 +309,34 @@
                 <path d="M -20,160 L 20,160 L 15,190 L -15,190 Z" fill="url(#metal-v)"/>
             </g>
 
-
-            <!-- ========================================== -->
-            <!-- CONVEYORS & PIPING (Layer 1)               -->
-            <!-- ========================================== -->
+            <!-- Conveyor Belts details (Dark Bases) -->
             <g filter="url(#drop-shadow)">
-                <!-- Left Conveyor (Crusher to Raw Mill) -->
-                <path d="M 300 350 L 300 480 L 450 480" fill="none" stroke="#1e293b" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-                <!-- Right Conveyor (Crusher to Raw Mill) -->
-                <path d="M 1300 340 L 1300 480 L 1150 480" fill="none" stroke="#1e293b" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-                
-                <!-- Center Elevating Pipe (Raw Mill to Blending Silo) -->
-                <path d="M 800 550 L 800 700" fill="none" stroke="url(#pipe-grad)" stroke-width="30" stroke-linecap="round"/>
-                <path d="M 800 550 L 800 700" fill="none" stroke="url(#pipe-glass)" stroke-width="30" stroke-linecap="round"/>
-                
-                <!-- Pipe to Preheater -->
-                <path d="M 800 950 L 800 1000" fill="none" stroke="url(#pipe-grad)" stroke-width="26"/>
+                <path d="M 300 350 L 300 480 L 450 480" fill="none" stroke="#0f172a" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M 1300 340 L 1300 480 L 1150 480" fill="none" stroke="#0f172a" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
             </g>
 
-            <!-- Conveyor Belts details -->
-            <g>
-                <!-- Lime Conveyor Belt -->
-                <path d="M 300 350 L 300 480 L 450 480" fill="none" stroke="#0f172a" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M 300 350 L 300 480 L 450 480" fill="none" stroke="var(--c-lime)" stroke-width="6" class="flow-conveyor" stroke-linecap="round" stroke-linejoin="round"/>
-                <!-- Clay Conveyor Belt -->
-                <path d="M 1300 340 L 1300 480 L 1150 480" fill="none" stroke="#0f172a" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M 1300 340 L 1300 480 L 1150 480" fill="none" stroke="var(--c-clay)" stroke-width="6" class="flow-conveyor" stroke-linecap="round" stroke-linejoin="round"/>
-            </g>
+            <!-- [PARTICLE INJECTION LAYER: Top Belts] -->
+            <g id="p-lime"></g>
+            <g id="p-clay"></g>
 
 
             <!-- ========================================== -->
             <!-- STAGE 2: RAW MILL & BLENDING               -->
             <!-- ========================================== -->
             
-            <!-- Huge Tube Mill (Horizontal) -->
+            <!-- Center Elevating Pipe (Back half) -->
+            <path d="M 800 550 L 800 700" fill="none" stroke="url(#pipe-grad)" stroke-width="30" stroke-linecap="round" filter="url(#drop-shadow)"/>
+            
+            <!-- [PARTICLE INJECTION LAYER: Raw Pipe Inside] -->
+            <g id="p-raw-pipe"></g>
+
+            <!-- Center Elevating Pipe (Front Glass half) -->
+            <path d="M 800 550 L 800 700" fill="none" stroke="url(#pipe-glass)" stroke-width="30" stroke-linecap="round"/>
+
             <g transform="translate(800, 480)" filter="url(#drop-shadow)">
-                <!-- Base supports -->
                 <rect x="-320" y="40" width="60" height="50" fill="#1e293b"/>
                 <rect x="260" y="40" width="60" height="50" fill="#1e293b"/>
-                
-                <!-- Mill Drum -->
                 <rect x="-350" y="-40" width="700" height="80" fill="url(#metal-h)" rx="10"/>
-                
-                <!-- Metal bands on drum (animated to show rotation) -->
                 <g class="roll-kiln" stroke="#334155" stroke-width="12">
                     <line x1="-300" y1="-40" x2="-300" y2="40"/>
                     <line x1="-150" y1="-40" x2="-150" y2="40"/>
@@ -361,14 +344,10 @@
                     <line x1="150" y1="-40" x2="150" y2="40"/>
                     <line x1="300" y1="-40" x2="300" y2="40"/>
                 </g>
-                
-                <!-- Center Discharge -->
                 <path d="M -40,40 L 40,40 L 30,80 L -30,80 Z" fill="url(#metal-v)"/>
             </g>
 
-            <!-- Massive Blending Silos -->
             <g transform="translate(800, 850)" filter="url(#drop-shadow)">
-                <!-- Left Silo -->
                 <g transform="translate(-120, 0)">
                     <path d="M -50,-150 L 50,-150 L 50,50 L -50,50 Z" fill="url(#metal-v)"/>
                     <path d="M -50,-150 L 0,-180 L 50,-150 Z" fill="#475569"/>
@@ -376,7 +355,6 @@
                     <line x1="-50" y1="-100" x2="50" y2="-100" stroke="#1e293b" stroke-width="4"/>
                     <line x1="-50" y1="-20" x2="50" y2="-20" stroke="#1e293b" stroke-width="4"/>
                 </g>
-                <!-- Right Silo -->
                 <g transform="translate(120, 0)">
                     <path d="M -50,-150 L 50,-150 L 50,50 L -50,50 Z" fill="url(#metal-v)"/>
                     <path d="M -50,-150 L 0,-180 L 50,-150 Z" fill="#475569"/>
@@ -384,13 +362,11 @@
                     <line x1="-50" y1="-100" x2="50" y2="-100" stroke="#1e293b" stroke-width="4"/>
                     <line x1="-50" y1="-20" x2="50" y2="-20" stroke="#1e293b" stroke-width="4"/>
                 </g>
-                <!-- Center Main Silo (Larger) -->
                 <g transform="translate(0, 20)">
                     <path d="M -70,-180 L 70,-180 L 70,60 L -70,60 Z" fill="url(#pipe-grad)"/>
                     <path d="M -70,-180 L 0,-220 L 70,-180 Z" fill="#94a3b8"/>
                     <path d="M -70,60 L 0,130 L 70,60 Z" fill="url(#pipe-grad)"/>
-                    <!-- Silo details -->
-                    <rect x="-10" y="-180" width="20" height="240" fill="#334155"/> <!-- Ladder -->
+                    <rect x="-10" y="-180" width="20" height="240" fill="#334155"/>
                     <line x1="-70" y1="-50" x2="70" y2="-50" stroke="#334155" stroke-width="6"/>
                 </g>
             </g>
@@ -400,7 +376,6 @@
             <!-- STAGE 3: PREHEATER TOWER & ROTARY KILN     -->
             <!-- ========================================== -->
             
-            <!-- Structural Tower for Preheater -->
             <g stroke="#1e293b" stroke-width="6" filter="url(#drop-shadow)">
                 <line x1="700" y1="1000" x2="700" y2="1400"/>
                 <line x1="900" y1="1000" x2="900" y2="1400"/>
@@ -412,30 +387,23 @@
                 <line x1="700" y1="1200" x2="900" y2="1300"/>
             </g>
 
-            <!-- Preheater Cyclones (Stacked) -->
             <g transform="translate(800, 1000)" filter="url(#drop-shadow)">
-                <!-- Cyclone 1 (Top) -->
                 <path d="M -40,30 L 40,30 L 40,70 L 10,120 L -10,120 L -40,70 Z" fill="url(#metal-v)"/>
                 <rect x="-15" y="0" width="30" height="30" fill="url(#metal-v)"/>
-                <!-- Connecting Duct -->
                 <path d="M 0,120 C 0,140 60,120 60,150" fill="none" stroke="url(#pipe-grad)" stroke-width="12"/>
 
-                <!-- Cyclone 2 -->
                 <g transform="translate(50, 120) scale(0.9)">
                     <path d="M -40,30 L 40,30 L 40,70 L 10,120 L -10,120 L -40,70 Z" fill="url(#metal-v)"/>
                     <rect x="-15" y="0" width="30" height="30" fill="url(#metal-v)"/>
                     <path d="M 0,120 C 0,140 -80,120 -80,150" fill="none" stroke="url(#pipe-grad)" stroke-width="12"/>
                 </g>
 
-                <!-- Cyclone 3 -->
                 <g transform="translate(-30, 230) scale(1.1)">
                     <path d="M -40,30 L 40,30 L 40,70 L 10,120 L -10,120 L -40,70 Z" fill="url(#metal-v)"/>
                     <rect x="-15" y="0" width="30" height="30" fill="url(#metal-v)"/>
-                    <!-- Inlet to Kiln -->
                     <path d="M 0,120 C 0,160 50,140 50,180" fill="none" stroke="url(#metal-v)" stroke-width="20"/>
                 </g>
 
-                <!-- Steam/Exhaust out the top -->
                 <g transform="translate(0, -10)">
                     <circle cx="-10" cy="-20" r="15" fill="#94a3b8" class="smoke" />
                     <circle cx="10" cy="-40" r="25" fill="#cbd5e1" class="smoke" />
@@ -443,42 +411,35 @@
                 </g>
             </g>
 
-            <!-- Massive Rotary Kiln (Tilted) -->
+            <!-- [PARTICLE INJECTION LAYER: Preheater Weave Drop] -->
+            <g id="p-preheater"></g>
+
             <g transform="translate(820, 1420) rotate(-4)" filter="url(#drop-shadow)">
-                
-                <!-- Support Piers -->
                 <path d="M -400,60 L -360,60 L -370,180 L -410,180 Z" fill="#1e293b"/>
                 <path d="M -150,60 L -110,60 L -120,180 L -160,180 Z" fill="#1e293b"/>
                 <path d="M 100,60 L 140,60 L 130,180 L 90,180 Z" fill="#1e293b"/>
 
-                <!-- Main Kiln Tube -->
                 <rect x="-480" y="-50" width="650" height="100" fill="url(#kiln-grad)" rx="5"/>
-                
-                <!-- Intense Heat Glow Overlay (Burning Zone) -->
                 <rect x="-480" y="-50" width="400" height="100" fill="url(#heat-grad)" style="mix-blend-mode: overlay;" class="pulsing-heat"/>
                 
-                <!-- Tire Rings (Riding Rings) -->
+                <!-- [PARTICLE INJECTION LAYER: Inside Kiln] -->
+                <g id="p-kiln"></g>
+
                 <rect x="-390" y="-55" width="20" height="110" fill="#0f172a" rx="2"/>
                 <rect x="-140" y="-55" width="20" height="110" fill="#0f172a" rx="2"/>
                 <rect x="110" y="-55" width="20" height="110" fill="#0f172a" rx="2"/>
 
-                <!-- Kiln Drive Gear (Center) -->
                 <rect x="-30" y="-60" width="40" height="120" fill="url(#accent-grad)" rx="3"/>
                 <path d="M -30,-60 L 10,-60 L 10,60 L -30,60 Z" fill="none" stroke="#ca8a04" stroke-width="4" stroke-dasharray="8 4" class="roll-kiln"/>
 
-                <!-- Burner Pipe (Fuel Injection) -->
                 <path d="M -600,0 L -480,0" fill="none" stroke="#475569" stroke-width="12"/>
                 <path d="M -500,-10 L -470,0 L -500,10 Z" fill="#0f172a"/>
                 
-                <!-- Raging Flames inside Kiln -->
                 <g transform="translate(-470, 0)" class="flame-anim" filter="url(#glow-fire)">
                     <path d="M 0,0 C 80,-40 150,-10 220,0 C 150,10 80,40 0,0 Z" fill="#ef4444"/>
                     <path d="M 0,0 C 60,-20 120,-5 180,0 C 120,5 60,20 0,0 Z" fill="#f59e0b"/>
                     <path d="M 0,0 C 40,-10 80,-2 120,0 C 80,2 40,10 0,0 Z" fill="#ffffff"/>
                 </g>
-
-                <!-- Fuel line flowing in -->
-                <path d="M -700,0 L -500,0" fill="none" stroke="var(--c-fire)" stroke-width="4" stroke-dasharray="10 5" class="flow-conveyor" filter="url(#glow-bright)"/>
             </g>
 
 
@@ -486,15 +447,10 @@
             <!-- STAGE 4: CLINKER COOLER & FINISH MILL      -->
             <!-- ========================================== -->
             
-            <!-- Grate Cooler -->
             <g transform="translate(450, 1500)" filter="url(#drop-shadow)">
-                <!-- Main Cooler Box -->
                 <polygon points="-80,-40 120,0 120,80 -80,80" fill="url(#metal-v)" stroke="#334155" stroke-width="4"/>
-                
-                <!-- Glowing Clinker Bed inside -->
                 <polygon points="-70,-20 110,10 110,30 -70,0" fill="url(#heat-grad)" class="pulsing-heat"/>
                 
-                <!-- Cooling Fans (Bottom) -->
                 <g transform="translate(-40, 90)">
                     <circle cx="0" cy="0" r="20" fill="#0f172a"/>
                     <path d="M-15,0 L15,0 M0,-15 L0,15" stroke="#38bdf8" stroke-width="6" class="spin-fast" filter="url(#glow-bright)"/>
@@ -508,34 +464,29 @@
                     <path d="M-15,0 L15,0 M0,-15 L0,15" stroke="#38bdf8" stroke-width="6" class="spin-fast" filter="url(#glow-bright)"/>
                 </g>
 
-                <!-- Drop chute -->
                 <path d="M 80,80 L 80,140 L 40,180" fill="none" stroke="url(#pipe-grad)" stroke-width="30" stroke-linejoin="round"/>
             </g>
 
-            <!-- Conveyor from Cooler to Finish Mill -->
-            <path d="M 450 1680 L 750 1680" fill="none" stroke="#1e293b" stroke-width="24" stroke-linecap="round"/>
-            <path d="M 450 1680 L 750 1680" fill="none" stroke="var(--c-clink)" stroke-width="8" stroke-dasharray="12 6" class="flow-conveyor" filter="url(#glow-bright)"/>
+            <path d="M 450 1680 L 750 1680" fill="none" stroke="#1e293b" stroke-width="24" stroke-linecap="round" filter="url(#drop-shadow)"/>
+            
+            <!-- [PARTICLE INJECTION LAYER: Cooler Belt] -->
+            <g id="p-cooler"></g>
 
-            <!-- Gypsum Hopper (Right side feeding into finish mill) -->
             <g transform="translate(1200, 1600)" filter="url(#drop-shadow)">
                 <path d="M -50,-50 L 50,-50 L 20,40 L -20,40 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
-                <text x="0" y="-10" text-anchor="middle" font-family="Orbitron" font-size="14" font-weight="bold" fill="#0f172a">GYPSUM</text>
-                <!-- Feeder -->
                 <path d="M -10,40 L -10,80 L -300,80" fill="none" stroke="#1e293b" stroke-width="16" stroke-linejoin="round"/>
-                <path d="M -10,40 L -10,80 L -300,80" fill="none" stroke="var(--c-gyps)" stroke-width="6" stroke-dasharray="8 4" class="flow-conveyor"/>
+                
+                <!-- [PARTICLE INJECTION LAYER: Gypsum] -->
+                <g id="p-gypsum"></g>
             </g>
 
-            <!-- Finish Tube Mill -->
             <g transform="translate(800, 1750)" filter="url(#drop-shadow)">
-                <!-- Bases -->
                 <rect x="-180" y="50" width="50" height="40" fill="#1e293b"/>
                 <rect x="130" y="50" width="50" height="40" fill="#1e293b"/>
                 
-                <!-- Mill Body -->
                 <rect x="-200" y="-50" width="400" height="100" fill="url(#metal-v)" rx="8"/>
                 <rect x="-200" y="-50" width="400" height="100" fill="none" stroke="#475569" stroke-width="4" rx="8"/>
                 
-                <!-- Rotation details -->
                 <g class="roll-kiln" stroke="#0f172a" stroke-width="8">
                     <line x1="-150" y1="-50" x2="-150" y2="50"/>
                     <line x1="-50" y1="-50" x2="-50" y2="50"/>
@@ -543,8 +494,10 @@
                     <line x1="150" y1="-50" x2="150" y2="50"/>
                 </g>
 
-                <!-- Elevator / Transport pipe to Cement Silos -->
                 <path d="M 0,50 L 0,150" fill="none" stroke="url(#pipe-grad)" stroke-width="36"/>
+                <!-- [PARTICLE INJECTION LAYER: Finish Mill Up-Pipe] -->
+                <g id="p-cem-pipe"></g>
+                <path d="M 0,50 L 0,150" fill="none" stroke="url(#pipe-glass)" stroke-width="36"/>
             </g>
 
 
@@ -552,16 +505,13 @@
             <!-- STAGE 5: CEMENT SILOS & DISPATCH           -->
             <!-- ========================================== -->
             
-            <!-- Massive Concrete Dispatch Silos -->
             <g transform="translate(800, 2050)" filter="url(#drop-shadow)">
-                <!-- Silo 1 -->
                 <g transform="translate(-100, 0)">
                     <rect x="-60" y="-150" width="120" height="150" fill="url(#pipe-grad)"/>
                     <path d="M -60,-150 L 0,-180 L 60,-150 Z" fill="#94a3b8"/>
                     <path d="M -60,0 L -20,60 L 20,60 L 60,0 Z" fill="url(#pipe-grad)"/>
                     <rect x="-20" y="60" width="40" height="20" fill="#1e293b"/>
                 </g>
-                <!-- Silo 2 -->
                 <g transform="translate(100, 0)">
                     <rect x="-60" y="-150" width="120" height="150" fill="url(#pipe-grad)"/>
                     <path d="M -60,-150 L 0,-180 L 60,-150 Z" fill="#94a3b8"/>
@@ -570,88 +520,70 @@
                 </g>
             </g>
 
-            <!-- Dispatch Truck (Highly Realistic) -->
+            <!-- [PARTICLE INJECTION LAYER: Silos to Truck] -->
+            <g id="p-dispatch"></g>
+
             <g transform="translate(800, 2150)" filter="url(#drop-shadow)">
-                <!-- Dust / Filling effect -->
                 <path d="M -100,-20 L -80,20 L -120,20 Z" fill="rgba(148, 163, 184, 0.5)" filter="url(#glow-bright)"/>
 
-                <!-- Truck Chassis & Wheels -->
                 <rect x="-180" y="50" width="260" height="15" fill="#1e293b" rx="5"/>
                 <circle cx="-140" cy="70" r="16" fill="#0f172a" stroke="#475569" stroke-width="4"/>
                 <circle cx="-90" cy="70" r="16" fill="#0f172a" stroke="#475569" stroke-width="4"/>
                 <circle cx="50" cy="70" r="16" fill="#0f172a" stroke="#475569" stroke-width="4"/>
                 
-                <!-- Truck Cab -->
                 <path d="M 40,50 L 40,0 L 80,0 L 100,20 L 100,50 Z" fill="url(#accent-grad)"/>
-                <polygon points="50,5 75,5 90,20 50,20" fill="#0f172a"/> <!-- Window -->
+                <polygon points="50,5 75,5 90,20 50,20" fill="#0f172a"/>
 
-                <!-- Cement Drum / Tanker -->
                 <ellipse cx="-70" cy="15" rx="90" ry="35" fill="url(#metal-v)"/>
                 <ellipse cx="-70" cy="15" rx="90" ry="35" fill="none" stroke="#e2e8f0" stroke-width="2"/>
-                <path d="M -150,50 L -160,0 L -180,0 L -180,50 Z" fill="url(#accent-grad)"/> <!-- Rear engine/pump -->
-            </g>
-
-            <!-- ========================================== -->
-            <!-- DYNAMIC MATERIAL FLOW (Piping Internal)    -->
-            <!-- ========================================== -->
-            <g filter="url(#glow-bright)">
-                <!-- Raw Mix Flowing UP to Preheater -->
-                <path d="M 800 550 L 800 700" fill="none" stroke="var(--c-mix)" stroke-width="8" class="flow-path"/>
-                <path d="M 800 950 L 800 1000" fill="none" stroke="var(--c-mix)" stroke-width="8" class="flow-path"/>
-                
-                <!-- Dropping into Preheater Tower -->
-                <path d="M 800 1000 L 800 1350" fill="none" stroke="var(--c-mix)" stroke-width="6" class="flow-path"/>
-
-                <!-- Finished Cement Flowing UP to Silos -->
-                <path d="M 800 1800 L 800 1900" fill="none" stroke="var(--c-cem)" stroke-width="12" class="flow-path"/>
-            </g>
-
-
-            <!-- ========================================== -->
-            <!-- SYSTEM LABELS & SCADA TAGS                 -->
-            <!-- ========================================== -->
-            <g>
-                <!-- Stage 1 -->
-                <rect x="200" y="50" width="200" height="40" class="label-bg"/>
-                <text x="300" y="75" text-anchor="middle" class="label-txt" fill="var(--c-lime)">1. LIMESTONE EXTRACTION</text>
-
-                <rect x="1200" y="50" width="200" height="40" class="label-bg"/>
-                <text x="1300" y="75" text-anchor="middle" class="label-txt" fill="var(--c-clay)">1. CLAY EXTRACTION</text>
-
-                <!-- Stage 2 -->
-                <rect x="700" y="400" width="200" height="40" class="label-bg"/>
-                <text x="800" y="425" text-anchor="middle" class="label-txt" fill="var(--c-mix)">2. RAW TUBE MILL</text>
-
-                <rect x="920" y="750" width="160" height="40" class="label-bg"/>
-                <text x="1000" y="775" text-anchor="middle" class="label-txt" fill="var(--c-mix)">HOMOGENIZATION</text>
-
-                <!-- Stage 3 -->
-                <rect x="940" y="1150" width="180" height="40" class="label-bg"/>
-                <text x="1030" y="1175" text-anchor="middle" class="label-txt" fill="#f8fafc">3. CYCLONE PREHEATER</text>
-
-                <rect x="500" y="1250" width="220" height="40" class="label-bg"/>
-                <text x="610" y="1275" text-anchor="middle" class="label-txt" fill="var(--c-fire)">3. ROTARY KILN (1450°C)</text>
-
-                <!-- Stage 4 -->
-                <rect x="300" y="1460" width="180" height="40" class="label-bg"/>
-                <text x="390" y="1485" text-anchor="middle" class="label-txt" fill="var(--c-clink)">4. GRATE COOLER</text>
-
-                <rect x="880" y="1700" width="180" height="40" class="label-bg"/>
-                <text x="970" y="1725" text-anchor="middle" class="label-txt" fill="var(--c-cem)">4. FINISH MILL</text>
-
-                <!-- Stage 5 -->
-                <rect x="940" y="1950" width="180" height="40" class="label-bg"/>
-                <text x="1030" y="1975" text-anchor="middle" class="label-txt" fill="var(--c-cem)">5. STORAGE SILOS</text>
-
-                <rect x="500" y="2150" width="220" height="40" class="label-bg"/>
-                <text x="610" y="2175" text-anchor="middle" class="label-txt" fill="var(--c-accent)" style="font-size: 18px;">BULK DISPATCH TERMINAL</text>
+                <path d="M -150,50 L -160,0 L -180,0 L -180,50 Z" fill="url(#accent-grad)"/>
             </g>
 
         </svg>
     </div>
 
     <script>
-        // Automatic System Tour Logic
+        // --- Particle Generation Engine ---
+        const particleStreams = [
+            { parent: 'p-lime',      id: '#pt-rock',    path: 'M 300 350 L 300 480 L 450 480', color: 'var(--c-lime)', count: 9, speed: 3.5, type: 'rock' },
+            { parent: 'p-clay',      id: '#pt-rock',    path: 'M 1300 340 L 1300 480 L 1150 480', color: 'var(--c-clay)', count: 9, speed: 3.5, type: 'rock' },
+            { parent: 'p-raw-pipe',  id: '#pt-dust',    path: 'M 800 550 L 800 700', color: 'var(--c-mix)', count: 6, speed: 2, type: 'dust' },
+            { parent: 'p-preheater', id: '#pt-dust',    path: 'M 800 950 L 800 1020 L 860 1100 L 750 1200 L 820 1300 L 820 1420', color: 'var(--c-mix)', count: 18, speed: 5, type: 'dust' },
+            { parent: 'p-kiln',      id: '#pt-clinker', path: 'M -480 35 L 100 35', color: 'var(--c-clink)', count: 12, speed: 6, type: 'rock' },
+            { parent: 'p-cooler',    id: '#pt-clinker', path: 'M 450 1680 L 750 1680', color: 'var(--c-clink)', count: 8, speed: 3, type: 'rock' },
+            { parent: 'p-gypsum',    id: '#pt-rock',    path: 'M -10 40 L -10 80 L -300 80', color: 'var(--c-gyps)', count: 6, speed: 2.5, type: 'rock' },
+            { parent: 'p-cem-pipe',  id: '#pt-dust',    path: 'M 0 50 L 0 150', color: 'var(--c-cem)', count: 6, speed: 2, type: 'dust' },
+            { parent: 'p-dispatch',  id: '#pt-dust',    path: 'M 700 2050 L 730 2130', color: 'var(--c-cem)', count: 4, speed: 1.2, type: 'dust' },
+            { parent: 'p-dispatch',  id: '#pt-dust',    path: 'M 900 2050 L 730 2130', color: 'var(--c-cem)', count: 4, speed: 1.2, type: 'dust' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            particleStreams.forEach(stream => {
+                const parentGroup = document.getElementById(stream.parent);
+                if (!parentGroup) return;
+
+                for(let i = 0; i < stream.count; i++) {
+                    const delay = -(stream.speed / stream.count) * i;
+                    const useElement = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+                    
+                    useElement.setAttribute('href', stream.id);
+                    useElement.setAttribute('class', `particle-${stream.type}`);
+                    
+                    useElement.style.setProperty('--path', `path('${stream.path}')`);
+                    useElement.style.setProperty('--speed', `${stream.speed}s`);
+                    useElement.style.setProperty('--delay', `${delay}s`);
+                    useElement.style.fill = stream.color;
+                    
+                    if(stream.type === 'rock') {
+                        useElement.style.filter = `drop-shadow(0 0 5px ${stream.color})`;
+                    }
+                    
+                    parentGroup.appendChild(useElement);
+                }
+            });
+        });
+
+        // --- Automatic System Tour Logic ---
         const steps = [
             document.getElementById('step-1'),
             document.getElementById('step-2'),
@@ -660,15 +592,7 @@
             document.getElementById('step-5')
         ];
         
-        // Define coordinates to scroll the canvas to for each step (x, y)
-        const scrollPositions = [
-            0,     // 1. Crushing
-            400,   // 2. Milling & Blending
-            1000,  // 3. Preheater & Kiln
-            1500,  // 4. Cooler & Finish
-            2000   // 5. Dispatch
-        ];
-
+        const scrollPositions = [0, 400, 1000, 1500, 2000];
         let currentStep = 0;
         const canvasWrapper = document.getElementById('canvas-wrapper');
 
@@ -679,7 +603,6 @@
             activeStep.classList.add('active');
             activeStep.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-            // Smooth scroll the canvas to focus on the machinery
             canvasWrapper.scrollTo({
                 top: scrollPositions[currentStep] * (canvasWrapper.scrollHeight / 2400),
                 behavior: 'smooth'
@@ -688,7 +611,6 @@
             currentStep = (currentStep + 1) % steps.length;
         }
 
-        // Allow manual click on steps to pause auto-cycle temporarily
         let cycleTimer = setInterval(autoCycle, 5000);
         
         steps.forEach((step, index) => {
@@ -700,9 +622,9 @@
             });
         });
 
-        autoCycle(); // Init
+        autoCycle();
 
-        // Live Telemetry Simulation
+        // --- Live Telemetry Simulation ---
         const kilnTemp = document.getElementById('kiln-temp');
         const feedRate = document.getElementById('feed-rate');
         const phTemp = document.getElementById('ph-temp');
@@ -715,21 +637,19 @@
             outputRate.innerText = `${305 + (Math.floor(Math.random() * 5) - 2)} T/H`;
         }, 1500);
 
-        // Simple drag-to-scroll for canvas
-        let isDown = false;
-        let startY;
-        let scrollTop;
+        // --- Simple drag-to-scroll for canvas ---
+        let isDown = false, startY, scrollTop;
 
         canvasWrapper.addEventListener('mousedown', (e) => {
             isDown = true;
             startY = e.pageY - canvasWrapper.offsetTop;
             scrollTop = canvasWrapper.scrollTop;
-            clearInterval(cycleTimer); // pause tour on interaction
+            clearInterval(cycleTimer);
         });
         canvasWrapper.addEventListener('mouseleave', () => isDown = false);
         canvasWrapper.addEventListener('mouseup', () => {
             isDown = false;
-            cycleTimer = setInterval(autoCycle, 5000); // resume
+            cycleTimer = setInterval(autoCycle, 5000);
         });
         canvasWrapper.addEventListener('mousemove', (e) => {
             if (!isDown) return;
@@ -742,4 +662,5 @@
     </script>
 </body>
 </html>
+
 

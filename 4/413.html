@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pascal's Law Proof Animation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            max-width: 900px;
+            width: 100%;
+            gap: 20px;
+        }
+
+        .canvas-area {
+            flex: 1.5;
+            border-right: 2px solid #eee;
+            padding-right: 20px;
+        }
+
+        .info-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        h2 { color: #2c3e50; margin-top: 0; }
+        
+        #derivation-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #444;
+            min-height: 250px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover { background: #2980b9; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* SVG Styling */
+        .vector { stroke-width: 3; fill: none; transition: all 0.5s ease; }
+        .px-color { stroke: #3498db; fill: #3498db; } /* Blue */
+        .py-color { stroke: #27ae60; fill: #27ae60; } /* Green */
+        .pz-color { stroke: #e74c3c; fill: #e74c3c; } /* Red */
+        .label { font-weight: bold; font-size: 14px; }
+        .math { font-style: italic; }
+        .hidden { opacity: 0; }
+        .highlight { stroke-width: 6; filter: drop-shadow(0 0 3px rgba(0,0,0,0.3)); }
+    </style>
+</head>
+<body>
+
+    <h2>Proof of Pascal's Law (Wedge Method)</h2>
+
+    <div class="container">
+        <div class="canvas-area">
+            <svg width="450" height="400" viewBox="0 0 450 400" id="svg-canvas">
+                <defs>
+                    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#3498db" />
+                    </marker>
+                    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#27ae60" />
+                    </marker>
+                    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#e74c3c" />
+                    </marker>
+                </defs>
+
+                <path d="M 100 100 L 100 300 L 350 300 Z" fill="#ecf0f1" stroke="#2c3e50" stroke-width="2" />
+                <text x="80" y="95" class="label">A</text>
+                <text x="80" y="315" class="label">C</text>
+                <text x="360" y="315" class="label">B</text>
+                <text x="320" y="295" class="label">θ</text>
+
+                <line id="vec-px" x1="20" y1="200" x2="95" y2="200" class="vector px-color" marker-end="url(#arrow-blue)" />
+                <text id="label-px" x="30" y="190" class="label px-color">Px</text>
+
+                <line id="vec-py" x1="225" y1="380" x2="225" y2="305" class="vector py-color" marker-end="url(#arrow-green)" />
+                <text id="label-py" x="235" y="360" class="label py-color">Py</text>
+
+                <line id="vec-pz" x1="320" y1="120" x2="235" y2="210" class="vector pz-color" marker-end="url(#arrow-red)" />
+                <text id="label-pz" x="280" y="150" class="label pz-color">Pz</text>
+
+                <line id="vec-pz-x" x1="235" y1="210" x2="280" y2="210" class="vector px-color hidden" stroke-dasharray="4" marker-end="url(#arrow-blue)" />
+                <line id="vec-pz-y" x1="235" y1="210" x2="235" y2="160" class="vector py-color hidden" stroke-dasharray="4" marker-end="url(#arrow-green)" />
+            </svg>
+        </div>
+
+        <div class="info-area">
+            <div id="derivation-text">
+                <p>Click <b>"Start Proof"</b> to begin the step-by-step derivation of Pascal's Law based on your notes.</p>
+            </div>
+            <div class="controls">
+                <button id="btn-next" onclick="nextStep()">Start Proof</button>
+                <button id="btn-reset" onclick="resetAnimation()">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const textElement = document.getElementById('derivation-text');
+        const btnNext = document.getElementById('btn-next');
+
+        const steps = [
+            {
+                text: "<h3>Step 1: Setup</h3><p>Consider a tiny wedge-shaped fluid element <b>ABC</b> at rest. Since it's at rest, the sum of horizontal and vertical forces must be zero.</p><p>Pressure acts normally to each face.</p>",
+                action: () => {}
+            },
+            {
+                text: "<h3>Step 2: Resolve Pz</h3><p>The inclined pressure <b>Pz</b> acts on face AB. We resolve it into components:</p><ul><li>Horizontal: Pz sin θ</li><li>Vertical: Pz cos θ</li></ul>",
+                action: () => {
+                    document.getElementById('vec-pz-x').classList.remove('hidden');
+                    document.getElementById('vec-pz-y').classList.remove('hidden');
+                    document.getElementById('vec-pz').style.opacity = "0.3";
+                }
+            },
+            {
+                text: "<h3>Step 3: Horizontal Balance</h3><p>ΣFx = 0</p><p><b>Px (AC × 1) = Pz (AB × 1) sin θ</b></p><p>Since sin θ = AC/AB:<br>Px (AC) = Pz (AB) (AC/AB)<br><b>Px = Pz</b></p>",
+                action: () => {
+                    document.getElementById('vec-px').classList.add('highlight');
+                    document.getElementById('vec-pz-x').classList.add('highlight');
+                    document.getElementById('vec-pz-y').style.opacity = "0.1";
+                    document.getElementById('label-py').style.opacity = "0.1";
+                    document.getElementById('vec-py').style.opacity = "0.1";
+                }
+            },
+            {
+                text: "<h3>Step 4: Vertical Balance</h3><p>ΣFy = 0</p><p><b>Py (BC × 1) = Pz (AB × 1) cos θ</b></p><p>Since cos θ = BC/AB:<br>Py (BC) = Pz (AB) (BC/AB)<br><b>Py = Pz</b></p>",
+                action: () => {
+                    document.getElementById('vec-px').classList.remove('highlight');
+                    document.getElementById('vec-px').style.opacity = "0.1";
+                    document.getElementById('vec-pz-x').style.opacity = "0.1";
+                    document.getElementById('vec-pz-x').classList.remove('highlight');
+                    
+                    document.getElementById('vec-py').style.opacity = "1";
+                    document.getElementById('label-py').style.opacity = "1";
+                    document.getElementById('vec-py').classList.add('highlight');
+                    document.getElementById('vec-pz-y').style.opacity = "1";
+                    document.getElementById('vec-pz-y').classList.add('highlight');
+                }
+            },
+            {
+                text: "<h3>Conclusion</h3><p>From our calculations:<br><b>Px = Py = Pz</b></p><p>This proves that the intensity of pressure at any point in a fluid at rest is the <b>same in all directions</b>.</p>",
+                action: () => {
+                    document.querySelectorAll('.vector').forEach(el => {
+                        el.style.opacity = "1";
+                        el.classList.remove('highlight');
+                        el.setAttribute('stroke-dasharray', '0');
+                        el.style.stroke = "#f39c12"; // Change all to Gold
+                    });
+                    btnNext.disabled = true;
+                }
+            }
+        ];
+
+        function nextStep() {
+            if (currentStep < steps.length) {
+                textElement.innerHTML = steps[currentStep].text;
+                steps[currentStep].action();
+                currentStep++;
+                btnNext.innerText = currentStep < steps.length ? "Next Step" : "Finished";
+            }
+        }
+
+        function resetAnimation() {
+            currentStep = 0;
+            textElement.innerHTML = `<p>Click <b>"Start Proof"</b> to begin the step-by-step derivation of Pascal's Law based on your notes.</p>`;
+            btnNext.innerText = "Start Proof";
+            btnNext.disabled = false;
+
+            // Reset SVG
+            const elements = ['vec-pz-x', 'vec-pz-y'];
+            elements.forEach(id => document.getElementById(id).classList.add('hidden'));
+            
+            document.querySelectorAll('.vector').forEach(el => {
+                el.style.opacity = "1";
+                el.classList.remove('highlight');
+            });
+            
+            document.getElementById('vec-pz').style.stroke = "#e74c3c";
+            document.getElementById('vec-px').style.stroke = "#3498db";
+            document.getElementById('vec-py').style.stroke = "#27ae60";
+            document.getElementById('vec-pz-x').style.stroke = "#3498db";
+            document.getElementById('vec-pz-y').style.stroke = "#27ae60";
+            document.getElementById('vec-pz-x').setAttribute('stroke-dasharray', '4');
+            document.getElementById('vec-pz-y').setAttribute('stroke-dasharray', '4');
+            document.getElementById('label-py').style.opacity = "1";
+        }
+    </script>
+</body>
+</html>

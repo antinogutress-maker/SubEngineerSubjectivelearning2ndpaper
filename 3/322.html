@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Structural Analysis Pro | Ultimate Exam Precision</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        
+        /* Realistic Exam Copy Style */
+        .exam-sheet {
+            background-color: #ffffff;
+            background-image: linear-gradient(#f1f5f9 1px, transparent 1px);
+            background-size: 100% 2.2rem;
+            line-height: 2.2rem;
+            padding: 1.5rem 2rem 2.5rem 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            color: #1e293b;
+            font-size: 1.05rem;
+        }
+
+        .exam-sheet::before {
+            content: ''; position: absolute; top: 0; bottom: 0; left: 4.5rem; width: 2px; background-color: #ef4444; opacity: 0.4; z-index: 0;
+        }
+        .content-wrapper { position: relative; z-index: 10; padding-left: 3.5rem; }
+
+        /* Custom Toggle */
+        .toggle-checkbox:checked { right: 0; border-color: #10b981; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #10b981; }
+
+        /* Math Typography */
+        .katex-display { margin: 0.2rem 0 !important; text-align: left !important; }
+        .step-title { font-weight: 700; text-decoration: underline; margin-top: 1.5rem; color: #0f172a; line-height: 1.5; }
+        .theory-note { color: #64748b; font-style: italic; font-size: 0.95rem; line-height: 1.6; margin-top: 0.5rem; display: flex; gap: 0.5rem; }
+        
+        /* SVG Animation & Styles */
+        .draw-path { stroke-dasharray: 3000; stroke-dashoffset: 3000; animation: draw 1.5s ease-out forwards; }
+        .fade-in { opacity: 0; animation: fade 1s ease-out 1s forwards; }
+        @keyframes draw { to { stroke-dashoffset: 0; } }
+        @keyframes fade { to { opacity: 1; } }
+
+        .svg-math-container {
+            display: flex; justify-content: center; align-items: center; 
+            width: 100%; height: 100%; overflow: visible;
+        }
+    </style>
+</head>
+<body class="antialiased text-slate-800">
+
+    <nav class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i data-lucide="ruler" class="w-6 h-6 text-emerald-400"></i>
+                <h1 class="text-xl font-bold tracking-wide">Structural Analyst <span class="text-emerald-400 font-normal">| Subjective Exam Standard</span></h1>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-4 mt-4">
+        
+        <div id="input-section" class="bg-white rounded-xl shadow-md border border-slate-200 p-6 mb-6 transition-all">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b pb-4 border-slate-100">
+                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-6 h-6 text-blue-600"></i> Set Parameters
+                </h2>
+                
+                <label for="mode-toggle" class="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 shadow-sm cursor-pointer hover:bg-slate-100 transition-colors">
+                    <span class="text-sm font-bold text-slate-700">Theoretical Derivation (Assume W, L)</span>
+                    <div class="relative inline-block w-12 align-middle select-none">
+                        <input type="checkbox" id="mode-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-slate-300 appearance-none cursor-pointer transition-all duration-300 z-10 top-0 left-0" checked/>
+                        <div class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 transition-colors duration-300"></div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Support Condition</label>
+                    <select id="beam-type" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-medium">
+                        <option value="ss">Simply Supported</option>
+                        <option value="cantilever">Cantilever (Fixed at Left)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Load Type</label>
+                    <select id="load-type" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-medium text-red-700">
+                        <option value="point">Single Point Load (P)</option>
+                        <option value="two_point">Two Point Loads (Symmetric)</option>
+                        <option value="udl">Uniformly Distributed Load (UDL)</option>
+                        <option value="uvl">UVL (Maximum at Fixed/Support)</option>
+                        <option value="uvl_center">UVL (Maximum at Center)</option>
+                        <option value="udl_point">UDL + Point Load Combo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Total Length <span id="lbl-len" class="text-blue-600">(m)</span></label>
+                    <input type="number" id="beam-len" value="6" min="1" step="0.5" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Load Mag 1 <span id="lbl-mag" class="text-red-600">(kN)</span></label>
+                    <input type="number" id="load-mag" value="10" min="0.1" class="w-full p-3 bg-red-50 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-red-900 font-bold">
+                </div>
+                <div id="mag2-container" class="hidden">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">UDL Mag 2 <span id="lbl-mag2" class="text-indigo-600">(w)</span></label>
+                    <input type="number" id="load-mag2" value="5" min="0.1" class="w-full p-3 bg-indigo-50 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-indigo-900 font-bold">
+                </div>
+            </div>
+            
+            <div id="pos-container" class="mt-6 pt-6 border-t border-slate-100 hidden">
+                <label class="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                    <i data-lucide="crosshair" class="w-5 h-5 text-red-500"></i> <span id="pos-label">Point Load Distance from Left Support A (a)</span>
+                </label>
+                <select id="load-pos" class="w-full md:w-1/3 p-3 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-medium shadow-sm"></select>
+            </div>
+
+            <button onclick="solveNumerical()" class="mt-8 w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold text-lg py-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-2">
+                <i data-lucide="pen-tool" class="w-6 h-6"></i> Calculate Exact SFD & BMD
+            </button>
+        </div>
+
+        <div id="output-section" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <div class="lg:col-span-6 relative overflow-hidden">
+                <button onclick="resetApp()" class="mb-4 flex items-center gap-2 text-slate-700 hover:text-blue-600 font-bold bg-white px-5 py-2.5 rounded-lg shadow-sm border border-slate-200 transition-colors w-max">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i> Edit Inputs
+                </button>
+                <div class="exam-sheet relative">
+                    <div class="content-wrapper" id="math-content"></div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-6 bg-white rounded-xl shadow-lg border border-slate-200 sticky top-24 overflow-hidden">
+                <div class="bg-slate-50 border-b border-slate-200 p-4 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-emerald-600"></i> Free Body Diagram, SFD & BMD
+                    </h3>
+                </div>
+                <div class="p-6 w-full flex justify-center overflow-x-auto bg-white">
+                    <svg id="svg-canvas" viewBox="0 0 700 950" class="w-full max-w-[700px] h-auto"></svg>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const elType = document.getElementById('beam-type');
+        const elLoad = document.getElementById('load-type');
+        const elLen = document.getElementById('beam-len');
+        const elMag = document.getElementById('load-mag');
+        const elMode = document.getElementById('mode-toggle');
+        const elPos = document.getElementById('load-pos');
+        const posCont = document.getElementById('pos-container');
+        const elMag2Container = document.getElementById('mag2-container');
+
+        function updateUI() {
+            const isSym = elMode.checked;
+            const load = elLoad.value;
+            const L = parseFloat(elLen.value) || 6;
+            
+            elLen.disabled = isSym;
+            elMag.disabled = isSym;
+            document.getElementById('load-mag2').disabled = isSym;
+            
+            document.getElementById('lbl-len').innerText = isSym ? "(Assumed L)" : "(m)";
+            
+            let isPoint = load === 'point';
+            let isTwoPoint = load === 'two_point';
+            let isCombo = load === 'udl_point';
+
+            document.getElementById('lbl-mag').innerText = isSym ? (load==='point'||load==='two_point'||load==='udl_point'?"(Assumed P)":"(Assumed w)") : (load==='point'||load==='two_point'?"(kN)":"(kN/m)");
+
+            if (isCombo) {
+                elMag2Container.classList.remove('hidden');
+                document.getElementById('lbl-mag2').innerText = isSym ? "(Assumed w)" : "(kN/m)";
+            } else {
+                elMag2Container.classList.add('hidden');
+            }
+
+            if (isPoint || isCombo || isTwoPoint) {
+                posCont.classList.remove('hidden');
+                elPos.innerHTML = '';
+                
+                if (isTwoPoint) {
+                    document.getElementById('pos-label').innerText = "Distance of loads from supports (a)";
+                    elPos.innerHTML = `<option value="${L/3}">Standard (L/3 from ends)</option>`;
+                    if (!isSym) {
+                        for(let i=0.5; i<=L/2; i+=0.5) if (i !== L/3) elPos.innerHTML += `<option value="${i}">Distance ${i}m from ends</option>`;
+                    }
+                } else {
+                    document.getElementById('pos-label').innerText = "Point Load Distance from Left Support A (a)";
+                    elPos.innerHTML = `<option value="${L/2}">Exactly at Center (${L/2}m)</option>`;
+                    if (!isSym) {
+                        for(let i=1; i<L; i+=0.5) if (i !== L/2) elPos.innerHTML += `<option value="${i}">Eccentric at ${i}m</option>`;
+                    }
+                }
+            } else {
+                posCont.classList.add('hidden');
+            }
+        }
+
+        elLen.addEventListener('input', updateUI);
+        elType.addEventListener('change', updateUI);
+        elLoad.addEventListener('change', updateUI);
+        elMode.addEventListener('change', updateUI);
+        updateUI();
+
+        function solveNumerical() {
+            const isSym = elMode.checked;
+            const beam = elType.value;
+            const load = elLoad.value;
+            
+            const L = parseFloat(elLen.value) || 6;
+            const Mag = parseFloat(elMag.value) || 10;
+            const Mag2 = parseFloat(document.getElementById('load-mag2').value) || 5; 
+            const a = (load === 'point' || load === 'two_point' || load === 'udl_point') ? (parseFloat(elPos.value) || (load==='two_point'?L/3:L/2)) : L/2;
+            const b = L - a;
+            
+            const strL = isSym ? `L` : `${L}`;
+            const strP = isSym ? `P` : `${Mag}`;
+            const strW = isSym ? `w` : `${Mag}`;
+            const strW2 = isSym ? `w` : `${Mag2}`;
+
+            let html = "";
+            const addTitle = (t) => { html += `<div class="step-title">${t}</div>`; };
+            const addMath = (t) => { html += `<div>${katex.renderToString(`\\displaystyle ${t}`, {throwOnError: false})}</div>`; };
+
+            let graphData = { beam, load, isSym, L, Mag, Mag2, a, b, labels: {} };
+
+            if (beam === 'ss') {
+                if (load === 'point') {
+                    const isCenter = (a === L/2);
+                    const strA = isSym ? (isCenter ? `\\frac{L}{2}` : `a`) : `${a}`;
+                    const strB = isSym ? (isCenter ? `\\frac{L}{2}` : `b`) : `${b}`;
+                    
+                    const Ra_sym = isSym ? (isCenter ? `\\frac{P}{2}` : `\\frac{Pb}{L}`) : `${(Mag*b/L).toFixed(2)}`;
+                    const Rb_sym = isSym ? (isCenter ? `\\frac{P}{2}` : `\\frac{Pa}{L}`) : `${(Mag*a/L).toFixed(2)}`;
+                    const M_sym = isSym ? (isCenter ? `\\frac{PL}{4}` : `\\frac{Pab}{L}`) : `${(Mag*a*b/L).toFixed(2)}`;
+
+                    graphData.labels = { Ra: Ra_sym, Rb: Rb_sym, SFA: Ra_sym, SFB: Rb_sym, Mmax: M_sym, Load: strP, distA: strA, distB: strB };
+
+                    addTitle("1. Calculation of Reactions");
+                    addMath(`\\Sigma H = 0 \\implies R_{Ax} = 0`);
+                    addMath(`\\Sigma V = 0 \\implies R_{Ay} + R_{By} - ${strP} = 0 \\implies R_{Ay} + R_{By} = ${strP}`);
+                    addMath(`\\Sigma M_A = 0 \\implies (R_{By} \\times ${strL}) - (${strP} \\times ${strA}) = 0`);
+                    addMath(`R_{By} = \\frac{${strP} \\times ${strA}}{${strL}} = \\mathbf{${Rb_sym}}`);
+                    addMath(`R_{Ay} = ${strP} - ${Rb_sym} = \\mathbf{${Ra_sym}}`);
+
+                    addTitle("2. Calculation of Shear Forces");
+                    addMath(`(V_A)_L = \\mathbf{0}`);
+                    addMath(`(V_A)_R = 0 + R_{Ay} = \\mathbf{${Ra_sym}}`);
+                    addMath(`(V_C)_L = \\mathbf{${Ra_sym}}`);
+                    addMath(`(V_C)_R = ${Ra_sym} - ${strP} = \\mathbf{-${Rb_sym}}`);
+                    addMath(`(V_B)_L = \\mathbf{-${Rb_sym}}`);
+                    addMath(`(V_B)_R = -${Rb_sym} + R_{By} = -${Rb_sym} + ${Rb_sym} = \\mathbf{0}`);
+
+                    addTitle("3. Calculation of Bending Moment");
+                    addMath(`M_A = \\mathbf{0}`);
+                    addMath(`M_C = (R_{Ay} \\times ${strA}) = \\mathbf{${M_sym}}`);
+                    addMath(`M_B = (R_{Ay} \\times ${strL}) - (${strP} \\times ${strB})`);
+                    if(isSym) addMath(`M_B = \\mathbf{0}`);
+                    else addMath(`M_B = (${Ra_sym} \\times ${strL}) - (${strP} \\times ${strB}) = \\mathbf{0}`);
+
+                } else if (load === 'two_point') {
+                    const strA = isSym ? `a` : `${a}`;
+                    const Ra_sym = isSym ? `P` : `${Mag}`;
+                    const M_sym = isSym ? `Pa` : `${(Mag*a).toFixed(2)}`;
+
+                    graphData.labels = { Ra: Ra_sym, Rb: Ra_sym, SFA: Ra_sym, SFB: Ra_sym, Mmax: M_sym, Load: strP, distA: strA };
+
+                    addTitle("1. Calculation of Reactions");
+                    addMath(`\\Sigma H = 0 \\implies R_{Ax} = 0`);
+                    addMath(`\\Sigma V = 0 \\implies R_{Ay} + R_{By} = 2${strP}`);
+                    addMath(`\\Sigma M_A = 0 \\implies (R_{By} \\times ${strL}) - ${strP}(${strA}) - ${strP}(${strL} - ${strA}) = 0`);
+                    addMath(`R_{By} = \\frac{${strP}(${strL})}{${strL}} = \\mathbf{${Ra_sym}}`);
+                    addMath(`R_{Ay} = 2${strP} - ${Ra_sym} = \\mathbf{${Ra_sym}}`);
+
+                    addTitle("2. Calculation of Shear Forces");
+                    addMath(`(V_A)_L = \\mathbf{0}`);
+                    addMath(`(V_A)_R = 0 + R_{Ay} = \\mathbf{${Ra_sym}}`);
+                    addMath(`(V_C)_L = \\mathbf{${Ra_sym}}`);
+                    addMath(`(V_C)_R = ${Ra_sym} - ${strP} = \\mathbf{0}`);
+                    addMath(`(V_D)_L = \\mathbf{0}`);
+                    addMath(`(V_D)_R = 0 - ${strP} = \\mathbf{-${Ra_sym}}`);
+                    addMath(`(V_B)_L = \\mathbf{-${Ra_sym}}`);
+                    addMath(`(V_B)_R = -${Ra_sym} + R_{By} = \\mathbf{0}`);
+
+                    addTitle("3. Calculation of Bending Moment");
+                    addMath(`M_A = \\mathbf{0}`);
+                    addMath(`M_C = (R_{Ay} \\times ${strA}) = \\mathbf{${M_sym}}`);
+                    addMath(`M_D = (R_{Ay} \\times (${strL} - ${strA})) - (${strP} \\times (${strL} - 2${strA})) = \\mathbf{${M_sym}}`);
+                    addMath(`M_B = (R_{Ay} \\times ${strL}) - (${strP} \\times (${strL}-${strA})) - (${strP} \\times ${strA}) = \\mathbf{0}`);
+
+                } else if (load === 'udl') {
+                    const R_val = isSym ? `\\frac{wL}{2}` : `${(Mag*L/2).toFixed(2)}`;
+                    const M_val = isSym ? `\\frac{wL^2}{8}` : `${(Mag*L*L/8).toFixed(2)}`;
+                    const Tot = isSym ? `wL` : `${(Mag*L).toFixed(2)}`;
+
+                    graphData.labels = { Ra: R_val, Rb: R_val, SFA: R_val, SFB: R_val, Mmax: M_val, Load: `${strW} ${isSym?'':'kN/m'}`, distA: isSym?`L/2`:`${L/2}` };
+
+                    addTitle("1. Calculation of Reactions");
+                    addMath(`\\Sigma H = 0 \\implies R_{Ax} = 0`);
+                    addMath(`\\Sigma V = 0 \\implies R_{Ay} + R_{By} - (${strW} \\times ${strL}) = 0`);
+                    addMath(`\\Sigma M_A = 0 \\implies (R_{By} \\times ${strL}) - (${strW} \\times ${strL}) \\times \\frac{${strL}}{2} = 0`);
+                    addMath(`R_{By} = \\mathbf{${R_val}}`);
+                    addMath(`R_{Ay} = (${strW} \\times ${strL}) - ${R_val} = \\mathbf{${R_val}}`);
+
+                    addTitle("2. Calculation of Shear Forces");
+                    addMath(`(V_A)_L = \\mathbf{0}`);
+                    addMath(`(V_A)_R = 0 + R_{Ay} = \\mathbf{${R_val}}`);
+                    addMath(`V_C \\; (\\text{at } x=\\frac{${strL}}{2}) = R_{Ay} - ${strW}(\\frac{${strL}}{2}) = \\mathbf{0}`);
+                    addMath(`(V_B)_L = R_{Ay} - ${strW}(${strL}) = \\mathbf{-${R_val}}`);
+                    addMath(`(V_B)_R = -${R_val} + R_{By} = \\mathbf{0}`);
+
+                    addTitle("3. Calculation of Bending Moment");
+                    addMath(`M_A = \\mathbf{0}`);
+                    addMath(`M_C \\; (\\text{at } x=\\frac{${strL}}{2}) = R_{Ay}(\\frac{${strL}}{2}) - \\frac{${strW}(${strL}/2)^2}{2} = \\mathbf{${M_val}}`);
+                    addMath(`M_B = R_{Ay}(${strL}) - \\frac{${strW}(${strL})^2}{2} = \\mathbf{0}`);
+                
+                } else if (load === 'udl_point') {
+                    const R_w = Mag2 * L / 2;
+                    const R_P_B = Mag * a / L;
+                    const R_P_A = Mag - R_P_B;
+                    
+                    const Ra_val = isSym ? `\\frac{wL}{2} + \\frac{Pb}{L}` : `${(R_w + R_P_A).toFixed(2)}`;
+                    const Rb_val = isSym ? `\\frac{wL}{2} + \\frac{Pa}{L}` : `${(R_w + R_P_B).toFixed(2)}`;
+                    
+                    const Va_left = (R_w + R_P_A) - Mag2 * a;
+                    const Va_right = Va_left - Mag;
+                    
+                    let x_max = a; 
+                    let M_val = 0;
+                    if (!isSym) {
+                        if (Va_left >= 0 && Va_right <= 0) x_max = a; 
+                        else if (Va_left < 0) x_max = (R_w + R_P_A) / Mag2; 
+                        else x_max = ((R_w + R_P_A) - Mag) / Mag2; 
+                        
+                        M_val = (R_w + R_P_A)*x_max - Mag2*x_max*x_max/2;
+                        if (x_max > a) M_val -= Mag*(x_max - a);
+                    }
+                    
+                    const strM = isSym ? `\\text{Solve } V_x=0` : `${M_val.toFixed(2)}`;
+                    
+                    graphData.labels = { Ra: Ra_val, Rb: Rb_val, SFA: Ra_val, SFB: Rb_val, Mmax: strM, Load: strP, Load2: strW2, distA: isSym?`a`:`${a}` };
+
+                    addTitle("1. Calculation of Reactions");
+                    addMath(`\\Sigma H = 0 \\implies R_{Ax} = 0`);
+                    addMath(`\\Sigma V = 0 \\implies R_{Ay} + R_{By} - (${strW2} \\times ${strL}) - ${strP} = 0`);
+                    addMath(`\\Sigma M_A = 0 \\implies (R_{By} \\times ${strL}) - (${strW2} \\times ${strL})(\\frac{${strL}}{2}) - (${strP} \\times ${isSym?'a':a}) = 0`);
+                    addMath(`R_{By} = \\mathbf{${Rb_val}}, \\quad R_{Ay} = \\mathbf{${Ra_val}}`);
+
+                    addTitle("2. Calculation of Shear Forces");
+                    addMath(`(V_A)_L = \\mathbf{0}`);
+                    addMath(`(V_A)_R = 0 + R_{Ay} = \\mathbf{${Ra_val}}`);
+                    addMath(`(V_C)_L = R_{Ay} - ${strW2}(${isSym?'a':a}) = \\mathbf{${isSym?'...':Va_left.toFixed(2)}}`);
+                    addMath(`(V_C)_R = (V_C)_L - ${strP} = \\mathbf{${isSym?'...':Va_right.toFixed(2)}}`);
+                    addMath(`(V_B)_L = (V_C)_R - ${strW2}(${strL} - ${isSym?'a':a}) = \\mathbf{-${Rb_val}}`);
+                    addMath(`(V_B)_R = -${Rb_val} + R_{By} = \\mathbf{0}`);
+
+                    addTitle("3. Calculation of Bending Moment");
+                    addMath(`M_A = \\mathbf{0}`);
+                    if(isSym) {
+                        addMath(`M_{max} \\text{ occurs at } V_x = 0`);
+                    } else {
+                        addMath(`\\text{Set } V_x = 0 \\implies x = ${x_max.toFixed(3)}\\text{ m}`);
+                        addMath(`M_{max} \\text{ at } x=${x_max.toFixed(2)} = R_{Ay}(x) - \\frac{${strW2}x^2}{2} = \\mathbf{${strM}}`);
+                    }
+                    addMath(`M_B = R_{Ay}(${strL}) - \\frac{${strW2}(${strL})^2}{2} - ${strP}(${strL}-${isSym?'a':a}) = \\mathbf{0}`);
+
+                } else if (load === 'uvl') {
+                    const Tot = isSym ? `\\frac{wL}{2}` : `${(0.5*Mag*L).toFixed(2)}`;
+                    const Ra_val = isSym ? `\\frac{wL}{6}` : `${(0.5*Mag*L/3).toFixed(2)}`;
+                    const Rb_val = isSym ? `\\frac{wL}{3}` : `${(0.5*Mag*L*2/3).toFixed(2)}`;
+                    const x_val = isSym ? `\\frac{L}{\\sqrt{3}}` : `${(L/Math.sqrt(3)).toFixed(2)}`;
+                    const M_val = isSym ? `\\frac{wL^2}{9\\sqrt{3}}` : `${(Mag*L*L/(9*Math.sqrt(3))).toFixed(2)}`;
+
+                    graphData.labels = { Ra: Ra_val, Rb: Rb_val, SFA: Ra_val, SFB: Rb_val, Mmax: M_val, Load: `${strW} ${isSym?'':'kN/m'}` };
+
+                    addTitle("1. Calculation of Reactions");
+                    addMath(`\\Sigma H = 0 \\implies R_{Ax} = 0`);
+                    addMath(`\\text{Total Load } P_{eq} = \\frac{1}{2} \\times ${strW} \\times ${strL} = ${Tot}`);
+                    addMath(`\\Sigma V = 0 \\implies R_{Ay} + R_{By} - ${Tot} = 0`);
+                    addMath(`\\Sigma M_A = 0 \\implies (R_{By} \\times ${strL}) - ${Tot} \\times (\\frac{2${strL}}{3}) = 0`);
+                    addMath(`R_{By} = \\mathbf{${Rb_val}}, \\quad R_{Ay} = ${Tot} - R_{By} = \\mathbf{${Ra_val}}`);
+
+                    addTitle("2. Calculation of Shear Forces");
+                    addMath(`(V_A)_L = \\mathbf{0}`);
+                    addMath(`(V_A)_R = 0 + R_{Ay} = \\mathbf{${Ra_val}}`);
+                    addMath(`\\text{Shear Eq: } V_x = R_{Ay} - \\frac{1}{2}(\\frac{${strW}}{${strL}}x)x = R_{Ay} - \\frac{${strW}x^2}{2${strL}}`);
+                    addMath(`(V_B)_L = R_{Ay} - \\frac{${strW}(${strL})^2}{2${strL}} = \\mathbf{-${Rb_val}}`);
+                    addMath(`(V_B)_R = -${Rb_val} + R_{By} = \\mathbf{0}`);
+
+                    addTitle("3. Calculation of Bending Moment");
+                    addMath(`M_A = \\mathbf{0}`);
+                    addMath(`\\text{Set } V_x = 0 \\implies x = \\mathbf{${x_val}}`);
+                    addMath(`M_{max} \\; (x = ${x_val}) = R_{Ay}(x) - \\frac{${strW}x^3}{6${strL}} = \\mathbf{${M_val}}`);
+                    addMath(`M_B = R_{Ay}(${strL}) - \\frac{${strW}(${strL})^3}{6${strL}} = \\mathbf{0}`);
+
+                } else if (load === 'uvl_center') {
+                    const Tot = isSym ? `\\frac{wL}{2}` : `${(0.5*Mag*L).toFixed(2)}`;
+                    const R_val = isSym ? `\\frac{wL}{4}` : `${(0.5*Mag*L/2).toFixed(2)}`;
+                    const M_val = isSym ? `\\frac{wL^2}{12}` : `${(Mag*L*L/12).toFixed(2)}`;
+
+                    graphData.labels = { Ra: R_val, Rb: R_val, SFA: R_val, SFB: R_val, Mmax: M_val, Load: `${strW} ${isSym?'':'kN/m'}` };
+
+                    addTitle("1. Calculation of Reactions");
+                    addMath(`\\Sigma H = 0 \\implies R_{Ax} = 0`);
+                    addMath(`\\Sigma V = 0 \\implies R_{Ay} + R_{By} - \\frac{1}{2}(${strW})(${strL}) = 0`);
+                    addMath(`\\text{Due to Symmetry: } R_{Ay} = R_{By} = \\frac{1}{2}(\\frac{${strW}${strL}}{2}) = \\mathbf{${R_val}}`);
+
+                    addTitle("2. Calculation of Shear Forces");
+                    addMath(`(V_A)_L = \\mathbf{0}, \\quad (V_A)_R = 0 + R_{Ay} = \\mathbf{${R_val}}`);
+                    addMath(`\\text{For } x \\le L/2: V_x = R_{Ay} - \\frac{${strW}x^2}{${strL}}`);
+                    addMath(`V_C \\; (\\text{at } x=\\frac{${strL}}{2}) = \\mathbf{0}`);
+                    addMath(`(V_B)_L = \\mathbf{-${R_val}}, \\quad (V_B)_R = -${R_val} + R_{By} = \\mathbf{0}`);
+
+                    addTitle("3. Calculation of Bending Moment");
+                    addMath(`M_A = \\mathbf{0}`);
+                    addMath(`\\text{For } x \\le L/2: M_x = R_{Ay}(x) - \\frac{${strW}x^3}{3${strL}}`);
+                    addMath(`M_C \\; (\\text{at } x=\\frac{${strL}}{2}) = \\mathbf{${M_val}}`);
+                    addMath(`M_B = \\mathbf{0}`);
+                }
+
+            } else { // CANTILEVER (Fixed at A)
+                const isTwoPoint = load === 'two_point';
+                const isCombo = load === 'udl_point';
+
+                let Ra_val, Ma_val, strEqM;
+
+                if (isTwoPoint) {
+                    Ra_val = isSym ? `2P` : (2*Mag).toFixed(2);
+                    Ma_val = isSym ? `Pa + P(L-a) = PL` : (Mag*a + Mag*(L-a)).toFixed(2);
+                    strEqM = `(P \\times a) + (P \\times (L-a))`;
+                } else if (isCombo) {
+                    Ra_val = isSym ? `wL + P` : (Mag2*L + Mag).toFixed(2);
+                    Ma_val = isSym ? `\\frac{wL^2}{2} + P(a)` : (Mag2*L*L/2 + Mag*a).toFixed(2);
+                    strEqM = `(w \\times L \\times \\frac{L}{2}) + (P \\times a)`;
+                } else if (load === 'uvl_center') {
+                    Ra_val = isSym ? `\\frac{wL}{2}` : (0.5*Mag*L).toFixed(2);
+                    Ma_val = isSym ? `\\frac{wL^2}{4}` : (0.5*Mag*L * L/2).toFixed(2);
+                    strEqM = `(\\frac{wL}{2} \\times \\frac{L}{2})`;
+                } else {
+                    Ra_val = isSym ? (load==='point'?`P`:load==='udl'?`wL`:`\\frac{wL}{2}`) : (load==='point'?Mag:load==='udl'?Mag*L:0.5*Mag*L).toFixed(2);
+                    Ma_val = isSym ? (load==='point'?(a===L?`PL`:`Pa`):load==='udl'?`\\frac{wL^2}{2}`:`\\frac{wL^2}{6}`) : (load==='point'?Mag*a:load==='udl'?Mag*L*L/2:0.5*Mag*L*L/3).toFixed(2);
+                    strEqM = isSym ? (load==='point'?`P \\times a`:load==='udl'?`wL \\times \\frac{L}{2}`:`\\frac{wL}{2} \\times \\frac{L}{3}`) : Ma_val;
+                }
+                
+                graphData.labels = { Ra: Ra_val, Rb: '', SFA: Ra_val, SFB: '0', Mmax: Ma_val, Load: isSym?(load==='point'?'P':'w'):Mag, distA: isSym?(a===L?'L':'a'):a };
+                if (isCombo) { graphData.labels.Load = strP; graphData.labels.Load2 = strW2; }
+
+                addTitle("1. Calculation of Reactions");
+                addMath(`\\Sigma H = 0 \\implies R_{Ax} = 0`);
+                addMath(`\\Sigma V = 0 \\implies R_{Ay} - \\Sigma \\text{Loads} = 0 \\implies R_{Ay} = \\mathbf{${Ra_val}}`);
+                addMath(`\\Sigma M_A = 0 \\implies M_A - \\Sigma M_{Loads} = 0`);
+                addMath(`M_A = ${strEqM} = \\mathbf{${Ma_val}} \\; \\text{(Hogging)}`);
+
+                addTitle("2. Calculation of Shear Forces");
+                addMath(`(V_A)_L = \\mathbf{0}`);
+                addMath(`(V_A)_R = 0 + R_{Ay} = \\mathbf{${Ra_val}}`);
+                if(load==='point') {
+                    addMath(`(V_C)_L = \\mathbf{${Ra_val}}`);
+                    addMath(`(V_C)_R = ${Ra_val} - ${strP} = \\mathbf{0}`);
+                }
+                addMath(`(V_B)_L = \\mathbf{0}, \\quad (V_B)_R = \\mathbf{0}`);
+
+                addTitle("3. Calculation of Bending Moment");
+                addMath(`M_A = \\mathbf{-${Ma_val}} \\; \\text{(Fixed End)}`);
+                if(load==='point') addMath(`M_C = -${Ma_val} + R_{Ay}(a) = \\mathbf{0}`);
+                addMath(`M_B = \\mathbf{0} \\; \\text{(Free End)}`);
+            }
+
+            document.getElementById('math-content').innerHTML = html;
+            lucide.createIcons();
+            drawEngine(graphData);
+
+            document.getElementById('input-section').classList.add('hidden');
+            document.getElementById('output-section').classList.remove('hidden');
+        }
+
+        // SVG Drawing Engine
+        function drawEngine(data) {
+            const svg = document.getElementById('svg-canvas');
+            const w = 700, hFBD = 200, hSFD = 480, hBMD = 780;
+            const mX = 90, drawW = w - 2*mX;
+            
+            const scX = x => mX + (x / data.L) * drawW; 
+            
+            const mathObj = (x, y, tex, width=160, height=60) => {
+                const htmlStr = katex.renderToString(`\\displaystyle ${tex}`, {throwOnError: false});
+                return `<foreignObject x="${x - width/2}" y="${y - height/2}" width="${width}" height="${height}">
+                            <div class="svg-math-container" xmlns="http://www.w3.org/1999/xhtml">
+                                <span style="font-size: 1.1rem; color: #0f172a;">${htmlStr}</span>
+                            </div>
+                        </foreignObject>`;
+            };
+
+            let c = `
+                <defs>
+                    <pattern id="sfd-hatch" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+                        <line x1="0" y1="0" x2="0" y2="8" stroke="#3b82f6" stroke-width="1.5" opacity="0.4"/>
+                    </pattern>
+                    <pattern id="bmd-hatch" width="8" height="8" patternTransform="rotate(-45)" patternUnits="userSpaceOnUse">
+                        <line x1="0" y1="0" x2="0" y2="8" stroke="#10b981" stroke-width="1.5" opacity="0.4"/>
+                    </pattern>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+                    </marker>
+                    <marker id="arrow-blue" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
+                    </marker>
+                    <marker id="arrow-combo" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#b91c1c" />
+                    </marker>
+                </defs>
+            `;
+
+            c += `<line x1="${scX(0)}" y1="120" x2="${scX(0)}" y2="880" stroke="#cbd5e1" stroke-dasharray="6,4" stroke-width="1.5" />`;
+            c += `<line x1="${scX(data.L)}" y1="120" x2="${scX(data.L)}" y2="880" stroke="#cbd5e1" stroke-dasharray="6,4" stroke-width="1.5"/>`;
+            
+            let loadPx = scX(data.a);
+            if(data.beam === 'ss' && (data.load === 'point' || data.load === 'udl_point' || data.load === 'uvl_center')) {
+                c += `<line x1="${scX(data.L/2)}" y1="120" x2="${scX(data.L/2)}" y2="880" stroke="#e2e8f0" stroke-dasharray="4,4" stroke-width="1.5"/>`;
+                if (data.a !== data.L/2) c += `<line x1="${loadPx}" y1="120" x2="${loadPx}" y2="880" stroke="#e2e8f0" stroke-dasharray="4,4" stroke-width="1.5"/>`;
+            } else if (data.load === 'two_point') {
+                c += `<line x1="${scX(data.a)}" y1="120" x2="${scX(data.a)}" y2="880" stroke="#e2e8f0" stroke-dasharray="4,4" stroke-width="1.5"/>`;
+                c += `<line x1="${scX(data.L - data.a)}" y1="120" x2="${scX(data.L - data.a)}" y2="880" stroke="#e2e8f0" stroke-dasharray="4,4" stroke-width="1.5"/>`;
+            }
+
+            // --- 1. FREE BODY DIAGRAM (F.B.D) ---
+            c += `<text x="${mX}" y="70" font-weight="bold" font-size="16" fill="#0f172a" text-decoration="underline">Free Body Diagram</text>`;
+            c += `<line x1="${scX(0)}" y1="${hFBD}" x2="${scX(data.L)}" y2="${hFBD}" stroke="#334155" stroke-width="4" stroke-linecap="round" />`;
+            c += `<text x="${scX(0)-20}" y="${hFBD-10}" font-weight="bold" font-size="16" fill="#334155">A</text>`;
+            c += `<text x="${scX(data.L)+20}" y="${hFBD-10}" font-weight="bold" font-size="16" fill="#334155">B</text>`;
+
+            if (data.beam === 'ss') {
+                c += `<polygon points="${scX(0)},${hFBD+3} ${scX(0)-10},${hFBD+18} ${scX(0)+10},${hFBD+18}" fill="#94a3b8" stroke="#334155" stroke-width="2"/>`;
+                c += `<circle cx="${scX(data.L)}" cy="${hFBD+10}" r="7" fill="#94a3b8" stroke="#334155" stroke-width="2"/>`;
+                c += `<line x1="${scX(0)}" y1="${hFBD+75}" x2="${scX(0)}" y2="${hFBD+25}" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue)"/>`;
+                c += mathObj(scX(0), hFBD+95, `R_A`);
+                c += `<line x1="${scX(data.L)}" y1="${hFBD+75}" x2="${scX(data.L)}" y2="${hFBD+25}" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue)"/>`;
+                c += mathObj(scX(data.L), hFBD+95, `R_B`);
+            } else {
+                c += `<rect x="${scX(0)-12}" y="${hFBD-35}" width="12" height="70" fill="#94a3b8" stroke="#334155" stroke-width="2" />`;
+                for(let i=0; i<7; i++) c += `<line x1="${scX(0)-12}" y1="${hFBD-35 + i*10}" x2="${scX(0)-25}" y2="${hFBD-25 + i*10}" stroke="#475569" stroke-width="1.5"/>`;
+                c += `<line x1="${scX(0)}" y1="${hFBD+75}" x2="${scX(0)}" y2="${hFBD+40}" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue)"/>`;
+                c += mathObj(scX(0), hFBD+95, `R_A`);
+                c += mathObj(scX(0)-40, hFBD-50, `M_A`); 
+            }
+
+            if (data.load === 'point') {
+                c += `<line x1="${loadPx}" y1="${hFBD-75}" x2="${loadPx}" y2="${hFBD-5}" stroke="#ef4444" stroke-width="3" marker-end="url(#arrow)"/>`;
+                c += mathObj(loadPx, hFBD-95, data.labels.Load);
+            } else if (data.load === 'two_point') {
+                c += `<line x1="${scX(data.a)}" y1="${hFBD-75}" x2="${scX(data.a)}" y2="${hFBD-5}" stroke="#ef4444" stroke-width="3" marker-end="url(#arrow)"/>`;
+                c += mathObj(scX(data.a), hFBD-95, data.labels.Load);
+                c += `<line x1="${scX(data.L - data.a)}" y1="${hFBD-75}" x2="${scX(data.L - data.a)}" y2="${hFBD-5}" stroke="#ef4444" stroke-width="3" marker-end="url(#arrow)"/>`;
+                c += mathObj(scX(data.L - data.a), hFBD-95, data.labels.Load);
+            } else if (data.load === 'udl') {
+                for(let i=0; i<=20; i++) c += `<line x1="${scX(i*data.L/20)}" y1="${hFBD-40}" x2="${scX(i*data.L/20)}" y2="${hFBD-5}" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+                c += `<line x1="${scX(0)}" y1="${hFBD-40}" x2="${scX(data.L)}" y2="${hFBD-40}" stroke="#ef4444" stroke-width="2"/>`;
+                c += mathObj(scX(data.L/2), hFBD-65, data.labels.Load);
+            } else if (data.load === 'udl_point') {
+                for(let i=0; i<=20; i++) c += `<line x1="${scX(i*data.L/20)}" y1="${hFBD-30}" x2="${scX(i*data.L/20)}" y2="${hFBD-5}" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+                c += `<line x1="${scX(0)}" y1="${hFBD-30}" x2="${scX(data.L)}" y2="${hFBD-30}" stroke="#ef4444" stroke-width="2"/>`;
+                c += mathObj(scX(data.L*0.2), hFBD-50, data.labels.Load2);
+                c += `<line x1="${loadPx}" y1="${hFBD-90}" x2="${loadPx}" y2="${hFBD-5}" stroke="#b91c1c" stroke-width="4" marker-end="url(#arrow-combo)"/>`;
+                c += mathObj(loadPx, hFBD-110, data.labels.Load);
+            } else if (data.load === 'uvl') {
+                let pts = `${scX(0)},${hFBD} `;
+                for(let i=0; i<=20; i++) {
+                    let px = scX(i*data.L/20); let ht = data.beam==='ss' ? 60*(i/20) : 60*(1 - i/20);
+                    if(ht>5) c += `<line x1="${px}" y1="${hFBD-ht}" x2="${px}" y2="${hFBD-5}" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+                    pts += `${px},${hFBD-ht} `;
+                }
+                c += mathObj(scX(data.beam==='ss'?data.L*0.85:data.L*0.15), hFBD-75, data.labels.Load);
+                c += `<polyline points="${pts}" fill="none" stroke="#ef4444" stroke-width="2"/>`;
+            } else if (data.load === 'uvl_center') {
+                let pts = `${scX(0)},${hFBD} `;
+                for(let i=0; i<=20; i++) {
+                    let px = scX(i*data.L/20); 
+                    let ratio = i/20;
+                    let ht = ratio <= 0.5 ? 60*(ratio/0.5) : 60*((1-ratio)/0.5);
+                    if(ht>5) c += `<line x1="${px}" y1="${hFBD-ht}" x2="${px}" y2="${hFBD-5}" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+                    pts += `${px},${hFBD-ht} `;
+                }
+                c += mathObj(scX(data.L/2), hFBD-85, data.labels.Load);
+                c += `<polyline points="${pts}" fill="none" stroke="#ef4444" stroke-width="2"/>`;
+            }
+
+            // --- 2. SHEAR FORCE DIAGRAM (S.F.D) ---
+            c += `<text x="${mX}" y="${hSFD - 100}" font-weight="bold" font-size="16" fill="#0f172a" text-decoration="underline">Shear Force Diagram</text>`;
+            c += `<line x1="${mX-30}" y1="${hSFD}" x2="${w-mX+30}" y2="${hSFD}" stroke="#475569" stroke-width="2" stroke-dasharray="8,4"/>`; 
+            
+            let sPath = `${scX(0)},${hSFD} `;
+            const sfH = 65; 
+            
+            if (data.beam === 'ss') {
+                if (data.load === 'point') {
+                    sPath += `${scX(0)},${hSFD-sfH} ${loadPx},${hSFD-sfH} ${loadPx},${hSFD+sfH} ${scX(data.L)},${hSFD+sfH} ${scX(data.L)},${hSFD}`;
+                } else if (data.load === 'two_point') {
+                    sPath += `${scX(0)},${hSFD-sfH} ${scX(data.a)},${hSFD-sfH} ${scX(data.a)},${hSFD} ${scX(data.L-data.a)},${hSFD} ${scX(data.L-data.a)},${hSFD+sfH} ${scX(data.L)},${hSFD+sfH} ${scX(data.L)},${hSFD}`;
+                } else if (data.load === 'udl') {
+                    sPath += `${scX(0)},${hSFD-sfH} ${scX(data.L)},${hSFD+sfH} ${scX(data.L)},${hSFD}`;
+                } else if (data.load === 'udl_point') {
+                    sPath += `${scX(0)},${hSFD-sfH} ${loadPx},${hSFD-sfH*0.3} ${loadPx},${hSFD+sfH*0.4} ${scX(data.L)},${hSFD+sfH} ${scX(data.L)},${hSFD}`;
+                } else if (data.load === 'uvl') {
+                    sPath += `${scX(0)},${hSFD-sfH} `;
+                    for(let i=1; i<=20; i++) sPath += `${scX(i*data.L/20)},${hSFD - (sfH - sfH*1.5*Math.pow(i/20,2))} `;
+                    sPath += `${scX(data.L)},${hSFD}`;
+                } else if (data.load === 'uvl_center') {
+                    sPath += `${scX(0)},${hSFD-sfH} `;
+                    for(let i=1; i<=20; i++) {
+                        let r = i/20;
+                        if(r <= 0.5) sPath += `${scX(r*data.L)},${hSFD - sfH*(1 - 2*r*r)} `;
+                        else sPath += `${scX(r*data.L)},${hSFD - sfH*(2*Math.pow(1-r, 2) - 1)} `;
+                    }
+                    sPath += `${scX(data.L)},${hSFD}`;
+                }
+            } else { // Cantilever
+                if (data.load === 'point') sPath += `${scX(0)},${hSFD-sfH} ${loadPx},${hSFD-sfH} ${loadPx},${hSFD} ${scX(data.L)},${hSFD}`;
+                else if (data.load === 'two_point') sPath += `${scX(0)},${hSFD-sfH} ${scX(data.a)},${hSFD-sfH} ${scX(data.a)},${hSFD-sfH/2} ${scX(data.L-data.a)},${hSFD-sfH/2} ${scX(data.L-data.a)},${hSFD} ${scX(data.L)},${hSFD}`;
+                else if (data.load === 'udl') sPath += `${scX(0)},${hSFD-sfH} ${scX(data.L)},${hSFD}`;
+                else if (data.load === 'udl_point') sPath += `${scX(0)},${hSFD-sfH} ${loadPx},${hSFD-sfH*0.6} ${loadPx},${hSFD-sfH*0.3} ${scX(data.L)},${hSFD}`;
+                else if (data.load === 'uvl') {
+                    for(let i=0; i<=20; i++) sPath += `${scX(i*data.L/20)},${hSFD - sfH*Math.pow(1-i/20,2)} `;
+                    sPath += `${scX(data.L)},${hSFD}`;
+                } else if (data.load === 'uvl_center') {
+                    for(let i=0; i<=20; i++) {
+                        let r = i/20;
+                        if(r <= 0.5) sPath += `${scX(r*data.L)},${hSFD - sfH*(1 - r*r)} `;
+                        else sPath += `${scX(r*data.L)},${hSFD - sfH*(0.5 + Math.pow(1-r, 2))} `;
+                    }
+                    sPath += `${scX(data.L)},${hSFD}`;
+                }
+            }
+
+            c += `<polygon points="${sPath}" fill="url(#sfd-hatch)" class="fade-in"/>`;
+            c += `<polyline points="${sPath}" fill="none" stroke="#2563eb" stroke-width="2.5" class="draw-path" stroke-linejoin="round"/>`;
+            
+            c += mathObj(scX(0), hSFD-sfH-30, data.labels.SFA);
+            if(data.beam === 'ss') c += mathObj(scX(data.L), hSFD+sfH+30, `-`+data.labels.SFB);
+
+            // --- 3. BENDING MOMENT DIAGRAM (B.M.D) ---
+            c += `<text x="${mX}" y="${hBMD - 110}" font-weight="bold" font-size="16" fill="#0f172a" text-decoration="underline">Bending Moment Diagram</text>`;
+            c += `<line x1="${mX-30}" y1="${hBMD}" x2="${w-mX+30}" y2="${hBMD}" stroke="#475569" stroke-width="2" stroke-dasharray="8,4"/>`; 
+            
+            let bPath = `${scX(0)},${hBMD} `;
+            const bmH = 75; 
+
+            if (data.beam === 'ss') { 
+                if (data.load === 'point') {
+                    bPath += `${loadPx},${hBMD-bmH} ${scX(data.L)},${hBMD}`;
+                } else if (data.load === 'two_point') {
+                    bPath += `${scX(data.a)},${hBMD-bmH} ${scX(data.L-data.a)},${hBMD-bmH} ${scX(data.L)},${hBMD}`;
+                } else if (data.load === 'udl') {
+                    for(let i=0; i<=20; i++) bPath += `${scX(i*data.L/20)},${hBMD - bmH*(4*(i/20)*(1-i/20))} `;
+                } else if (data.load === 'udl_point') {
+                    for(let i=0; i<=20; i++) {
+                        let xRatio = i/20; let px = scX(xRatio*data.L);
+                        let baseParabola = 4*xRatio*(1-xRatio); 
+                        let triangle = xRatio*data.L <= data.a ? (xRatio*data.L/data.a) : (data.L - xRatio*data.L)/(data.L - data.a);
+                        bPath += `${px},${hBMD - bmH*(0.4*baseParabola + 0.6*triangle)} `;
+                    }
+                } else if (data.load === 'uvl') {
+                    for(let i=0; i<=20; i++) bPath += `${scX(i*data.L/20)},${hBMD - bmH*1.5*((i/20)-Math.pow(i/20,3))} `;
+                } else if (data.load === 'uvl_center') {
+                    for(let i=0; i<=20; i++) {
+                        let r = i/20;
+                        if(r <= 0.5) bPath += `${scX(r*data.L)},${hBMD - bmH*(3*r - 4*Math.pow(r,3))} `;
+                        else bPath += `${scX(r*data.L)},${hBMD - bmH*(3*(1-r) - 4*Math.pow(1-r,3))} `;
+                    }
+                }
+            } else { 
+                if (data.load === 'point') bPath += `${scX(0)},${hBMD+bmH} ${loadPx},${hBMD} ${scX(data.L)},${hBMD}`;
+                else if (data.load === 'two_point') bPath += `${scX(0)},${hBMD+bmH} ${scX(data.a)},${hBMD+bmH*0.4} ${scX(data.L-data.a)},${hBMD} ${scX(data.L)},${hBMD}`;
+                else if (data.load === 'udl') {
+                    for(let i=0; i<=20; i++) bPath += `${scX(i*data.L/20)},${hBMD + bmH*Math.pow(1-i/20,2)} `;
+                } else if (data.load === 'udl_point') {
+                    for(let i=0; i<=20; i++) {
+                        let r = i/20; let px = scX(r*data.L);
+                        let p = Math.pow(1-r, 2);
+                        let tr = r*data.L <= data.a ? (1 - r*data.L/data.a) : 0;
+                        bPath += `${px},${hBMD + bmH*(0.5*p + 0.5*tr)} `;
+                    }
+                } else if (data.load === 'uvl') {
+                    for(let i=0; i<=20; i++) bPath += `${scX(i*data.L/20)},${hBMD + bmH*Math.pow(1-i/20,3)} `;
+                } else if (data.load === 'uvl_center') {
+                    for(let i=0; i<=20; i++) {
+                        let r = i/20;
+                        if(r <= 0.5) bPath += `${scX(r*data.L)},${hBMD + bmH*(1 - r - 0.5*r*r)} `;
+                        else bPath += `${scX(r*data.L)},${hBMD + bmH*0.5*Math.pow(1-r, 2)} `;
+                    }
+                }
+            }
+
+            c += `<polygon points="${bPath}" fill="url(#bmd-hatch)" class="fade-in"/>`;
+            c += `<polyline points="${bPath}" fill="none" stroke="#16a34a" stroke-width="2.5" class="draw-path" stroke-linejoin="round"/>`;
+            
+            if(data.beam === 'ss') {
+                const maxLoc = data.load==='uvl' ? scX(data.L/Math.sqrt(3)) : (data.load==='two_point'?scX(data.a):(data.load==='uvl_center'?scX(data.L/2):loadPx));
+                c += mathObj(maxLoc, hBMD-bmH-35, data.labels.Mmax);
+            } else {
+                c += mathObj(scX(0), hBMD+bmH+40, `-`+data.labels.Mmax);
+            }
+
+            svg.innerHTML = c;
+        }
+
+        function resetApp() {
+            document.getElementById('output-section').classList.add('hidden');
+            document.getElementById('input-section').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

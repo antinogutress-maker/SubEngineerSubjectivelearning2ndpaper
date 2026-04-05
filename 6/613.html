@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Difference Master</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@700&display=swap');
+
+        :root {
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --text-main: #f8fafc;
+            --wood-dark: #451a03;
+            --wood-med: #78350f;
+            --wood-light: #b45309;
+            --accent-gold: #fbbf24;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-blue: #0ea5e9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+            color: var(--text-main);
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; flex-direction: column;
+            min-width: 1100px; /* Essential for 3-column layout */
+            overflow: hidden;
+        }
+
+        /* --- DESKTOP SITE WARNING --- */
+        #desktop-hint {
+            background: linear-gradient(90deg, #ea580c, #eab308);
+            color: white; text-align: center; padding: 8px 20px;
+            font-size: 1.1rem; font-weight: 800; display: flex;
+            justify-content: center; align-items: center; gap: 15px;
+            flex-shrink: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        #desktop-hint button {
+            background: rgba(0,0,0,0.4); border: 1px solid white; color: white;
+            padding: 4px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s;
+        }
+        #desktop-hint button:hover { background: white; color: black; }
+
+        /* --- HEADER --- */
+        .header {
+            height: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px; background: rgba(15, 23, 42, 0.95); border-bottom: 2px solid #334155;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6); z-index: 10;
+        }
+        .header h1 {
+            font-size: 2rem; font-weight: 900;
+            background: linear-gradient(to right, #fbbf24, #f97316);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .stats-box { display: flex; gap: 20px; }
+        .stat-badge {
+            background: rgba(2, 6, 23, 0.9); border: 2px solid;
+            padding: 8px 20px; border-radius: 25px;
+            font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        #attempts-badge { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+        /* --- MAIN GAME AREA --- */
+        .game-area {
+            flex: 1; display: flex; overflow: hidden; position: relative;
+        }
+
+        /* The Ladder Construction Zones (Left and Right) */
+        .ladder-zone {
+            width: 340px; height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex; flex-direction: column; align-items: center;
+            position: relative; overflow-y: auto; padding: 25px 0;
+        }
+        .left-ladder { border-right: 4px dashed #334155; }
+        .right-ladder { border-left: 4px dashed #334155; }
+
+        .ladder-zone::-webkit-scrollbar { width: 6px; }
+        .ladder-zone::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
+        .ladder-title {
+            font-size: 1.5rem; font-weight: 900; margin-bottom: 25px;
+            text-align: center; text-transform: uppercase;
+            text-shadow: 0 4px 6px rgba(0,0,0,0.8);
+            padding: 0 10px; z-index: 5;
+        }
+
+        .ladder-structure {
+            position: relative; width: 280px;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
+        /* The Vertical Wooden Poles */
+        .pole {
+            position: absolute; top: -30px; bottom: -30px; width: 25px;
+            background: linear-gradient(90deg, var(--wood-dark), var(--wood-light), var(--wood-dark));
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 5px 0 10px rgba(0,0,0,0.6);
+            border-radius: 5px; z-index: 1;
+        }
+        .pole.left { left: 0; }
+        .pole.right { right: 0; }
+
+        /* Drop Slots for Rungs */
+        .ladder-slot {
+            width: 100%; height: 90px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px; position: relative; z-index: 2;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .ladder-slot.drag-over { background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
+
+        /* MIDDLE: The Parts Tray */
+        .tray-zone {
+            flex: 1; display: flex; flex-direction: column;
+            padding: 20px; background: transparent; position: relative;
+        }
+
+        .tray-header {
+            font-size: 1.5rem; font-weight: 800; color: #94a3b8; margin-bottom: 20px;
+            text-align: center; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .parts-pool {
+            flex: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;
+            align-content: flex-start; overflow-y: auto; padding-bottom: 40px;
+        }
+        .parts-pool::-webkit-scrollbar { width: 8px; }
+        .parts-pool::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
+        /* --- THE RUNGS (Draggable Items) --- */
+        .ladder-rung {
+            width: 280px; height: 90px; flex-shrink: 0;
+            background: linear-gradient(180deg, var(--wood-med), var(--wood-dark));
+            border: 2px solid #290f02; border-radius: 6px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            cursor: grab; position: relative; touch-action: none;
+            transition: transform 0.1s, box-shadow 0.1s; z-index: 10;
+        }
+        .ladder-rung:active { cursor: grabbing; }
+        .ladder-rung.dragging {
+            position: fixed; z-index: 9999;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.8); transform: scale(1.02); opacity: 0.95;
+            pointer-events: none;
+        }
+
+        /* Metallic Nails on the rung ends */
+        .nail {
+            position: absolute; width: 12px; height: 12px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #94a3b8, #334155);
+            box-shadow: inset 1px 1px 2px rgba(255,255,255,0.5), 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        .nail.left { left: 6px; } .nail.right { right: 6px; }
+
+        /* The Paper Note attached to the Wood */
+        .rung-note {
+            width: 220px; height: 70px; background: #fef3c7; border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 5px 10px; color: #020617;
+            border: 1px solid #d97706; position: relative; overflow: hidden; text-align: center;
+        }
+        .rung-note::before {
+            content: ''; position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
+            width: 30px; height: 15px; background: rgba(255,255,255,0.6); box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .step-desc { font-size: 0.95rem; font-weight: 800; line-height: 1.2; color: #b45309;}
+
+        /* --- VALIDATION STATES --- */
+        .ladder-rung.correct {
+            border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); pointer-events: none;
+        }
+        .ladder-rung.correct .rung-note { background: #d1fae5; border-color: #10b981; }
+        .ladder-rung.correct .step-desc { color: #047857; }
+
+        .ladder-rung.incorrect {
+            border-color: #ef4444; animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        .ladder-rung.incorrect .rung-note { background: #fee2e2; border-color: #ef4444; }
+        .ladder-rung.incorrect .step-desc { color: #b91c1c; }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        /* --- END SCREEN --- */
+        .overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center;
+            padding: 60px 40px; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; overflow-y: auto;
+        }
+        .overlay.active { opacity: 1; pointer-events: auto; }
+        .book-summary {
+            width: 100%; max-width: 900px; background: #0f172a; border: 1px solid #334155;
+            border-radius: 15px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); margin-bottom: 40px;
+        }
+        .book-summary h2 { font-size: 3rem; color: #10b981; text-align: center; margin-bottom: 10px; text-transform: uppercase; }
+        .book-summary p.score-report { text-align: center; font-size: 1.4rem; color: #94a3b8; margin-bottom: 40px; }
+        
+        .summary-columns { display: flex; gap: 30px; }
+        .summary-col { flex: 1; background: #1e293b; padding: 20px; border-radius: 10px; }
+        .summary-col h3 { font-size: 1.5rem; text-align: center; margin-bottom: 20px; text-transform: uppercase; }
+        .summary-item { background: #0f172a; border-left: 4px solid; padding: 12px 15px; margin-bottom: 10px; border-radius: 5px; color: #e2e8f0; font-weight: 600; font-size: 1.05rem; }
+
+        .play-again-btn {
+            background: linear-gradient(135deg, #fbbf24, #f97316); color: #000; border: none; padding: 18px 60px;
+            font-size: 1.5rem; font-weight: 900; border-radius: 40px; cursor: pointer; transition: transform 0.2s;
+            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.4);
+        }
+        .play-again-btn:hover { transform: scale(1.05); }
+
+    </style>
+</head>
+<body>
+
+    <script>
+        const MASTER_GAME_DATA = {
+            gameTitle: "Differences: WSM vs LSM",
+            catA: "Working Stress Method",
+            catB: "Limit State Method",
+            items: [
+                { id: "a1", category: "A", text: "Based on a traditional deterministic approach." },
+                { id: "a2", category: "A", text: "It is strictly a stress-based design method." },
+                { id: "a3", category: "A", text: "Assumes a perfectly linear elastic stress-strain relationship." },
+                { id: "a4", category: "A", text: "Stresses are strictly never allowed to cross the yield point." },
+                { id: "a5", category: "A", text: "Results in thicker, heavier, and less economical structural sections." },
+                { id: "a6", category: "A", text: "Uses a single, overall 'Factor of Safety' for materials." },
+                { id: "a7", category: "A", text: "Design is based strictly on actual working (service) loads." },
+                { id: "b1", category: "B", text: "Based on a modern semi-probabilistic approach." },
+                { id: "b2", category: "B", text: "It is primarily a strain-based design method." },
+                { id: "b3", category: "B", text: "Considers the actual, realistic non-linear stress-strain relationship." },
+                { id: "b4", category: "B", text: "Stresses are practically allowed to reach the yield point safely." },
+                { id: "b5", category: "B", text: "Results in thinner, lighter, and highly economical structural sections." },
+                { id: "b6", category: "B", text: "Uses separate 'Partial Safety Factors' for both loads and materials." },
+                { id: "b7", category: "B", text: "Design is based on ultimate factored loads (Service Load × Safety Factor)." }
+            ]
+
+        };
+    </script>
+
+    <div id="desktop-hint">
+        <span>📱 Enable <strong>"Desktop Site"</strong> in your mobile browser settings for the proper 3-column view!</span>
+        <button onclick="document.getElementById('desktop-hint').style.display='none'">Dismiss</button>
+    </div>
+
+    <div class="header">
+        <h1 id="ui-title">Game Title</h1>
+        <div class="stats-box">
+            <div class="stat-badge" id="attempts-badge">Checks: <span id="attempts">0</span></div>
+        </div>
+    </div>
+
+    <div class="game-area">
+        
+        <div class="ladder-zone left-ladder">
+            <div class="ladder-title" id="titleA" style="color: var(--accent-gold);">Category A</div>
+            <div class="ladder-structure" id="ladderLeft">
+                <div class="pole left"></div>
+                <div class="pole right"></div>
+                </div>
+        </div>
+
+        <div class="tray-zone">
+            <div class="tray-header">Sort Notes Into Ladders (Auto-Checks)</div>
+            <div class="parts-pool" id="partsPool">
+                </div>
+        </div>
+
+        <div class="ladder-zone right-ladder">
+            <div class="ladder-title" id="titleB" style="color: var(--accent-blue);">Category B</div>
+            <div class="ladder-structure" id="ladderRight">
+                <div class="pole left"></div>
+                <div class="pole right"></div>
+                </div>
+        </div>
+
+    </div>
+
+    <div class="overlay" id="endScreen">
+        <div class="book-summary">
+            <h2>Differences Mastered!</h2>
+            <p class="score-report">Completed with <span id="finalAttempts" style="color:#fbbf24; font-weight:bold;">0</span> checks.</p>
+            <div class="summary-columns" id="summaryContent"></div>
+        </div>
+        <button class="play-again-btn" onclick="startGame()">Sort Again</button>
+    </div>
+
+    <script>
+        // --- AUDIO ENGINE ---
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        const playSound = (type) => {
+            if (!audioCtx) return;
+            try {
+                if (type === 'grab') {
+                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.5, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+                } else if (type === 'drop') {
+                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                    osc.type = 'square'; osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.8, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'correct') {
+                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.5, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+                } else if (type === 'wrong') {
+                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.8, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'win') {
+                    const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain();
+                    osc1.type = 'sine'; osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc1.frequency.setValueAtTime(659.25, audioCtx.currentTime+0.1); osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime+0.2); osc1.frequency.setValueAtTime(1046.50, audioCtx.currentTime+0.3);
+                    gain1.gain.setValueAtTime(0.5, audioCtx.currentTime); gain1.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
+                    osc1.connect(gain1); gain1.connect(audioCtx.destination); osc1.start(); osc1.stop(audioCtx.currentTime + 0.8);
+                }
+            } catch (e) {}
+        };
+        document.body.addEventListener('click', initAudio, { once: true });
+        document.body.addEventListener('touchstart', initAudio, { once: true });
+
+        // --- GAME LOGIC & UI BUILDER ---
+        const gameData = MASTER_GAME_DATA;
+        document.getElementById('ui-title').innerText = gameData.gameTitle;
+        document.getElementById('titleA').innerText = gameData.catA;
+        document.getElementById('titleB').innerText = gameData.catB;
+
+        const ladderLeft = document.getElementById('ladderLeft');
+        const ladderRight = document.getElementById('ladderRight');
+        const partsPool = document.getElementById('partsPool');
+        const attemptsEl = document.getElementById('attempts');
+
+        let attempts = 0;
+
+        function startGame() {
+            attempts = 0;
+            attemptsEl.innerText = attempts;
+            document.getElementById('endScreen').classList.remove('active');
+            
+            buildLadders();
+            buildRungs();
+        }
+
+        function buildLadders() {
+            // Keep poles, remove old slots
+            ladderLeft.querySelectorAll('.ladder-slot').forEach(e => e.remove());
+            ladderRight.querySelectorAll('.ladder-slot').forEach(e => e.remove());
+
+            const itemsA = gameData.items.filter(i => i.category === 'A');
+            const itemsB = gameData.items.filter(i => i.category === 'B');
+
+            // Build slots for Category A
+            itemsA.forEach(() => {
+                const slot = document.createElement('div');
+                slot.className = 'ladder-slot';
+                slot.dataset.expectedCategory = 'A';
+                ladderLeft.appendChild(slot);
+            });
+
+            // Build slots for Category B
+            itemsB.forEach(() => {
+                const slot = document.createElement('div');
+                slot.className = 'ladder-slot';
+                slot.dataset.expectedCategory = 'B';
+                ladderRight.appendChild(slot);
+            });
+        }
+
+        function buildRungs() {
+            partsPool.innerHTML = '';
+            // Scramble the notes for the pool
+            const shuffledItems = [...gameData.items].sort(() => Math.random() - 0.5);
+
+            shuffledItems.forEach(item => {
+                const rung = document.createElement('div');
+                rung.className = 'ladder-rung';
+                rung.dataset.category = item.category;
+
+                rung.innerHTML = `
+                    <div class="nail left"></div>
+                    <div class="rung-note">
+                        <div class="step-desc">${item.text}</div>
+                    </div>
+                    <div class="nail right"></div>
+                `;
+
+                rung.addEventListener('pointerdown', dragStart);
+                partsPool.appendChild(rung);
+            });
+        }
+
+        // --- CUSTOM DRAG & DROP LOGIC ---
+        let activeRung = null;
+        let initialParent = null;
+        let offsetX, offsetY;
+
+        function dragStart(e) {
+            initAudio();
+            if (e.target.closest('.ladder-rung').classList.contains('correct')) return; // Locked if correct
+            
+            activeRung = e.target.closest('.ladder-rung');
+            initialParent = activeRung.parentElement;
+            
+            // Remove error classes if picking it up again
+            activeRung.classList.remove('incorrect');
+
+            const rect = activeRung.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+
+            // Set fixed dimensions so it doesn't shrink when popped out of flexbox
+            activeRung.style.width = `${rect.width}px`;
+            activeRung.style.height = `${rect.height}px`;
+
+            activeRung.classList.add('dragging');
+            document.body.appendChild(activeRung); 
+            
+            moveRung(e.clientX, e.clientY);
+            playSound('grab');
+
+            document.addEventListener('pointermove', dragMove);
+            document.addEventListener('pointerup', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeRung) return;
+            moveRung(e.clientX, e.clientY);
+
+            // Highlight drop zone
+            activeRung.style.pointerEvents = 'none'; 
+            const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+            activeRung.style.pointerEvents = 'auto'; 
+
+            document.querySelectorAll('.ladder-slot').forEach(s => s.classList.remove('drag-over'));
+            
+            if (elemBelow) {
+                const slot = elemBelow.closest('.ladder-slot');
+                if (slot) slot.classList.add('drag-over');
+            }
+        }
+
+        function moveRung(x, y) {
+            activeRung.style.left = `${x - offsetX}px`;
+            activeRung.style.top = `${y - offsetY}px`;
+        }
+
+        function dragEnd(e) {
+            if (!activeRung) return;
+            playSound('drop');
+
+            document.removeEventListener('pointermove', dragMove);
+            document.removeEventListener('pointerup', dragEnd);
+
+            activeRung.style.pointerEvents = 'none';
+            const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+            
+            const targetSlot = elemBelow ? elemBelow.closest('.ladder-slot') : null;
+            const targetPool = elemBelow ? elemBelow.closest('.parts-pool') : null;
+
+            activeRung.classList.remove('dragging');
+            activeRung.style.left = '';
+            activeRung.style.top = '';
+            activeRung.style.width = ''; 
+            activeRung.style.height = '';
+            activeRung.style.pointerEvents = 'auto';
+
+            document.querySelectorAll('.ladder-slot').forEach(s => s.classList.remove('drag-over'));
+
+            if (targetSlot) {
+                const existingRung = targetSlot.querySelector('.ladder-rung');
+                if (existingRung && existingRung !== activeRung) {
+                    initialParent.appendChild(existingRung); // Swap
+                }
+                targetSlot.appendChild(activeRung);
+            } else if (targetPool) {
+                partsPool.appendChild(activeRung);
+            } else {
+                initialParent.appendChild(activeRung); // Return to origin
+            }
+
+            activeRung = null;
+            initialParent = null;
+
+            // Trigger Auto-Check
+            checkCompletion();
+        }
+
+        // --- AUTOMATIC CHECKING LOGIC ---
+        function checkCompletion() {
+            const slots = document.querySelectorAll('.ladder-slot');
+            let allFilled = true;
+
+            slots.forEach(slot => {
+                if (!slot.querySelector('.ladder-rung')) {
+                    allFilled = false;
+                }
+            });
+
+            // If every single slot on both ladders is full, grade the user
+            if (allFilled) {
+                performAutoCheck();
+            }
+        }
+
+        function performAutoCheck() {
+            initAudio();
+            const slots = document.querySelectorAll('.ladder-slot');
+            let allCorrect = true;
+
+            // Clean previous states for unlocked rungs
+            document.querySelectorAll('.ladder-rung:not(.correct)').forEach(r => {
+                r.classList.remove('incorrect');
+            });
+
+            slots.forEach(slot => {
+                const rung = slot.querySelector('.ladder-rung');
+                const expectedCat = slot.dataset.expectedCategory;
+
+                if (rung && !rung.classList.contains('correct')) {
+                    if (rung.dataset.category === expectedCat) {
+                        rung.classList.add('correct');
+                    } else {
+                        rung.classList.add('incorrect');
+                        allCorrect = false;
+                    }
+                }
+            });
+
+            attempts++;
+            attemptsEl.innerText = attempts;
+
+            if (allCorrect) {
+                playSound('win');
+                setTimeout(showWinScreen, 800);
+            } else {
+                playSound('wrong');
+            }
+        }
+
+        // --- END SCREEN ---
+        function showWinScreen() {
+            document.getElementById('finalAttempts').innerText = attempts;
+            const summaryContent = document.getElementById('summaryContent');
+            summaryContent.innerHTML = '';
+            
+            // Build Side-by-side Summary Columns
+            const colA = document.createElement('div');
+            colA.className = 'summary-col';
+            colA.innerHTML = `<h3 style="color:var(--accent-gold);">${gameData.catA}</h3>`;
+            
+            gameData.items.filter(i => i.category === 'A').forEach(item => {
+                colA.innerHTML += `<div class="summary-item" style="border-color:var(--accent-gold);">${item.text}</div>`;
+            });
+
+            const colB = document.createElement('div');
+            colB.className = 'summary-col';
+            colB.innerHTML = `<h3 style="color:var(--accent-blue);">${gameData.catB}</h3>`;
+            
+            gameData.items.filter(i => i.category === 'B').forEach(item => {
+                colB.innerHTML += `<div class="summary-item" style="border-color:var(--accent-blue);">${item.text}</div>`;
+            });
+
+            summaryContent.appendChild(colA);
+            summaryContent.appendChild(colB);
+
+            document.getElementById('endScreen').classList.add('active');
+        }
+
+        // Boot Game
+        startGame();
+
+    </script>
+</body>
+</html>

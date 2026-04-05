@@ -2,384 +2,148 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Memorization Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Premium Educational Shooter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800;900&display=swap');
+        
         :root {
-            --bg-dark: #020617;
-            --bg-panel: #0f172a;
-            --text-main: #f8fafc;
-            --accent-gold: #fbbf24;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-blue: #0ea5e9;
+            --ui-glow: rgba(255, 255, 255, 0.1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex;
-            flex-direction: column;
-            min-width: 900px; /* Forces wide layout for Desktop Site */
-        }
-
-        /* --- DESKTOP SITE WARNING --- */
-        #desktop-hint {
-            background: linear-gradient(90deg, #ef4444, #f97316);
-            color: white;
-            text-align: center;
-            padding: 8px 20px;
-            font-size: 1.1rem;
-            font-weight: 800;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            flex-shrink: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        #desktop-hint button {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid white;
-            color: white;
-            padding: 4px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-        #desktop-hint button:hover { background: white; color: black; }
-
-        /* --- HEADER --- */
-        .header {
-            height: 75px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(15, 23, 42, 0.95);
-            border-bottom: 2px solid #1e293b;
-            position: relative;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-            z-index: 10;
-        }
-        .header h1 {
-            font-size: 2rem; font-weight: 800;
-            background: linear-gradient(to right, #38bdf8, #34d399);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-transform: uppercase; letter-spacing: 1.5px;
-        }
-        .stats-box {
-            position: absolute; right: 30px;
-            display: flex; gap: 15px;
-        }
-        .stat-badge {
-            background: rgba(2, 6, 23, 0.9);
-            border: 2px solid;
-            padding: 6px 18px; border-radius: 25px;
-            font-family: 'JetBrains Mono', monospace; font-size: 1.3rem;
-            font-weight: 700;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
-        }
-        #score-badge { border-color: var(--accent-gold); color: var(--accent-gold); }
-        #notes-badge { border-color: var(--accent-blue); color: var(--accent-blue); }
-
-        /* --- GAME AREA (65% Height) --- */
-        .game-area {
-            flex: 0 0 65vh;
-            display: flex;
-            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Fixed Bow Area (Left - Perfectly Centered Vertically) */
-        .bow-container {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%); 
-            width: 320px; 
-            height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 20;
-        }
-
-        /* Scrolling Targets Area (Right) 
-           CRITICAL FIX: This now spans the entire remaining width of the screen. 
-           It leaves no boundary on the left to clip the embedded arrows! */
-        .targets-container {
-            position: absolute;
-            left: 320px; /* Start right after the bow */
-            right: 0;
-            top: 0;
-            bottom: 0;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end; /* Targets stay on the far right */
-            padding: 60px 40px 60px 0;
-            gap: 150px; 
-            background: transparent; 
-            z-index: 10;
-        }
-        .targets-container::-webkit-scrollbar { width: 10px; }
-        .targets-container::-webkit-scrollbar-track { background: transparent; }
-        .targets-container::-webkit-scrollbar-thumb { background: #475569; border-radius: 5px; }
-
-        /* --- TARGETS --- */
-        .target-wrapper {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            cursor: crosshair;
-            transition: transform 0.2s;
-        }
-        .target-wrapper:hover .target-svg { transform: scale(1.1); }
+        body, html { margin: 0; padding: 0; overflow: hidden; font-family: 'Outfit', sans-serif; background: #000; touch-action: none; user-select: none; }
+        #game-canvas { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
         
-        .target-wrapper.impact-anim { animation: impact 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
-        @keyframes impact {
-            0% { transform: translateX(0); }
-            20% { transform: translateX(15px) rotate(5deg); filter: brightness(1.5); }
-            40% { transform: translateX(-10px) rotate(-3deg); }
-            60% { transform: translateX(5px) rotate(2deg); }
-            80% { transform: translateX(-2px) rotate(-1deg); }
-            100% { transform: translateX(0); filter: brightness(1); }
-        }
-
-        .target-svg { width: 110px; height: 110px; filter: drop-shadow(0 0 15px currentColor); transition: transform 0.3s; z-index: 5;}
+        /* Premium UI Layer */
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
         
-        .target-label {
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: #fff;
-            text-align: center;
-            background: #020617;
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 2px solid currentColor;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
-            z-index: 5;
+        .glass-panel {
+            background: rgba(10, 15, 30, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
-        /* Embedded Arrows Container (Attached to left side of target) */
-        .embedded-arrows-area {
-            position: absolute;
-            left: -280px; /* Stick out far to the left to hold long arrows */
-            top: 0;
-            width: 280px;
-            height: 100px;
-            pointer-events: none;
-            z-index: 1;
+        /* Dynamic Crosshair */
+        .crosshair-container {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 30px; height: 30px; pointer-events: none;
+            display: flex; justify-content: center; align-items: center;
         }
+        .crosshair-dot { width: 4px; height: 4px; background: white; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.8); transition: all 0.1s; }
+        .crosshair-ring { 
+            position: absolute; width: 100%; height: 100%; 
+            border: 2px solid rgba(255,255,255,0.4); border-radius: 50%; 
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .shooting .crosshair-ring { transform: scale(1.5); opacity: 0; }
+        .hit-correct .crosshair-dot { background: #10b981; box-shadow: 0 0 10px #10b981; transform: scale(2); }
+        .hit-wrong .crosshair-dot { background: #ef4444; box-shadow: 0 0 10px #ef4444; transform: scale(2); }
 
-        /* --- ARROW TRAY (35% Height) --- */
-        .tray-container {
-            flex: 1;
-            background: #020617;
-            border-top: 5px solid #1e293b;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: flex-start;
-            justify-content: center;
-            align-content: flex-start;
-            padding: 25px;
-            gap: 20px;
-            overflow-y: auto;
-            box-shadow: inset 0 15px 30px rgba(0,0,0,0.9);
-        }
-
-        .note-card {
-            width: calc(33% - 20px);
-            min-width: 260px;
-            min-height: 100px;
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 2px solid #334155;
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #e2e8f0;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            position: relative;
-        }
-        .note-card::before {
-            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: #475569; border-radius: 10px 0 0 10px; transition: 0.2s;
-        }
-        .note-card:hover { transform: translateY(-4px); border-color: var(--accent-blue); color: #fff; }
-        .note-card:hover::before { background: var(--accent-blue); }
-        
-        .note-card.selected {
-            border-color: var(--accent-gold);
-            background: rgba(251, 191, 36, 0.15);
-            color: var(--accent-gold);
-            transform: scale(0.95);
-            pointer-events: none;
-            box-shadow: inset 0 0 20px rgba(251, 191, 36, 0.2);
-        }
-        .note-card.selected::before { background: var(--accent-gold); }
-        .note-card.hidden { display: none; }
-
-        /* --- SVG BOW & ARROWS --- */
-        .bow-svg { width: 100%; height: 100%; overflow: visible; }
-        
-        .high-contrast-tooltip {
-            background: #fbbf24; /* Bright Yellow/Amber */
-            color: #000;         /* Solid Black Text */
-            padding: 8px 16px; 
-            border-radius: 6px;
-            font-size: 14px; 
-            font-weight: 800;
-            border: 2px solid #000;
-            text-align: center;
-            width: max-content;
-            max-width: 240px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            margin: 0 auto;
-        }
-
-        /* Container to perfectly center text over the arrow shaft */
-        .arrow-composition {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 200px; /* Longer arrow */
-            height: 20px;
-        }
-        .arrow-text-layer {
-            position: absolute;
-            top: -38px; /* Hovers perfectly above the shaft */
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            z-index: 10;
-        }
-
-        .flying-arrow {
-            position: fixed;
-            z-index: 200;
-            pointer-events: none;
-            transform-origin: center right; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .embedded-arrow {
-            position: absolute;
-            right: 0px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transform-origin: right center;
-            animation: thwack 0.3s ease-out forwards;
-        }
-        
-        @keyframes thwack {
-            0% { transform: translateX(-50px) scale(1.2); opacity: 0; }
-            50% { transform: translateX(10px) scale(0.9); opacity: 1; }
-            100% { transform: translateX(0) scale(1); opacity: 1; }
-        }
-
-        .particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 150; }
-
-        .float-text {
-            position: fixed;
-            font-weight: 900; font-size: 2.2rem;
-            pointer-events: none; z-index: 300;
-            text-shadow: 0 3px 8px rgba(0,0,0,1);
-            animation: floatUp 1s ease-out forwards;
-        }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-60px) scale(1.5); }
-        }
-
-        /* --- END SCREEN (BOOK CHAPTER SUMMARY) --- */
-        .overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: #020617;
+        /* HUD */
+        .hud-top { position: absolute; top: 30px; left: 30px; right: 30px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .stat-box { 
+            padding: 12px 25px; border-radius: 12px; color: white; 
+            font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
             display: flex; flex-direction: column; align-items: center;
-            padding: 60px 40px; z-index: 500;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.5s ease;
-            overflow-y: auto;
         }
-        .overlay.active { opacity: 1; pointer-events: auto; }
+        .stat-value { font-size: 2rem; font-weight: 900; line-height: 1; margin-top: 5px; }
         
-        .book-summary {
-            width: 100%; max-width: 800px;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            margin-bottom: 40px;
+        /* Weapon Selector */
+        .weapon-tray {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 15px; pointer-events: auto; max-width: 95vw; overflow-x: auto; padding: 15px;
+            border-radius: 20px;
         }
-        .book-summary h2 {
-            font-size: 2.8rem; color: #fbbf24; text-align: center; margin-bottom: 10px;
-            text-transform: uppercase; border-bottom: 2px solid #334155; padding-bottom: 20px;
+        .weapon-btn {
+            background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(255,255,255,0.1); 
+            color: #94a3b8; padding: 12px 24px; border-radius: 12px; font-weight: 800; cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap;
+            display: flex; align-items: center; gap: 10px; font-size: 1.1rem;
         }
-        .book-summary p.score-report {
-            text-align: center; font-size: 1.4rem; color: #94a3b8; margin-bottom: 40px; font-family: 'JetBrains Mono';
+        .weapon-btn:hover { transform: translateY(-5px); background: rgba(30, 41, 59, 0.8); }
+        .weapon-btn.active { 
+            background: rgba(15, 23, 42, 0.9); transform: scale(1.05) translateY(-5px); color: white;
+            box-shadow: 0 10px 25px -5px var(--glow-color); border-color: var(--glow-color);
+        }
+        .key-hint { background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; }
+
+        /* Mobile Controls */
+        #mobile-fire-btn {
+            display: none; position: absolute; right: 40px; bottom: 140px; width: 90px; height: 90px;
+            background: rgba(239, 68, 68, 0.2); border: 2px solid #ef4444; border-radius: 50%;
+            color: white; font-weight: 900; font-size: 1.2rem; align-items: center; justify-content: center; 
+            pointer-events: auto; backdrop-filter: blur(5px); transition: all 0.1s;
+        }
+        #mobile-fire-btn:active { background: rgba(239, 68, 68, 0.5); transform: scale(0.9); }
+        #mobile-look-zone { display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 75vh; pointer-events: auto; }
+        @media (pointer: coarse) {
+            #mobile-fire-btn { display: flex; }
+            #mobile-look-zone { display: block; }
+            .desktop-hint { display: none; }
         }
 
-        .chapter-section { margin-bottom: 30px; }
-        .chapter-section h3 {
-            font-size: 1.7rem; color: #38bdf8; margin-bottom: 15px;
-            display: flex; align-items: center; gap: 10px;
+        /* Damage Screen Effect */
+        #damage-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+            background: radial-gradient(circle, transparent 30%, rgba(255,0,0,0.8) 100%);
+            opacity: 0; transition: opacity 0.15s ease-out; z-index: 5; mix-blend-mode: overlay;
         }
-        .chapter-section ul {
-            list-style-type: none; padding-left: 20px;
+        .flash-red { opacity: 1 !important; }
+
+        /* Screens */
+        .overlay-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; pointer-events: auto;
+            overflow-y: auto; padding: 40px 20px; transition: opacity 0.4s;
         }
-        .chapter-section li {
-            font-size: 1.3rem; color: #e2e8f0; margin-bottom: 12px; position: relative;
-            line-height: 1.5;
+        .overlay-screen.hidden { opacity: 0; pointer-events: none; }
+        
+        .content-card { 
+            background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 24px; padding: 50px; max-width: 800px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+            margin-bottom: 30px; position: relative; overflow: hidden;
         }
-        .chapter-section li::before {
-            content: "➔"; position: absolute; left: -30px; color: #10b981; font-weight: bold;
+        .content-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
         }
 
-        button.play-btn {
-            background: linear-gradient(135deg, #0ea5e9, #10b981);
-            color: #000; border: none; padding: 20px 70px;
-            font-size: 1.6rem; font-weight: 900; border-radius: 40px;
-            cursor: pointer; transition: transform 0.2s;
-            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.4);
-            flex-shrink: 0;
+        .play-btn { 
+            background: white; color: black; border: none; padding: 18px 60px; 
+            font-size: 1.5rem; font-weight: 900; border-radius: 50px; cursor: pointer; 
+            transition: all 0.3s; text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
         }
-        button.play-btn:hover { transform: scale(1.05); }
+        .play-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,255,255,0.6); }
 
+        /* Summary lists */
+        .concept-group { margin-bottom: 30px; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 16px; }
+        .concept-name { font-size: 1.5rem; font-weight: 900; margin-bottom: 15px; display: flex; align-items: center; gap: 12px; }
+        .concept-notes { list-style-type: none; padding-left: 10px; }
+        .concept-notes li { font-size: 1.2rem; color: #cbd5e1; margin-bottom: 12px; padding-left: 30px; position: relative; line-height: 1.4;}
+        .concept-notes li::before { content: "❖"; position: absolute; left: 0; color: inherit; opacity: 0.5;}
+
+        .floating-text { 
+            position: absolute; font-weight: 900; font-size: 2.5rem; pointer-events: none; z-index: 20; 
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8); transform: translate(-50%, -50%); animation: floatUp 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+        }
+        @keyframes floatUp { 
+            0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); } 
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -150px) scale(1); } 
+        }
     </style>
 </head>
 <body>
 
-    <!-- ========================================== -->
-    <!-- 1. MASTER GAME DATA -->
-    <!-- ========================================== -->
     <script>
-        const MASTER_GAME_DATA = {
-            gameTitle: "Click 👇  bullet Points to load",
+        // MASTER GAME DATA
+        const GAME_DATA = {
+            gameTitle: "Selection of Suitable Methods",
             targets: [
                 { id: 1, name: "Chain Surveying", color: "#38bdf8" },
                 { id: 2, name: "Compass Surveying", color: "#fb7185" },
@@ -399,444 +163,845 @@
         };
     </script>
 
-    <div id="desktop-hint">
-        <span>📱 Enable <strong>"Desktop Site"</strong> in your mobile browser settings for the absolute best view!</span>
-        <button onclick="document.getElementById('desktop-hint').style.display='none'">Dismiss</button>
-    </div>
-
-    <div class="header">
-        <h1 id="ui-title">Game Title</h1>
-        <div class="stats-box">
-            <div class="stat-badge" id="score-badge">⭐ <span id="score">0</span></div>
-            <div class="stat-badge" id="notes-badge">Notes Left: <span id="notesLeft">0</span></div>
+    <!-- UI Overlay -->
+    <div id="ui-layer">
+        <div class="hud-top">
+            <div class="glass-panel stat-box">
+                <span class="text-slate-400 text-sm">Target Points</span>
+                <span class="stat-value text-white" id="score-display">0</span>
+            </div>
+            <div class="glass-panel stat-box" style="border-bottom: 3px solid #818cf8;">
+                <span class="text-slate-400 text-sm" id="title-display">Title</span>
+                <span class="stat-value text-indigo-300">MODULE</span>
+            </div>
+            <div class="glass-panel stat-box">
+                <span class="text-slate-400 text-sm">Targets Left</span>
+                <span class="stat-value text-white" id="boards-left">0</span>
+            </div>
         </div>
-    </div>
 
-    <!-- 65% Height Game Area -->
-    <div class="game-area">
+        <div class="crosshair-container" id="crosshair">
+            <div class="crosshair-ring"></div>
+            <div class="crosshair-dot"></div>
+        </div>
         
-        <!-- Left: Fixed, Perfectly Centered Bow -->
-        <div class="bow-container" id="bowContainer">
-            <svg class="bow-svg" viewBox="0 0 320 400" id="bowGraphics">
-                <defs>
-                    <linearGradient id="wood" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#451a03" />
-                        <stop offset="50%" stop-color="#92400e" />
-                        <stop offset="100%" stop-color="#451a03" />
-                    </linearGradient>
-                    <filter id="shadow">
-                        <feDropShadow dx="8" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.9"/>
-                    </filter>
-                </defs>
+        <div id="damage-overlay"></div>
+        <div id="mobile-look-zone"></div>
+        <button id="mobile-fire-btn">FIRE</button>
 
-                <!-- Bow Limbs -->
-                <path d="M 180,20 Q 260,200 180,380" fill="none" stroke="url(#wood)" stroke-width="20" stroke-linecap="round" filter="url(#shadow)"/>
-                <path d="M 180,20 Q 260,200 180,380" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="6" stroke-linecap="round"/>
-                
-                <!-- Leather Grip -->
-                <path d="M 220,165 Q 228,200 220,235" fill="none" stroke="#0f172a" stroke-width="24" stroke-linecap="round"/>
-                <path d="M 220,165 Q 228,200 220,235" fill="none" stroke="#334155" stroke-width="20" stroke-linecap="round" stroke-dasharray="5 3"/>
-
-                <!-- Bow String -->
-                <path id="bowString" d="M 180,20 L 180,380" fill="none" stroke="#cbd5e1" stroke-width="4"/>
-
-                <!-- Loaded Arrow (Increased boundaries to completely avoid clipping) -->
-                <g id="loadedArrow" style="display: none; transition: transform 0.1s;">
-                    <!-- Massive bounding box ensures text NEVER clips -->
-                    <foreignObject x="-150" y="150" width="350" height="100">
-                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; justify-content: center; width: 100%;">
-                            <div class="high-contrast-tooltip" id="loadedNoteText"></div>
-                        </div>
-                    </foreignObject>
-                    
-                    <!-- Arrow Shaft -->
-                    <line x1="-30" y1="200" x2="180" y2="200" stroke="#f8fafc" stroke-width="5" />
-                    <!-- Head -->
-                    <polygon points="180,192 205,200 180,208" fill="#ef4444" />
-                    <!-- Feathers -->
-                    <polygon points="-30,200 -40,185 -15,200" fill="#0ea5e9" />
-                    <polygon points="-30,200 -40,215 -15,200" fill="#0ea5e9" />
-                </g>
-            </svg>
+        <div class="glass-panel weapon-tray" id="weapon-tray"></div>
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-sm font-bold desktop-hint pointer-events-none tracking-widest uppercase">
+            Scroll Wheel or Keys [1-4] to select logic
         </div>
-
-        <!-- Right: Scrolling Targets spanning full remaining width -->
-        <div class="targets-container" id="targetsContainer"></div>
     </div>
 
-    <!-- 35% Height Notes Tray -->
-    <div class="tray-container" id="trayContainer"></div>
-
-    <!-- End Game Overlay (Book Chapter Style) -->
-    <div class="overlay" id="endScreen">
-        <div class="book-summary">
-            <h2>Chapter Mastered</h2>
-            <p class="score-report">Final Score: <span id="finalScore" style="color:#fbbf24; font-weight:bold;">0</span></p>
-            <div id="summaryContent"></div>
+    <!-- Start Screen -->
+    <div class="overlay-screen" id="start-screen">
+        <div class="content-card text-center">
+            <h1 class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 mb-4 tracking-tight" id="start-title">Title</h1>
+            <p class="text-xl text-slate-400 mb-10 font-medium tracking-wide uppercase">Interactive Learning Environment</p>
+            
+            <div class="text-left text-lg text-slate-300 mb-10 space-y-6 max-w-xl mx-auto">
+                <p class="flex items-start gap-4"><span class="text-3xl">🎈</span> <span>The concepts are suspended by balloons around you.</span></p>
+                <p class="flex items-start gap-4"><span class="text-3xl">🔫</span> <span>Equip a <b>Target Logic</b> and shoot the matching definition.</span></p>
+                <p class="flex items-start gap-4"><span class="text-3xl">⚠️</span> <span>Beware: Incorrect matches will reflect the bullet!</span></p>
+            </div>
+            
+            <p class="text-indigo-300 font-bold mb-8 desktop-hint animate-pulse">Click anywhere to lock mouse and look around.</p>
+            <button class="play-btn" id="start-btn">INITIALIZE</button>
         </div>
-        <button class="play-btn" onclick="startGame()">Retake Test</button>
     </div>
 
-    <script>
-        // --- RELIABLE AUDIO ENGINE ---
-        let audioCtx;
+    <!-- End Game Screen -->
+    <div class="overlay-screen hidden" id="end-screen">
+        <div class="content-card">
+            <h2 class="text-4xl font-black text-white text-center mb-2 uppercase tracking-widest">Module Mastered</h2>
+            <p class="text-center text-xl mb-10 text-slate-400">Final Assessment Score: <span class="text-emerald-400 font-black text-3xl ml-2" id="final-score">0</span></p>
+            <div id="summary-content" class="max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar"></div>
+        </div>
+        <button class="play-btn" id="restart-btn">RETAKE MODULE</button>
+    </div>
 
-        function initAudio() {
-            if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
+    <!-- Game Canvas -->
+    <div id="game-canvas"></div>
+
+    <!-- Three.js Engine -->
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+        // --- Premium Procedural Audio Engine ---
+        const AudioSys = {
+            ctx: null,
+            init: function() {
+                if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if(this.ctx.state === 'suspended') this.ctx.resume();
+            },
+            playShoot: function() {
+                if(!this.ctx) return;
+                const t = this.ctx.currentTime;
+                // Punchy Synth Laser
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, t);
+                osc.frequency.exponentialRampToValueAtTime(40, t + 0.15);
+                gain.gain.setValueAtTime(0.4, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(t); osc.stop(t + 0.15);
+            },
+            playCorrect: function() {
+                if(!this.ctx) return;
+                const t = this.ctx.currentTime;
+                // Satisfying pop + magic chord
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, t); // C5
+                osc.frequency.setValueAtTime(659.25, t + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, t + 0.2); // G5
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.4, t + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(t); osc.stop(t + 0.5);
+            },
+            playRicochet: function() {
+                if(!this.ctx) return;
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(1200, t);
+                osc.frequency.exponentialRampToValueAtTime(100, t + 0.3);
+                gain.gain.setValueAtTime(0.5, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(t); osc.stop(t + 0.3);
+            },
+            playHitPlayer: function() {
+                if(!this.ctx) return;
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, t);
+                osc.frequency.exponentialRampToValueAtTime(30, t + 0.4);
+                gain.gain.setValueAtTime(0.8, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(t); osc.stop(t + 0.4);
             }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
-
-        const playSound = (type) => {
-            if (!audioCtx) return;
-            try {
-                if (type === 'success') {
-                    // Ascending Chime (C5, E5, G5, C6)
-                    const osc = audioCtx.createOscillator();
-                    const gainNode = audioCtx.createGain();
-                    
-                    osc.type = 'triangle';
-                    
-                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
-                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); 
-                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); 
-                    osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3); 
-                    
-                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-                    gainNode.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 0.05);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
-                    
-                    osc.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
-                    
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.6);
-
-                } else if (type === 'error') {
-                    // Deep Thud/Buzz
-                    const osc = audioCtx.createOscillator();
-                    const gainNode = audioCtx.createGain();
-                    
-                    osc.type = 'sawtooth';
-                    
-                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
-                    
-                    gainNode.gain.setValueAtTime(0.8, audioCtx.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                    
-                    osc.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
-                    
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.3);
-                }
-            } catch (e) {}
         };
 
-        // Guarantee audio context unlocks
-        document.body.addEventListener('click', initAudio, { once: true });
-        document.body.addEventListener('touchstart', initAudio, { once: true });
-
-        // --- GAME LOGIC ---
-        const gameData = MASTER_GAME_DATA;
-        document.getElementById('ui-title').innerText = gameData.gameTitle;
-
+        // --- Game State ---
+        let scene, camera, renderer;
+        let isPlaying = false;
         let score = 0;
-        let notesRemaining = 0;
-        let selectedNote = null;
-        let isAnimating = false;
+        let boardsRemaining = GAME_DATA.notes.length;
+        let currentEquippedTarget = GAME_DATA.targets[0];
+        
+        let balloonGroups = [];
+        let bullets = [];
+        let particles = [];
+        const BULLET_SPEED = 50.0;
+        const CIRCLE_RADIUS = 28.0; // Perfect distance
 
-        const targetsContainer = document.getElementById('targetsContainer');
-        const trayContainer = document.getElementById('trayContainer');
-        const scoreEl = document.getElementById('score');
-        const notesLeftEl = document.getElementById('notesLeft');
-        const bowString = document.getElementById('bowString');
-        const loadedArrow = document.getElementById('loadedArrow');
-        const loadedNoteText = document.getElementById('loadedNoteText');
+        // Player / Gun
+        const pitchObject = new THREE.Group();
+        const yawObject = new THREE.Group();
+        let gunGroup, barrelTip, gunVisuals;
+        
+        // Sway variables
+        let mouseX = 0; let mouseY = 0;
+        let targetGunRotX = 0; let targetGunRotY = 0;
+        let recoilActive = 0;
 
-        let embeddedCounts = {}; 
+        // --- Initialization ---
+        document.getElementById('title-display').innerText = GAME_DATA.gameTitle;
+        document.getElementById('start-title').innerText = GAME_DATA.gameTitle;
+
+        function buildWeaponTray() {
+            const tray = document.getElementById('weapon-tray');
+            tray.innerHTML = '';
+            GAME_DATA.targets.forEach((target, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'weapon-btn';
+                btn.id = `weapon-btn-${target.id}`;
+                btn.style.setProperty('--glow-color', target.color);
+                btn.innerHTML = `<span class="key-hint">${index + 1}</span> <span style="color:${target.color}">●</span> <span>${target.name}</span>`;
+                btn.onclick = (e) => { e.stopPropagation(); equipWeapon(target); };
+                tray.appendChild(btn);
+            });
+            equipWeapon(GAME_DATA.targets[0]);
+        }
+
+        function equipWeapon(target) {
+            currentEquippedTarget = target;
+            document.querySelectorAll('.weapon-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`weapon-btn-${target.id}`);
+            if(activeBtn) activeBtn.classList.add('active');
+            
+            // Update Gun Neon Material
+            if(gunGroup && gunGroup.userData.neonMats) {
+                gunGroup.userData.neonMats.forEach(mat => {
+                    mat.color.set(target.color);
+                    mat.emissive.set(target.color);
+                });
+            }
+        }
+
+        window.addEventListener('wheel', (e) => {
+            if(!isPlaying) return;
+            const currentIndex = GAME_DATA.targets.findIndex(t => t.id === currentEquippedTarget.id);
+            let nextIndex = e.deltaY > 0 ? currentIndex + 1 : currentIndex - 1;
+            if(nextIndex >= GAME_DATA.targets.length) nextIndex = 0;
+            if(nextIndex < 0) nextIndex = GAME_DATA.targets.length - 1;
+            equipWeapon(GAME_DATA.targets[nextIndex]);
+        });
+        window.addEventListener('keydown', (e) => {
+            if(!isPlaying) return;
+            const num = parseInt(e.key);
+            if(num > 0 && num <= GAME_DATA.targets.length) equipWeapon(GAME_DATA.targets[num - 1]);
+        });
+
+        // --- Three.js Setup ---
+        function initThreeJS() {
+            const container = document.getElementById('game-canvas');
+            scene = new THREE.Scene();
+            
+            // Cinematic Tone Mapping
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.1;
+            container.appendChild(renderer.domElement);
+
+            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 300);
+            
+            createSkybox();
+
+            // Premium Lighting
+            scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+            const hemiLight = new THREE.HemisphereLight(0xffbbaa, 0x080820, 0.6); // Sunset to dark ground
+            scene.add(hemiLight);
+            const dirLight = new THREE.DirectionalLight(0xffeedd, 1.0);
+            dirLight.position.set(20, 30, 20);
+            scene.add(dirLight);
+
+            // Subtle Floor grid to ground the player
+            const gridHelper = new THREE.GridHelper(100, 50, 0x334155, 0x0f172a);
+            gridHelper.position.y = -8;
+            scene.add(gridHelper);
+
+            // Player Setup
+            yawObject.position.y = 0;
+            pitchObject.add(camera);
+            yawObject.add(pitchObject);
+            scene.add(yawObject);
+
+            buildPremiumGun();
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function createSkybox() {
+            // Procedural Sunset/Dusk Gradient Sky
+            const vertexShader = `
+                varying vec3 vWorldPosition;
+                void main() {
+                    vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+                    vWorldPosition = worldPosition.xyz;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                }
+            `;
+            const fragmentShader = `
+                uniform vec3 topColor;
+                uniform vec3 bottomColor;
+                varying vec3 vWorldPosition;
+                void main() {
+                    float h = normalize( vWorldPosition ).y;
+                    gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), 0.6 ), 0.0 ) ), 1.0 );
+                }
+            `;
+            const uniforms = {
+                topColor: { value: new THREE.Color(0x1e1b4b) }, // Deep purple
+                bottomColor: { value: new THREE.Color(0xfca5a5) } // Soft sunset pink
+            };
+            const skyGeo = new THREE.SphereGeometry(200, 32, 15);
+            const skyMat = new THREE.ShaderMaterial({
+                vertexShader: vertexShader, fragmentShader: fragmentShader, uniforms: uniforms, side: THREE.BackSide
+            });
+            scene.add(new THREE.Mesh(skyGeo, skyMat));
+        }
+
+        function buildPremiumGun() {
+            gunGroup = new THREE.Group();
+            gunVisuals = new THREE.Group();
+            
+            // Positioned to make the ENTIRE gun (stock, grip, barrel) completely visible
+            gunGroup.position.set(0.35, -0.25, -1.4); 
+            gunVisuals.rotation.y = 0.15; // Angled slightly to show the side profile
+            
+            gunGroup.add(gunVisuals);
+            pitchObject.add(gunGroup);
+
+            // Materials
+            const darkMetal = new THREE.MeshStandardMaterial({ color: 0x111827, metalness: 0.7, roughness: 0.3 });
+            const greyMetal = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.5, roughness: 0.5 });
+            const neonMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1.5 });
+            
+            gunGroup.userData.neonMats = [neonMat];
+
+            // 1. Main Receiver
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.25, 0.9), darkMetal);
+            gunVisuals.add(body);
+
+            // 2. Barrel
+            const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.7, 16), greyMetal);
+            barrel.rotateX(Math.PI / 2);
+            barrel.position.set(0, 0.05, -0.7);
+            gunVisuals.add(barrel);
+            
+            // Muzzle Brake
+            const brake = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.15, 16), darkMetal);
+            brake.rotateX(Math.PI / 2);
+            brake.position.set(0, 0.05, -1.05);
+            gunVisuals.add(brake);
+
+            // 3. Scope
+            const scopeMount = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.08, 0.15), greyMetal);
+            scopeMount.position.set(0, 0.16, -0.1);
+            gunVisuals.add(scopeMount);
+            
+            const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.35, 16), darkMetal);
+            scope.rotateX(Math.PI / 2);
+            scope.position.set(0, 0.22, -0.1);
+            gunVisuals.add(scope);
+
+            // 4. Grip & Stock (Now fully visible)
+            const grip = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.25, 0.15), darkMetal);
+            grip.position.set(0, -0.2, 0.15);
+            grip.rotation.x = Math.PI / 8;
+            gunVisuals.add(grip);
+            
+            const stock = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.5), greyMetal);
+            stock.position.set(0, -0.05, 0.6);
+            gunVisuals.add(stock);
+
+            // 5. Glowing Neon Rails (Visual Ammo Indicator)
+            const rail1 = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.6), neonMat);
+            rail1.position.set(0.095, 0.05, -0.2);
+            gunVisuals.add(rail1);
+            
+            const rail2 = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.6), neonMat);
+            rail2.position.set(-0.095, 0.05, -0.2);
+            gunVisuals.add(rail2);
+
+            // Tracking Tip
+            barrelTip = new THREE.Object3D();
+            barrelTip.position.set(0, 0.05, -1.1);
+            gunVisuals.add(barrelTip);
+        }
+
+        // --- Balloon & Board Generation ---
+        const TEXT_COLORS = ['#f8fafc', '#fef08a', '#a7f3d0', '#bfdbfe', '#fbcfe8', '#fed7aa'];
+        const BALLOON_COLORS = [0xf43f5e, 0x3b82f6, 0x10b981, 0xf59e0b, 0x8b5cf6, 0xec4899];
+
+        function createPremiumBoardTexture(text) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Glass/Metal Board Background
+            ctx.fillStyle = '#0f172a'; // Deep slate
+            ctx.beginPath(); ctx.roundRect(10, 10, 1004, 492, 40); ctx.fill();
+            
+            // Premium Border Gradient
+            const gradient = ctx.createLinearGradient(0, 0, 1024, 512);
+            gradient.addColorStop(0, '#334155'); gradient.addColorStop(1, '#1e293b');
+            ctx.strokeStyle = gradient; ctx.lineWidth = 15; ctx.stroke();
+            
+            // Inner shadow/glow
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.roundRect(25, 25, 974, 462, 25); ctx.stroke();
+
+            // Random Text Color
+            const tColor = TEXT_COLORS[Math.floor(Math.random() * TEXT_COLORS.length)];
+            ctx.fillStyle = tColor;
+            ctx.font = 'bold 80px Outfit, sans-serif'; // Bigger font
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            
+            // Text Wrapping
+            const words = text.split(' ');
+            let line = ''; const lines = []; const maxWidth = 850;
+            
+            for(let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                    lines.push(line); line = words[n] + ' ';
+                } else { line = testLine; }
+            }
+            lines.push(line);
+
+            const lineHeight = 100;
+            const startY = 256 - ((lines.length - 1) * lineHeight) / 2;
+            lines.forEach((l, i) => {
+                // Drop shadow for text readability
+                ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                ctx.shadowBlur = 15; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 4;
+                ctx.fillText(l.trim(), 512, startY + (i * lineHeight));
+            });
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            return texture;
+        }
+
+        function spawnBalloonsAndBoards() {
+            balloonGroups.forEach(g => scene.remove(g));
+            balloonGroups = [];
+            
+            const shuffledNotes = [...GAME_DATA.notes].sort(() => Math.random() - 0.5);
+            const total = shuffledNotes.length;
+            const angleStep = (Math.PI * 2) / total;
+
+            const boardGeo = new THREE.PlaneGeometry(16, 8); // Scaled for readability
+
+            shuffledNotes.forEach((note, index) => {
+                const angle = index * angleStep;
+                
+                // 1. Create Container (Handles positioning & facing camera)
+                const container = new THREE.Group();
+                container.position.x = Math.cos(angle) * CIRCLE_RADIUS;
+                container.position.z = Math.sin(angle) * CIRCLE_RADIUS;
+                // Suspended closer to eye level, not very high (1 to 3 units high)
+                container.position.y = (Math.random() - 0.5) * 2 + 2; 
+                
+                // Make container face center
+                container.lookAt(0, container.position.y, 0);
+
+                // 2. Assemble Objects directly into Container (Stationary)
+                const bColor = BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
+                
+                // Board (At container origin for perfect aiming height)
+                const texture = createPremiumBoardTexture(note.text);
+                const mat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+                const boardMesh = new THREE.Mesh(boardGeo, mat);
+                boardMesh.position.y = 0; 
+                boardMesh.userData = { isBoard: true, noteId: note.id, targetId: note.targetId, parentGroup: container };
+                container.add(boardMesh);
+
+                // String (Going UP from the board to the balloon)
+                const stringLength = 6;
+                const stringGeo = new THREE.CylinderGeometry(0.02, 0.02, stringLength);
+                const stringMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const stringMesh = new THREE.Mesh(stringGeo, stringMat);
+                stringMesh.position.y = 4 + (stringLength / 2); // 4 is half the board's height
+                container.add(stringMesh);
+
+                // Balloon Tie
+                const balloonMat = new THREE.MeshStandardMaterial({ 
+                    color: bColor, roughness: 0.1, metalness: 0.2, clearcoat: 1.0 
+                });
+                const tieGeo = new THREE.ConeGeometry(0.3, 0.5, 8);
+                const tie = new THREE.Mesh(tieGeo, balloonMat);
+                tie.position.y = 4 + stringLength;
+                tie.rotation.x = Math.PI;
+                container.add(tie);
+
+                // Balloon Mesh
+                const balloonGeo = new THREE.SphereGeometry(2, 32, 32);
+                const balloon = new THREE.Mesh(balloonGeo, balloonMat);
+                balloon.position.y = 4 + stringLength + 2.1; 
+                container.add(balloon);
+
+                // Setup Data
+                container.userData = {
+                    boardMesh: boardMesh
+                };
+
+                scene.add(container);
+                balloonGroups.push(container);
+            });
+
+            boardsRemaining = balloonGroups.length;
+            updateHUD();
+        }
+
+        // --- Controls (PointerLock & Mobile) ---
+        let isPointerLocked = false;
+        
+        document.body.addEventListener('click', () => {
+            if(!isPlaying || isPointerLocked || window.matchMedia("(pointer: coarse)").matches) return;
+            document.body.requestPointerLock();
+        });
+
+        document.addEventListener('pointerlockchange', () => { isPointerLocked = document.pointerLockElement === document.body; });
+
+        document.addEventListener('mousemove', (event) => {
+            if (isPointerLocked && isPlaying) {
+                const movX = event.movementX * 0.002;
+                const movY = event.movementY * 0.002;
+                
+                yawObject.rotation.y -= movX;
+                pitchObject.rotation.x -= movY;
+                pitchObject.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitchObject.rotation.x));
+                
+                // Feed sway variables
+                mouseX = movX * 10; 
+                mouseY = movY * 10;
+            }
+        });
+
+        // Mobile Controls
+        const lookZone = document.getElementById('mobile-look-zone');
+        let lastTouch = null;
+        
+        lookZone.addEventListener('touchstart', (e) => {
+            if(!isPlaying) return;
+            lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }, {passive: false});
+
+        lookZone.addEventListener('touchmove', (e) => {
+            if(!isPlaying || !lastTouch) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - lastTouch.x;
+            const deltaY = touch.clientY - lastTouch.y;
+            
+            yawObject.rotation.y -= deltaX * 0.005;
+            pitchObject.rotation.x -= deltaY * 0.005;
+            pitchObject.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitchObject.rotation.x));
+            
+            // Feed sway for mobile too
+            mouseX = deltaX * 0.02;
+            mouseY = deltaY * 0.02;
+
+            lastTouch = { x: touch.clientX, y: touch.clientY };
+        }, {passive: false});
+
+        lookZone.addEventListener('touchend', () => { lastTouch = null; mouseX = 0; mouseY = 0; });
+
+        // --- Shooting & Visual Effects ---
+        const raycaster = new THREE.Raycaster();
+        const bulletGeo = new THREE.SphereGeometry(0.4, 16, 16);
+
+        function triggerCrosshairAnim() {
+            const ch = document.getElementById('crosshair');
+            ch.classList.add('shooting');
+            setTimeout(() => ch.classList.remove('shooting'), 150);
+        }
+
+        function triggerHitmarker(isCorrect) {
+            const ch = document.getElementById('crosshair');
+            const cls = isCorrect ? 'hit-correct' : 'hit-wrong';
+            ch.classList.add(cls);
+            setTimeout(() => ch.classList.remove(cls), 300);
+        }
+
+        function shoot() {
+            if(!isPlaying) return;
+            AudioSys.init(); AudioSys.playShoot();
+            triggerCrosshairAnim();
+
+            // Heavy Recoil Kick
+            recoilActive = 1.0;
+            gunVisuals.position.z = 0.2; 
+            gunVisuals.rotation.x = 0.1;
+
+            // Muzzle Flash Light
+            const flash = new THREE.PointLight(currentEquippedTarget.color, 5, 20);
+            barrelTip.getWorldPosition(flash.position);
+            scene.add(flash);
+            setTimeout(() => scene.remove(flash), 50); // Quick flash
+
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            
+            // Extract just the board meshes for intersection
+            const boardMeshes = balloonGroups.map(g => g.userData.boardMesh);
+            const intersects = raycaster.intersectObjects(boardMeshes, false);
+
+            const startPos = new THREE.Vector3();
+            barrelTip.getWorldPosition(startPos);
+            let targetPos = new THREE.Vector3();
+            let hitBoard = null;
+
+            if (intersects.length > 0) {
+                hitBoard = intersects[0].object;
+                targetPos.copy(intersects[0].point);
+            } else {
+                raycaster.ray.at(150, targetPos); // Shoot far into sky
+            }
+
+            // Spawn Projectile
+            const bulletMat = new THREE.MeshBasicMaterial({ color: currentEquippedTarget.color });
+            const mesh = new THREE.Mesh(bulletGeo, bulletMat);
+            mesh.position.copy(startPos);
+            
+            // Add trail/glow
+            const glowMat = new THREE.MeshBasicMaterial({ color: currentEquippedTarget.color, transparent: true, opacity: 0.5 });
+            const glow = new THREE.Mesh(new THREE.SphereGeometry(0.8, 8, 8), glowMat);
+            mesh.add(glow);
+            scene.add(mesh);
+
+            const dir = new THREE.Vector3().subVectors(targetPos, startPos).normalize();
+            
+            bullets.push({
+                mesh: mesh,
+                velocity: dir.multiplyScalar(BULLET_SPEED),
+                targetPos: targetPos,
+                board: hitBoard,
+                state: 'outward',
+                conceptData: currentEquippedTarget
+            });
+        }
+
+        document.addEventListener('mousedown', (e) => { if (isPlaying && isPointerLocked && e.button === 0) shoot(); });
+        document.getElementById('mobile-fire-btn').addEventListener('touchstart', (e) => { e.preventDefault(); shoot(); });
+
+        function createPremiumExplosion(pos, isCorrect) {
+            const count = isCorrect ? 60 : 30;
+            const color = isCorrect ? currentEquippedTarget.color : '#ef4444';
+            const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color(color) });
+            const geo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+
+            for(let i=0; i<count; i++) {
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.copy(pos);
+                // Spherical burst
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                const speed = Math.random() * 25 + 5;
+                
+                mesh.userData.velocity = new THREE.Vector3(
+                    Math.sin(phi) * Math.cos(theta),
+                    Math.sin(phi) * Math.sin(theta) + (isCorrect ? 0.5 : 0), // Slight upward bias
+                    Math.cos(phi)
+                ).multiplyScalar(speed);
+                
+                mesh.userData.life = 1.0;
+                scene.add(mesh);
+                particles.push(mesh);
+            }
+        }
+
+        function showFloatingText2D(text, color) {
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.innerText = text; el.style.color = color;
+            document.getElementById('ui-layer').appendChild(el);
+            setTimeout(() => el.remove(), 1500);
+        }
+
+        function handleBulletHitBoard(bullet, index) {
+            const board = bullet.board;
+            const parentContainer = board.userData.parentGroup;
+            
+            if(!parentContainer || !balloonGroups.includes(parentContainer)) {
+                scene.remove(bullet.mesh); bullets.splice(index, 1); return;
+            }
+
+            const isMatch = (bullet.conceptData.id === board.userData.targetId);
+
+            if (isMatch) {
+                AudioSys.playCorrect();
+                triggerHitmarker(true);
+                
+                // Explode at board position
+                const boardWorldPos = new THREE.Vector3();
+                board.getWorldPosition(boardWorldPos);
+                createPremiumExplosion(boardWorldPos, true);
+                
+                scene.remove(parentContainer);
+                balloonGroups = balloonGroups.filter(g => g !== parentContainer);
+                boardsRemaining = balloonGroups.length;
+                
+                scene.remove(bullet.mesh);
+                bullets.splice(index, 1);
+
+                score += 10;
+                showFloatingText2D("PRECISION STRIKE +10", "#34d399");
+                updateHUD();
+
+                if (boardsRemaining === 0) setTimeout(endGame, 1500);
+
+            } else {
+                AudioSys.playRicochet();
+                triggerHitmarker(false);
+                
+                const hitPos = new THREE.Vector3();
+                bullet.mesh.getWorldPosition(hitPos);
+                createPremiumExplosion(hitPos, false);
+                
+                // Transform bullet to angry red return state
+                bullet.mesh.material.color.setHex(0xef4444);
+                bullet.mesh.children[0].material.color.setHex(0xef4444);
+                bullet.state = 'returning';
+                
+                const camWorld = new THREE.Vector3();
+                camera.getWorldPosition(camWorld);
+                const returnDir = new THREE.Vector3().subVectors(camWorld, bullet.mesh.position).normalize();
+                bullet.velocity = returnDir.multiplyScalar(BULLET_SPEED * 1.8); // Fast return
+            }
+        }
+
+        function handleBulletHitPlayer(bullet, index) {
+            AudioSys.playHitPlayer();
+            
+            const overlay = document.getElementById('damage-overlay');
+            overlay.classList.add('flash-red');
+            setTimeout(() => overlay.classList.remove('flash-red'), 200);
+
+            scene.remove(bullet.mesh);
+            bullets.splice(index, 1);
+
+            score -= 5;
+            showFloatingText2D("SYSTEM DAMAGE -5", "#ef4444");
+            updateHUD();
+        }
+
+        // --- Main Animation Loop ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            if (isPlaying) {
+                // 1. Procedural Weapon Sway & Recoil Recovery
+                // Recover recoil
+                if(recoilActive > 0) {
+                    recoilActive -= delta * 5;
+                    if(recoilActive < 0) recoilActive = 0;
+                }
+                
+                // Interpolate gun position back to origin smoothly
+                gunVisuals.position.z += (0 - gunVisuals.position.z) * 10 * delta;
+                gunVisuals.rotation.x += (0 - gunVisuals.rotation.x) * 10 * delta;
+
+                // Sway logic based on mouse movement
+                targetGunRotY = -mouseX * 0.5;
+                targetGunRotX = -mouseY * 0.5;
+                
+                // Add natural breathing bob
+                const bobX = Math.cos(time * 2) * 0.01;
+                const bobY = Math.sin(time * 4) * 0.01;
+
+                gunGroup.rotation.y += (targetGunRotY - gunGroup.rotation.y) * 5 * delta;
+                gunGroup.rotation.x += (targetGunRotX - gunGroup.rotation.x) * 5 * delta;
+                gunGroup.position.x = 0.35 + bobX;
+                gunGroup.position.y = -0.25 + bobY;
+
+                // Decay mouse velocity for sway
+                mouseX *= 0.9; mouseY *= 0.9;
+
+                // 2. Boards are completely stationary (Balloon sway removed)
+
+                // 3. Update Bullets
+                for (let i = bullets.length - 1; i >= 0; i--) {
+                    const b = bullets[i];
+                    b.mesh.position.addScaledVector(b.velocity, delta);
+
+                    if (b.state === 'outward') {
+                        const distToTarget = b.mesh.position.distanceTo(b.targetPos);
+                        if (distToTarget < 1.5 || (b.velocity.dot(new THREE.Vector3().subVectors(b.targetPos, b.mesh.position)) < 0)) {
+                            if (b.board) handleBulletHitBoard(b, i);
+                            else { scene.remove(b.mesh); bullets.splice(i, 1); }
+                        }
+                    } else if (b.state === 'returning') {
+                        const camWorld = new THREE.Vector3();
+                        camera.getWorldPosition(camWorld);
+                        if (b.mesh.position.distanceTo(camWorld) < 2.5) {
+                            handleBulletHitPlayer(b, i);
+                        }
+                    }
+                }
+
+                // 4. Update Particles
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.userData.life -= delta * 1.2;
+                    if (p.userData.life <= 0) {
+                        scene.remove(p); particles.splice(i, 1);
+                    } else {
+                        p.position.addScaledVector(p.userData.velocity, delta);
+                        p.scale.setScalar(p.userData.life);
+                        p.userData.velocity.y -= 25 * delta; // Gravity pull down
+                    }
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // --- Game Flow Control ---
+        function updateHUD() {
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('boards-left').innerText = boardsRemaining;
+        }
 
         function startGame() {
+            AudioSys.init();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.add('hidden');
+            
             score = 0;
-            notesRemaining = gameData.notes.length;
-            scoreEl.innerText = score;
-            notesLeftEl.innerText = notesRemaining;
-            selectedNote = null;
-            isAnimating = false;
-            embeddedCounts = {};
+            spawnBalloonsAndBoards();
+            buildWeaponTray();
             
-            document.getElementById('endScreen').classList.remove('active');
-            
-            resetBow();
-            buildTargets();
-            buildTray();
+            yawObject.rotation.y = 0; pitchObject.rotation.x = 0;
+            isPlaying = true; clock.start();
         }
 
-        function buildTargets() {
-            targetsContainer.innerHTML = '';
-            gameData.targets.forEach(target => {
-                embeddedCounts[target.id] = 0; 
+        function endGame() {
+            isPlaying = false;
+            if(document.pointerLockElement) document.exitPointerLock();
 
-                const div = document.createElement('div');
-                div.className = 'target-wrapper';
-                div.id = `target-${target.id}`;
+            document.getElementById('final-score').innerText = score;
+            
+            const summaryContainer = document.getElementById('summary-content');
+            summaryContainer.innerHTML = '';
+
+            GAME_DATA.targets.forEach(target => {
+                const associatedNotes = GAME_DATA.notes.filter(n => n.targetId === target.id);
+                if(associatedNotes.length === 0) return;
+
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'concept-group';
                 
-                const svg = `
-                    <svg class="target-svg" viewBox="0 0 100 100" style="color: ${target.color}">
-                        <circle cx="50" cy="50" r="45" fill="#020617" stroke="currentColor" stroke-width="8"/>
-                        <circle cx="50" cy="50" r="25" fill="#0f172a" stroke="currentColor" stroke-width="4"/>
-                        <circle cx="50" cy="50" r="10" fill="currentColor"/>
-                    </svg>
-                `;
-                
-                div.innerHTML = `
-                    <div class="embedded-arrows-area" id="embed-area-${target.id}"></div>
-                    ${svg}
-                    <div class="target-label" style="color: ${target.color}; border-color: ${target.color}">${target.name}</div>
-                `;
-                
-                div.onclick = () => shootTarget(target, div);
-                targetsContainer.appendChild(div);
-            });
-        }
-
-        function buildTray() {
-            trayContainer.innerHTML = '';
-            const shuffledNotes = [...gameData.notes].sort(() => Math.random() - 0.5);
-            
-            shuffledNotes.forEach(note => {
-                const card = document.createElement('div');
-                card.className = 'note-card';
-                card.id = `note-${note.id}`;
-                card.innerText = note.text;
-                card.onclick = () => loadBow(note, card);
-                trayContainer.appendChild(card);
-            });
-        }
-
-        function loadBow(note, cardElement) {
-            if (isAnimating) return;
-            initAudio(); // Ensure context is awake
-
-            document.querySelectorAll('.note-card').forEach(c => c.classList.remove('selected'));
-            
-            selectedNote = note;
-            cardElement.classList.add('selected');
-
-            loadedArrow.style.display = 'block';
-            loadedNoteText.innerText = note.text;
-            
-            bowString.setAttribute('d', 'M 180,20 L 20,200 L 180,380'); 
-        }
-
-        function resetBow() {
-            loadedArrow.style.display = 'none';
-            bowString.setAttribute('d', 'M 180,20 L 180,380'); 
-        }
-
-        // Beautifully composed arrow with centered text
-        function createArrowHTML(text) {
-            return `
-                <div class="arrow-composition">
-                    <div class="arrow-text-layer">
-                        <div class="high-contrast-tooltip">${text}</div>
-                    </div>
-                    <svg width="200" height="20" viewBox="0 0 200 20" style="overflow:visible;">
-                        <line x1="0" y1="10" x2="180" y2="10" stroke="#f8fafc" stroke-width="5" />
-                        <polygon points="180,2 200,10 180,18" fill="#ef4444" />
-                        <polygon points="0,10 -15,-2 10,10" fill="#0ea5e9" />
-                        <polygon points="0,10 -15,22 10,10" fill="#0ea5e9" />
-                    </svg>
-                </div>
-            `;
-        }
-
-        function shootTarget(targetData, targetEl) {
-            if (!selectedNote || isAnimating) return;
-            isAnimating = true;
-
-            const bowRect = bowString.getBoundingClientRect();
-            const targetSvgRect = targetEl.querySelector('.target-svg').getBoundingClientRect();
-
-            // Coordinate logic
-            const startX = bowRect.left + 20; 
-            const startY = bowRect.top + (bowRect.height / 2);
-            const endX = targetSvgRect.left + (targetSvgRect.width / 2);
-            const endY = targetSvgRect.top + (targetSvgRect.height / 2);
-
-            resetBow();
-            
-            const flyingArrow = document.createElement('div');
-            flyingArrow.className = 'flying-arrow';
-            flyingArrow.innerHTML = createArrowHTML(selectedNote.text);
-            document.body.appendChild(flyingArrow);
-
-            const deltaX = endX - startX;
-            const deltaY = endY - startY;
-            const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-
-            flyingArrow.style.left = `${startX}px`;
-            flyingArrow.style.top = `${startY}px`;
-            flyingArrow.style.transform = `translate(-100%, -50%) rotate(${angle}deg)`;
-
-            const animation = flyingArrow.animate([
-                { transform: `translate(-100%, -50%) rotate(${angle}deg)` },
-                { transform: `translate(calc(-100% + ${deltaX}px), calc(-50% + ${deltaY}px)) rotate(${angle}deg)` }
-            ], {
-                duration: 350,
-                easing: 'ease-in'
-            });
-
-            animation.onfinish = () => {
-                flyingArrow.remove();
-                evaluateHit(targetData, targetEl, endX, endY, angle);
-            };
-        }
-
-        function evaluateHit(targetData, targetEl, hitX, hitY, angle) {
-            const isCorrect = (selectedNote.targetId === targetData.id);
-            const noteCard = document.getElementById(`note-${selectedNote.id}`);
-
-            targetEl.classList.remove('impact-anim');
-            void targetEl.offsetWidth; 
-
-            if (isCorrect) {
-                playSound('success');
-                score += 10;
-                notesRemaining--;
-                
-                targetEl.classList.add('impact-anim'); 
-                createExplosion(hitX, hitY, targetData.color);
-                showFloatingText("+10", hitX, hitY, "#10b981");
-                
-                embedArrow(targetData.id, selectedNote.text, angle);
-                noteCard.classList.add('hidden'); 
-                
-                if (notesRemaining === 0) {
-                    setTimeout(showWinScreen, 1200);
-                }
-            } else {
-                playSound('error');
-                score -= 5;
-                
-                targetEl.classList.add('impact-anim');
-                createExplosion(hitX, hitY, "#ef4444"); 
-                showFloatingText("-5", hitX, hitY, "#ef4444");
-                
-                noteCard.classList.remove('selected'); 
-            }
-
-            scoreEl.innerText = score;
-            notesLeftEl.innerText = notesRemaining;
-            selectedNote = null;
-            isAnimating = false;
-        }
-
-        function embedArrow(targetId, text, angle) {
-            const embedArea = document.getElementById(`embed-area-${targetId}`);
-            const arrowCount = embeddedCounts[targetId];
-            
-            const embedded = document.createElement('div');
-            embedded.className = 'embedded-arrow';
-            embedded.innerHTML = createArrowHTML(text);
-            
-            // INCREASED vertical spread so large boxes don't block each other
-            const offsets = [0, -60, 60, -120, 120]; 
-            const yOffset = offsets[arrowCount % offsets.length];
-            
-            embedded.style.top = `calc(50% + ${yOffset}px)`;
-            
-            const finalAngle = angle + (Math.random() * 8 - 4);
-            embedded.style.transform = `translateY(-50%) rotate(${finalAngle}deg)`;
-            
-            embedArea.appendChild(embedded);
-            embeddedCounts[targetId]++;
-        }
-
-        function createExplosion(x, y, color) {
-            for (let i = 0; i < 30; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.background = color;
-                particle.style.boxShadow = `0 0 15px ${color}`;
-                
-                const size = Math.random() * 6 + 4;
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                particle.style.left = `${x}px`;
-                particle.style.top = `${y}px`;
-
-                document.body.appendChild(particle);
-
-                const angle = Math.random() * Math.PI * 2;
-                const distance = Math.random() * 100 + 40;
-                const dx = Math.cos(angle) * distance;
-                const dy = Math.sin(angle) * distance;
-
-                const anim = particle.animate([
-                    { transform: 'translate(0,0) scale(1)', opacity: 1 },
-                    { transform: `translate(${dx}px, ${dy}px) scale(0)`, opacity: 0 }
-                ], {
-                    duration: Math.random() * 500 + 300,
-                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
-                });
-
-                anim.onfinish = () => particle.remove();
-            }
-        }
-
-        function showFloatingText(text, x, y, color) {
-            const el = document.createElement('div');
-            el.className = 'float-text';
-            el.innerText = text;
-            el.style.color = color;
-            el.style.left = `${x - 20}px`;
-            el.style.top = `${y - 40}px`;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 1000);
-        }
-
-        function showWinScreen() {
-            document.getElementById('finalScore').innerText = score;
-            
-            const summaryContent = document.getElementById('summaryContent');
-            summaryContent.innerHTML = '';
-            
-            gameData.targets.forEach(target => {
-                const targetNotes = gameData.notes.filter(n => n.targetId === target.id);
-                if(targetNotes.length === 0) return;
-
-                const section = document.createElement('div');
-                section.className = 'chapter-section';
-                
-                let html = `<h3 style="color: ${target.color}">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="${target.color}"><circle cx="12" cy="12" r="10"/></svg>
+                let html = `<div class="concept-name" style="color: ${target.color};">
+                                <span style="font-size:1.8rem; line-height: 1;">■</span>
                                 ${target.name}
-                            </h3>`;
+                            </div>
+                            <ul class="concept-notes">`;
                 
-                html += `<ul>`;
-                targetNotes.forEach(note => {
-                    html += `<li>${note.text}</li>`;
-                });
+                associatedNotes.forEach(note => { html += `<li>${note.text}</li>`; });
                 html += `</ul>`;
                 
-                section.innerHTML = html;
-                summaryContent.appendChild(section);
+                groupDiv.innerHTML = html;
+                summaryContainer.appendChild(groupDiv);
             });
 
-            document.getElementById('endScreen').classList.add('active');
+            document.getElementById('end-screen').classList.remove('hidden');
         }
 
-        // Boot Game
-        startGame();
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('restart-btn').addEventListener('click', startGame);
+
+        initThreeJS();
+        animate();
 
     </script>
 </body>
 </html>
+
 
 

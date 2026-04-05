@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Master Heli Sniper 3D</title>
+    <title>Master Heli Archer 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800;900&display=swap');
         
-        body, html { margin: 0; padding: 0; overflow: hidden; font-family: 'Outfit', sans-serif; background: #000; touch-action: none; user-select: none; }
+        body, html { 
+            margin: 0; padding: 0; overflow: hidden; font-family: 'Outfit', sans-serif; background: #000; 
+            touch-action: none; user-select: none; 
+            /* Prevents the browser from auto-inflating fonts and buttons in Desktop Mode */
+            -webkit-text-size-adjust: none; 
+            text-size-adjust: none;
+        }
         #game-canvas { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
         
         /* Premium UI Layer */
@@ -19,22 +25,19 @@
             border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
         }
 
-        /* Dynamic Sniper Crosshair */
+        /* Dynamic Archer Crosshair */
         .crosshair-container {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 60px; height: 60px; pointer-events: none; display: flex; justify-content: center; align-items: center;
+            width: 40px; height: 40px; pointer-events: none; display: flex; justify-content: center; align-items: center;
         }
-        .crosshair-dot { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 8px rgba(0,0,0,1); transition: all 0.1s; z-index: 2;}
-        .crosshair-lines { position: absolute; width: 100%; height: 100%; }
-        .crosshair-lines::before { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.6); transform: translateY(-50%); }
-        .crosshair-lines::after { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: rgba(255,255,255,0.6); transform: translateX(-50%); }
+        .crosshair-dot { width: 6px; height: 6px; background: #fff; border-radius: 50%; box-shadow: 0 0 8px rgba(0,0,0,1); transition: all 0.1s; z-index: 2;}
         .crosshair-ring { 
-            position: absolute; width: 100%; height: 100%; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; 
+            position: absolute; width: 100%; height: 100%; border: 3px solid rgba(255,255,255,0.4); border-radius: 50%; 
             transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
-        .shooting .crosshair-ring { transform: scale(1.5); opacity: 0; }
-        .hit-correct .crosshair-dot { background: #10b981; box-shadow: 0 0 20px #10b981; transform: scale(4); }
-        .hit-wrong .crosshair-dot { background: #ef4444; box-shadow: 0 0 20px #ef4444; transform: scale(4); }
+        .shooting .crosshair-ring { transform: scale(1.6); opacity: 0; }
+        .hit-correct .crosshair-dot { background: #10b981; box-shadow: 0 0 20px #10b981; transform: scale(3); }
+        .hit-wrong .crosshair-dot { background: #ef4444; box-shadow: 0 0 20px #ef4444; transform: scale(3); }
 
         /* HUD */
         .hud-top { position: absolute; top: 30px; left: 40px; right: 40px; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -64,7 +67,9 @@
 
         /* Mobile Controls */
         #mobile-fire-btn {
-            display: none; position: absolute; right: 40px; bottom: 150px; width: 100px; height: 100px;
+            display: none; position: absolute; right: 6vmin; bottom: 15vmin; 
+            /* Fixed Proportional Sizing */
+            width: clamp(70px, 15vmin, 100px); height: clamp(70px, 15vmin, 100px);
             background: rgba(14, 165, 233, 0.3); border: 3px solid #0ea5e9; border-radius: 50%;
             color: white; font-weight: 900; font-size: 1.3rem; align-items: center; justify-content: center; 
             pointer-events: auto; backdrop-filter: blur(8px); transition: all 0.1s;
@@ -168,7 +173,7 @@
             </div>
             <div class="glass-panel stat-box" style="border-bottom: 4px solid #8b5cf6;">
                 <span class="text-slate-300 text-sm" id="title-display">Title</span>
-                <span class="stat-value text-purple-400">SNIPER</span>
+                <span class="stat-value text-purple-400">ARCHER</span>
                 <div class="wave-badge" id="wave-display">WAVE 1</div>
             </div>
             <div class="glass-panel stat-box">
@@ -178,7 +183,6 @@
         </div>
 
         <div class="crosshair-container" id="crosshair">
-            <div class="crosshair-lines"></div>
             <div class="crosshair-ring"></div>
             <div class="crosshair-dot"></div>
         </div>
@@ -189,7 +193,7 @@
 
         <div class="glass-panel weapon-tray" id="weapon-tray"></div>
         <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/70 text-sm font-bold desktop-hint pointer-events-none tracking-widest uppercase text-shadow-md">
-            Scroll Wheel or Keys [1-4] to equip Ammo type
+            Scroll Wheel or Keys [1-4] to equip Arrow Logic
         </div>
     </div>
 
@@ -197,16 +201,15 @@
     <div class="overlay-screen" id="start-screen">
         <div class="content-card text-center">
             <h1 class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-sky-500 mb-2 tracking-tight" id="start-title">Title</h1>
-            <p class="text-2xl text-slate-300 mb-10 font-bold tracking-widest uppercase">3D Sniper Simulator</p>
+            <p class="text-2xl text-slate-300 mb-10 font-bold tracking-widest uppercase">3D Archery Simulator</p>
             
             <div class="text-left text-xl text-slate-200 mb-12 space-y-6 max-w-2xl mx-auto">
-                <p class="flex items-center gap-5"><span class="text-4xl">🚁</span> <span>Helicopters orbit in concentric circles (Waves).</span></p>
-                <p class="flex items-center gap-5"><span class="text-4xl">🎯</span> <span>Only the first <b>THREE</b> circles are in active range!</span></p>
+                <p class="flex items-center gap-5"><span class="text-4xl">🏹</span> <span>Equip an <b>Energy Arrow</b> that matches the target.</span></p>
                 <p class="flex items-center gap-5"><span class="text-4xl">⚠️</span> <span>Shoot out of range or hit the wrong target to take damage!</span></p>
             </div>
             
             <p class="text-fuchsia-400 font-bold mb-10 desktop-hint animate-pulse text-2xl drop-shadow-md">Click anywhere to lock mouse and look around.</p>
-            <button class="play-btn" id="start-btn">ENGAGE TARGETS</button>
+            <button class="play-btn" id="start-btn">DRAW BOW</button>
         </div>
     </div>
 
@@ -227,45 +230,26 @@
     <script type="module">
         import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
-        // --- Procedural Audio Engine (Sniper Tuned) ---
+        // --- Procedural Audio Engine ---
         const AudioSys = {
             ctx: null,
             init: function() {
                 if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                 if(this.ctx.state === 'suspended') this.ctx.resume();
             },
-            playGunshot: function() {
+            playBowRelease: function() {
                 if(!this.ctx) return;
                 const t = this.ctx.currentTime;
-                
-                // Heavy low punch
+                // Thwip sound - tight envelope, mid-high frequency sweep
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
-                osc.frequency.setValueAtTime(200, t);
-                osc.frequency.exponentialRampToValueAtTime(10, t + 0.4);
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, t);
+                osc.frequency.exponentialRampToValueAtTime(100, t + 0.15);
                 gain.gain.setValueAtTime(1.0, t);
-                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
                 osc.connect(gain); gain.connect(this.ctx.destination);
-                osc.start(t); osc.stop(t + 0.4);
-
-                // High frequency blast (white noise)
-                const bufferSize = this.ctx.sampleRate * 0.3;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-                
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = buffer;
-                const noiseFilter = this.ctx.createBiquadFilter();
-                noiseFilter.type = 'lowpass';
-                noiseFilter.frequency.value = 3000;
-                
-                const noiseGain = this.ctx.createGain();
-                noiseGain.gain.setValueAtTime(1.5, t);
-                noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
-                
-                noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(this.ctx.destination);
-                noise.start(t);
+                osc.start(t); osc.stop(t + 0.15);
             },
             playHitCorrect: function() {
                 if(!this.ctx) return;
@@ -321,21 +305,21 @@
         let particles = [];
         let currentWave = 0; 
 
-        const BULLET_SPEED = 140.0;
+        const BULLET_SPEED = 160.0;
         const BASE_ORBIT_RADIUS = 35.0; 
         const RADIUS_STEP = 20.0;       
         const BASE_HEIGHT = 10.0;       
         const HEIGHT_STEP = 15.0;       
         const MAX_NOTES_PER_CIRCLE = 5;
 
-        // Player / Gun
+        // Player / Bow
         const pitchObject = new THREE.Group();
         const yawObject = new THREE.Group();
         let gunGroup, gunBody, energyCoreMat;
         
         let mouseX = 0; let mouseY = 0;
         let targetGunRotX = 0; let targetGunRotY = 0;
-        let gunRecoil = 0;
+        let gunRecoil = 0; // Tracks the draw/reload animation of the bow
 
         // --- UI Setup ---
         document.getElementById('title-display').innerText = GAME_DATA.gameTitle;
@@ -411,7 +395,7 @@
             yawObject.add(pitchObject);
             scene.add(yawObject);
 
-            buildLongRangeGun();
+            buildPremiumBow();
             window.addEventListener('resize', onWindowResize);
         }
 
@@ -469,79 +453,82 @@
             }
         }
 
-        // --- LONG RANGE SNIPER RIFLE ---
-        function buildLongRangeGun() {
+        // --- ENERGY BOW MODEL ---
+        function buildPremiumBow() {
             gunGroup = new THREE.Group();
             
-            // Base positioning in the lower right, tilted naturally
-            gunGroup.position.set(0.3, -0.4, -1.0);
-            gunGroup.rotation.z = -0.05; 
-
+            // Base positioning in the lower right, tilted naturally to look like drawn bow
+            gunGroup.position.set(0.4, -0.3, -0.8);
+            gunGroup.rotation.z = -0.1; 
             pitchObject.add(gunGroup);
 
             const darkMetal = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.4, metalness: 0.8 });
             const greyMetal = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.3, metalness: 0.6 });
-
-            // Rotate the gun framework HORIZONTALLY to show off the 3/4 side profile
+            
             gunBody = new THREE.Group();
-            gunBody.rotation.y = 0.15; 
             gunGroup.add(gunBody);
 
-            // 1. Receiver (Main body)
-            const receiver = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.6), darkMetal);
-            gunBody.add(receiver);
-
-            // 2. Long Barrel
-            const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.022, 1.4, 16), greyMetal);
-            barrel.rotation.x = Math.PI / 2;
-            barrel.position.set(0, 0.02, -0.9);
-            gunBody.add(barrel);
-
-            // 3. Muzzle Brake
-            const brake = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.045, 0.15), darkMetal);
-            brake.position.set(0, 0.02, -1.6);
-            gunBody.add(brake);
-
-            // 4. Scope
-            const scopeBase = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.06, 0.15), darkMetal);
-            scopeBase.position.set(0, 0.1, 0);
-            gunBody.add(scopeBase);
-            
-            const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 0.5, 16), greyMetal);
-            scope.rotation.x = Math.PI / 2;
-            scope.position.set(0, 0.16, -0.05);
-            gunBody.add(scope);
-
-            // 5. Stock
-            const stock = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.12, 0.4), darkMetal);
-            stock.position.set(0, -0.05, 0.5);
-            gunBody.add(stock);
-
-            // 6. Grip
-            const grip = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.15, 0.06), darkMetal);
-            grip.rotation.x = -0.2;
-            grip.position.set(0, -0.15, 0.2);
-            gunBody.add(grip);
-
-            // 7. Dynamic Ammo/Energy Core (Changes color based on selection)
             energyCoreMat = new THREE.MeshStandardMaterial({color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1.2});
+
+            // Riser (Handle/Center)
+            const riserGeo = new THREE.BoxGeometry(0.04, 0.3, 0.08);
+            const riser = new THREE.Mesh(riserGeo, darkMetal);
+            gunBody.add(riser);
+
+            // Limbs - angled forward to represent string tension
+            const topLimb = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.03, 0.6), greyMetal);
+            topLimb.position.set(0, 0.4, -0.1);
+            topLimb.rotation.x = -0.3; // Top tips forward (-Z)
+            gunBody.add(topLimb);
+
+            const botLimb = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.02, 0.6), greyMetal);
+            botLimb.position.set(0, -0.4, -0.1);
+            botLimb.rotation.x = 0.3;  // Bottom tips forward (-Z)
+            gunBody.add(botLimb);
+
+            // String
+            const stringGeo = new THREE.CylinderGeometry(0.005, 0.005, 1.36);
+            const stringMat = new THREE.MeshBasicMaterial({ color: 0xaaaaaa });
+            const bowString = new THREE.Mesh(stringGeo, stringMat);
+            bowString.position.set(0, 0, -0.28); // Connects limb tips
+            gunBody.add(bowString);
+
+            // Glowing Energy Cams/Wheels
+            const wheelGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.03, 16);
+            const topWheel = new THREE.Mesh(wheelGeo, energyCoreMat);
+            topWheel.rotation.z = Math.PI / 2; topWheel.position.set(0, 0.68, -0.28);
+            gunBody.add(topWheel);
+
+            const botWheel = new THREE.Mesh(wheelGeo, energyCoreMat);
+            botWheel.rotation.z = Math.PI / 2; botWheel.position.set(0, -0.68, -0.28);
+            gunBody.add(botWheel);
+
+            // Loaded Arrow
+            const arrowGroup = new THREE.Group();
+            arrowGroup.position.set(0, 0, -0.4); // Pulled back position
             
-            // Chamber glow
-            const chamber = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.04, 0.2), energyCoreMat);
-            chamber.position.set(0, 0.02, -0.1);
-            gunBody.add(chamber);
+            const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 1.4), darkMetal);
+            shaft.rotation.x = Math.PI / 2;
+            arrowGroup.add(shaft);
+
+            const arrowhead = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.15, 4), energyCoreMat);
+            arrowhead.rotation.x = -Math.PI / 2;
+            arrowhead.position.set(0, 0, -0.75); // Front of shaft
+            arrowGroup.add(arrowhead);
             
-            // Neon Side Rails on barrel
-            const railL = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.01, 0.8), energyCoreMat);
-            railL.position.set(-0.04, 0.02, -0.7);
-            gunBody.add(railL);
+            const fletching1 = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.04, 0.15), energyCoreMat);
+            fletching1.position.set(0, 0.02, 0.6); // Back of shaft
+            arrowGroup.add(fletching1);
             
-            const railR = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.01, 0.8), energyCoreMat);
-            railR.position.set(0.04, 0.02, -0.7);
-            gunBody.add(railR);
+            const fletching2 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.01, 0.15), energyCoreMat);
+            fletching2.position.set(0, 0, 0.6); // Back of shaft
+            arrowGroup.add(fletching2);
+
+            gunBody.add(arrowGroup);
+            gunBody.userData.arrow = arrowGroup;
         }
 
-        // --- REALISTIC HELICOPTER & 2D SPRITE BOARDS ---
+        // --- REALISTIC HELICOPTER & DYNAMIC TEXT BOARDS ---
         const HELI_COLORS = [0x0ea5e9, 0xf43f5e, 0x10b981, 0xfbbf24, 0x8b5cf6, 0xf97316];
 
         function createPremiumBoardTexture(text) {
@@ -557,23 +544,44 @@
             ctx.strokeStyle = grad; ctx.lineWidth = 15; ctx.stroke();
 
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 70px Outfit, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             
+            // DYNAMIC TEXT AUTO-SCALING LOGIC (Width & Height)
+            let fontSize = 70; // Starting font size
+            let lines = [];
+            const maxWidth = 900;
+            const maxHeight = 220; // Safe vertical boundary
+            let lineHeight = fontSize * 1.2;
             const words = text.split(' ');
-            let line = ''; const lines = []; const maxWidth = 900;
-            
-            for(let n = 0; n < words.length; n++) {
-                const testLine = line + words[n] + ' ';
-                if (ctx.measureText(testLine).width > maxWidth && n > 0) {
-                    lines.push(line); line = words[n] + ' ';
-                } else { line = testLine; }
-            }
-            lines.push(line);
 
-            const lineHeight = 85;
-            const startY = 150 - ((lines.length - 1) * lineHeight) / 2;
-            lines.forEach((l, i) => { ctx.fillText(l.trim(), 512, startY + (i * lineHeight)); });
+            while (fontSize > 15) {
+                ctx.font = `bold ${fontSize}px Outfit, sans-serif`;
+                lineHeight = fontSize * 1.2;
+                lines = [];
+                let line = '';
+
+                for(let n = 0; n < words.length; n++) {
+                    const testLine = line + words[n] + ' ';
+                    if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                        lines.push(line.trim());
+                        line = words[n] + ' ';
+                    } else {
+                        line = testLine;
+                    }
+                }
+                lines.push(line.trim());
+
+                // Does this setup fit entirely inside the board's safe height area?
+                if (lines.length * lineHeight <= maxHeight) {
+                    break;
+                }
+                fontSize -= 4; // Shrink and retry wrap logic
+            }
+
+            const totalTextHeight = lines.length * lineHeight;
+            const startY = 150 - (totalTextHeight / 2) + (lineHeight / 2);
+
+            lines.forEach((l, i) => { ctx.fillText(l, 512, startY + (i * lineHeight)); });
 
             const texture = new THREE.CanvasTexture(canvas);
             texture.generateMipmaps = false; texture.minFilter = THREE.LinearFilter; texture.magFilter = THREE.LinearFilter;
@@ -748,24 +756,29 @@
             const touch = e.touches[0];
             const deltaX = touch.clientX - lastTouch.x; const deltaY = touch.clientY - lastTouch.y;
             
-            yawObject.rotation.y -= deltaX * 0.005;
-            pitchObject.rotation.x -= deltaY * 0.005;
+            // DYNAMIC MOBILE SENSITIVITY FIX
+            const resolutionFactor = 400 / window.innerWidth;
+            const finalSensitivity = 0.005 * resolutionFactor;
+
+            yawObject.rotation.y -= deltaX * finalSensitivity;
+            pitchObject.rotation.x -= deltaY * finalSensitivity;
             pitchObject.rotation.x = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, pitchObject.rotation.x));
             
-            mouseX = deltaX * 0.02; mouseY = deltaY * 0.02;
+            mouseX = deltaX * (0.02 * resolutionFactor); 
+            mouseY = deltaY * (0.02 * resolutionFactor);
             lastTouch = { x: touch.clientX, y: touch.clientY };
         }, {passive: false});
 
         lookZone.addEventListener('touchend', () => { lastTouch = null; mouseX = 0; mouseY = 0; });
 
-        // --- Sniper Mechanics ---
+        // --- Arrow Shooting Mechanics ---
         const raycaster = new THREE.Raycaster();
 
-        function createTracerBullet() {
+        function createEnergyArrow() {
             const bulletGroup = new THREE.Group();
             
-            // Long, glowing tracer line
-            const tracerGeo = new THREE.CylinderGeometry(0.05, 0.05, 6.0, 8);
+            // Long, glowing Arrow Shaft
+            const tracerGeo = new THREE.CylinderGeometry(0.04, 0.04, 2.0, 8);
             const tracerMat = new THREE.MeshBasicMaterial({ color: currentEquippedTarget.color, transparent: true, opacity: 0.9 });
             const tracer = new THREE.Mesh(tracerGeo, tracerMat);
             tracer.rotation.x = Math.PI / 2; 
@@ -787,15 +800,15 @@
         }
 
         function shoot() {
-            if(!isPlaying) return; 
+            if(!isPlaying || gunRecoil > 0) return; // Prevent spam clicking while reloading arrow
             
-            AudioSys.init(); AudioSys.playGunshot();
+            AudioSys.init(); AudioSys.playBowRelease();
             triggerCrosshairAnim();
 
-            // Violent recoil trigger
+            // Triggers the Draw/Release animation cycle
             gunRecoil = 1.0;
-            energyCoreMat.emissiveIntensity = 0.2; // Dim the chamber instantly
-            setTimeout(() => { if(isPlaying) energyCoreMat.emissiveIntensity = 1.2; }, 500); // Reload glow
+            energyCoreMat.emissiveIntensity = 0.2; // Dim the glow momentarily
+            setTimeout(() => { if(isPlaying) energyCoreMat.emissiveIntensity = 1.2; }, 500);
 
             raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
             
@@ -809,7 +822,7 @@
 
             const startPos = new THREE.Vector3();
             camera.getWorldPosition(startPos);
-            startPos.y -= 0.3; // Barrel height offset
+            startPos.y -= 0.3;
 
             let targetPos = new THREE.Vector3();
             let hitObject = null;
@@ -821,7 +834,7 @@
                 raycaster.ray.at(300, targetPos); 
             }
 
-            const bulletProj = createTracerBullet();
+            const bulletProj = createEnergyArrow();
             bulletProj.position.copy(startPos);
             bulletProj.lookAt(targetPos);
             scene.add(bulletProj);
@@ -953,9 +966,23 @@
             const time = clock.getElapsedTime();
 
             if (isPlaying) {
-                // 1. Sniper Gun Sway & Violent Recoil
-                if(gunRecoil > 0) { gunRecoil -= delta * 5; if(gunRecoil < 0) gunRecoil = 0; }
+                // 1. Bow Draw & Reload Animation
+                if(gunRecoil > 0) { 
+                    gunRecoil -= delta * 1.5; 
+                    if(gunRecoil < 0) gunRecoil = 0; 
+                }
                 
+                if(gunBody && gunBody.userData.arrow) {
+                    const arrow = gunBody.userData.arrow;
+                    if (gunRecoil > 0.8) {
+                        arrow.visible = false; // Arrow fired
+                    } else {
+                        arrow.visible = true;
+                        // Slide arrow from forward (reloading) to back (drawn)
+                        arrow.position.z = -0.4 + (gunRecoil * 0.8); 
+                    }
+                }
+
                 targetGunRotY = -mouseX * 0.2;
                 targetGunRotX = -mouseY * 0.2;
                 const bobX = Math.cos(time * 2) * 0.005;
@@ -964,10 +991,10 @@
                 gunGroup.rotation.y += (targetGunRotY - gunGroup.rotation.y) * 8 * delta; 
                 gunGroup.rotation.x += (targetGunRotX - gunGroup.rotation.x) * 8 * delta;
                 
-                // Muzzle flip up and heavy kickback on Z
-                gunGroup.position.x = 0.3 + bobX;
-                gunGroup.position.y = -0.4 + bobY + (gunRecoil * 0.1); // Kick up
-                gunGroup.position.z = -1.0 + (gunRecoil * 0.4); // Kick back
+                // Small kick forward on release
+                gunGroup.position.x = 0.4 + bobX;
+                gunGroup.position.y = -0.3 + bobY;
+                gunGroup.position.z = -0.8 + (gunRecoil * 0.1); 
 
                 mouseX *= 0.9; mouseY *= 0.9;
 
@@ -1004,7 +1031,7 @@
                     entity.tetherLine.geometry.attributes.position.needsUpdate = true;
                 });
 
-                // 3. Update Tracer Bullets
+                // 3. Update Energy Arrows
                 for (let i = bullets.length - 1; i >= 0; i--) {
                     const b = bullets[i];
                     b.mesh.position.addScaledVector(b.velocity, delta);

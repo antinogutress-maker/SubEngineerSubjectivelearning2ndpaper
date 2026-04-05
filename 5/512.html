@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand-Scale Soil Phase Simulator | Geotechnical Engineering Lab</title>
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --panel-hex: #0f172a;
+            --accent-primary: #0ea5e9;
+            --accent-glow: rgba(14, 165, 233, 0.4);
+            --weight-red: #f43f5e;
+            
+            /* Dynamic State Variables */
+            --e: 0.70; /* Void Ratio */
+            --S: 0.50; /* Degree of Saturation */
+            --Gs: 2.65; /* Specific Gravity */
+            
+            /* Layout constants */
+            --canvas-height: 700;
+            --block-width: 320;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: #f8fafc;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            overflow: hidden;
+            /* Subtle blueprint grid */
+            background-image: 
+                linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* --- IMMERSIVE LAYOUT --- */
+        .viewport {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            width: 100%;
+            height: 100%;
+        }
+
+        .control-tower {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            z-index: 100;
+            box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+        }
+
+        .header-group h1 {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-group p {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 4px;
+        }
+
+        /* --- SLIDERS --- */
+        .input-stack { display: flex; flex-direction: column; gap: 12px; }
+        .label-meta { display: flex; justify-content: space-between; align-items: flex-end; }
+        .label-text { font-size: 0.8rem; font-weight: 600; color: #94a3b8; }
+        .label-value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--accent-primary); }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: #1e293b;
+            height: 8px;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 4px solid var(--accent-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--accent-glow);
+            transition: transform 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        /* --- METRICS PANEL --- */
+        .metrics-grid {
+            margin-top: auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .metric-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .metric-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
+        .metric-val { font-size: 1.2rem; font-weight: 700; margin-top: 4px; display: block; }
+
+        /* --- MAIN STAGE --- */
+        .stage {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        #master-svg {
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            filter: drop-shadow(0 30px 60px rgba(0,0,0,0.6));
+        }
+
+        .phase-path { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .label-float { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); font-weight: 800; }
+    </style>
+</head>
+<body>
+
+<div class="viewport">
+    <aside class="control-tower">
+        <div class="header-group">
+            <h1>SOIL SYSTEM</h1>
+            <p>Phase Relations Engine</p>
+        </div>
+
+        <div class="input-stack">
+            <div class="label-meta">
+                <span class="label-text">Void Ratio (e)</span>
+                <span class="label-value" id="e-val">0.70</span>
+            </div>
+            <input type="range" id="e-input" min="0.3" max="2.5" step="0.01" value="0.70">
+        </div>
+
+        <div class="input-stack">
+            <div class="label-meta">
+                <span class="label-text">Saturation (S)</span>
+                <span class="label-value" id="s-val">50%</span>
+            </div>
+            <input type="range" id="s-input" min="0" max="1" step="0.01" value="0.50">
+        </div>
+
+        <div class="input-stack">
+            <div class="label-meta">
+                <span class="label-text">Spec. Gravity (Gs)</span>
+                <span class="label-value" id="gs-val">2.65</span>
+            </div>
+            <input type="range" id="gs-input" min="2.4" max="2.9" step="0.01" value="2.65">
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-label">Porosity (n)</span>
+                <span class="metric-val" id="m-n">41.2%</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Bulk Unit Weight (γ)</span>
+                <span class="metric-val" id="m-gamma" style="color: var(--accent-primary)">18.5 kN/m³</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Water Content (w)</span>
+                <span class="metric-val" id="m-w">13.2%</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="stage">
+        <svg id="master-svg" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="soil-grad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#5c3d2e" />
+                    <stop offset="100%" stop-color="#2d1b14" />
+                </radialGradient>
+                
+                <linearGradient id="water-grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.8" />
+                    <stop offset="100%" stop-color="#0369a1" stop-opacity="0.95" />
+                </linearGradient>
+
+                <filter id="grain">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3" result="noise"/>
+                    <feComposite operator="in" in2="SourceGraphic" />
+                </filter>
+                
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+            </defs>
+
+            <g transform="translate(440, 50)">
+                <rect width="320" height="700" fill="rgba(30,41,59,0.2)" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
+
+                <path id="air-layer" class="phase-path" d="M 0,0 H 320 V 100 H 0 Z" fill="rgba(241,245,249,0.05)" />
+                <text id="air-text" class="label-float" x="160" y="50" fill="#94a3b8" text-anchor="middle" font-size="24">AIR</text>
+
+                <path id="water-layer" class="phase-path" d="M 0,100 H 320 V 300 H 0 Z" fill="url(#water-grad)" />
+                <text id="water-text" class="label-float" x="160" y="200" fill="white" text-anchor="middle" font-size="24">WATER</text>
+                <path id="water-surf" class="phase-path" d="M 0,100 H 320" stroke="white" stroke-width="2" opacity="0.4" />
+
+                <path id="solid-layer" class="phase-path" d="M 0,300 H 320 V 700 H 0 Z" fill="url(#soil-grad)" />
+                <path id="solid-grain" class="phase-path" d="M 0,300 H 320 V 700 H 0 Z" filter="url(#grain)" opacity="0.2" />
+                <text id="solid-text" class="label-float" x="160" y="500" fill="#fbbf24" text-anchor="middle" font-size="24">SOLIDS</text>
+            </g>
+
+            <g transform="translate(420, 50)" text-anchor="end">
+                <path id="va-bracket" class="phase-path" d="M 0,0 H -20" stroke="#64748b" stroke-width="2" />
+                <path id="vw-bracket" class="phase-path" d="M 0,100 H -20" stroke="#64748b" stroke-width="2" />
+                <path id="vs-bracket" class="phase-path" d="M 0,300 H -20" stroke="#64748b" stroke-width="2" />
+                <path d="M 0,700 H -20" stroke="#64748b" stroke-width="2" />
+
+                <text id="va-label" class="label-float" x="-30" y="50" fill="#94a3b8" font-size="18">Va</text>
+                <text id="vw-label" class="label-float" x="-30" y="200" fill="#38bdf8" font-size="18">Vw</text>
+                <text id="vs-label" class="label-float" x="-30" y="500" fill="#94a3b8" font-size="18">Vs</text>
+
+                <path d="M -120,0 V 700 M -130,0 H -110 M -130,700 H -110" fill="none" stroke="var(--accent-primary)" stroke-width="2" />
+                <text x="-140" y="350" transform="rotate(-90, -140, 350)" fill="var(--accent-primary)" font-weight="bold" font-size="20">TOTAL VOLUME (V)</text>
+            </g>
+
+            <g transform="translate(780, 50)">
+                <path id="wa-bracket-r" class="phase-path" d="M 0,0 H 20" stroke="#64748b" stroke-width="2" />
+                <path id="ww-bracket-r" class="phase-path" d="M 0,100 H 20" stroke="#64748b" stroke-width="2" />
+                <path id="ws-bracket-r" class="phase-path" d="M 0,300 H 20" stroke="#64748b" stroke-width="2" />
+                <path d="M 0,700 H 20" stroke="#64748b" stroke-width="2" />
+
+                <text id="wa-label-r" class="label-float" x="30" y="50" fill="#475569" font-size="18">Wa ≈ 0</text>
+                <text id="ww-label-r" class="label-float" x="30" y="200" fill="var(--weight-red)" font-size="18">Ww</text>
+                <text id="ws-label-r" class="label-float" x="30" y="500" fill="#94a3b8" font-size="18">Ws</text>
+
+                <path d="M 160,0 V 700 M 150,0 H 170 M 150,700 H 170" fill="none" stroke="var(--weight-red)" stroke-width="2" />
+                <text x="190" y="350" transform="rotate(90, 190, 350)" fill="var(--weight-red)" font-weight="bold" font-size="20">TOTAL WEIGHT (W)</text>
+            </g>
+        </svg>
+    </main>
+</div>
+
+<script>
+    const eIn = document.getElementById('e-input');
+    const sIn = document.getElementById('s-input');
+    const gsIn = document.getElementById('gs-input');
+
+    const eVal = document.getElementById('e-val');
+    const sVal = document.getElementById('s-val');
+    const gsVal = document.getElementById('gs-val');
+
+    // Formula displays
+    const mN = document.getElementById('m-n');
+    const mGamma = document.getElementById('m-gamma');
+    const mW = document.getElementById('m-w');
+
+    // SVG elements
+    const airLayer = document.getElementById('air-layer');
+    const waterLayer = document.getElementById('water-layer');
+    const solidLayer = document.getElementById('solid-layer');
+    const solidGrain = document.getElementById('solid-grain');
+    const waterSurf = document.getElementById('water-surf');
+
+    const airText = document.getElementById('air-text');
+    const waterText = document.getElementById('water-text');
+    const solidText = document.getElementById('solid-text');
+
+    const vwBrac = document.getElementById('vw-bracket');
+    const vsBrac = document.getElementById('vs-bracket');
+    const wwBrac = document.getElementById('ww-bracket-r');
+    const wsBrac = document.getElementById('ws-bracket-r');
+
+    const vaLbl = document.getElementById('va-label');
+    const vwLbl = document.getElementById('vw-label');
+    const vsLbl = document.getElementById('vs-label');
+    const wwLbl = document.getElementById('ww-label-r');
+    const wsLbl = document.getElementById('ws-label-r');
+
+    const H_MAX = 700;
+    const GAMMA_W = 9.81;
+
+    function update() {
+        const e = parseFloat(eIn.value);
+        const S = parseFloat(sIn.value);
+        const Gs = parseFloat(gsIn.value);
+
+        // Normalize: Vs = 1. Therefore V = 1 + e.
+        // Proportions:
+        const totalV = 1 + e;
+        const vs_h = (1 / totalV) * H_MAX;
+        const vv_h = H_MAX - vs_h;
+        const vw_h = vv_h * S;
+        const va_h = vv_h - vw_h;
+
+        // Vertices
+        const h0 = 0;
+        const h1 = va_h;
+        const h2 = va_h + vw_h;
+        const h3 = H_MAX;
+
+        // Update Paths
+        airLayer.setAttribute('d', `M 0,${h0} H 320 V ${h1} H 0 Z`);
+        waterLayer.setAttribute('d', `M 0,${h1} H 320 V ${h2} H 0 Z`);
+        solidLayer.setAttribute('d', `M 0,${h2} H 320 V ${h3} H 0 Z`);
+        solidGrain.setAttribute('d', `M 0,${h2} H 320 V ${h3} H 0 Z`);
+        waterSurf.setAttribute('d', `M 0,${h1} H 320`);
+
+        // Update Texts
+        airText.setAttribute('y', h0 + va_h/2 + 8);
+        waterText.setAttribute('y', h1 + vw_h/2 + 8);
+        solidText.setAttribute('y', h2 + vs_h/2 + 8);
+
+        airText.style.opacity = va_h < 30 ? 0 : 1;
+        waterText.style.opacity = vw_h < 30 ? 0 : 1;
+
+        // Brackets & Labels
+        vwBrac.setAttribute('d', `M 0,${h1} H -20`);
+        vsBrac.setAttribute('d', `M 0,${h2} H -20`);
+        wwBrac.setAttribute('d', `M 0,${h1} H 20`);
+        wsBrac.setAttribute('d', `M 0,${h2} H 20`);
+
+        vaLbl.setAttribute('y', h0 + va_h/2 + 6);
+        vwLbl.setAttribute('y', h1 + vw_h/2 + 6);
+        vsLbl.setAttribute('y', h2 + vs_h/2 + 6);
+        wwLbl.setAttribute('y', h1 + vw_h/2 + 6);
+        wsLbl.setAttribute('y', h2 + vs_h/2 + 6);
+
+        // Logic display
+        eVal.textContent = e.toFixed(2);
+        sVal.textContent = Math.round(S * 100) + "%";
+        gsVal.textContent = Gs.toFixed(2);
+
+        // Calculations
+        const n = (e / (1 + e)) * 100;
+        const w = (S * e / Gs) * 100;
+        const bulkGamma = ((Gs + S * e) * GAMMA_W) / (1 + e);
+
+        mN.textContent = n.toFixed(1) + "%";
+        mGamma.textContent = bulkGamma.toFixed(2) + " kN/m³";
+        mW.textContent = w.toFixed(1) + "%";
+    }
+
+    [eIn, sIn, gsIn].forEach(input => input.addEventListener('input', update));
+    update();
+</script>
+</body>
+</html>

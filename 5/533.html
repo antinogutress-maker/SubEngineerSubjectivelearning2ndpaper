@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soil Compaction Simulation | Dry Density vs Moisture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=KaTeX_Math:ital@1&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        
+        .math {
+            font-family: 'KaTeX_Math', serif;
+            font-style: italic;
+        }
+
+        .slider-custom {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #cbd5e1;
+            outline: none;
+        }
+
+        .slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #2563eb;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .slider-custom::-webkit-slider-thumb:hover {
+            background: #1d4ed8;
+            transform: scale(1.1);
+        }
+
+        canvas {
+            background: #ffffff;
+            border-radius: 0.5rem;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #3b82f6;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <header class="text-center space-y-2">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">Soil Compaction Curve Simulation</h1>
+            <p class="text-slate-600 font-medium text-lg">Relationship between Dry Density (<span class="math">&gamma;_d</span>) and Moisture Content (<span class="math">w</span>)</p>
+        </header>
+
+        <!-- Simulation Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            <!-- Controls Area (Left Column) -->
+            <div class="glass-panel rounded-xl p-5 flex flex-col space-y-6">
+                <h2 class="font-semibold text-lg border-b pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    Test Parameters
+                </h2>
+
+                <!-- Moisture Content Slider -->
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 shadow-inner">
+                    <div class="flex justify-between text-sm mb-2">
+                        <label class="font-bold text-blue-900">Moisture Content (<span class="math">w</span>)</label>
+                        <span id="wValue" class="font-bold text-blue-700 bg-white px-2 py-0.5 rounded shadow-sm">12.0 %</span>
+                    </div>
+                    <input type="range" id="wSlider" min="4" max="26" step="0.5" value="12" class="slider-custom">
+                    <p class="text-xs text-blue-600 mt-2">Add or remove water to see its effect on compaction.</p>
+                </div>
+
+                <!-- Soil Type Selector -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Soil Type</label>
+                    <select id="soilType" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                        <option value="sand">Sandy Soil (Low OMC, High MDD)</option>
+                        <option value="clay" selected>Clayey Soil (High OMC, Low MDD)</option>
+                    </select>
+                </div>
+
+                <!-- Compactive Effort Toggle -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Compactive Effort</label>
+                    <select id="effortType" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block p-2.5">
+                        <option value="standard" selected>Standard Proctor Test</option>
+                        <option value="modified">Modified Proctor Test (Heavy)</option>
+                    </select>
+                </div>
+
+                <!-- Live Results Dashboard -->
+                <div class="mt-auto bg-slate-800 text-white rounded-lg p-4 shadow-lg border border-slate-700">
+                    <h3 class="font-bold text-slate-300 mb-3 uppercase tracking-wider text-xs">Current State</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-end border-b border-slate-600 pb-2">
+                            <span class="text-sm text-slate-300">Dry Density (<span class="math">&gamma;_d</span>)</span>
+                            <span id="valGd" class="font-mono font-bold text-green-400 text-xl">0.00 <span class="text-xs font-normal text-slate-400">kN/m³</span></span>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <span class="text-sm text-slate-300">Phase State</span>
+                            <span id="valPhase" class="font-bold text-amber-400 text-sm">Lubrication Stage</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Physical Simulation (Middle Column) -->
+            <div class="lg:col-span-1 glass-panel rounded-xl p-4 flex flex-col items-center">
+                <h3 class="font-semibold text-slate-800 mb-2 text-center text-sm">Physical Mold View</h3>
+                <div class="relative w-full max-w-[200px] aspect-[1/2] bg-slate-100 rounded border-2 border-slate-300 shadow-inner" id="moldContainer">
+                    <canvas id="moldCanvas" class="absolute top-0 left-0 w-full h-full rounded"></canvas>
+                </div>
+                <div class="mt-4 text-xs text-slate-600 text-center px-2">
+                    <span class="inline-block w-3 h-3 bg-amber-700 rounded-full mr-1 align-middle"></span> Soil Particles<br>
+                    <span class="inline-block w-3 h-3 bg-blue-400 rounded-full mr-1 align-middle opacity-50 mt-1"></span> Water Layer
+                </div>
+            </div>
+
+            <!-- Graph Area (Right Column - Takes 2 cols) -->
+            <div class="lg:col-span-2 glass-panel rounded-xl p-4 flex flex-col relative">
+                <div class="flex justify-between items-center mb-2 z-10 px-2">
+                    <h2 class="font-semibold text-lg">Compaction Curve</h2>
+                    <div class="flex gap-4 text-xs font-medium">
+                        <span class="flex items-center gap-1"><div class="w-3 h-1 bg-blue-600"></div> Test Curve</span>
+                        <span class="flex items-center gap-1"><div class="w-3 h-1 bg-red-500 border-t border-dashed"></div> ZAV Line</span>
+                    </div>
+                </div>
+                
+                <div class="relative w-full flex-grow min-h-[300px]" id="graphContainer">
+                    <canvas id="graphCanvas" class="absolute top-0 left-0 w-full h-full shadow-inner"></canvas>
+                </div>
+                
+                <!-- Target Values Display -->
+                <div class="grid grid-cols-2 gap-4 mt-4 px-2 text-sm">
+                    <div class="bg-indigo-50 p-2 rounded border border-indigo-100">
+                        <span class="text-indigo-800 font-bold block">Target OMC:</span>
+                        <span id="dispOMC" class="font-mono text-indigo-600">18.0 %</span>
+                    </div>
+                    <div class="bg-indigo-50 p-2 rounded border border-indigo-100">
+                        <span class="text-indigo-800 font-bold block">Target MDD:</span>
+                        <span id="dispMDD" class="font-mono text-indigo-600">16.5 kN/m³</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loksewa Theory Section -->
+        <div class="glass-panel rounded-xl p-6 md:p-8 mt-8 border-t-4 border-t-emerald-500">
+            <div class="flex items-center justify-between mb-6 border-b pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-emerald-100 p-2 rounded-lg">
+                        <svg class="w-6 h-6 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900">Relation Between Dry Density & Moisture Content</h2>
+                </div>
+                <span class="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded shadow">Loksewa Exam: 5 Marks</span>
+            </div>
+            
+            <div class="prose prose-slate max-w-none text-slate-700 space-y-4">
+                <p><strong>1. Introduction to Compaction (1 Mark):</strong><br>
+                Compaction is the artificial process of increasing the density of soil by mechanically forcing soil particles closer together, expelling air from the voids. The resulting dry density (<span class="math">&gamma;_d</span>) heavily depends on the water content (<span class="math">w</span>) at which the soil is compacted.</p>
+
+                <p><strong>2. The Ascending Limb - Lubrication Theory (1.5 Marks):</strong><br>
+                Initially, when the soil is dry, there is high frictional resistance between particles, preventing dense packing. As water is added (<span class="math">w</span> increases), it acts as a <strong>lubricant</strong> around the soil grains. Under the same compactive effort, particles easily slide past one another into a denser configuration, resulting in an <strong>increase in dry density (<span class="math">&gamma;_d</span>)</strong>.</p>
+
+                <p><strong>3. The Peak - OMC and MDD (1 Mark):</strong><br>
+                The dry density continues to increase with added water until it reaches a maximum value.
+                <ul class="list-disc pl-6 mb-2 mt-1">
+                    <li><strong>Maximum Dry Density (MDD):</strong> The peak density achievable for a given compactive effort.</li>
+                    <li><strong>Optimum Moisture Content (OMC):</strong> The specific water content at which MDD is achieved. At this point, the soil particles are packed as closely as physically possible for that compactive energy.</li>
+                </ul>
+                </p>
+
+                <p><strong>4. The Descending Limb - Displacement/Swelling (1.5 Marks):</strong><br>
+                If water is added beyond the OMC, the water begins to occupy the space that could have been filled by solid soil particles. Because water is incompressible and lighter than soil solids, it pushes the soil grains apart. This causes a <strong>decrease in dry density (<span class="math">&gamma;_d</span>)</strong>, forming the downward curve.</p>
+                
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mt-4 text-sm">
+                    <strong>Note on Zero Air Voids (ZAV) Line:</strong> The theoretical maximum density where 100% of the voids are filled with water (no air). <br>
+                    <span class="math inline-block mt-2">&gamma;<sub>d(max)</sub> = (G<sub>s</sub> &middot; &gamma;<sub>w</sub>) / (1 + w &middot; G<sub>s</sub>)</span>. The actual compaction curve <em>never</em> intersects the ZAV line because it is practically impossible to expel 100% of the entrapped air by mechanical compaction alone.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // DOM Elements
+        const wSlider = document.getElementById('wSlider');
+        const soilTypeSelect = document.getElementById('soilType');
+        const effortSelect = document.getElementById('effortType');
+        
+        const wValueDisplay = document.getElementById('wValue');
+        const valGdDisplay = document.getElementById('valGd');
+        const valPhaseDisplay = document.getElementById('valPhase');
+        const dispOMC = document.getElementById('dispOMC');
+        const dispMDD = document.getElementById('dispMDD');
+        
+        const graphCanvas = document.getElementById('graphCanvas');
+        const gCtx = graphCanvas.getContext('2d');
+        const graphContainer = document.getElementById('graphContainer');
+
+        const moldCanvas = document.getElementById('moldCanvas');
+        const mCtx = moldCanvas.getContext('2d');
+        const moldContainer = document.getElementById('moldContainer');
+
+        // Constants
+        const Gs = 2.65; // Specific Gravity for ZAV line
+        const Gw = 9.81; // Unit weight of water
+
+        // Soil Data Dictionary
+        const soilData = {
+            'sand': {
+                'standard': { mdd: 18.5, omc: 11, k: 0.04 },
+                'modified': { mdd: 19.8, omc: 8.5, k: 0.06 }
+            },
+            'clay': {
+                'standard': { mdd: 16.5, omc: 18, k: 0.025 },
+                'modified': { mdd: 18.0, omc: 14, k: 0.035 }
+            }
+        };
+
+        // Current State
+        let state = {
+            w: parseFloat(wSlider.value),
+            soil: soilTypeSelect.value,
+            effort: effortSelect.value,
+            mdd: 0,
+            omc: 0,
+            k: 0,
+            currentGd: 0,
+            particles: []
+        };
+
+        // Resize Canvases
+        function resizeCanvases() {
+            const gRect = graphContainer.getBoundingClientRect();
+            graphCanvas.width = gRect.width * window.devicePixelRatio;
+            graphCanvas.height = gRect.height * window.devicePixelRatio;
+            gCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            graphCanvas.style.width = `${gRect.width}px`;
+            graphCanvas.style.height = `${gRect.height}px`;
+
+            const mRect = moldContainer.getBoundingClientRect();
+            moldCanvas.width = mRect.width * window.devicePixelRatio;
+            moldCanvas.height = mRect.height * window.devicePixelRatio;
+            mCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            moldCanvas.style.width = `${mRect.width}px`;
+            moldCanvas.style.height = `${mRect.height}px`;
+        }
+        window.addEventListener('resize', () => { resizeCanvases(); drawAll(); });
+
+        // Initialize particles for the mold once
+        function initParticles() {
+            state.particles = [];
+            // Create a fixed number of particles, we will just change their Y-spacing based on density
+            const numParticles = 80;
+            for(let i=0; i<numParticles; i++) {
+                state.particles.push({
+                    xOffset: (Math.random() - 0.5) * 0.8, // Normalized -0.4 to 0.4
+                    yOffset: (Math.random() - 0.5) * 0.8,
+                    size: 0.8 + Math.random() * 0.4
+                });
+            }
+        }
+
+        // Mathematical curve calculation
+        // gamma_d = MDD - k * (w - OMC)^2
+        function calcGd(w, omc, mdd, k) {
+            return mdd - k * Math.pow(w - omc, 2);
+        }
+
+        // ZAV line calculation
+        function calcZAV(w) {
+            return (Gs * Gw) / (1 + (w / 100) * Gs);
+        }
+
+        function updateState() {
+            state.w = parseFloat(wSlider.value);
+            state.soil = soilTypeSelect.value;
+            state.effort = effortSelect.value;
+            
+            const params = soilData[state.soil][state.effort];
+            state.mdd = params.mdd;
+            state.omc = params.omc;
+            state.k = params.k;
+            
+            state.currentGd = calcGd(state.w, state.omc, state.mdd, state.k);
+
+            // Update UI texts
+            wValueDisplay.innerHTML = `${state.w.toFixed(1)} %`;
+            valGdDisplay.innerHTML = `${state.currentGd.toFixed(2)} <span class="text-xs font-normal text-slate-400">kN/m³</span>`;
+            
+            dispOMC.innerHTML = `${state.omc.toFixed(1)} %`;
+            dispMDD.innerHTML = `${state.mdd.toFixed(2)} kN/m³`;
+
+            if (state.w < state.omc - 0.5) {
+                valPhaseDisplay.innerHTML = "💧 Lubrication Stage (Density ↑)";
+                valPhaseDisplay.className = "font-bold text-amber-400 text-sm";
+            } else if (state.w > state.omc + 0.5) {
+                valPhaseDisplay.innerHTML = "🌊 Displacement Stage (Density ↓)";
+                valPhaseDisplay.className = "font-bold text-red-400 text-sm";
+            } else {
+                valPhaseDisplay.innerHTML = "⭐ Optimum State (MDD)";
+                valPhaseDisplay.className = "font-bold text-green-400 text-sm";
+            }
+
+            drawAll();
+        }
+
+        function drawGraph() {
+            const width = graphCanvas.width / window.devicePixelRatio;
+            const height = graphCanvas.height / window.devicePixelRatio;
+            
+            gCtx.clearRect(0, 0, width, height);
+
+            // Graph configurations
+            const padL = 50, padR = 20, padT = 20, padB = 40;
+            const wWidth = width - padL - padR;
+            const wHeight = height - padT - padB;
+
+            // Fixed Axes Bounds for easy comparison
+            const wMin = 0, wMax = 30;
+            const gdMin = 12, gdMax = 22;
+
+            // Helper to map values to canvas pixels
+            const mapX = (w) => padL + ((w - wMin) / (wMax - wMin)) * wWidth;
+            const mapY = (gd) => padT + wHeight - ((gd - gdMin) / (gdMax - gdMin)) * wHeight;
+
+            // --- Draw Axes ---
+            gCtx.beginPath();
+            gCtx.moveTo(padL, padT);
+            gCtx.lineTo(padL, padT + wHeight);
+            gCtx.lineTo(padL + wWidth, padT + wHeight);
+            gCtx.strokeStyle = '#64748b'; // slate-500
+            gCtx.lineWidth = 2;
+            gCtx.stroke();
+
+            // Axis Labels
+            gCtx.fillStyle = '#475569';
+            gCtx.font = '12px Inter';
+            gCtx.textAlign = 'center';
+            gCtx.fillText('Moisture Content, w (%)', padL + wWidth/2, height - 10);
+            
+            gCtx.save();
+            gCtx.translate(15, padT + wHeight/2);
+            gCtx.rotate(-Math.PI/2);
+            gCtx.textAlign = 'center';
+            gCtx.fillText('Dry Density, \u03B3d (kN/m³)', 0, 0);
+            gCtx.restore();
+
+            // Ticks
+            gCtx.textAlign = 'center';
+            for(let i = wMin; i <= wMax; i+=5) {
+                gCtx.fillText(i, mapX(i), padT + wHeight + 15);
+                gCtx.beginPath(); gCtx.moveTo(mapX(i), padT + wHeight); gCtx.lineTo(mapX(i), padT + wHeight + 5); gCtx.stroke();
+            }
+            gCtx.textAlign = 'right';
+            for(let i = gdMin; i <= gdMax; i+=2) {
+                gCtx.fillText(i, padL - 10, mapY(i) + 4);
+                gCtx.beginPath(); gCtx.moveTo(padL - 5, mapY(i)); gCtx.lineTo(padL, mapY(i)); gCtx.stroke();
+            }
+
+            // --- Draw ZAV Line ---
+            gCtx.beginPath();
+            let startedZAV = false;
+            for(let w = wMin; w <= wMax; w+=0.5) {
+                let y = calcZAV(w);
+                if(y <= gdMax && y >= gdMin) {
+                    if(!startedZAV) { gCtx.moveTo(mapX(w), mapY(y)); startedZAV = true; }
+                    else { gCtx.lineTo(mapX(w), mapY(y)); }
+                }
+            }
+            gCtx.strokeStyle = '#ef4444'; // red-500
+            gCtx.lineWidth = 2;
+            gCtx.setLineDash([5, 5]);
+            gCtx.stroke();
+            gCtx.setLineDash([]); // reset
+
+            // ZAV Text
+            gCtx.fillStyle = '#ef4444';
+            gCtx.font = 'italic 11px Inter';
+            gCtx.fillText('ZAV Line (S=100%)', mapX(28), mapY(calcZAV(28)) - 10);
+
+            // --- Draw Compaction Curve ---
+            gCtx.beginPath();
+            let startedCurve = false;
+            for(let w = wMin; w <= wMax; w+=0.5) {
+                let y = calcGd(w, state.omc, state.mdd, state.k);
+                // Only draw positive parabola part roughly representing real soil
+                if (y > 10 && y >= gdMin) {
+                    if(!startedCurve) { gCtx.moveTo(mapX(w), mapY(y)); startedCurve = true; }
+                    else { gCtx.lineTo(mapX(w), mapY(y)); }
+                }
+            }
+            gCtx.strokeStyle = '#2563eb'; // blue-600
+            gCtx.lineWidth = 3;
+            gCtx.stroke();
+
+            // Draw OMC/MDD lines
+            gCtx.beginPath();
+            gCtx.moveTo(mapX(state.omc), padT + wHeight);
+            gCtx.lineTo(mapX(state.omc), mapY(state.mdd));
+            gCtx.lineTo(padL, mapY(state.mdd));
+            gCtx.strokeStyle = '#94a3b8'; // slate-400
+            gCtx.lineWidth = 1;
+            gCtx.setLineDash([3, 3]);
+            gCtx.stroke();
+            gCtx.setLineDash([]);
+
+            // Draw Current State Point
+            const currX = mapX(state.w);
+            const currY = mapY(state.currentGd);
+            
+            // Pulse effect for dot
+            const time = Date.now() / 200;
+            const pulse = Math.abs(Math.sin(time)) * 4;
+
+            gCtx.beginPath();
+            gCtx.arc(currX, currY, 6 + pulse, 0, Math.PI*2);
+            gCtx.fillStyle = 'rgba(34, 197, 94, 0.4)'; // green-500 transparent
+            gCtx.fill();
+
+            gCtx.beginPath();
+            gCtx.arc(currX, currY, 6, 0, Math.PI*2);
+            gCtx.fillStyle = '#16a34a'; // green-600
+            gCtx.fill();
+            gCtx.strokeStyle = '#ffffff';
+            gCtx.lineWidth = 2;
+            gCtx.stroke();
+        }
+
+        function drawMold() {
+            const width = moldCanvas.width / window.devicePixelRatio;
+            const height = moldCanvas.height / window.devicePixelRatio;
+            
+            mCtx.clearRect(0, 0, width, height);
+
+            // Mold drawing bounds
+            const moldW = width * 0.7;
+            const moldH = height * 0.7;
+            const moldX = (width - moldW) / 2;
+            const moldY = height * 0.85 - moldH;
+
+            // Draw Base
+            mCtx.fillStyle = '#475569';
+            mCtx.fillRect(moldX - 10, height * 0.85, moldW + 20, 10);
+
+            // Draw Mold Outline
+            mCtx.beginPath();
+            mCtx.moveTo(moldX, moldY - 10);
+            mCtx.lineTo(moldX, height * 0.85);
+            mCtx.lineTo(moldX + moldW, height * 0.85);
+            mCtx.lineTo(moldX + moldW, moldY - 10);
+            mCtx.strokeStyle = '#334155';
+            mCtx.lineWidth = 4;
+            mCtx.stroke();
+
+            // Calculate soil volume representation based on density
+            // High density = low volume (compressed). Lowest density = highest volume.
+            // Map density range [12, 22] to volume height [moldH*0.9, moldH*0.5]
+            const minGd = 12, maxGd = 22;
+            const normalizedGd = (state.currentGd - minGd) / (maxGd - minGd);
+            // 0 = fluffiest, 1 = densest
+            const fillHeight = moldH * (0.9 - (normalizedGd * 0.4)); 
+            const fillY = height * 0.85 - fillHeight;
+
+            // Draw Soil Background
+            mCtx.fillStyle = '#d4d4d8'; // Light gray base for voids
+            mCtx.fillRect(moldX + 2, fillY, moldW - 4, fillHeight);
+
+            // Water hue based on w %
+            // Max visual water at w=30%. 
+            const wAlpha = Math.min(state.w / 35, 0.8);
+            mCtx.fillStyle = `rgba(59, 130, 246, ${wAlpha})`; // Blue water layer
+            mCtx.fillRect(moldX + 2, fillY, moldW - 4, fillHeight);
+
+            // Draw Particles
+            // The arrangement needs to scale with the fillHeight
+            const particleRadius = (state.soil === 'sand') ? 6 : 4;
+            
+            mCtx.fillStyle = '#78350f'; // Dark brown
+
+            state.particles.forEach(p => {
+                // Map logical offsets (-0.4 to 0.4) to actual mold coordinates
+                const px = (moldX + moldW/2) + (p.xOffset * (moldW - particleRadius * 4));
+                const py = (fillY + fillHeight/2) + (p.yOffset * (fillHeight - particleRadius * 4));
+                
+                // Add a water halo around particles if w is high
+                if(state.w > 5) {
+                    mCtx.beginPath();
+                    mCtx.arc(px, py, particleRadius * p.size + (state.w/5), 0, Math.PI*2);
+                    mCtx.fillStyle = `rgba(96, 165, 250, ${wAlpha * 0.5})`;
+                    mCtx.fill();
+                }
+
+                // Draw solid particle
+                mCtx.beginPath();
+                mCtx.arc(px, py, particleRadius * p.size, 0, Math.PI*2);
+                mCtx.fillStyle = (state.soil === 'sand') ? '#92400e' : '#78350f'; // slightly lighter for sand
+                mCtx.fill();
+            });
+
+            // Draw Hammer / Compaction disk on top
+            mCtx.fillStyle = '#64748b';
+            mCtx.fillRect(moldX + 5, fillY - 15, moldW - 10, 15);
+            // Hammer handle
+            mCtx.fillRect(width/2 - 4, moldY - 30, 8, fillY - (moldY - 30) - 15);
+        }
+
+        function drawAll() {
+            drawGraph();
+            drawMold();
+            requestAnimationFrame(drawAll); // Keep animating for the pulsing dot
+        }
+
+        // Event Listeners
+        wSlider.addEventListener('input', updateState);
+        soilTypeSelect.addEventListener('change', updateState);
+        effortSelect.addEventListener('change', updateState);
+
+        // Init
+        initParticles();
+        resizeCanvases();
+        updateState();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohr Coulomb Failure Theory Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=KaTeX_Math:ital@1&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .math {
+            font-family: 'KaTeX_Math', serif;
+            font-style: italic;
+        }
+
+        .slider-custom {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #cbd5e1;
+            outline: none;
+        }
+
+        .slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0f172a;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .slider-custom::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        #slider-s1::-webkit-slider-thumb { background: #dc2626; } /* red */
+        #slider-s3::-webkit-slider-thumb { background: #2563eb; } /* blue */
+        #slider-c::-webkit-slider-thumb { background: #16a34a; } /* green */
+        #slider-phi::-webkit-slider-thumb { background: #d97706; } /* amber */
+
+        canvas {
+            background: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        .status-safe { background-color: #dcfce7; color: #166534; border-color: #86efac; }
+        .status-fail { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; animation: pulse-border 1.5s infinite; }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <header class="text-center space-y-2">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">Mohr-Coulomb Failure Theory</h1>
+            <p class="text-slate-600 font-medium text-lg">Interactive Shear Strength & Mohr's Circle Simulation</p>
+        </header>
+
+        <!-- Simulation Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            <!-- Controls (Left Column) -->
+            <div class="lg:col-span-1 glass-panel rounded-xl p-5 flex flex-col space-y-5">
+                <h2 class="font-semibold text-lg border-b pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    Stress Parameters
+                </h2>
+
+                <!-- Sigma 3 -->
+                <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-bold text-blue-900">Minor Stress (<span class="math">&sigma;_3</span>)</label>
+                        <span id="valS3" class="font-bold text-blue-700">50 kPa</span>
+                    </div>
+                    <input type="range" id="slider-s3" min="0" max="200" step="5" value="50" class="slider-custom">
+                </div>
+
+                <!-- Sigma 1 -->
+                <div class="bg-red-50 p-3 rounded-lg border border-red-100">
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-bold text-red-900">Major Stress (<span class="math">&sigma;_1</span>)</label>
+                        <span id="valS1" class="font-bold text-red-700">120 kPa</span>
+                    </div>
+                    <input type="range" id="slider-s1" min="0" max="500" step="5" value="120" class="slider-custom">
+                </div>
+
+                <h2 class="font-semibold text-lg border-b pb-2 mt-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>
+                    Soil Properties
+                </h2>
+
+                <!-- Cohesion -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Cohesion (<span class="math">c</span>)</label>
+                        <span id="valC" class="font-bold text-green-700">20 kPa</span>
+                    </div>
+                    <input type="range" id="slider-c" min="0" max="100" step="2" value="20" class="slider-custom">
+                </div>
+
+                <!-- Angle of Friction -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Friction Angle (<span class="math">&phi;</span>)</label>
+                        <span id="valPhi" class="font-bold text-amber-700">30&deg;</span>
+                    </div>
+                    <input type="range" id="slider-phi" min="0" max="45" step="1" value="30" class="slider-custom">
+                </div>
+
+                <!-- Status Panel -->
+                <div id="statusPanel" class="mt-auto p-4 rounded-lg border-2 text-center font-bold text-lg status-safe transition-colors duration-300">
+                    SAFE: Soil is Stable
+                </div>
+            </div>
+
+            <!-- Canvas Area (Takes up 3 columns) -->
+            <div class="lg:col-span-3 grid grid-rows-[1fr_auto] gap-4">
+                
+                <!-- Main Mohr Circle Graph -->
+                <div class="glass-panel rounded-xl p-4 flex flex-col relative h-[400px]">
+                    <div class="flex justify-between items-center mb-2 z-10 px-2">
+                        <h2 class="font-semibold text-lg text-slate-800">Mohr's Circle & Failure Envelope</h2>
+                        <div class="flex gap-4 text-xs font-medium">
+                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-red-500 rounded-full"></div> Failure Envelope</span>
+                            <span class="flex items-center gap-1"><div class="w-3 h-3 border-2 border-slate-600 rounded-full"></div> Stress State</span>
+                        </div>
+                    </div>
+                    <div class="relative w-full h-full flex-grow" id="graphContainer">
+                        <canvas id="graphCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                    </div>
+                </div>
+
+                <!-- Live Data & Physical Block -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <!-- Real-time Math -->
+                    <div class="glass-panel rounded-xl p-4 bg-slate-800 text-white shadow-lg">
+                        <h3 class="font-bold text-slate-300 mb-3 uppercase tracking-wider text-xs border-b border-slate-600 pb-2">Live Calculations</h3>
+                        <div class="space-y-3 font-mono text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Equation:</span>
+                                <span><span class="math text-red-400">&tau;_f = c + &sigma; \tan(\phi)</span></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Max Shear Stress (<span class="math text-slate-300">&tau;_{max}</span>):</span>
+                                <span id="calcTmax" class="text-amber-300">35.0 kPa</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Failure Angle (<span class="math text-slate-300">&theta;</span>):</span>
+                                <span id="calcTheta" class="text-blue-300">60.0&deg;</span>
+                            </div>
+                            <div class="w-full bg-slate-700 h-px my-2"></div>
+                            <div class="flex justify-between font-bold text-base">
+                                <span class="text-slate-200">Current Radius (R):</span>
+                                <span id="calcR">35.0 kPa</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-base">
+                                <span class="text-slate-200">Max Allowable Radius:</span>
+                                <span id="calcRmax" class="text-green-400">45.2 kPa</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Physical Representation -->
+                    <div class="glass-panel rounded-xl p-4 flex flex-col items-center justify-center relative bg-slate-50">
+                        <h3 class="font-semibold text-slate-800 mb-2 text-center text-sm absolute top-4 left-4">Physical Soil Element</h3>
+                        <div class="w-[180px] h-[180px] relative" id="blockContainer">
+                            <canvas id="blockCanvas" class="w-full h-full"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Loksewa Theory Section -->
+        <div class="glass-panel rounded-xl p-6 md:p-8 mt-8 border-l-4 border-l-red-600">
+            <div class="flex justify-between items-center mb-4 border-b pb-4">
+                <h2 class="text-2xl font-bold text-slate-900">Mohr-Coulomb Failure Theory</h2>
+                <span class="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded shadow">Loksewa Format: 5 Marks</span>
+            </div>
+            
+            <div class="space-y-4 text-slate-700">
+                <p><strong>1. Basic Concept & Statement (1 Mark):</strong></p>
+                <p class="pl-4">The Mohr-Coulomb failure theory states that failure in a soil mass occurs not due to maximum normal stress, but due to a critical combination of normal stress and shear stress on a particular plane. Failure occurs when the shear stress reaches a limiting value (shear strength) governed by the material's cohesion and friction.</p>
+
+                <p><strong>2. The Failure Equation (1 Mark):</strong></p>
+                <div class="pl-4">
+                    <div class="bg-red-50 p-3 rounded border border-red-200 inline-block font-medium text-lg shadow-sm">
+                        <span class="math text-red-700">&tau;_f = c + &sigma; \tan(\phi)</span>
+                    </div>
+                </div>
+
+                <p><strong>3. Components of Shear Strength (1.5 Marks):</strong></p>
+                <ul class="list-disc pl-9 space-y-1">
+                    <li><span class="math font-bold text-blue-700">&tau;_f</span> = Shear strength of the soil at failure.</li>
+                    <li><span class="math font-bold text-blue-700">c</span> = <strong>Cohesion:</strong> The inherent intermolecular bond between soil particles, independent of normal stress (dominant in clays).</li>
+                    <li><span class="math font-bold text-blue-700">&sigma;</span> = Total Normal Stress acting on the failure plane. <em>(Note: In terms of effective stress, it is written as <span class="math">&tau;_f = c' + &sigma;' \tan(\phi')</span>)</em>.</li>
+                    <li><span class="math font-bold text-blue-700">&phi;</span> = <strong>Angle of Internal Friction:</strong> Resistance due to the interlocking and rubbing of soil grains (dominant in sands).</li>
+                </ul>
+
+                <p><strong>4. Graphical Representation & Failure Plane (1.5 Marks):</strong></p>
+                <ul class="list-disc pl-9 space-y-1">
+                    <li>The equation <span class="math">&tau;_f = c + &sigma; \tan(\phi)</span> represents a straight line on the Mohr diagram, called the <strong>Failure Envelope</strong>.</li>
+                    <li>A soil element is <strong>safe</strong> if its Mohr's circle lies completely below the failure envelope.</li>
+                    <li>Failure occurs when the Mohr's circle expands and <strong>just touches (is tangent to)</strong> the envelope.</li>
+                    <li>The angle of the failure plane (slip plane) with the major principal plane is theoretically given by: <span class="math bg-slate-100 px-2 py-1 rounded">&theta; = 45&deg; + \phi/2</span>.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // DOM Elements
+        const sliderS3 = document.getElementById('slider-s3');
+        const sliderS1 = document.getElementById('slider-s1');
+        const sliderC = document.getElementById('slider-c');
+        const sliderPhi = document.getElementById('slider-phi');
+        
+        const valS3 = document.getElementById('valS3');
+        const valS1 = document.getElementById('valS1');
+        const valC = document.getElementById('valC');
+        const valPhi = document.getElementById('valPhi');
+        
+        const calcTmax = document.getElementById('calcTmax');
+        const calcTheta = document.getElementById('calcTheta');
+        const calcR = document.getElementById('calcR');
+        const calcRmax = document.getElementById('calcRmax');
+        
+        const statusPanel = document.getElementById('statusPanel');
+
+        const graphCanvas = document.getElementById('graphCanvas');
+        const gCtx = graphCanvas.getContext('2d');
+        const graphContainer = document.getElementById('graphContainer');
+
+        const blockCanvas = document.getElementById('blockCanvas');
+        const bCtx = blockCanvas.getContext('2d');
+        const blockContainer = document.getElementById('blockContainer');
+
+        // State
+        let state = {
+            s3: parseFloat(sliderS3.value),
+            s1: parseFloat(sliderS1.value),
+            c: parseFloat(sliderC.value),
+            phi: parseFloat(sliderPhi.value),
+            status: 'SAFE', // 'SAFE' or 'FAILED'
+            slideOffset: 0,
+            animReq: null
+        };
+
+        // Resize
+        function resizeCanvases() {
+            const gRect = graphContainer.getBoundingClientRect();
+            graphCanvas.width = gRect.width * window.devicePixelRatio;
+            graphCanvas.height = gRect.height * window.devicePixelRatio;
+            gCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            graphCanvas.style.width = `${gRect.width}px`;
+            graphCanvas.style.height = `${gRect.height}px`;
+
+            const bRect = blockContainer.getBoundingClientRect();
+            blockCanvas.width = bRect.width * window.devicePixelRatio;
+            blockCanvas.height = bRect.height * window.devicePixelRatio;
+            bCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            blockCanvas.style.width = `${bRect.width}px`;
+            blockCanvas.style.height = `${bRect.height}px`;
+        }
+        window.addEventListener('resize', () => { resizeCanvases(); updateState(); });
+
+        // Logic Update
+        function updateState(e) {
+            // Prevent S1 from being less than S3
+            if(e && e.target === sliderS1) {
+                if(parseFloat(sliderS1.value) < parseFloat(sliderS3.value)) sliderS1.value = sliderS3.value;
+            }
+            if(e && e.target === sliderS3) {
+                if(parseFloat(sliderS3.value) > parseFloat(sliderS1.value)) sliderS3.value = sliderS1.value;
+            }
+
+            state.s3 = parseFloat(sliderS3.value);
+            state.s1 = parseFloat(sliderS1.value);
+            state.c = parseFloat(sliderC.value);
+            state.phi = parseFloat(sliderPhi.value);
+
+            // Update UI Labels
+            valS3.innerHTML = `${state.s3} kPa`;
+            valS1.innerHTML = `${state.s1} kPa`;
+            valC.innerHTML = `${state.c} kPa`;
+            valPhi.innerHTML = `${state.phi}&deg;`;
+
+            // Calculations
+            const center = (state.s1 + state.s3) / 2;
+            const R = (state.s1 - state.s3) / 2;
+            
+            // Distance from center to envelope line: y = c + x * tan(phi)
+            // Equation: x*tan(phi) - y + c = 0
+            // Distance d = | center*tan(phi) - 0 + c | / sqrt(tan^2(phi) + 1)
+            // d = (center*tan(phi) + c) * cos(phi) = center*sin(phi) + c*cos(phi)
+            const phiRad = state.phi * Math.PI / 180;
+            const Rmax = center * Math.sin(phiRad) + state.c * Math.cos(phiRad);
+
+            const theta = 45 + state.phi / 2;
+
+            // Update Status
+            if (R >= Rmax - 0.5) { // 0.5 tolerance for floating point / UX
+                state.status = 'FAILED';
+                statusPanel.className = "mt-auto p-4 rounded-lg border-2 text-center font-bold text-lg status-fail transition-colors duration-300";
+                statusPanel.innerHTML = "FAILED: Shear Stress Exceeds Strength!";
+                
+                // Snap S1 back to exact failure point to prevent circle crossing the line visually
+                if (R > Rmax) {
+                    // Reverse calculate S1 at failure given S3, c, phi
+                    // S1 = S3 * tan^2(45+phi/2) + 2c * tan(45+phi/2)
+                    const Nphi = Math.tan((45 + state.phi/2) * Math.PI/180) ** 2;
+                    const rootNphi = Math.tan((45 + state.phi/2) * Math.PI/180);
+                    const exactS1 = state.s3 * Nphi + 2 * state.c * rootNphi;
+                    
+                    sliderS1.value = exactS1;
+                    state.s1 = exactS1;
+                    valS1.innerHTML = `${exactS1.toFixed(1)} kPa`;
+                    // Recalculate R
+                    updateState(); // recursive call with corrected S1
+                    return;
+                }
+            } else {
+                state.status = 'SAFE';
+                statusPanel.className = "mt-auto p-4 rounded-lg border-2 text-center font-bold text-lg status-safe transition-colors duration-300";
+                statusPanel.innerHTML = "SAFE: Soil is Stable";
+                state.slideOffset = 0; // reset animation
+            }
+
+            // Update Math Panel
+            calcTmax.innerHTML = `${R.toFixed(1)} kPa`;
+            calcTheta.innerHTML = `${theta.toFixed(1)}&deg;`;
+            calcR.innerHTML = `${R.toFixed(1)} kPa`;
+            calcRmax.innerHTML = `${Rmax.toFixed(1)} kPa`;
+
+            drawAll();
+        }
+
+        // Draw Graph
+        function drawGraph() {
+            const width = graphCanvas.width / window.devicePixelRatio;
+            const height = graphCanvas.height / window.devicePixelRatio;
+            gCtx.clearRect(0, 0, width, height);
+
+            // Coordinates mapping
+            const padX = 40, padY = 40;
+            const maxStress = 600; // Fixed scale for stability
+            const maxShear = 300;
+            
+            const mapX = (val) => padX + (val / maxStress) * (width - padX * 2);
+            const mapY = (val) => height - padY - (val / maxShear) * (height - padY * 2);
+
+            // 1. Draw Axes
+            gCtx.beginPath();
+            // X-axis (Normal Stress)
+            gCtx.moveTo(padX, height - padY);
+            gCtx.lineTo(width - padX + 20, height - padY);
+            // Y-axis (Shear Stress)
+            gCtx.moveTo(padX, height - padY);
+            gCtx.lineTo(padX, padY - 20);
+            gCtx.strokeStyle = '#64748b'; // slate-500
+            gCtx.lineWidth = 2;
+            gCtx.stroke();
+            
+            // Labels
+            gCtx.fillStyle = '#475569';
+            gCtx.font = '12px Inter';
+            gCtx.fillText('\u03C3 (Normal Stress)', width - 100, height - padY + 20);
+            gCtx.save();
+            gCtx.translate(15, padY + 20);
+            gCtx.rotate(-Math.PI/2);
+            gCtx.fillText('\u03C4 (Shear)', 0, 0);
+            gCtx.restore();
+
+            // Origin
+            gCtx.fillText('0', padX - 15, height - padY + 15);
+
+            // 2. Draw Failure Envelope (y = c + x * tan(phi))
+            const phiRad = state.phi * Math.PI / 180;
+            const slope = Math.tan(phiRad);
+            
+            const x0 = 0;
+            const y0 = state.c;
+            const x1 = maxStress;
+            const y1 = state.c + maxStress * slope;
+
+            gCtx.beginPath();
+            gCtx.moveTo(mapX(x0), mapY(y0));
+            gCtx.lineTo(mapX(x1), mapY(y1));
+            gCtx.strokeStyle = '#ef4444'; // red-500
+            gCtx.lineWidth = 2.5;
+            gCtx.stroke();
+
+            // Label Envelope
+            gCtx.save();
+            gCtx.translate(mapX(200), mapY(state.c + 200 * slope) - 10);
+            gCtx.rotate(-Math.atan(slope * (height - padY*2)/maxShear / ((width - padX*2)/maxStress))); // adjust angle for screen scale
+            gCtx.fillStyle = '#ef4444';
+            gCtx.font = 'bold 12px Inter';
+            gCtx.fillText('\u03C4f = c + \u03C3 tan\u03D5', 0, 0);
+            gCtx.restore();
+
+            // Indicate 'c' intercept
+            gCtx.beginPath();
+            gCtx.moveTo(padX, mapY(state.c));
+            gCtx.lineTo(padX - 5, mapY(state.c));
+            gCtx.stroke();
+            gCtx.fillStyle = '#16a34a';
+            gCtx.fillText('c', padX - 20, mapY(state.c) + 4);
+
+            // 3. Draw Mohr's Circle
+            const center = (state.s1 + state.s3) / 2;
+            const R = (state.s1 - state.s3) / 2;
+            
+            // Map radius to screen pixels (average of x and y scales to make it a circle)
+            // Actually, to make it a true circle graphically, the X and Y scales MUST be identical.
+            // Let's force an isometric scale for drawing the circle.
+            const scaleX = (width - padX * 2) / maxStress;
+            const scaleY = (height - padY * 2) / maxShear;
+            
+            // The drawing is currently skewed because maxStress != maxShear.
+            // To make Mohr's circle round, we map coordinates exactly.
+            gCtx.beginPath();
+            // Use ellipse to draw a "circle" that conforms to axis scales
+            gCtx.ellipse(mapX(center), mapY(0), R * scaleX, R * scaleY, 0, 0, Math.PI, true);
+            
+            gCtx.fillStyle = state.status === 'FAILED' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(59, 130, 246, 0.15)';
+            gCtx.fill();
+            gCtx.strokeStyle = state.status === 'FAILED' ? '#dc2626' : '#3b82f6';
+            gCtx.lineWidth = 2;
+            gCtx.stroke();
+
+            // Draw center point
+            gCtx.beginPath();
+            gCtx.arc(mapX(center), mapY(0), 4, 0, Math.PI*2);
+            gCtx.fillStyle = '#334155';
+            gCtx.fill();
+
+            // Label S1 and S3
+            gCtx.fillStyle = '#1e293b';
+            gCtx.fillText('\u03C33', mapX(state.s3) - 10, mapY(0) + 20);
+            gCtx.fillText('\u03C31', mapX(state.s1) - 10, mapY(0) + 20);
+
+            // If Failed, draw failure point and plane line
+            if (state.status === 'FAILED') {
+                const failTheta = (90 + state.phi) * Math.PI / 180;
+                const ptX = center - R * Math.cos(failTheta); // Mohr circle angle is 2*theta
+                const ptY = R * Math.sin(failTheta);
+
+                // Draw line from center to failure point
+                gCtx.beginPath();
+                gCtx.moveTo(mapX(center), mapY(0));
+                gCtx.lineTo(mapX(ptX), mapY(ptY));
+                gCtx.strokeStyle = '#94a3b8';
+                gCtx.setLineDash([5, 5]);
+                gCtx.stroke();
+                gCtx.setLineDash([]);
+
+                // Highlight Failure Point
+                gCtx.beginPath();
+                gCtx.arc(mapX(ptX), mapY(ptY), 6, 0, Math.PI*2);
+                gCtx.fillStyle = '#dc2626';
+                gCtx.fill();
+                gCtx.strokeStyle = '#fff';
+                gCtx.stroke();
+            }
+        }
+
+        // Draw Physical Block
+        function drawBlock() {
+            const width = blockCanvas.width / window.devicePixelRatio;
+            const height = blockCanvas.height / window.devicePixelRatio;
+            bCtx.clearRect(0, 0, width, height);
+
+            const bSize = 80;
+            const cx = width / 2;
+            const cy = height / 2;
+
+            const theta = 45 + state.phi / 2;
+            const thetaRad = theta * Math.PI / 180;
+
+            // Animate slip if failed
+            if (state.status === 'FAILED') {
+                state.slideOffset += 0.5;
+                if(state.slideOffset > 20) state.slideOffset = 20; // max slip
+            } else {
+                state.slideOffset = 0;
+            }
+
+            bCtx.save();
+            bCtx.translate(cx, cy);
+
+            // Base soil color
+            const soilColor = '#e2d3ba'; // sandy/clay color
+            
+            if (state.status === 'SAFE' || state.slideOffset === 0) {
+                // Draw solid block
+                bCtx.fillStyle = soilColor;
+                bCtx.fillRect(-bSize/2, -bSize/2, bSize, bSize);
+                bCtx.strokeStyle = '#78350f';
+                bCtx.lineWidth = 2;
+                bCtx.strokeRect(-bSize/2, -bSize/2, bSize, bSize);
+                
+                // Draw potential failure plane (dashed)
+                bCtx.beginPath();
+                // Line through center at angle theta (from horizontal)
+                // Need to find intersections with square
+                const dx = bSize/2;
+                const dy = dx * Math.tan(thetaRad);
+                bCtx.moveTo(-dx, dy);
+                bCtx.lineTo(dx, -dy);
+                bCtx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+                bCtx.setLineDash([4, 4]);
+                bCtx.stroke();
+                bCtx.setLineDash([]);
+            } else {
+                // Draw split block
+                // Bottom wedge (stationary)
+                bCtx.beginPath();
+                bCtx.moveTo(-bSize/2, bSize/2);
+                bCtx.lineTo(bSize/2, bSize/2);
+                bCtx.lineTo(bSize/2, -bSize/2 * Math.tan(thetaRad)); // approx
+                
+                // Top wedge (sliding)
+                const slipX = state.slideOffset * Math.cos(thetaRad);
+                const slipY = state.slideOffset * Math.sin(thetaRad);
+
+                // Just draw two polygons for the split
+                const pt1 = {x: -bSize/2, y: bSize/2 * Math.tan(thetaRad)}; // Left intercept
+                const pt2 = {x: bSize/2, y: -bSize/2 * Math.tan(thetaRad)}; // Right intercept (simplified for 45-60 deg)
+                
+                // A better approach for the split: 
+                // Draw full block clipped by half-plane
+                
+                // Bottom half
+                bCtx.save();
+                bCtx.beginPath();
+                bCtx.moveTo(-bSize, bSize); bCtx.lineTo(bSize, bSize);
+                bCtx.lineTo(bSize, -bSize*Math.tan(thetaRad)); bCtx.lineTo(-bSize, bSize*Math.tan(thetaRad));
+                bCtx.clip();
+                bCtx.fillStyle = soilColor;
+                bCtx.fillRect(-bSize/2, -bSize/2, bSize, bSize);
+                bCtx.strokeStyle = '#78350f'; bCtx.strokeRect(-bSize/2, -bSize/2, bSize, bSize);
+                bCtx.restore();
+
+                // Top half (sliding)
+                bCtx.save();
+                bCtx.translate(slipX, -slipY);
+                bCtx.beginPath();
+                bCtx.moveTo(-bSize, -bSize); bCtx.lineTo(bSize, -bSize);
+                bCtx.lineTo(bSize, -bSize*Math.tan(thetaRad)); bCtx.lineTo(-bSize, bSize*Math.tan(thetaRad));
+                bCtx.clip();
+                bCtx.fillStyle = soilColor;
+                bCtx.fillRect(-bSize/2, -bSize/2, bSize, bSize);
+                bCtx.strokeStyle = '#78350f'; bCtx.strokeRect(-bSize/2, -bSize/2, bSize, bSize);
+                // Highlight slip plane in red
+                bCtx.beginPath(); bCtx.moveTo(-bSize, bSize*Math.tan(thetaRad)); bCtx.lineTo(bSize, -bSize*Math.tan(thetaRad));
+                bCtx.strokeStyle = '#ef4444'; bCtx.lineWidth=3; bCtx.stroke();
+                bCtx.restore();
+            }
+
+            // Draw stress arrows (Sigma 1 Vertical, Sigma 3 Horizontal)
+            const arrowLen = 30;
+            const arrowColor1 = '#ef4444'; // Red for Sigma 1
+            const arrowColor3 = '#3b82f6'; // Blue for Sigma 3
+
+            const drawArrow = (fromX, fromY, toX, toY, color, label) => {
+                bCtx.beginPath();
+                bCtx.moveTo(fromX, fromY);
+                bCtx.lineTo(toX, toY);
+                bCtx.strokeStyle = color;
+                bCtx.lineWidth = 2;
+                bCtx.stroke();
+                
+                // Head
+                const angle = Math.atan2(toY - fromY, toX - fromX);
+                bCtx.beginPath();
+                bCtx.moveTo(toX, toY);
+                bCtx.lineTo(toX - 8 * Math.cos(angle - Math.PI/6), toY - 8 * Math.sin(angle - Math.PI/6));
+                bCtx.lineTo(toX - 8 * Math.cos(angle + Math.PI/6), toY - 8 * Math.sin(angle + Math.PI/6));
+                bCtx.fillStyle = color;
+                bCtx.fill();
+
+                // Label
+                bCtx.fillStyle = color;
+                bCtx.font = 'bold 12px Inter';
+                if(label === 's1') {
+                    bCtx.fillText('\u03C31', fromX + 5, fromY - 5);
+                } else {
+                    bCtx.fillText('\u03C33', fromX - 25, fromY - 5);
+                }
+            };
+
+            // Top Sigma 1
+            drawArrow(0, -bSize/2 - arrowLen, 0, -bSize/2, arrowColor1, 's1');
+            // Bottom Sigma 1
+            drawArrow(0, bSize/2 + arrowLen, 0, bSize/2, arrowColor1, '');
+            // Left Sigma 3
+            drawArrow(-bSize/2 - arrowLen, 0, -bSize/2, 0, arrowColor3, 's3');
+            // Right Sigma 3
+            drawArrow(bSize/2 + arrowLen, 0, bSize/2, 0, arrowColor3, '');
+
+            bCtx.restore();
+        }
+
+        function drawAll() {
+            drawGraph();
+            drawBlock();
+            
+            // Loop for physical animation if failed
+            if(state.animReq) cancelAnimationFrame(state.animReq);
+            if(state.status === 'FAILED' && state.slideOffset < 20) {
+                state.animReq = requestAnimationFrame(drawAll);
+            }
+        }
+
+        // Event Listeners
+        sliderS3.addEventListener('input', updateState);
+        sliderS1.addEventListener('input', updateState);
+        sliderC.addEventListener('input', updateState);
+        sliderPhi.addEventListener('input', updateState);
+
+        // Init
+        resizeCanvases();
+        updateState();
+
+    </script>
+</body>
+</html>

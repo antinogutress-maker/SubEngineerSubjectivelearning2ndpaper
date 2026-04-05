@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terzaghi's Bearing Capacity Theory Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=KaTeX_Math:ital@1&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        
+        .math {
+            font-family: 'KaTeX_Math', serif;
+            font-style: italic;
+        }
+
+        .slider-custom {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #cbd5e1;
+            outline: none;
+        }
+
+        .slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .slider-custom::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        
+        .term-c { background-color: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #047857; }
+        .term-q { background-color: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #1d4ed8; }
+        .term-g { background-color: rgba(245, 158, 11, 0.2); border-color: #f59e0b; color: #b45309; }
+
+        .progress-c { background-color: #10b981; }
+        .progress-q { background-color: #3b82f6; }
+        .progress-g { background-color: #f59e0b; }
+
+        canvas {
+            border-radius: 0.5rem;
+            background-color: #ffffff;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <header class="text-center space-y-2 mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">Terzaghi's Bearing Capacity Theory</h1>
+            <p class="text-slate-600 font-medium text-lg">Interactive Shallow Foundation Simulation</p>
+        </header>
+
+        <!-- Simulation Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Controls (Left: 3 columns) -->
+            <div class="lg:col-span-3 glass-panel rounded-xl p-5 flex flex-col space-y-5">
+                
+                <h2 class="font-semibold text-lg border-b pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Foundation Design
+                </h2>
+
+                <!-- Footing Shape -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Footing Shape</label>
+                    <select id="shapeSelect" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                        <option value="strip" selected>Continuous / Strip Footing</option>
+                        <option value="square">Square Footing</option>
+                        <option value="circular">Circular Footing</option>
+                    </select>
+                </div>
+
+                <!-- Width B -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Width (<span class="math">B</span>)</label>
+                        <span id="valB" class="font-bold text-blue-700">2.0 m</span>
+                    </div>
+                    <input type="range" id="bSlider" min="1" max="5" step="0.1" value="2.0" class="slider-custom">
+                </div>
+
+                <!-- Depth Df -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Depth (<span class="math">D_f</span>)</label>
+                        <span id="valDf" class="font-bold text-blue-700">1.5 m</span>
+                    </div>
+                    <input type="range" id="dfSlider" min="0" max="3" step="0.1" value="1.5" class="slider-custom">
+                </div>
+
+                <h2 class="font-semibold text-lg border-b pb-2 mt-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                    Soil Properties
+                </h2>
+
+                <!-- Cohesion c -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Cohesion (<span class="math">c'</span>)</label>
+                        <span id="valC" class="font-bold text-emerald-600">25 kPa</span>
+                    </div>
+                    <input type="range" id="cSlider" min="0" max="100" step="1" value="25" class="slider-custom">
+                </div>
+
+                <!-- Friction Angle phi -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Friction Angle (<span class="math">&phi;</span>)</label>
+                        <span id="valPhi" class="font-bold text-emerald-600">30&deg;</span>
+                    </div>
+                    <input type="range" id="phiSlider" min="0" max="45" step="1" value="30" class="slider-custom">
+                </div>
+
+                <!-- Unit Weight -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Unit Weight (<span class="math">&gamma;</span>)</label>
+                        <span id="valGamma" class="font-bold text-slate-600">18 kN/m³</span>
+                    </div>
+                    <input type="range" id="gammaSlider" min="15" max="22" step="0.5" value="18" class="slider-custom">
+                </div>
+
+                <!-- Water Table -->
+                <div class="bg-blue-50 p-2 rounded border border-blue-100">
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-blue-900">Water Table Depth (<span class="math">D_w</span>)</label>
+                        <span id="valDw" class="font-bold text-blue-700">5.0 m</span>
+                    </div>
+                    <input type="range" id="dwSlider" min="0" max="10" step="0.5" value="5.0" class="slider-custom">
+                </div>
+
+            </div>
+
+            <!-- Visualization Area (Middle: 6 columns) -->
+            <div class="lg:col-span-6 flex flex-col space-y-4">
+                <div class="glass-panel rounded-xl p-4 flex flex-col relative h-[450px]">
+                    <div class="absolute top-4 left-4 z-10 bg-white/90 p-2 rounded shadow-sm border border-slate-200 text-xs font-mono space-y-1">
+                        <div>Bearing Capacity Factors:</div>
+                        <div><span class="font-bold text-emerald-600">N<sub>c</sub> = </span><span id="dispNc">37.2</span></div>
+                        <div><span class="font-bold text-blue-600">N<sub>q</sub> = </span><span id="dispNq">22.5</span></div>
+                        <div><span class="font-bold text-amber-600">N<sub>&gamma;</sub> = </span><span id="dispNg">19.7</span></div>
+                    </div>
+
+                    <div class="absolute top-4 right-4 z-10 flex flex-col items-end gap-1">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Failure Zones</span>
+                        <div class="flex items-center gap-1 text-xs"><div class="w-3 h-3 bg-red-500/30 border border-red-500"></div> Zone I (Elastic)</div>
+                        <div class="flex items-center gap-1 text-xs"><div class="w-3 h-3 bg-blue-500/20 border border-blue-500"></div> Zone II (Radial)</div>
+                        <div class="flex items-center gap-1 text-xs"><div class="w-3 h-3 bg-green-500/20 border border-green-500"></div> Zone III (Passive)</div>
+                    </div>
+
+                    <div class="relative w-full h-full flex-grow" id="simContainer">
+                        <canvas id="simCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                    </div>
+                </div>
+
+                <!-- Simulation Toggle / Load -->
+                <div class="glass-panel rounded-xl p-4 flex items-center justify-between">
+                    <div class="text-sm font-semibold text-slate-700">Display Failure Mechanism</div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggleFailure" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Mathematical Breakdown (Right: 3 columns) -->
+            <div class="lg:col-span-3 flex flex-col space-y-4">
+                
+                <div class="glass-panel rounded-xl p-5 flex-grow flex flex-col">
+                    <h3 class="font-bold text-slate-800 border-b pb-2 mb-4 text-center">Ultimate Bearing Capacity (<span class="math">q_u</span>)</h3>
+                    
+                    <div class="bg-slate-800 text-white p-3 rounded-lg text-center mb-6 shadow-inner">
+                        <div class="text-3xl font-bold font-mono tracking-tight" id="valQu">1500</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-widest mt-1">kPa (kN/m²)</div>
+                    </div>
+
+                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Equation Breakdown</h4>
+                    
+                    <!-- Term 1: Cohesion -->
+                    <div class="mb-3 border-l-4 term-c p-2 rounded-r flex justify-between items-center">
+                        <div>
+                            <div class="font-bold text-sm"><span class="math">c' N_c</span> (Cohesion)</div>
+                            <div class="text-xs opacity-80" id="eqC">1.0 &times; 25 &times; 37.2</div>
+                        </div>
+                        <div class="font-mono font-bold" id="resC">930</div>
+                    </div>
+
+                    <!-- Term 2: Surcharge -->
+                    <div class="mb-3 border-l-4 term-q p-2 rounded-r flex justify-between items-center">
+                        <div>
+                            <div class="font-bold text-sm"><span class="math">q N_q</span> (Surcharge)</div>
+                            <div class="text-xs opacity-80" id="eqQ">27 &times; 22.5</div>
+                        </div>
+                        <div class="font-mono font-bold" id="resQ">607</div>
+                    </div>
+
+                    <!-- Term 3: Friction/Density -->
+                    <div class="mb-4 border-l-4 term-g p-2 rounded-r flex justify-between items-center">
+                        <div>
+                            <div class="font-bold text-sm"><span class="math">0.5 &gamma; B N_&gamma;</span> (Wedge)</div>
+                            <div class="text-xs opacity-80" id="eqG">0.5 &times; 18 &times; 2 &times; 19.7</div>
+                        </div>
+                        <div class="font-mono font-bold" id="resG">354</div>
+                    </div>
+
+                    <!-- Visual Breakdown Bar -->
+                    <div class="mt-auto">
+                        <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                            <span>Contribution %</span>
+                        </div>
+                        <div class="w-full h-4 rounded-full flex overflow-hidden shadow-inner bg-slate-200">
+                            <div id="barC" class="h-full progress-c transition-all duration-500" style="width: 50%"></div>
+                            <div id="barQ" class="h-full progress-q transition-all duration-500" style="width: 30%"></div>
+                            <div id="barG" class="h-full progress-g transition-all duration-500" style="width: 20%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-xl p-4 bg-emerald-50 border-emerald-200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="text-sm font-bold text-emerald-800">Allowable Capacity (<span class="math">q_{all}</span>)</div>
+                            <div class="text-xs text-emerald-600">Assuming FOS = 3.0</div>
+                        </div>
+                        <div class="text-xl font-bold text-emerald-700 font-mono" id="valQall">500 kPa</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Loksewa Theory Section -->
+        <div class="glass-panel rounded-xl p-6 md:p-8 mt-8 border-t-4 border-t-blue-600">
+            <div class="flex items-center justify-between mb-6 border-b pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-100 p-2 rounded-lg">
+                        <svg class="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-.586-1.414l-4.5-4.5A2 2 0 0012.586 3H12"></path></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900">Terzaghi's Bearing Capacity Theory</h2>
+                </div>
+                <span class="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded shadow">Loksewa Exam: 10 Marks</span>
+            </div>
+            
+            <div class="prose prose-slate max-w-none text-slate-700 space-y-4 text-justify">
+                <p><strong>1. Introduction (1 Mark):</strong><br>
+                Terzaghi (1943) presented the first comprehensive theory for evaluating the ultimate bearing capacity of shallow foundations. He defined a shallow foundation as one where the depth of the footing (<span class="math">D_f</span>) is less than or equal to its width (<span class="math">B</span>).</p>
+
+                <p><strong>2. Key Assumptions (2 Marks):</strong></p>
+                <ul class="list-disc pl-6 mb-2">
+                    <li>The footing is continuous (strip footing, <span class="math">L \gg B</span>).</li>
+                    <li>The base of the footing is rough, preventing soil from sliding along the base.</li>
+                    <li>The soil fails in <strong>General Shear Failure</strong>.</li>
+                    <li>The soil above the base of the footing (<span class="math">D_f</span>) is assumed to have no shear strength and acts purely as a surcharge load (<span class="math">q = \gamma \cdot D_f</span>).</li>
+                </ul>
+
+                <p><strong>3. Failure Mechanism / Zones (2 Marks):</strong><br>
+                Terzaghi divided the soil mass below the footing into three distinct zones at the point of failure:
+                <ul class="list-disc pl-6 mb-2">
+                    <li><strong>Zone I (Elastic Wedge):</strong> A triangular wedge immediately beneath the footing. Due to base friction, this soil moves downward perfectly rigidly with the footing.</li>
+                    <li><strong>Zone II (Radial Shear Zone):</strong> Zones radiating from the footing edges. The failure boundaries here are logarithmic spirals.</li>
+                    <li><strong>Zone III (Rankine Passive Zone):</strong> Triangular zones outside Zone II that are pushed upwards and outwards by the expanding radial zones.</li>
+                </ul>
+                </p>
+
+                <p><strong>4. Ultimate Bearing Capacity Equation (2 Marks):</strong><br>
+                Based on equilibrium of the elastic wedge, the ultimate bearing capacity (<span class="math">q_u</span>) for a <strong>strip footing</strong> is given by:
+                <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 text-center font-bold text-lg text-blue-900 my-2 shadow-sm">
+                    <span class="math">q_u = c' N_c + q N_q + 0.5 \gamma B N_\gamma</span>
+                </div>
+                Where:<br>
+                <span class="math">c'</span> = Effective cohesion of soil.<br>
+                <span class="math">q</span> = Effective surcharge at the base level (<span class="math">\gamma \cdot D_f</span>).<br>
+                <span class="math">B</span> = Width of the footing.<br>
+                <span class="math">N_c, N_q, N_\gamma</span> = Terzaghi's bearing capacity factors, which are functions of the angle of internal friction (<span class="math">\phi</span>) <em>only</em>.
+                </p>
+
+                <p><strong>5. Modifications for Footing Shape (1 Mark):</strong><br>
+                The equation is modified via empirical shape factors for different footing geometries:
+                <ul class="list-disc pl-6 mb-2">
+                    <li><strong>Square Footing:</strong> <span class="math">q_u = 1.3 c' N_c + q N_q + 0.4 \gamma B N_\gamma</span></li>
+                    <li><strong>Circular Footing:</strong> <span class="math">q_u = 1.3 c' N_c + q N_q + 0.3 \gamma B N_\gamma</span></li>
+                </ul>
+                </p>
+
+                <p><strong>6. Effect of Water Table (1 Mark):</strong><br>
+                The presence of groundwater significantly reduces bearing capacity because it reduces the effective unit weight (<span class="math">\gamma'</span>) of the soil. If the water table is above the footing base, the surcharge term uses submerged unit weight. If it is within depth <span class="math">B</span> below the footing, the wedge term uses an interpolated effective unit weight.</p>
+
+                <p><strong>7. Allowable Bearing Capacity (1 Mark):</strong><br>
+                For design, engineers apply a Factor of Safety (typically FOS = 3) to prevent catastrophic failure: <br>
+                <span class="math inline-block bg-slate-100 px-2 py-1 rounded mt-1">q_{all} = q_u / FOS</span> or specifically for net pressure: <span class="math inline-block bg-slate-100 px-2 py-1 rounded">q_{net,all} = (q_u - \gamma D_f) / FOS</span>.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. Terzaghi's Exact Bearing Capacity Factors Lookup & Interpolation ---
+        // Terzaghi's original values (Standard textbook values)
+        const terzaghiTable = [
+            { phi: 0,  Nc: 5.7,  Nq: 1.0,  Ng: 0.0 },
+            { phi: 5,  Nc: 7.3,  Nq: 1.6,  Ng: 0.5 },
+            { phi: 10, Nc: 9.6,  Nq: 2.7,  Ng: 1.2 },
+            { phi: 15, Nc: 12.9, Nq: 4.4,  Ng: 2.5 },
+            { phi: 20, Nc: 17.7, Nq: 7.4,  Ng: 5.0 },
+            { phi: 25, Nc: 25.1, Nq: 12.7, Ng: 9.7 },
+            { phi: 30, Nc: 37.2, Nq: 22.5, Ng: 19.7 },
+            { phi: 35, Nc: 57.8, Nq: 41.4, Ng: 42.4 },
+            { phi: 40, Nc: 95.7, Nq: 81.3, Ng: 100.4 },
+            { phi: 45, Nc: 172.3,Nq: 173.3,Ng: 297.5}
+        ];
+
+        function getFactors(phi) {
+            if (phi <= 0) return { Nc: 5.7, Nq: 1.0, Ng: 0.0 };
+            if (phi >= 45) return { Nc: 172.3, Nq: 173.3, Ng: 297.5 };
+            
+            for (let i = 0; i < terzaghiTable.length - 1; i++) {
+                if (phi >= terzaghiTable[i].phi && phi <= terzaghiTable[i+1].phi) {
+                    const t = (phi - terzaghiTable[i].phi) / 5; // interpolation parameter (0 to 1)
+                    return {
+                        Nc: terzaghiTable[i].Nc + t * (terzaghiTable[i+1].Nc - terzaghiTable[i].Nc),
+                        Nq: terzaghiTable[i].Nq + t * (terzaghiTable[i+1].Nq - terzaghiTable[i].Nq),
+                        Ng: terzaghiTable[i].Ng + t * (terzaghiTable[i+1].Ng - terzaghiTable[i].Ng)
+                    };
+                }
+            }
+        }
+
+        // --- 2. DOM Elements ---
+        const shapeSelect = document.getElementById('shapeSelect');
+        const bSlider = document.getElementById('bSlider');
+        const dfSlider = document.getElementById('dfSlider');
+        const cSlider = document.getElementById('cSlider');
+        const phiSlider = document.getElementById('phiSlider');
+        const gammaSlider = document.getElementById('gammaSlider');
+        const dwSlider = document.getElementById('dwSlider');
+        const toggleFailure = document.getElementById('toggleFailure');
+
+        // Text Outputs
+        const valB = document.getElementById('valB');
+        const valDf = document.getElementById('valDf');
+        const valC = document.getElementById('valC');
+        const valPhi = document.getElementById('valPhi');
+        const valGamma = document.getElementById('valGamma');
+        const valDw = document.getElementById('valDw');
+        
+        const dispNc = document.getElementById('dispNc');
+        const dispNq = document.getElementById('dispNq');
+        const dispNg = document.getElementById('dispNg');
+
+        // Results
+        const valQu = document.getElementById('valQu');
+        const valQall = document.getElementById('valQall');
+        const resC = document.getElementById('resC');
+        const resQ = document.getElementById('resQ');
+        const resG = document.getElementById('resG');
+        const eqC = document.getElementById('eqC');
+        const eqQ = document.getElementById('eqQ');
+        const eqG = document.getElementById('eqG');
+
+        const barC = document.getElementById('barC');
+        const barQ = document.getElementById('barQ');
+        const barG = document.getElementById('barG');
+
+        // Canvas
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('simContainer');
+
+        // Constants
+        const GAMMA_W = 9.81;
+
+        // State
+        let state = {
+            shape: shapeSelect.value,
+            B: parseFloat(bSlider.value),
+            Df: parseFloat(dfSlider.value),
+            c: parseFloat(cSlider.value),
+            phi: parseFloat(phiSlider.value),
+            gamma: parseFloat(gammaSlider.value),
+            Dw: parseFloat(dwSlider.value),
+            showFailure: toggleFailure.checked,
+            
+            // Computed
+            Nc: 0, Nq: 0, Ng: 0,
+            termC: 0, termQ: 0, termG: 0, qu: 0
+        };
+
+        // --- 3. Logic & Physics ---
+        function updateMath() {
+            state.shape = shapeSelect.value;
+            state.B = parseFloat(bSlider.value);
+            state.Df = parseFloat(dfSlider.value);
+            state.c = parseFloat(cSlider.value);
+            state.phi = parseFloat(phiSlider.value);
+            state.gamma = parseFloat(gammaSlider.value);
+            state.Dw = parseFloat(dwSlider.value);
+            state.showFailure = toggleFailure.checked;
+
+            // Update UI Labels
+            valB.innerHTML = `${state.B.toFixed(1)} m`;
+            valDf.innerHTML = `${state.Df.toFixed(1)} m`;
+            valC.innerHTML = `${state.c} kPa`;
+            valPhi.innerHTML = `${state.phi}&deg;`;
+            valGamma.innerHTML = `${state.gamma.toFixed(1)} kN/m³`;
+            valDw.innerHTML = `${state.Dw.toFixed(1)} m`;
+
+            // Shape Factors (Sc, Sq, Sg)
+            let sc = 1.0, sq = 1.0, sg = 0.5; // Defaults for strip
+            if (state.shape === 'square') { sc = 1.3; sg = 0.4; }
+            if (state.shape === 'circular') { sc = 1.3; sg = 0.3; }
+
+            // Factors
+            const factors = getFactors(state.phi);
+            state.Nc = factors.Nc;
+            state.Nq = factors.Nq;
+            state.Ng = factors.Ng;
+
+            dispNc.innerHTML = state.Nc.toFixed(1);
+            dispNq.innerHTML = state.Nq.toFixed(1);
+            dispNg.innerHTML = state.Ng.toFixed(1);
+
+            // Water Table Adjustments
+            let gamma1 = state.gamma; // Soil above base (for surcharge q)
+            let gamma2 = state.gamma; // Soil below base (for wedge)
+            let q = 0;
+
+            if (state.Dw <= state.Df) {
+                // WT is above footing base
+                gamma1 = state.gamma - GAMMA_W;
+                gamma2 = state.gamma - GAMMA_W;
+                q = (state.gamma * state.Dw) + (gamma1 * (state.Df - state.Dw));
+            } else {
+                // WT is below base
+                q = state.gamma * state.Df;
+                if (state.Dw <= state.Df + state.B) {
+                    // WT within wedge depth B
+                    const d = state.Dw - state.Df; // depth of WT below base
+                    const gammaSub = state.gamma - GAMMA_W;
+                    // Interpolation for effective unit weight in wedge
+                    gamma2 = gammaSub + (d / state.B) * (state.gamma - gammaSub);
+                } else {
+                    gamma2 = state.gamma;
+                }
+            }
+
+            // Calculate Terms
+            state.termC = sc * state.c * state.Nc;
+            state.termQ = sq * q * state.Nq;
+            state.termG = sg * gamma2 * state.B * state.Ng;
+            
+            state.qu = state.termC + state.termQ + state.termG;
+
+            // Update UI equations
+            eqC.innerHTML = `${sc.toFixed(1)} &times; ${state.c} &times; ${state.Nc.toFixed(1)}`;
+            // q might be complex if WT is in it, just show the evaluated q
+            eqQ.innerHTML = `${q.toFixed(1)} &times; ${state.Nq.toFixed(1)}`;
+            eqG.innerHTML = `${sg.toFixed(1)} &times; ${gamma2.toFixed(1)} &times; ${state.B.toFixed(1)} &times; ${state.Ng.toFixed(1)}`;
+
+            resC.innerHTML = Math.round(state.termC);
+            resQ.innerHTML = Math.round(state.termQ);
+            resG.innerHTML = Math.round(state.termG);
+
+            valQu.innerHTML = Math.round(state.qu);
+            valQall.innerHTML = `${Math.round(state.qu / 3)} kPa`;
+
+            // Update Progress Bar
+            const total = state.qu || 1; // prevent div by zero
+            barC.style.width = `${(state.termC / total) * 100}%`;
+            barQ.style.width = `${(state.termQ / total) * 100}%`;
+            barG.style.width = `${(state.termG / total) * 100}%`;
+
+            drawCanvas();
+        }
+
+        // --- 4. Drawing Visualization ---
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            canvas.style.width = `${rect.width}px`;
+            canvas.style.height = `${rect.height}px`;
+        }
+
+        function drawCanvas() {
+            const width = canvas.width / window.devicePixelRatio;
+            const height = canvas.height / window.devicePixelRatio;
+            
+            ctx.clearRect(0, 0, width, height);
+
+            // Scale mapping
+            // Max depth realistically shown = Df(max 3) + B(max 5)*2 = 13m
+            // Let's fix a scale so elements don't jump wildly, but center the footing horizontally
+            const pixelsPerMeter = height / 12; // 12 meters total visual depth
+            const groundY = 40; // Top padding
+            
+            const cx = width / 2;
+            const dfPx = state.Df * pixelsPerMeter;
+            const bPx = state.B * pixelsPerMeter;
+            const baseY = groundY + dfPx;
+
+            // 1. Draw Soil Background
+            ctx.fillStyle = '#fef3c7'; // Amber-50
+            ctx.fillRect(0, groundY, width, height - groundY);
+
+            // 2. Draw Water Table
+            const dwY = groundY + (state.Dw * pixelsPerMeter);
+            if (dwY < height) {
+                // Water tint
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.15)'; // Blue tint
+                ctx.fillRect(0, dwY, width, height - dwY);
+                
+                // WT line
+                ctx.beginPath();
+                ctx.moveTo(0, dwY);
+                ctx.lineTo(width, dwY);
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([10, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // WT symbol
+                ctx.beginPath();
+                ctx.moveTo(30, dwY);
+                ctx.lineTo(40, dwY+10);
+                ctx.lineTo(50, dwY);
+                ctx.lineTo(30, dwY);
+                ctx.fillStyle = '#3b82f6';
+                ctx.fill();
+                ctx.moveTo(30, dwY+2); ctx.lineTo(50, dwY+2); ctx.stroke();
+            }
+
+            // Ground Line
+            ctx.beginPath();
+            ctx.moveTo(0, groundY);
+            ctx.lineTo(width, groundY);
+            ctx.strokeStyle = '#65a30d'; // Green
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // 3. Draw Failure Mechanism (If checked)
+            if (state.showFailure && state.phi > 0) {
+                const phiRad = state.phi * (Math.PI / 180);
+                // Zone I: Triangle under footing (Angle phi with horizontal)
+                const h1 = (state.B / 2) * Math.tan(phiRad);
+                const h1Px = h1 * pixelsPerMeter;
+                const apexY = baseY + h1Px;
+
+                // Draw Zone I
+                ctx.beginPath();
+                ctx.moveTo(cx - bPx/2, baseY);
+                ctx.lineTo(cx + bPx/2, baseY);
+                ctx.lineTo(cx, apexY);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.3)'; // Red tint
+                ctx.fill();
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Zone II (Radial) & III (Passive) combined visual approximation
+                // In reality, spiral ends when tangent is vertical (approx), then passive straight lines at 45-phi/2
+                // For educational visual, draw arcs sweeping out
+                const failRad = bPx * Math.exp(Math.PI/2 * Math.tan(phiRad)); // Approx visual scale
+                const maxSpread = bPx/2 + failRad;
+                
+                // Draw symmetrical zones
+                drawFailureWings(ctx, cx, baseY, bPx, apexY, phiRad, pixelsPerMeter, groundY);
+            }
+
+            // 4. Draw Excavation & Footing
+            // Erase soil in excavation
+            ctx.clearRect(cx - bPx/2, groundY - 2, bPx, dfPx + 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(cx - bPx/2, groundY, bPx, dfPx);
+
+            // Draw concrete footing
+            const footingThicknessPx = Math.max(20, bPx * 0.2); // Visual thickness
+            const columnWidthPx = Math.max(15, bPx * 0.3);
+            
+            ctx.fillStyle = '#cbd5e1'; // Slate-300
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 2;
+
+            // Base pad
+            ctx.fillRect(cx - bPx/2, baseY - footingThicknessPx, bPx, footingThicknessPx);
+            ctx.strokeRect(cx - bPx/2, baseY - footingThicknessPx, bPx, footingThicknessPx);
+
+            // Column/Stem
+            ctx.fillRect(cx - columnWidthPx/2, groundY - 20, columnWidthPx, dfPx - footingThicknessPx + 20);
+            ctx.strokeRect(cx - columnWidthPx/2, groundY - 20, columnWidthPx, dfPx - footingThicknessPx + 20);
+
+            // 5. Annotations
+            // Draw Load Arrow
+            ctx.beginPath();
+            ctx.moveTo(cx, groundY - 60);
+            ctx.lineTo(cx, groundY - 25);
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            // Arrow head
+            ctx.beginPath();
+            ctx.moveTo(cx, groundY - 20);
+            ctx.lineTo(cx - 8, groundY - 30);
+            ctx.lineTo(cx + 8, groundY - 30);
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
+            
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 16px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('Q', cx, groundY - 70);
+
+            // Dimension B
+            ctx.beginPath();
+            ctx.moveTo(cx - bPx/2, baseY + 15);
+            ctx.lineTo(cx + bPx/2, baseY + 15);
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = '#334155';
+            ctx.font = '12px Inter';
+            ctx.fillText('B', cx, baseY + 28);
+
+            // Dimension Df
+            if (state.Df > 0) {
+                const rightX = cx + bPx/2 + 30;
+                ctx.beginPath();
+                ctx.moveTo(cx + bPx/2, groundY); ctx.lineTo(rightX+10, groundY);
+                ctx.moveTo(cx + bPx/2, baseY); ctx.lineTo(rightX+10, baseY);
+                ctx.moveTo(rightX, groundY); ctx.lineTo(rightX, baseY);
+                ctx.stroke();
+                
+                // arrowheads
+                ctx.beginPath(); ctx.moveTo(rightX, groundY); ctx.lineTo(rightX-3, groundY+5); ctx.lineTo(rightX+3, groundY+5); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(rightX, baseY); ctx.lineTo(rightX-3, baseY-5); ctx.lineTo(rightX+3, baseY-5); ctx.fill();
+                
+                ctx.fillText('Df', rightX + 15, groundY + dfPx/2 + 4);
+            }
+        }
+
+        // Helper to draw realistic-looking slip lines for Zones II and III
+        function drawFailureWings(ctx, cx, baseY, bPx, apexY, phiRad, ppm, groundY) {
+            // Passive angle with horizontal
+            const alphaPassiveRad = (45 - state.phi/2) * (Math.PI / 180);
+            
+            // To make it visually educational (not mathematically exact to Prandtl equations for drawing, but representative):
+            // Sweep an arc from the apex upwards to the ground surface
+            const spiralRadius = bPx * 1.5 + (state.phi * 2); // visual proxy
+            
+            // Right Side
+            ctx.beginPath();
+            ctx.moveTo(cx + bPx/2, baseY); // edge of footing
+            ctx.lineTo(cx, apexY); // down to apex
+            // Approximate spiral curve
+            ctx.quadraticCurveTo(cx + spiralRadius, apexY, cx + spiralRadius, groundY);
+            ctx.lineTo(cx + bPx/2, baseY);
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.2)'; // Zone II tint
+            ctx.fill();
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Right Zone III (Passive) - attached to the curve
+            ctx.beginPath();
+            ctx.moveTo(cx + spiralRadius, groundY);
+            ctx.lineTo(cx + bPx/2, baseY); // Connect to footing (simplified passive wedge)
+            // Draw a wedge outwards
+            const extendX = (baseY - groundY) / Math.tan(alphaPassiveRad);
+            ctx.lineTo(cx + bPx/2 + extendX, groundY);
+            ctx.fillStyle = 'rgba(34, 197, 94, 0.2)'; // Zone III tint
+            ctx.fill();
+            ctx.strokeStyle = '#22c55e';
+            ctx.stroke();
+
+            // Left Side
+            ctx.beginPath();
+            ctx.moveTo(cx - bPx/2, baseY);
+            ctx.lineTo(cx, apexY);
+            ctx.quadraticCurveTo(cx - spiralRadius, apexY, cx - spiralRadius, groundY);
+            ctx.lineTo(cx - bPx/2, baseY);
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.2)';
+            ctx.fill();
+            ctx.strokeStyle = '#3b82f6';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(cx - spiralRadius, groundY);
+            ctx.lineTo(cx - bPx/2, baseY);
+            const extendXLeft = (baseY - groundY) / Math.tan(alphaPassiveRad);
+            ctx.lineTo(cx - bPx/2 - extendXLeft, groundY);
+            ctx.fillStyle = 'rgba(34, 197, 94, 0.2)';
+            ctx.fill();
+            ctx.strokeStyle = '#22c55e';
+            ctx.stroke();
+        }
+
+        // --- 5. Event Listeners ---
+        window.addEventListener('resize', () => { resizeCanvas(); drawCanvas(); });
+        
+        [shapeSelect, bSlider, dfSlider, cSlider, phiSlider, gammaSlider, dwSlider, toggleFailure].forEach(el => {
+            el.addEventListener('input', updateMath);
+            el.addEventListener('change', updateMath);
+        });
+
+        // Init
+        resizeCanvas();
+        updateMath();
+
+    </script>
+</body>
+</html>

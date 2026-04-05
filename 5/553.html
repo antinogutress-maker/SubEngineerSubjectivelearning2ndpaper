@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth Pressure Simulation: Active, Passive & At-Rest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=KaTeX_Math:ital@1&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+        
+        .math {
+            font-family: 'KaTeX_Math', serif;
+            font-style: italic;
+        }
+
+        .slider-custom {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            outline: none;
+        }
+
+        .slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+
+        .slider-custom::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        /* Wall Movement Slider - Special Styling */
+        #wallMovement::-webkit-slider-thumb {
+            background: #0f172a;
+            border: 2px solid #fff;
+        }
+        
+        .slider-track-bg {
+            background: linear-gradient(to right, #22c55e 0%, #22c55e 40%, #94a3b8 48%, #94a3b8 52%, #ef4444 60%, #ef4444 100%);
+        }
+
+        canvas {
+            background: #ffffff;
+            border-radius: 0.5rem;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        .state-active { color: #16a34a; background: #dcfce7; border-color: #bbf7d0; }
+        .state-atrest { color: #475569; background: #f1f5f9; border-color: #e2e8f0; }
+        .state-passive { color: #dc2626; background: #fee2e2; border-color: #fecaca; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <header class="text-center space-y-2 mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">Lateral Earth Pressure</h1>
+            <p class="text-slate-600 font-medium text-lg">Active, At-Rest, and Passive States Simulation</p>
+        </header>
+
+        <!-- Main Simulation Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Controls (Left: 3 columns) -->
+            <div class="lg:col-span-3 glass-panel rounded-xl p-5 flex flex-col space-y-6">
+                
+                <h2 class="font-semibold text-lg border-b pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    Soil Parameters
+                </h2>
+
+                <!-- Material Type Selector -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Backfill Material</label>
+                    <select id="materialSelect" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                        <option value="custom" selected>Custom Parameters</option>
+                        <option value="loose_sand">Loose Sand (γ=16, ϕ=30&deg;)</option>
+                        <option value="dense_sand">Dense Sand (γ=19, ϕ=36&deg;)</option>
+                        <option value="gravel">Well-Graded Gravel (γ=21, ϕ=40&deg;)</option>
+                        <option value="silt">Silt / Silty Sand (γ=17, ϕ=28&deg;)</option>
+                    </select>
+                </div>
+
+                <!-- Friction Angle -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Friction Angle (<span class="math">&phi;</span>)</label>
+                        <span id="valPhi" class="font-bold text-blue-700">30&deg;</span>
+                    </div>
+                    <input type="range" id="phiSlider" min="20" max="45" step="1" value="30" class="slider-custom">
+                </div>
+
+                <!-- Unit Weight -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Unit Weight (<span class="math">&gamma;</span>)</label>
+                        <span id="valGamma" class="font-bold text-blue-700">18 kN/m³</span>
+                    </div>
+                    <input type="range" id="gammaSlider" min="14" max="22" step="0.5" value="18" class="slider-custom">
+                </div>
+
+                <!-- Wall Height -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Wall Height (<span class="math">H</span>)</label>
+                        <span id="valH" class="font-bold text-blue-700">5.0 m</span>
+                    </div>
+                    <input type="range" id="hSlider" min="3" max="10" step="0.5" value="5.0" class="slider-custom">
+                </div>
+
+                <div class="mt-4 p-4 rounded-lg bg-slate-800 text-white shadow-inner">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-600 pb-1">Coefficients</h3>
+                    <div class="space-y-2 font-mono text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-green-400">Active (K<sub>a</sub>)</span>
+                            <span id="valKa">0.333</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-300">At-Rest (K<sub>0</sub>)</span>
+                            <span id="valK0">0.500</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-red-400">Passive (K<sub>p</sub>)</span>
+                            <span id="valKp">3.000</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visual Simulation (Middle: 6 columns) -->
+            <div class="lg:col-span-6 flex flex-col space-y-4">
+                
+                <!-- Primary Wall Interaction -->
+                <div class="glass-panel rounded-xl p-4 flex flex-col relative h-[400px]">
+                    <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                        <div id="stateIndicator" class="px-3 py-1 rounded font-bold border-2 text-sm uppercase state-atrest">
+                            State: At-Rest
+                        </div>
+                    </div>
+                    
+                    <div class="relative w-full h-full flex-grow" id="simContainer">
+                        <canvas id="simCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                    </div>
+                </div>
+
+                <!-- Wall Movement Master Control -->
+                <div class="glass-panel rounded-xl p-6 border-2 border-slate-200">
+                    <div class="text-center mb-2 font-bold text-slate-800">
+                        Drag Wall to Change State
+                    </div>
+                    <div class="flex justify-between text-xs font-bold text-slate-500 mb-1 px-1 uppercase tracking-wider">
+                        <span class="text-green-600">&larr; Active (Yielding)</span>
+                        <span class="text-slate-600">At-Rest (Static)</span>
+                        <span class="text-red-600">Passive (Pushing) &rarr;</span>
+                    </div>
+                    <input type="range" id="wallMovement" min="-100" max="100" value="0" class="slider-custom slider-track-bg h-3">
+                    <div class="text-center mt-2 text-sm text-slate-500 font-medium">
+                        Wall Displacement: <span id="dispValue" class="font-mono text-slate-800">0.00% H</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Pressure Diagram (Right: 3 columns) -->
+            <div class="lg:col-span-3 flex flex-col h-full">
+                <div class="glass-panel rounded-xl p-4 flex flex-col relative flex-grow min-h-[400px]">
+                    <h3 class="font-semibold text-sm text-slate-800 border-b pb-2 mb-2">Pressure Distribution</h3>
+                    
+                    <div class="relative w-full flex-grow" id="graphContainer">
+                        <canvas id="graphCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                    </div>
+
+                    <div class="mt-4 bg-slate-50 border border-slate-200 rounded p-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-600">Current Coeff. (<span class="math">K</span>)</span>
+                            <span id="calcK" class="font-bold text-slate-800 font-mono">0.500</span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-600">Max Pressure (<span class="math">&sigma;_h</span>)</span>
+                            <span id="calcSigma" class="font-bold text-slate-800 font-mono">45.0 kPa</span>
+                        </div>
+                        <div class="w-full h-px bg-slate-200 my-2"></div>
+                        <div class="flex justify-between text-base">
+                            <span class="font-bold text-slate-700">Total Force (<span class="math">P</span>)</span>
+                            <span id="calcP" class="font-bold text-blue-600 font-mono">112.5 kN/m</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const phiSlider = document.getElementById('phiSlider');
+        const gammaSlider = document.getElementById('gammaSlider');
+        const hSlider = document.getElementById('hSlider');
+        const moveSlider = document.getElementById('wallMovement');
+        const materialSelect = document.getElementById('materialSelect');
+
+        const valPhi = document.getElementById('valPhi');
+        const valGamma = document.getElementById('valGamma');
+        const valH = document.getElementById('valH');
+        const dispValue = document.getElementById('dispValue');
+
+        const valKa = document.getElementById('valKa');
+        const valK0 = document.getElementById('valK0');
+        const valKp = document.getElementById('valKp');
+
+        const calcK = document.getElementById('calcK');
+        const calcSigma = document.getElementById('calcSigma');
+        const calcP = document.getElementById('calcP');
+
+        const stateIndicator = document.getElementById('stateIndicator');
+
+        const simCanvas = document.getElementById('simCanvas');
+        const sCtx = simCanvas.getContext('2d');
+        const simContainer = document.getElementById('simContainer');
+
+        const graphCanvas = document.getElementById('graphCanvas');
+        const gCtx = graphCanvas.getContext('2d');
+        const graphContainer = document.getElementById('graphContainer');
+
+        // Math Constants
+        const DEG2RAD = Math.PI / 180;
+
+        const materialData = {
+            'loose_sand': { phi: 30, gamma: 16 },
+            'dense_sand': { phi: 36, gamma: 19 },
+            'gravel': { phi: 40, gamma: 21 },
+            'silt': { phi: 28, gamma: 17 }
+        };
+
+        let soilPattern = null;
+
+        // Application State
+        let state = {
+            phi: parseFloat(phiSlider.value),
+            gamma: parseFloat(gammaSlider.value),
+            H: parseFloat(hSlider.value),
+            movement: parseFloat(moveSlider.value), // -100 to 100
+            
+            Ka: 0, K0: 0, Kp: 0,
+            currentK: 0,
+            currentState: 'AT-REST', // 'ACTIVE', 'AT-REST', 'PASSIVE'
+            alphaPlane: 0 // angle of failure plane
+        };
+
+        function generateSoilPattern() {
+            const patCanvas = document.createElement('canvas');
+            patCanvas.width = 60;
+            patCanvas.height = 60;
+            const pCtx = patCanvas.getContext('2d');
+            
+            pCtx.fillStyle = '#fef3c7'; // amber-50 background
+            pCtx.fillRect(0, 0, 60, 60);
+            
+            for(let i=0; i<150; i++) {
+                pCtx.beginPath();
+                const x = Math.random() * 60;
+                const y = Math.random() * 60;
+                const r = 0.5 + Math.random() * 1.5;
+                pCtx.arc(x, y, r, 0, Math.PI*2);
+                
+                const type = Math.random();
+                if(type > 0.8) pCtx.fillStyle = 'rgba(120, 53, 15, 0.3)'; // Dark brown
+                else if (type > 0.4) pCtx.fillStyle = 'rgba(217, 119, 6, 0.4)'; // Amber
+                else pCtx.fillStyle = 'rgba(252, 211, 77, 0.6)'; // Light sand
+                pCtx.fill();
+            }
+            return sCtx.createPattern(patCanvas, 'repeat');
+        }
+
+        function resizeCanvases() {
+            const sRect = simContainer.getBoundingClientRect();
+            simCanvas.width = sRect.width * window.devicePixelRatio;
+            simCanvas.height = sRect.height * window.devicePixelRatio;
+            sCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            simCanvas.style.width = `${sRect.width}px`;
+            simCanvas.style.height = `${sRect.height}px`;
+
+            const gRect = graphContainer.getBoundingClientRect();
+            graphCanvas.width = gRect.width * window.devicePixelRatio;
+            graphCanvas.height = gRect.height * window.devicePixelRatio;
+            gCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            graphCanvas.style.width = `${gRect.width}px`;
+            graphCanvas.style.height = `${gRect.height}px`;
+        }
+        window.addEventListener('resize', () => { resizeCanvases(); updatePhysics(); });
+
+        function updatePhysics() {
+            state.phi = parseFloat(phiSlider.value);
+            state.gamma = parseFloat(gammaSlider.value);
+            state.H = parseFloat(hSlider.value);
+            state.movement = parseFloat(moveSlider.value);
+
+            // Update Input Labels
+            valPhi.innerHTML = `${state.phi}&deg;`;
+            valGamma.innerHTML = `${state.gamma.toFixed(1)} kN/m³`;
+            valH.innerHTML = `${state.H.toFixed(1)} m`;
+
+            // Calculate Base Coefficients
+            const sinPhi = Math.sin(state.phi * DEG2RAD);
+            state.Ka = (1 - sinPhi) / (1 + sinPhi);
+            state.Kp = (1 + sinPhi) / (1 - sinPhi);
+            state.K0 = 1 - sinPhi; // Jaky's equation
+
+            valKa.innerHTML = state.Ka.toFixed(3);
+            valK0.innerHTML = state.K0.toFixed(3);
+            valKp.innerHTML = state.Kp.toFixed(3);
+
+            // Determine Current State & K based on Movement
+            // Movement slider: -100 (Active) to 0 (At-Rest) to 100 (Passive)
+            // Realistically, active mobilization needs ~0.1% H movement, Passive needs ~1.0% H.
+            // We map the slider to a normalized interpolation function.
+            
+            let dispPercent = 0;
+
+            if (state.movement < -5) {
+                state.currentState = 'ACTIVE';
+                // Interpolate K from K0 down to Ka
+                // Let -50 on slider be fully active.
+                let activeRatio = Math.min(1.0, Math.abs(state.movement) / 50.0);
+                state.currentK = state.K0 - (state.K0 - state.Ka) * activeRatio;
+                state.alphaPlane = 45 + (state.phi / 2); // Angle with horizontal
+                
+                // Estimate physical displacement (Active requires very little)
+                dispPercent = -(activeRatio * 0.2); 
+                
+            } else if (state.movement > 5) {
+                state.currentState = 'PASSIVE';
+                // Interpolate K from K0 up to Kp
+                // Passive takes more movement to fully mobilize, let 100 on slider be fully passive
+                let passiveRatio = Math.min(1.0, state.movement / 100.0);
+                // Use a non-linear curve for passive pressure buildup
+                state.currentK = state.K0 + (state.Kp - state.K0) * Math.pow(passiveRatio, 1.5);
+                state.alphaPlane = 45 - (state.phi / 2); // Angle with horizontal
+                
+                // Estimate physical displacement (Passive requires more)
+                dispPercent = (passiveRatio * 2.0);
+
+            } else {
+                state.currentState = 'AT-REST';
+                state.currentK = state.K0;
+                dispPercent = 0;
+            }
+
+            // Calculations
+            const maxSigma = state.currentK * state.gamma * state.H;
+            const totalP = 0.5 * maxSigma * state.H;
+
+            // Update UI
+            calcK.innerHTML = state.currentK.toFixed(3);
+            calcSigma.innerHTML = `${maxSigma.toFixed(1)} kPa`;
+            calcP.innerHTML = `${totalP.toFixed(1)} kN/m`;
+            dispValue.innerHTML = `${dispPercent > 0 ? '+' : ''}${dispPercent.toFixed(2)}% H`;
+
+            // Update Indicator Badge
+            if(state.currentState === 'ACTIVE') {
+                stateIndicator.className = "px-3 py-1 rounded font-bold border-2 text-sm uppercase state-active";
+                stateIndicator.innerHTML = "State: Active (Yielding)";
+            } else if (state.currentState === 'PASSIVE') {
+                stateIndicator.className = "px-3 py-1 rounded font-bold border-2 text-sm uppercase state-passive";
+                stateIndicator.innerHTML = "State: Passive (Pushing)";
+            } else {
+                stateIndicator.className = "px-3 py-1 rounded font-bold border-2 text-sm uppercase state-atrest";
+                stateIndicator.innerHTML = "State: At-Rest (Static)";
+            }
+
+            drawSimulation();
+            drawPressureGraph();
+        }
+
+        function drawSimulation() {
+            const width = simCanvas.width / window.devicePixelRatio;
+            const height = simCanvas.height / window.devicePixelRatio;
+            sCtx.clearRect(0, 0, width, height);
+
+            // Coordinates System mapping
+            const groundY = 80; // Moved down to allow room for Passive heave
+            const baseScale = (height - groundY - 40) / 10; // Map max 10m height to pixels
+            const wallH_px = state.H * baseScale;
+            const toeY = groundY + wallH_px;
+            
+            // Wall Center X (when at rest)
+            const wallX_0 = width * 0.40;
+            
+            // Wall displacement visual mapping (exaggerated for visual clarity)
+            const visualDispX = (state.movement / 100) * 45; 
+            const wallX = wallX_0 + visualDispX;
+            const dx = visualDispX;
+
+            if(!soilPattern) soilPattern = generateSoilPattern();
+
+            // Wedge kinematics and deformation boundaries
+            const alphaRad = (state.currentState !== 'AT-REST' ? state.alphaPlane : 45 + state.phi/2) * DEG2RAD;
+            const slipPlaneDX = Math.max(10, wallH_px / Math.tan(alphaRad)); 
+            const surfaceX = wallX_0 + slipPlaneDX;
+            
+            // Calculate surface slump/heave (dy_surface) to visually conserve volume
+            // Active (dx < 0) -> dy_surface > 0 (surface slumps down)
+            // Passive (dx > 0) -> dy_surface < 0 (surface heaves up)
+            let dy_surface = -1.2 * dx * wallH_px / slipPlaneDX;
+
+            // 1. Draw Foundation Base Soil
+            sCtx.fillStyle = soilPattern;
+            sCtx.fillRect(0, toeY, width, height - toeY);
+
+            // 2. Draw Stationary Soil Mass (Right of the slip plane)
+            sCtx.beginPath();
+            sCtx.moveTo(surfaceX, groundY);
+            sCtx.lineTo(width, groundY);
+            sCtx.lineTo(width, toeY);
+            sCtx.lineTo(wallX_0, toeY);
+            sCtx.closePath();
+            sCtx.fill();
+            
+            // Stationary Ground Surface
+            sCtx.beginPath();
+            sCtx.moveTo(surfaceX, groundY);
+            sCtx.lineTo(width, groundY);
+            sCtx.strokeStyle = '#65a30d';
+            sCtx.lineWidth = 2;
+            sCtx.stroke();
+
+            // Slip plane outline (Stationary boundary)
+            if (state.currentState !== 'AT-REST') {
+                sCtx.beginPath();
+                sCtx.moveTo(wallX_0, toeY);
+                sCtx.lineTo(surfaceX, groundY);
+                sCtx.strokeStyle = '#94a3b8';
+                sCtx.lineWidth = 2;
+                sCtx.setLineDash([5, 5]);
+                sCtx.stroke();
+                sCtx.setLineDash([]);
+            }
+
+            // 3. Draw Deforming Moving Wedge
+            sCtx.beginPath();
+            if (dx <= 0) { 
+                // Active or At-Rest (Wedge expands, surface slumps)
+                sCtx.moveTo(wallX, groundY + dy_surface);
+                sCtx.lineTo(surfaceX, groundY);
+                sCtx.lineTo(wallX_0, toeY);
+                sCtx.lineTo(wallX, toeY);
+            } else { 
+                // Passive (Wedge compresses, surface heaves, cut by advancing rigid wall)
+                const y_int = toeY - dx * wallH_px / slipPlaneDX;
+                sCtx.moveTo(wallX, groundY + dy_surface);
+                sCtx.lineTo(surfaceX, groundY);
+                sCtx.lineTo(wallX, Math.max(groundY, y_int)); 
+            }
+            sCtx.closePath();
+
+            // Texture fill
+            sCtx.fillStyle = soilPattern;
+            sCtx.fill();
+
+            // Tint Wedge & Outline based on state
+            if (state.currentState !== 'AT-REST') {
+                sCtx.fillStyle = state.currentState === 'ACTIVE' ? 'rgba(34, 197, 94, 0.25)' : 'rgba(239, 68, 68, 0.25)';
+                sCtx.fill();
+
+                sCtx.strokeStyle = state.currentState === 'ACTIVE' ? '#16a34a' : '#dc2626';
+                sCtx.lineWidth = 2;
+                sCtx.stroke();
+                
+                // Draw slip arrows tracking the deformation
+                const midX = wallX_0 + slipPlaneDX * 0.5;
+                const midY = toeY - wallH_px * 0.5;
+                if(state.currentState === 'ACTIVE') {
+                    drawArrow(sCtx, midX - 5, midY - 5 * Math.tan(alphaRad), midX - 20, midY + 10 * Math.tan(alphaRad), '#16a34a');
+                } else {
+                    drawArrow(sCtx, midX + 15, midY + 15 * Math.tan(alphaRad), midX, midY - 10 * Math.tan(alphaRad), '#dc2626');
+                }
+            }
+
+            // Displaced Ground Surface
+            sCtx.beginPath();
+            sCtx.moveTo(wallX, groundY + dy_surface);
+            sCtx.lineTo(surfaceX, groundY);
+            sCtx.strokeStyle = '#65a30d';
+            sCtx.lineWidth = 2;
+            sCtx.stroke();
+
+            // Alpha Label
+            if (state.currentState !== 'AT-REST') {
+                sCtx.beginPath();
+                sCtx.arc(wallX_0, toeY, 40, 0, -alphaRad, true);
+                sCtx.strokeStyle = '#334155';
+                sCtx.stroke();
+                sCtx.fillStyle = '#1e293b';
+                sCtx.font = 'italic 14px Inter';
+                sCtx.fillText(`\u03B1 = ${state.alphaPlane.toFixed(1)}\u00B0`, wallX_0 + 45, toeY - 15);
+            }
+
+            // 4. Draw Retaining Wall (RIGID Concrete Profile - No Shrinking/Elongating)
+            const wallTopWidth = 15;
+            const wallBaseWidth = 45;
+            const toeExtension = 40;
+            const baseSlabThickness = 25;
+
+            sCtx.beginPath();
+            sCtx.moveTo(wallX, groundY); // Top right ALWAYS remains at original ground level
+            sCtx.lineTo(wallX - wallTopWidth, groundY); // Top left
+            sCtx.lineTo(wallX - wallBaseWidth, toeY); // Front batter
+            sCtx.lineTo(wallX - wallBaseWidth - toeExtension, toeY); // Toe slab top
+            sCtx.lineTo(wallX - wallBaseWidth - toeExtension, toeY + baseSlabThickness); // Toe slab front
+            sCtx.lineTo(wallX, toeY + baseSlabThickness); // Base slab bottom
+            sCtx.closePath();
+
+            // Concrete styling
+            sCtx.fillStyle = '#cbd5e1'; // slate-300
+            sCtx.fill();
+            sCtx.strokeStyle = '#475569';
+            sCtx.lineWidth = 2;
+            sCtx.stroke();
+
+            // Left side ground line
+            sCtx.beginPath();
+            sCtx.moveTo(0, toeY);
+            sCtx.lineTo(wallX - wallBaseWidth - toeExtension, toeY);
+            sCtx.strokeStyle = '#65a30d';
+            sCtx.lineWidth = 2;
+            sCtx.stroke();
+
+            // 5. Draw Earth Pressure Vectors pushing on the wall
+            const arrowColor = state.currentState === 'ACTIVE' ? '#16a34a' : (state.currentState === 'PASSIVE' ? '#dc2626' : '#3b82f6');
+            
+            // Draw arrows distributed along the current effective face height
+            const numArrows = 5;
+            
+            // Pressure acts from the actual soil surface, but is capped at the rigid top of the wall
+            const effectiveTopY = dx <= 0 ? groundY + dy_surface : groundY; 
+            const currentFaceHeight = toeY - effectiveTopY;
+
+            for(let i=1; i<=numArrows; i++) {
+                const yPos = effectiveTopY + (currentFaceHeight / numArrows) * i;
+                const lengthScale = (state.currentK / state.K0) * (i / numArrows) * 50; 
+                
+                sCtx.beginPath();
+                sCtx.moveTo(wallX + lengthScale, yPos);
+                sCtx.lineTo(wallX, yPos);
+                sCtx.strokeStyle = arrowColor;
+                sCtx.lineWidth = 2;
+                sCtx.stroke();
+
+                // Arrow head
+                sCtx.beginPath();
+                sCtx.moveTo(wallX, yPos);
+                sCtx.lineTo(wallX + 6, yPos - 4);
+                sCtx.lineTo(wallX + 6, yPos + 4);
+                sCtx.fillStyle = arrowColor;
+                sCtx.fill();
+            }
+
+            // Mark wall movement master arrow
+            if(visualDispX !== 0) {
+                sCtx.beginPath();
+                const mx = visualDispX < 0 ? wallX - wallBaseWidth - 40 : wallX - wallBaseWidth + 10;
+                const mToX = visualDispX < 0 ? mx - 20 : mx + 20;
+                const my = groundY - 20;
+                
+                sCtx.moveTo(wallX_0 - wallTopWidth/2, my);
+                sCtx.lineTo(mToX, my);
+                sCtx.strokeStyle = '#0f172a';
+                sCtx.lineWidth = 2;
+                sCtx.stroke();
+
+                sCtx.beginPath();
+                sCtx.moveTo(mToX, my);
+                sCtx.lineTo(mToX + (visualDispX < 0 ? 6 : -6), my - 4);
+                sCtx.lineTo(mToX + (visualDispX < 0 ? 6 : -6), my + 4);
+                sCtx.fillStyle = '#0f172a';
+                sCtx.fill();
+            }
+        }
+
+        function drawPressureGraph() {
+            const width = graphCanvas.width / window.devicePixelRatio;
+            const height = graphCanvas.height / window.devicePixelRatio;
+            gCtx.clearRect(0, 0, width, height);
+
+            const padTop = 20, padBot = 20, padLeft = 40, padRight = 20;
+            const graphH = height - padTop - padBot;
+            
+            // Map Depth to Y
+            const mapY = (z) => padTop + (z / state.H) * graphH;
+            
+            // Max possible pressure for scaling X axis (based on Kp_max roughly)
+            const maxKp = (1 + Math.sin(45*DEG2RAD))/(1 - Math.sin(45*DEG2RAD)); // max phi=45
+            const absMaxSigma = maxKp * 22 * 10; // max gamma=22, max H=10
+            
+            // Dynamically adjust scale based on state to ensure it's visible, but keep relative scale
+            // Let's use a scale that accommodates current Kp but shows difference
+            const currentMaxSigma = state.Kp * state.gamma * state.H;
+            const scaleX = (width - padLeft - padRight) / currentMaxSigma;
+
+            const mapX = (sigma) => padLeft + (sigma * scaleX);
+
+            // Axes
+            gCtx.beginPath();
+            // Depth Axis (Y)
+            gCtx.moveTo(padLeft, padTop);
+            gCtx.lineTo(padLeft, padTop + graphH + 10);
+            // Pressure Axis (X) at Top
+            gCtx.moveTo(padLeft - 10, padTop);
+            gCtx.lineTo(width - padRight, padTop);
+            gCtx.strokeStyle = '#64748b';
+            gCtx.lineWidth = 1;
+            gCtx.stroke();
+
+            // Labels
+            gCtx.fillStyle = '#475569';
+            gCtx.font = '10px Inter';
+            gCtx.fillText('Pressure \u03C3h', padLeft + 10, padTop - 5);
+            gCtx.save();
+            gCtx.translate(15, padTop + graphH/2);
+            gCtx.rotate(-Math.PI/2);
+            gCtx.textAlign = 'center';
+            gCtx.fillText('Depth (z)', 0, 0);
+            gCtx.restore();
+
+            // 1. Draw K0 Reference Line (Dashed)
+            const sigma0_base = state.K0 * state.gamma * state.H;
+            gCtx.beginPath();
+            gCtx.moveTo(padLeft, padTop);
+            gCtx.lineTo(mapX(sigma0_base), mapY(state.H));
+            gCtx.lineTo(padLeft, mapY(state.H));
+            gCtx.strokeStyle = '#94a3b8';
+            gCtx.lineWidth = 1.5;
+            gCtx.setLineDash([4, 4]);
+            gCtx.stroke();
+            gCtx.setLineDash([]);
+
+            // 2. Draw Current Pressure Distribution (Triangle)
+            const currentSigmaBase = state.currentK * state.gamma * state.H;
+            const graphColor = state.currentState === 'ACTIVE' ? '#22c55e' : (state.currentState === 'PASSIVE' ? '#ef4444' : '#3b82f6');
+            const graphFill = state.currentState === 'ACTIVE' ? 'rgba(34, 197, 94, 0.2)' : (state.currentState === 'PASSIVE' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(59, 130, 246, 0.2)');
+
+            gCtx.beginPath();
+            gCtx.moveTo(padLeft, padTop); // origin (z=0, p=0)
+            gCtx.lineTo(mapX(currentSigmaBase), mapY(state.H)); // base
+            gCtx.lineTo(padLeft, mapY(state.H)); // back to axis
+            gCtx.closePath();
+            
+            gCtx.fillStyle = graphFill;
+            gCtx.fill();
+            gCtx.strokeStyle = graphColor;
+            gCtx.lineWidth = 2;
+            gCtx.stroke();
+
+            // 3. Draw Resultant Force Vector (P)
+            // Acts at H/3 from base
+            const pHeightY = mapY(state.H * (2/3)); // Distance from top is 2/3 H
+            const pX = mapX(currentSigmaBase * (2/3));
+
+            gCtx.beginPath();
+            gCtx.moveTo(pX + 30, pHeightY);
+            gCtx.lineTo(padLeft, pHeightY);
+            gCtx.strokeStyle = graphColor;
+            gCtx.lineWidth = 3;
+            gCtx.stroke();
+
+            // Arrow head for P
+            gCtx.beginPath();
+            gCtx.moveTo(padLeft, pHeightY);
+            gCtx.lineTo(padLeft + 8, pHeightY - 5);
+            gCtx.lineTo(padLeft + 8, pHeightY + 5);
+            gCtx.fillStyle = graphColor;
+            gCtx.fill();
+
+            // Label P
+            gCtx.fillStyle = '#0f172a';
+            gCtx.font = 'bold 12px Inter';
+            gCtx.fillText('P', pX + 35, pHeightY + 4);
+            
+            // Mark H/3 dimension
+            gCtx.beginPath();
+            gCtx.moveTo(padLeft - 5, pHeightY);
+            gCtx.lineTo(padLeft - 15, pHeightY);
+            gCtx.moveTo(padLeft - 5, mapY(state.H));
+            gCtx.lineTo(padLeft - 15, mapY(state.H));
+            gCtx.moveTo(padLeft - 10, pHeightY);
+            gCtx.lineTo(padLeft - 10, mapY(state.H));
+            gCtx.strokeStyle = '#64748b';
+            gCtx.lineWidth = 1;
+            gCtx.stroke();
+            
+            gCtx.save();
+            gCtx.translate(padLeft - 20, mapY(state.H * (5/6)));
+            gCtx.rotate(-Math.PI/2);
+            gCtx.fillStyle = '#64748b';
+            gCtx.font = '10px Inter';
+            gCtx.textAlign = 'center';
+            gCtx.fillText('H/3', 0, 0);
+            gCtx.restore();
+
+            // Base value text
+            gCtx.fillStyle = graphColor;
+            gCtx.font = 'bold 11px mono';
+            gCtx.textAlign = 'left';
+            gCtx.fillText(currentSigmaBase.toFixed(1), mapX(currentSigmaBase) + 5, mapY(state.H));
+        }
+
+        // Utility Arrow Function
+        function drawArrow(ctx, fromx, fromy, tox, toy, color) {
+            const headlen = 8; // length of head in pixels
+            const dx = tox - fromx;
+            const dy = toy - fromy;
+            const angle = Math.atan2(dy, dx);
+            
+            ctx.beginPath();
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        // Event Listeners
+        phiSlider.addEventListener('input', () => { materialSelect.value = 'custom'; updatePhysics(); });
+        gammaSlider.addEventListener('input', () => { materialSelect.value = 'custom'; updatePhysics(); });
+        hSlider.addEventListener('input', updatePhysics);
+        moveSlider.addEventListener('input', updatePhysics);
+
+        materialSelect.addEventListener('change', (e) => {
+            if(e.target.value !== 'custom') {
+                const data = materialData[e.target.value];
+                phiSlider.value = data.phi;
+                gammaSlider.value = data.gamma;
+                updatePhysics();
+            }
+        });
+
+        // Double click slider to snap to center (At-Rest)
+        moveSlider.addEventListener('dblclick', () => {
+            moveSlider.value = 0;
+            updatePhysics();
+        });
+
+        // Initialize
+        resizeCanvases();
+        updatePhysics();
+    </script>
+</body>
+</html>

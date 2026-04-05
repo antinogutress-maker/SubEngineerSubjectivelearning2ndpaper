@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terzaghi's Effective Stress Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=KaTeX_Math:ital@1&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .math {
+            font-family: 'KaTeX_Math', serif;
+            font-style: italic;
+        }
+
+        .slider-custom {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #cbd5e1;
+            outline: none;
+        }
+
+        .slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0f172a;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .slider-custom::-webkit-slider-thumb:hover {
+            background: #334155;
+            transform: scale(1.1);
+        }
+
+        /* Specific thumb colors for different controls */
+        #wtSlider::-webkit-slider-thumb { background: #3b82f6; }
+        #zSlider::-webkit-slider-thumb { background: #ef4444; }
+
+        canvas {
+            background: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <header class="text-center space-y-2">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">Terzaghi's Principle of Effective Stress</h1>
+            <p class="text-slate-600 font-medium text-lg">Interactive Stress Distribution Simulation</p>
+        </header>
+
+        <!-- Simulation Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            <!-- Controls (Left Column) -->
+            <div class="lg:col-span-1 glass-panel rounded-xl p-5 flex flex-col space-y-6">
+                <h2 class="font-semibold text-lg border-b pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    Parameters
+                </h2>
+                
+                <!-- Water Table Slider -->
+                <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                    <div class="flex justify-between text-sm mb-2">
+                        <label class="font-bold text-blue-900">Water Table Depth (<span class="math">z_w</span>)</label>
+                        <span id="wtValue" class="font-bold text-blue-600">4.0 m</span>
+                    </div>
+                    <input type="range" id="wtSlider" min="0" max="10" step="0.1" value="4.0" class="slider-custom">
+                </div>
+
+                <!-- Dry Unit Weight -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Dry Unit Wt. (<span class="math">&gamma;_d</span>)</label>
+                        <span id="gdValue" class="font-bold text-slate-600">16 kN/m³</span>
+                    </div>
+                    <input type="range" id="gdSlider" min="14" max="19" step="0.5" value="16" class="slider-custom">
+                </div>
+
+                <!-- Sat Unit Weight -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Sat Unit Wt. (<span class="math">&gamma;_{sat}</span>)</label>
+                        <span id="gsatValue" class="font-bold text-slate-600">20 kN/m³</span>
+                    </div>
+                    <input type="range" id="gsatSlider" min="18" max="23" step="0.5" value="20" class="slider-custom">
+                </div>
+
+                <!-- Inspection Depth -->
+                <div class="bg-red-50 p-3 rounded-lg border border-red-100 mt-4">
+                    <div class="flex justify-between text-sm mb-2">
+                        <label class="font-bold text-red-900">Inspection Depth (<span class="math">Z</span>)</label>
+                        <span id="zValue" class="font-bold text-red-600">8.0 m</span>
+                    </div>
+                    <input type="range" id="zSlider" min="0" max="10" step="0.1" value="8.0" class="slider-custom">
+                </div>
+                
+                <div class="text-xs text-slate-500 mt-auto bg-slate-100 p-2 rounded">
+                    Unit weight of water (<span class="math">&gamma;_w</span>) is taken as 9.81 kN/m³.
+                </div>
+            </div>
+
+            <!-- Canvas Area (Takes up 3 columns) -->
+            <div class="lg:col-span-3 glass-panel rounded-xl p-4 flex flex-col">
+                <!-- Live Data Dashboard (Horizontal) -->
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-center">
+                        <div class="text-xs font-bold text-slate-500 uppercase">Total Stress (<span class="math">&sigma;</span>)</div>
+                        <div id="valSigma" class="text-xl font-bold text-slate-800">0.00 kPa</div>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 text-center">
+                        <div class="text-xs font-bold text-blue-500 uppercase">Pore Pressure (<span class="math">u</span>)</div>
+                        <div id="valU" class="text-xl font-bold text-blue-700">0.00 kPa</div>
+                    </div>
+                    <div class="bg-red-50 p-3 rounded-lg border border-red-200 text-center relative overflow-hidden">
+                        <div class="absolute inset-y-0 left-0 w-1 bg-red-500"></div>
+                        <div class="text-xs font-bold text-red-500 uppercase">Effective Stress (<span class="math">&sigma;'</span>)</div>
+                        <div id="valEff" class="text-xl font-bold text-red-700">0.00 kPa</div>
+                    </div>
+                </div>
+
+                <div class="relative w-full flex-grow min-h-[400px]" id="canvasContainer">
+                    <canvas id="simCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loksewa Theory Section -->
+        <div class="glass-panel rounded-xl p-6 md:p-8 border-l-4 border-l-blue-600">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-slate-900">Terzaghi's Principle of Effective Stress</h2>
+                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded border border-amber-200">Loksewa Format: 5 Marks</span>
+            </div>
+            
+            <div class="space-y-4 text-slate-700">
+                <p><strong>1. Principle / Definition (1 Mark):</strong></p>
+                <p class="pl-4">Terzaghi's principle states that the total stress (<span class="math">&sigma;</span>) at any point within a saturated soil mass is made up of two distinct parts: the effective stress (<span class="math">&sigma;'</span>) carried by the soil skeleton through particle-to-particle contact, and the pore water pressure (<span class="math">u</span>) carried by the water in the continuous void spaces.</p>
+
+                <p><strong>2. Mathematical Equation (1 Mark):</strong></p>
+                <div class="pl-4">
+                    <div class="bg-slate-50 p-3 rounded border border-slate-200 inline-block font-medium text-lg">
+                        <span class="math">&sigma; = &sigma;' + u</span> &nbsp; &implies; &nbsp; <span class="math text-blue-700">&sigma;' = &sigma; - u</span>
+                    </div>
+                </div>
+
+                <p><strong>3. Physical Significance of Effective Stress (1.5 Marks):</strong></p>
+                <ul class="list-disc pl-9 space-y-1">
+                    <li>Effective stress (<span class="math">&sigma;'</span>) is not a physical force that can be measured directly; it is an abstract calculated quantity.</li>
+                    <li>It represents the true stress that dictates the physical behavior of the soil.</li>
+                    <li>Water cannot resist shear stress. Therefore, pore water pressure (<span class="math">u</span>) acts hydrostatically and equally in all directions, having no effect on the arrangement of soil particles.</li>
+                </ul>
+
+                <p><strong>4. Engineering Applications (1.5 Marks):</strong></p>
+                <ul class="list-disc pl-9 space-y-1">
+                    <li><strong>Shear Strength:</strong> The shear strength of soil (<span class="math">&tau;</span>) is directly proportional to the effective stress, not total stress (<span class="math">&tau; = c' + &sigma;' \tan &phi;'</span>). A decrease in effective stress (e.g., due to rising water table) reduces soil stability.</li>
+                    <li><strong>Consolidation:</strong> All measurable compression (settlement) in soils is caused exclusively by changes in effective stress.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // DOM Elements
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvasContainer');
+        
+        // Inputs
+        const wtSlider = document.getElementById('wtSlider');
+        const gdSlider = document.getElementById('gdSlider');
+        const gsatSlider = document.getElementById('gsatSlider');
+        const zSlider = document.getElementById('zSlider');
+        
+        // Text Outputs
+        const wtValue = document.getElementById('wtValue');
+        const gdValue = document.getElementById('gdValue');
+        const gsatValue = document.getElementById('gsatValue');
+        const zValue = document.getElementById('zValue');
+        
+        const valSigma = document.getElementById('valSigma');
+        const valU = document.getElementById('valU');
+        const valEff = document.getElementById('valEff');
+
+        // Constants
+        const GAMMA_W = 9.81;
+        const TOTAL_DEPTH = 10.0; // max depth in meters
+
+        // State
+        let state = {
+            zw: parseFloat(wtSlider.value),
+            gd: parseFloat(gdSlider.value),
+            gsat: parseFloat(gsatSlider.value),
+            z_inspect: parseFloat(zSlider.value),
+            animOffset: 0
+        };
+
+        // Resize Canvas
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            canvas.style.width = `${rect.width}px`;
+            canvas.style.height = `${rect.height}px`;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Calculate stresses at a given depth
+        function calcStresses(z, zw, gd, gsat) {
+            let sigma = 0;
+            let u = 0;
+            
+            if (z <= zw) {
+                sigma = gd * z;
+                u = 0;
+            } else {
+                sigma = (gd * zw) + (gsat * (z - zw));
+                u = GAMMA_W * (z - zw);
+            }
+            
+            let sigma_prime = sigma - u;
+            return { sigma, u, sigma_prime };
+        }
+
+        function updateState() {
+            state.zw = parseFloat(wtSlider.value);
+            state.gd = parseFloat(gdSlider.value);
+            state.gsat = parseFloat(gsatSlider.value);
+            state.z_inspect = parseFloat(zSlider.value);
+
+            // Update UI Labels
+            wtValue.innerHTML = `${state.zw.toFixed(1)} m`;
+            gdValue.innerHTML = `${state.gd.toFixed(1)} kN/m³`;
+            gsatValue.innerHTML = `${state.gsat.toFixed(1)} kN/m³`;
+            zValue.innerHTML = `${state.z_inspect.toFixed(1)} m`;
+
+            // Calculate values for dashboard
+            let inspectVals = calcStresses(state.z_inspect, state.zw, state.gd, state.gsat);
+            
+            valSigma.innerHTML = `${inspectVals.sigma.toFixed(1)} kPa`;
+            valU.innerHTML = `${inspectVals.u.toFixed(1)} kPa`;
+            valEff.innerHTML = `${inspectVals.sigma_prime.toFixed(1)} kPa`;
+        }
+
+        // Utility to draw stress diagram polygon
+        function drawStressDiagram(ctx, xStart, yTop, maxWidth, totalHeight, nodes, fillColor, strokeColor, maxStress) {
+            ctx.beginPath();
+            ctx.moveTo(xStart, yTop);
+            
+            nodes.forEach(node => {
+                let x = xStart + (node.val / maxStress) * maxWidth;
+                let y = yTop + (node.depth / TOTAL_DEPTH) * totalHeight;
+                ctx.lineTo(x, y);
+            });
+            
+            ctx.lineTo(xStart, yTop + totalHeight);
+            ctx.closePath();
+            
+            ctx.fillStyle = fillColor;
+            ctx.fill();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw axis line
+            ctx.beginPath();
+            ctx.moveTo(xStart, yTop);
+            ctx.lineTo(xStart, yTop + totalHeight + 10);
+            ctx.strokeStyle = '#94a3b8'; // slate-400
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        function draw() {
+            const width = canvas.width / window.devicePixelRatio;
+            const height = canvas.height / window.devicePixelRatio;
+            
+            ctx.clearRect(0, 0, width, height);
+
+            // Layout dimensions
+            const padding = 30;
+            const yTop = padding + 20;
+            const yBot = height - padding - 40;
+            const depthHeight = yBot - yTop;
+            
+            // Width distribution
+            const usableWidth = width - (padding * 2);
+            const profileW = usableWidth * 0.15;
+            const graphSpacing = usableWidth * 0.05;
+            const scaleWidth = (usableWidth - profileW - (graphSpacing * 3)) / 3;
+
+            const xProfile = padding;
+            const xSigma = xProfile + profileW + graphSpacing;
+            const xU = xSigma + scaleWidth + graphSpacing;
+            const xEff = xU + scaleWidth + graphSpacing;
+
+            // --- 1. Draw Soil Profile ---
+            let wtY = yTop + (state.zw / TOTAL_DEPTH) * depthHeight;
+            
+            // Above WT (Dry/Moist soil)
+            ctx.fillStyle = '#fde68a'; // amber-200
+            ctx.fillRect(xProfile, yTop, profileW, wtY - yTop);
+            
+            // Below WT (Saturated soil)
+            ctx.fillStyle = '#b45309'; // amber-700
+            ctx.fillRect(xProfile, wtY, profileW, yBot - wtY);
+            
+            // Water table blue overlay
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.3)'; // blue-500 transparent
+            ctx.fillRect(xProfile, wtY, profileW, yBot - wtY);
+
+            // Ground Surface Line
+            ctx.beginPath();
+            ctx.moveTo(xProfile - 10, yTop);
+            ctx.lineTo(xProfile + profileW + 10, yTop);
+            ctx.strokeStyle = '#65a30d'; // green-600
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Water Table Symbol
+            if (state.zw < TOTAL_DEPTH) {
+                ctx.beginPath();
+                ctx.moveTo(xProfile + profileW/2 - 10, wtY);
+                ctx.lineTo(xProfile + profileW/2 + 10, wtY);
+                ctx.lineTo(xProfile + profileW/2, wtY + 10);
+                ctx.closePath();
+                ctx.fillStyle = '#3b82f6';
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(xProfile - 10, wtY);
+                ctx.lineTo(xProfile + profileW + 10, wtY);
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Depth Scale Text (Left of profile)
+            ctx.fillStyle = '#64748b';
+            ctx.font = '12px Inter';
+            ctx.textAlign = 'right';
+            ctx.fillText('0 m', xProfile - 15, yTop + 4);
+            ctx.fillText('10 m', xProfile - 15, yBot + 4);
+
+            // Calculate Max Stress for Scaling
+            let maxVals = calcStresses(TOTAL_DEPTH, state.zw, state.gd, state.gsat);
+            let absMaxStress = maxVals.sigma; // Total stress is always the largest
+
+            // Calculate nodes for graphs
+            let nodeWT = calcStresses(state.zw, state.zw, state.gd, state.gsat);
+            let nodeBot = calcStresses(TOTAL_DEPTH, state.zw, state.gd, state.gsat);
+            
+            // --- 2. Draw Stress Diagrams ---
+            // A. Total Stress (Sigma)
+            let sigNodes = [
+                {depth: 0, val: 0},
+                {depth: state.zw, val: nodeWT.sigma},
+                {depth: TOTAL_DEPTH, val: nodeBot.sigma}
+            ];
+            drawStressDiagram(ctx, xSigma, yTop, scaleWidth, depthHeight, sigNodes, 'rgba(71, 85, 105, 0.1)', '#475569', absMaxStress);
+            
+            // B. Pore Water Pressure (u)
+            let uNodes = [
+                {depth: 0, val: 0},
+                {depth: state.zw, val: 0}, // u is 0 up to WT
+                {depth: TOTAL_DEPTH, val: nodeBot.u}
+            ];
+            drawStressDiagram(ctx, xU, yTop, scaleWidth, depthHeight, uNodes, 'rgba(59, 130, 246, 0.1)', '#3b82f6', absMaxStress);
+            
+            // C. Effective Stress (Sigma')
+            let effNodes = [
+                {depth: 0, val: 0},
+                {depth: state.zw, val: nodeWT.sigma_prime},
+                {depth: TOTAL_DEPTH, val: nodeBot.sigma_prime}
+            ];
+            drawStressDiagram(ctx, xEff, yTop, scaleWidth, depthHeight, effNodes, 'rgba(239, 68, 68, 0.1)', '#ef4444', absMaxStress);
+
+            // --- 3. Draw Inspection Depth Line ---
+            let inspectY = yTop + (state.z_inspect / TOTAL_DEPTH) * depthHeight;
+            
+            ctx.beginPath();
+            ctx.moveTo(xProfile - 20, inspectY);
+            ctx.lineTo(width - padding, inspectY);
+            ctx.strokeStyle = '#ef4444'; // Red line
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([8, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Target indicators on the line
+            [xProfile + profileW/2, xSigma, xU, xEff].forEach((cx, idx) => {
+                let currentVal = 0;
+                let valsAtZ = calcStresses(state.z_inspect, state.zw, state.gd, state.gsat);
+                if(idx === 1) currentVal = valsAtZ.sigma;
+                if(idx === 2) currentVal = valsAtZ.u;
+                if(idx === 3) currentVal = valsAtZ.sigma_prime;
+                
+                let plotX = cx;
+                if(idx > 0) plotX = cx + (currentVal / absMaxStress) * scaleWidth;
+
+                ctx.beginPath();
+                ctx.arc(plotX, inspectY, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#ef4444';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // Annotations for diagrams (Bottom)
+            ctx.fillStyle = '#1e293b';
+            ctx.font = 'bold 14px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('Total (\u03C3)', xSigma + scaleWidth/2, yBot + 25);
+            ctx.fillText('Pore (u)', xU + scaleWidth/2, yBot + 25);
+            ctx.fillText('Effective (\u03C3\')', xEff + scaleWidth/2, yBot + 25);
+
+            // Dynamic water animation (Waves on water table)
+            state.animOffset -= 0.5;
+            if(state.animOffset <= -20) state.animOffset = 0;
+            
+            // Only animate if water table is not at bottom or top
+            if(state.zw < TOTAL_DEPTH && state.zw > 0) {
+                ctx.beginPath();
+                for(let x = xProfile; x < xProfile + profileW; x+=5) {
+                    let y = wtY + Math.sin((x + state.animOffset) * 0.5) * 2;
+                    if(x === xProfile) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.strokeStyle = '#60a5fa';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // Event Listeners
+        wtSlider.addEventListener('input', updateState);
+        gdSlider.addEventListener('input', updateState);
+        gsatSlider.addEventListener('input', updateState);
+        zSlider.addEventListener('input', updateState);
+
+        // Init
+        resizeCanvas();
+        updateState();
+        draw();
+    </script>
+</body>
+</html>

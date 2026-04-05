@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RC Beam Section Simulator: Singly & Doubly Reinforced Analysis</title>
+    <style>
+        :root {
+            /* Structural Variables (Updated by JS) */
+            --load-ratio: 0.5; /* 0 to 1 */
+            --xu: 120; /* Neutral Axis depth in px (Ranges ~60 to 180) */
+            --xu-scale: 1.2; 
+            --nu-y: 160px; /* 40 (top cover) + xu */
+            --cy-px: 90.4px; /* 40 + 0.42*xu */
+            --strain-bot-w: 106.6px;
+            --strain-bot-scale: 1.6;
+            --strain-sc-w: 53.3px; /* For doubly reinforced top steel */
+            
+            /* Thematic Variables (Dark Mode 2.0) */
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-blue-glow: rgba(88, 166, 255, 0.4);
+            --accent-red: #f85149;
+            --accent-red-glow: rgba(248, 81, 73, 0.4);
+            --accent-green: #3fb950;
+            --accent-cyan: #00b5d8;
+            --accent-yellow: #d29922;
+
+            /* Physics Animation Beziers */
+            --spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --smooth-easing: cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .control-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 0 15px var(--accent-blue-glow);
+            transition: transform 0.2s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: var(--border-color);
+            border-radius: 2px;
+        }
+
+        .status-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: "JetBrains Mono", "Courier New", monospace;
+        }
+
+        .status-value.under { color: var(--accent-blue); }
+        .status-value.balanced { color: var(--accent-green); }
+        .status-value.over { color: var(--accent-red); }
+
+        .diagram-section {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .diagram-title {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+            z-index: 10;
+        }
+
+        .svg-container {
+            width: 100%;
+            height: auto;
+            margin-top: 2rem;
+            background: radial-gradient(circle at center, #1c2128 0%, #0d1117 100%);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Physics Animations applied via CSS Custom Properties */
+        .dynamic-nu-y {
+            transform: translateY(var(--nu-y));
+            transition: transform 0.6s var(--spring-easing);
+        }
+
+        .dynamic-cy {
+            transform: translateY(var(--cy-px));
+            transition: transform 0.6s var(--spring-easing);
+        }
+
+        .dynamic-xu-scale {
+            transform-origin: 0 0;
+            transform: scaleY(var(--xu-scale));
+            transition: transform 0.6s var(--spring-easing);
+        }
+
+        .dynamic-strain-bot {
+            transform-origin: 0 100px;
+            transform: scaleY(var(--strain-bot-scale));
+            transition: transform 0.6s var(--spring-easing);
+        }
+
+        .dynamic-strain-bot-path {
+            /* Width controlled by JS to keep diagonal straight */
+            transition: d 0.6s var(--spring-easing);
+        }
+
+        .explanation {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .explanation h2 {
+            margin-bottom: 1rem;
+            color: #fff;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .explanation h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-blue);
+        }
+
+        .explanation p {
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .explanation ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .explanation li {
+            margin-bottom: 0.5rem;
+        }
+
+        .math-symbol {
+            font-family: "Georgia", serif;
+            font-style: italic;
+            background: rgba(255,255,255,0.05);
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+        
+        sub {
+            font-size: 0.7em;
+            vertical-align: sub;
+        }
+
+        /* Custom SVG Text Formatting */
+        .svg-label { fill: var(--text-main); font-family: "Georgia", serif; font-size: 14px; }
+        .svg-math { fill: #fff; font-family: "Georgia", serif; font-style: italic; font-size: 16px; }
+        .svg-sub { font-size: 10px; baseline-shift: sub; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <header>
+        <h1>RC Beam Section Analysis</h1>
+        <p>Limit State Method Simulator - Structural Engineering Mechanics</p>
+    </header>
+
+    <div class="control-panel">
+        <div class="slider-group">
+            <div class="slider-header">
+                <span>Slider 👉 </span>
+                <span id="load-display">50%</span>
+            </div>
+            <input type="range" id="load-slider" min="10" max="100" value="50">
+        </div>
+        
+        <div class="status-display">
+            <div class="status-item">
+                <span class="status-label">Neutral Axis (x<sub>u</sub>)</span>
+                <span class="status-value" id="val-xu">120 mm</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Steel Strain (&epsilon;<sub>st</sub>)</span>
+                <span class="status-value" id="val-strain">0.00467</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Failure Mode State</span>
+                <span class="status-value balanced" id="val-mode">Under-Reinforced</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="diagram-section">
+        <div class="diagram-title">Singly Reinforced Section</div>
+        <svg class="svg-container" viewBox="0 0 1050 450" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="concrete-tex" patternUnits="userSpaceOnUse" width="40" height="40">
+                    <path d="M 0 0 L 40 0 L 40 40 L 0 40 Z" fill="#2d3748" />
+                    <path d="M5 5 Q 10 2 15 6 T 25 5 Q 22 10 18 12 T 5 5 Z" fill="#1a202c" opacity="0.5"/>
+                    <path d="M30 20 C 32 18 35 22 38 19 C 39 25 32 26 30 20 Z" fill="#4a5568" opacity="0.6"/>
+                    <path d="M10 30 Q 14 28 16 32 T 10 35 Z" fill="#1a202c" opacity="0.7"/>
+                    <path d="M 20 20 L 22 22 M 10 10 L 11 12 M 35 35 L 37 36" stroke="#4a5568" stroke-width="1.5" fill="none"/>
+                </pattern>
+                
+                <linearGradient id="conc-light" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+                    <stop offset="100%" stop-color="#000000" stop-opacity="0.5"/>
+                </linearGradient>
+
+                <radialGradient id="rebar-grad" cx="35%" cy="30%" r="60%">
+                    <stop offset="0%" stop-color="#e2e8f0"/>
+                    <stop offset="40%" stop-color="#718096"/>
+                    <stop offset="100%" stop-color="#1a202c"/>
+                </radialGradient>
+
+                <linearGradient id="comp-grad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="rgba(49, 130, 206, 0.2)"/>
+                    <stop offset="100%" stop-color="rgba(49, 130, 206, 0.7)"/>
+                </linearGradient>
+                <linearGradient id="tens-grad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="rgba(229, 62, 62, 0.2)"/>
+                    <stop offset="100%" stop-color="rgba(229, 62, 62, 0.7)"/>
+                </linearGradient>
+
+                <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+                    <feDropShadow dx="4" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.6"/>
+                </filter>
+
+                <marker id="arrow-blue" viewBox="0 0 10 10" refX="2" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 Z" fill="var(--accent-blue)"/>
+                </marker>
+                <marker id="arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 Z" fill="var(--accent-red)"/>
+                </marker>
+            </defs>
+
+            <path d="M 120 30 L 280 30" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="4 4" />
+            <text x="200" y="25" text-anchor="middle" class="svg-label" fill="var(--text-muted)">CROSS SECTION</text>
+            <text x="550" y="25" text-anchor="middle" class="svg-label" fill="var(--text-muted)">STRAIN DIAGRAM</text>
+            <text x="900" y="25" text-anchor="middle" class="svg-label" fill="var(--text-muted)">STRESS DIAGRAM</text>
+
+            <g transform="translate(120, 50)">
+                <path d="M 0 0 L 160 0 L 160 340 L 0 340 Z" fill="url(#concrete-tex)" filter="url(#shadow)"/>
+                <path d="M 0 0 L 160 0 L 160 340 L 0 340 Z" fill="url(#conc-light)"/>
+                <path d="M 0 0 L 4 4 L 4 336 L 0 340 Z" fill="#ffffff" opacity="0.3"/>
+                <path d="M -30 0 L 190 0" class="dynamic-nu-y" stroke="#f6e05e" stroke-width="2" stroke-dasharray="8 4"/>
+                
+                <g filter="url(#shadow)">
+                    <path d="M 40 288 C 46.6 288 52 293.4 52 300 C 52 306.6 46.6 312 40 312 C 33.4 312 28 306.6 28 300 C 28 293.4 33.4 288 40 288 Z" fill="url(#rebar-grad)"/>
+                    <path d="M 80 288 C 86.6 288 92 293.4 92 300 C 92 306.6 86.6 312 80 312 C 73.4 312 68 306.6 68 300 C 68 293.4 73.4 288 80 288 Z" fill="url(#rebar-grad)"/>
+                    <path d="M 120 288 C 126.6 288 132 293.4 132 300 C 132 306.6 126.6 312 120 312 C 113.4 312 108 306.6 108 300 C 108 293.4 113.4 288 120 288 Z" fill="url(#rebar-grad)"/>
+                </g>
+
+                <path d="M -15 0 L -15 340 M -20 0 L -10 0 M -20 340 L -10 340" stroke="#8b949e" stroke-width="1.5"/>
+                <text x="-25" y="170" text-anchor="end" class="svg-math">D</text>
+                
+                <path d="M 175 0 L 175 300 M 170 0 L 180 0 M 170 300 L 180 300" stroke="#8b949e" stroke-width="1.5"/>
+                <text x="185" y="150" class="svg-math">d</text>
+                
+                <path d="M 0 -15 L 160 -15 M 0 -20 L 0 -10 M 160 -20 L 160 -10" stroke="#8b949e" stroke-width="1.5"/>
+                <text x="80" y="-25" text-anchor="middle" class="svg-math">b</text>
+
+                <text x="80" y="335" text-anchor="middle" class="svg-math">A<tspan class="svg-sub">st</tspan></text>
+            </g>
+
+            <g transform="translate(550, 50)">
+                <path d="M 0 0 L 0 340" stroke="#4a5568" stroke-width="2"/>
+                <path d="M -50 0 L 120 0" class="dynamic-nu-y" stroke="#f6e05e" stroke-width="2" stroke-dasharray="8 4"/>
+
+                <path d="M 0 0 L 80 0 L 0 100 Z" class="dynamic-xu-scale" fill="var(--accent-blue-glow)" stroke="var(--accent-blue)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+                <text x="85" y="-10" class="svg-math">0.0035</text>
+                <path d="M 0 0 L 80 0" stroke="var(--accent-blue)" stroke-width="3"/>
+
+                <g transform="translate(0, 300)">
+                    <path id="strain-tension-path-1" d="M 0 0 L -80 0 L 0 -100 Z" fill="var(--accent-red-glow)" stroke="var(--accent-red)" stroke-width="1.5" class="dynamic-strain-bot-path"/>
+                    <text id="strain-tension-text-1" x="-85" y="20" text-anchor="end" class="svg-math">&epsilon;<tspan class="svg-sub">st</tspan></text>
+                    <path id="strain-tension-line-1" d="M 0 0 L -80 0" stroke="var(--accent-red)" stroke-width="3" class="dynamic-strain-bot-path"/>
+                </g>
+
+                <path class="dynamic-nu-y" d="M -25 -100 L -25 0 M -30 0 L -20 0" stroke="#8b949e" stroke-width="1.5" id="xu-dim-line-1"/>
+                <path d="M -30 0 L -20 0" stroke="#8b949e" stroke-width="1.5"/>
+                <text x="-35" y="60" text-anchor="end" class="svg-math">x<tspan class="svg-sub">u</tspan></text>
+            </g>
+
+            <g transform="translate(850, 50)">
+                <path d="M 0 0 L 0 340" stroke="#4a5568" stroke-width="2"/>
+                <path d="M -120 0 L 50 0" class="dynamic-nu-y" stroke="#f6e05e" stroke-width="2" stroke-dasharray="8 4"/>
+
+                <g class="dynamic-xu-scale" fill="url(#comp-grad)" stroke="var(--accent-blue)" stroke-width="1.5" vector-effect="non-scaling-stroke">
+                    <path d="M 0 0 L 80 0 L 80 42.85 L 0 42.85 Z" />
+                    <path d="M 0 42.85 L 80 42.85 Q 80 100 0 100 Z" />
+                </g>
+                <text x="85" y="-10" class="svg-math">0.45f<tspan class="svg-sub">ck</tspan></text>
+
+                <g class="dynamic-cy">
+                    <path d="M 120 0 L 20 0" stroke="var(--accent-blue)" stroke-width="4" marker-end="url(#arrow-blue)"/>
+                    <text x="130" y="5" class="svg-math" fill="var(--accent-blue)">C</text>
+                </g>
+
+                <g transform="translate(0, 300)">
+                    <path d="M 0 0 L 100 0" stroke="var(--accent-red)" stroke-width="4" marker-end="url(#arrow-red)"/>
+                    <text x="110" y="5" class="svg-math" fill="var(--accent-red)">T = 0.87f<tspan class="svg-sub">y</tspan>A<tspan class="svg-sub">st</tspan></text>
+                    <text x="-85" y="20" text-anchor="end" class="svg-math" fill="var(--text-muted)">0.87f<tspan class="svg-sub">y</tspan></text>
+                    <path d="M 0 -5 L -80 -5 L -80 5 L 0 5 Z" fill="var(--accent-red-glow)" stroke="var(--accent-red)"/>
+                </g>
+            </g>
+        </svg>
+    </div>
+
+    <div class="diagram-section">
+        <div class="diagram-title">Doubly Reinforced Section</div>
+        <svg class="svg-container" viewBox="0 0 1050 450" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 120 30 L 280 30" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="4 4" />
+            
+            <g transform="translate(120, 50)">
+                <path d="M 0 0 L 160 0 L 160 340 L 0 340 Z" fill="url(#concrete-tex)" filter="url(#shadow)"/>
+                <path d="M 0 0 L 160 0 L 160 340 L 0 340 Z" fill="url(#conc-light)"/>
+                <path d="M 0 0 L 4 4 L 4 336 L 0 340 Z" fill="#ffffff" opacity="0.3"/>
+                <path d="M -30 0 L 190 0" class="dynamic-nu-y" stroke="#f6e05e" stroke-width="2" stroke-dasharray="8 4"/>
+                
+                <g filter="url(#shadow)">
+                    <path d="M 40 288 C 46.6 288 52 293.4 52 300 C 52 306.6 46.6 312 40 312 C 33.4 312 28 306.6 28 300 C 28 293.4 33.4 288 40 288 Z" fill="url(#rebar-grad)"/>
+                    <path d="M 80 288 C 86.6 288 92 293.4 92 300 C 92 306.6 86.6 312 80 312 C 73.4 312 68 306.6 68 300 C 68 293.4 73.4 288 80 288 Z" fill="url(#rebar-grad)"/>
+                    <path d="M 120 288 C 126.6 288 132 293.4 132 300 C 132 306.6 126.6 312 120 312 C 113.4 312 108 306.6 108 300 C 108 293.4 113.4 288 120 288 Z" fill="url(#rebar-grad)"/>
+                    
+                    <path d="M 50 30 C 55.5 30 60 34.5 60 40 C 60 45.5 55.5 50 50 50 C 44.5 50 40 45.5 40 40 C 40 34.5 44.5 30 50 30 Z" fill="url(#rebar-grad)"/>
+                    <path d="M 110 30 C 115.5 30 120 34.5 120 40 C 120 45.5 115.5 50 110 50 C 104.5 50 100 45.5 100 40 C 100 34.5 104.5 30 110 30 Z" fill="url(#rebar-grad)"/>
+                </g>
+
+                <text x="80" y="335" text-anchor="middle" class="svg-math">A<tspan class="svg-sub">st</tspan></text>
+                <text x="80" y="25" text-anchor="middle" class="svg-math">A<tspan class="svg-sub">sc</tspan></text>
+                
+                <path d="M 175 0 L 175 40 M 170 0 L 180 0 M 170 40 L 180 40" stroke="#8b949e" stroke-width="1.5"/>
+                <text x="185" y="25" class="svg-math">d'</text>
+            </g>
+
+            <g transform="translate(550, 50)">
+                <path d="M 0 0 L 0 340" stroke="#4a5568" stroke-width="2"/>
+                <path d="M -50 0 L 120 0" class="dynamic-nu-y" stroke="#f6e05e" stroke-width="2" stroke-dasharray="8 4"/>
+
+                <path d="M 0 0 L 80 0 L 0 100 Z" class="dynamic-xu-scale" fill="var(--accent-blue-glow)" stroke="var(--accent-blue)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+                
+                <g transform="translate(0, 300)">
+                    <path id="strain-tension-path-2" d="M 0 0 L -80 0 L 0 -100 Z" fill="var(--accent-red-glow)" stroke="var(--accent-red)" stroke-width="1.5" class="dynamic-strain-bot-path"/>
+                    <text id="strain-tension-text-2" x="-85" y="20" text-anchor="end" class="svg-math">&epsilon;<tspan class="svg-sub">st</tspan></text>
+                </g>
+
+                <g transform="translate(0, 40)">
+                    <path d="M 0 0 L 40 0" stroke="var(--accent-cyan)" stroke-width="2" stroke-dasharray="2 2" id="strain-sc-line"/>
+                    <text x="45" y="5" class="svg-math" fill="var(--accent-cyan)">&epsilon;<tspan class="svg-sub">sc</tspan></text>
+                </g>
+            </g>
+
+            <g transform="translate(850, 50)">
+                <path d="M 0 0 L 0 340" stroke="#4a5568" stroke-width="2"/>
+                <path d="M -120 0 L 50 0" class="dynamic-nu-y" stroke="#f6e05e" stroke-width="2" stroke-dasharray="8 4"/>
+
+                <g class="dynamic-xu-scale" fill="url(#comp-grad)" stroke="var(--accent-blue)" stroke-width="1.5" vector-effect="non-scaling-stroke">
+                    <path d="M 0 0 L 80 0 L 80 42.85 L 0 42.85 Z" />
+                    <path d="M 0 42.85 L 80 42.85 Q 80 100 0 100 Z" />
+                </g>
+
+                <g class="dynamic-cy">
+                    <path d="M 120 0 L 20 0" stroke="var(--accent-blue)" stroke-width="4" marker-end="url(#arrow-blue)"/>
+                    <text x="130" y="5" class="svg-math" fill="var(--accent-blue)">C<tspan class="svg-sub">c</tspan></text>
+                </g>
+
+                <g transform="translate(0, 40)">
+                    <path d="M 120 0 L 40 0" stroke="var(--accent-cyan)" stroke-width="4" marker-end="url(#arrow-blue)"/>
+                    <circle cx="40" cy="0" r="3" fill="var(--accent-cyan)"/> <path d="M 40 0 L 50 -5 L 50 5 Z" fill="var(--accent-cyan)"/>
+                    <text x="130" y="-5" class="svg-math" fill="var(--accent-cyan)">C<tspan class="svg-sub">s</tspan></text>
+                    <text x="130" y="15" class="svg-math" font-size="12" fill="var(--accent-cyan)">= f<tspan class="svg-sub">sc</tspan>A<tspan class="svg-sub">sc</tspan></text>
+                </g>
+
+                <g transform="translate(0, 300)">
+                    <path d="M 0 0 L 100 0" stroke="var(--accent-red)" stroke-width="4" marker-end="url(#arrow-red)"/>
+                    <text x="110" y="5" class="svg-math" fill="var(--accent-red)">T = T<tspan class="svg-sub">1</tspan> + T<tspan class="svg-sub">2</tspan></text>
+                </g>
+            </g>
+        </svg>
+    </div>
+
+    <div class="explanation">
+        <h2>Analysis of Reinforced Concrete Beams (Limit State Method)</h2>
+        <p>The structural behavior and analysis of Singly and Doubly reinforced concrete beam sections rely on the principles of equilibrium, strain compatibility, and constitutive material laws. The fundamental assumption is that plane sections remain plane before and after bending, resulting in a linear strain profile.</p>
+
+        <h3>1. Singly Reinforced Section</h3>
+        <p>A singly reinforced beam relies entirely on the compressive strength of the concrete in the top zone and the tensile strength of the steel reinforcing bars (<span class="math-symbol">A<sub>st</sub></span>) in the bottom zone. The concrete in tension is completely ignored.</p>
+        <ul>
+            <li><strong>Strain Profile:</strong> Maximum compressive strain in concrete at failure is fixed at <span class="math-symbol">0.0035</span>. The strain in steel is <span class="math-symbol">&epsilon;<sub>st</sub></span>.</li>
+            <li><strong>Stress Block:</strong> The concrete stress block is parabolic-rectangular. The maximum stress is <span class="math-symbol">0.45f<sub>ck</sub></span>. The total compressive force acts at a distance of <span class="math-symbol">0.42x<sub>u</sub></span> from the top fiber.</li>
+            <li><strong>Equilibrium:</strong> Total Compression (<span class="math-symbol">C</span>) = Total Tension (<span class="math-symbol">T</span>).
+                <br> <span class="math-symbol">0.36 f<sub>ck</sub> b x<sub>u</sub> = 0.87 f<sub>y</sub> A<sub>st</sub></span>
+            </li>
+            <li><strong>Moment of Resistance (<span class="math-symbol">M<sub>u</sub></span>):</strong> <span class="math-symbol">M<sub>u</sub> = T &times; Lever Arm = 0.87 f<sub>y</sub> A<sub>st</sub> (d - 0.42x<sub>u</sub>)</span></li>
+        </ul>
+
+        <h3>2. Doubly Reinforced Section</h3>
+        <p>When the applied bending moment exceeds the limiting moment capacity of a singly reinforced section (<span class="math-symbol">M<sub>u,lim</sub></span>), and cross-sectional dimensions (<span class="math-symbol">b</span>, <span class="math-symbol">D</span>) are restricted, steel reinforcement is added to the compression zone (<span class="math-symbol">A<sub>sc</sub></span>). This prevents brittle primary compression failure.</p>
+        <ul>
+            <li><strong>Compatibility:</strong> The strain in the compression steel (<span class="math-symbol">&epsilon;<sub>sc</sub></span>) depends on its depth (<span class="math-symbol">d'</span>) relative to the neutral axis (<span class="math-symbol">x<sub>u</sub></span>). By similar triangles: <span class="math-symbol">&epsilon;<sub>sc</sub> = 0.0035 [1 - (d' / x<sub>u</sub>)]</span>.</li>
+            <li><strong>Equilibrium:</strong> The total compressive force is shared between concrete (<span class="math-symbol">C<sub>c</sub></span>) and compression steel (<span class="math-symbol">C<sub>s</sub></span>).
+                <br> <span class="math-symbol">C<sub>c</sub> + C<sub>s</sub> = T</span>
+                <br> <span class="math-symbol">0.36 f<sub>ck</sub> b x<sub>u</sub> + (f<sub>sc</sub> - f<sub>cc</sub>) A<sub>sc</sub> = 0.87 f<sub>y</sub> A<sub>st</sub></span>
+            </li>
+            <li><strong>Moment of Resistance:</strong> <span class="math-symbol">M<sub>u</sub> = M<sub>u,lim</sub> + f<sub>sc</sub> A<sub>sc</sub> (d - d')</span>. The additional tension steel balances the compression steel.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // System Architecture: Pure JS binding CSS custom properties for physics engine
+    const slider = document.getElementById('load-slider');
+    const loadDisplay = document.getElementById('load-display');
+    const valXu = document.getElementById('val-xu');
+    const valStrain = document.getElementById('val-strain');
+    const valMode = document.getElementById('val-mode');
+
+    // Engineering constants
+    const d_eff = 300; // effective depth in local SVG coordinates
+    const top_cover = 40; // local SVG coordinate for top of beam
+    const xu_lim = 144; // Approx 0.48 * 300 for Fe415
+
+    function updatePhysics() {
+        const loadVal = parseFloat(slider.value); // 10 to 100
+        loadDisplay.textContent = `${loadVal}%`;
+        
+        // Map slider (load ratio) to Neutral Axis depth (Xu)
+        // At 10%, Xu is small (under-reinforced). At 100%, Xu is large (over-reinforced)
+        // Ranges from ~50 to ~190
+        const xu = 40 + (loadVal / 100) * 150; 
+        
+        // Compute derived values
+        const xu_scale = xu / 100;
+        const nu_y = xu; // Relative to top of concrete block (which is y=0 in local group)
+        const cy = 0.42 * xu; // distance from top of beam
+        
+        // Strain geometry (similar triangles)
+        // Top strain wedge base is 80px wide representing 0.0035
+        const strain_top_w = 80;
+        // Bottom strain wedge height is (d_eff - xu). 
+        const h_bot = d_eff - xu;
+        // Calculate required width to maintain straight line: w_bot / h_bot = 80 / xu
+        const w_bot = (80 / xu) * h_bot;
+        
+        // Doubly reinforced strain at d' = 40
+        const w_sc = (80 / xu) * (xu - 40);
+
+        // Update exact path geometries for tension strain to ensure absolute mathematical precision
+        // avoiding CSS transform distortion on stroke width for non-orthogonal vectors
+        const path1 = document.getElementById('strain-tension-path-1');
+        const line1 = document.getElementById('strain-tension-line-1');
+        const text1 = document.getElementById('strain-tension-text-1');
+        
+        const path2 = document.getElementById('strain-tension-path-2');
+        const text2 = document.getElementById('strain-tension-text-2');
+        
+        const d_string = `M 0 0 L -${w_bot} 0 L 0 -${h_bot} Z`;
+        const l_string = `M 0 0 L -${w_bot} 0`;
+        
+        path1.setAttribute('d', d_string);
+        line1.setAttribute('d', l_string);
+        text1.setAttribute('x', `-${w_bot + 5}`);
+        
+        path2.setAttribute('d', d_string);
+        text2.setAttribute('x', `-${w_bot + 5}`);
+
+        // Update Doubly reinforced specific path
+        const strainScLine = document.getElementById('strain-sc-line');
+        // It points left, originating from axis (x=0) to -w_sc
+        strainScLine.setAttribute('d', `M 0 0 L -${Math.max(0, w_sc)} 0`);
+
+        // Inject into CSS Object Model
+        const root = document.documentElement;
+        root.style.setProperty('--xu-scale', xu_scale.toFixed(4));
+        root.style.setProperty('--nu-y', `${nu_y.toFixed(2)}px`);
+        root.style.setProperty('--cy-px', `${cy.toFixed(2)}px`);
+
+        // Update Status Texts
+        const actual_xu_mm = (xu * 1.5).toFixed(1); // Scaled for display realism
+        valXu.textContent = `${actual_xu_mm} mm`;
+        
+        // Actual strain = 0.0035 * (d - xu) / xu
+        const actual_strain = (0.0035 * h_bot / xu).toFixed(5);
+        valStrain.textContent = actual_strain;
+
+        if (xu < xu_lim - 5) {
+            valMode.textContent = "Under-Reinforced";
+            valMode.className = "status-value under";
+        } else if (xu > xu_lim + 5) {
+            valMode.textContent = "Over-Reinforced";
+            valMode.className = "status-value over";
+        } else {
+            valMode.textContent = "Balanced Section";
+            valMode.className = "status-value balanced";
+        }
+        
+        // Adjust the dimension line for Xu
+        const dimLine1 = document.getElementById('xu-dim-line-1');
+        dimLine1.setAttribute('d', `M -25 -${xu} L -25 0 M -30 0 L -20 0`);
+    }
+
+    // Event Listeners
+    slider.addEventListener('input', updatePhysics);
+
+    // Initial Trigger
+    updatePhysics();
+</script>
+
+</body>
+</html>

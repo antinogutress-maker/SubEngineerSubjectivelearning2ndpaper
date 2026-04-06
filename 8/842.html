@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design of Septic Tank & Soak Pit | Sanitation Engineering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .math-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border-radius: 1rem;
+        }
+
+        .slider-custom {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 9999px;
+            background: #cbd5e1;
+            outline: none;
+        }
+
+        .slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .slider-custom::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #0284c7;
+        }
+
+        .tab-btn {
+            transition: all 0.2s ease-in-out;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-btn.active {
+            background-color: #f8fafc;
+            border-bottom-color: #0ea5e9;
+            color: #0284c7;
+        }
+
+        /* Value highlighting */
+        .hl-v1 { color: #3b82f6; } /* Settling (Blue) */
+        .hl-v2 { color: #d97706; } /* Digestion (Amber) */
+        .hl-v3 { color: #84cc16; } /* Storage (Lime) */
+        .hl-tot { color: #0f172a; } /* Total (Slate) */
+
+        #canvas-container {
+            background: #ffffff; /* White bg for sketch */
+            border-radius: 0.75rem;
+            overflow: hidden;
+            position: relative;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col">
+
+    <div class="max-w-7xl mx-auto w-full space-y-6 flex-grow flex flex-col">
+
+        <!-- Header -->
+        <header class="text-center space-y-3 mb-2 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-sky-500 to-emerald-500"></div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Septic Tank & Soak Pit Design</h1>
+            <p class="text-slate-500 font-medium text-base max-w-3xl mx-auto">
+                Practical sizing and realistic flow simulation based on standard Sanitary Engineering criteria.
+            </p>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Column: Controls -->
+            <div class="lg:col-span-4 flex flex-col space-y-6">
+                
+                <div class="glass-panel p-6 space-y-5">
+                    <h2 class="font-bold text-lg text-slate-800 border-b border-slate-200 pb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        Design Inputs
+                    </h2>
+
+                    <!-- Number of Users (N) -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Number of Users (<span class="math-font text-sky-600">N</span>)</label>
+                            <span id="valN" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">50</span>
+                        </div>
+                        <input type="range" id="slideN" min="10" max="300" step="5" value="50" class="slider-custom">
+                    </div>
+
+                    <!-- Sewage Flow (Lpcd) -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Sewage Flow (<span class="math-font text-sky-600">Lpcd</span>)</label>
+                            <span id="valQ" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">135 L/d</span>
+                        </div>
+                        <input type="range" id="slideQ" min="90" max="200" step="5" value="135" class="slider-custom">
+                    </div>
+
+                    <!-- Cleaning Interval -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Cleaning Interval (<span class="math-font text-sky-600">Y</span>)</label>
+                            <span id="valY" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">1 Year</span>
+                        </div>
+                        <input type="range" id="slideY" min="1" max="3" step="1" value="1" class="slider-custom">
+                        <p class="text-[10px] text-slate-500">Determines sludge storage rate (Cds). 1Yr=0.044, 2Yr=0.073, 3Yr=0.100</p>
+                    </div>
+
+                    <div class="h-px w-full bg-slate-200"></div>
+
+                    <!-- L/B Ratio -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">L/B Ratio</label>
+                            <span id="valLB" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">3.0</span>
+                        </div>
+                        <input type="range" id="slideLB" min="2.0" max="4.0" step="0.5" value="3.0" class="slider-custom">
+                    </div>
+
+                    <!-- Liquid Depth -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Liquid Depth (<span class="math-font text-sky-600">d</span>)</label>
+                            <span id="valD" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">1.5 m</span>
+                        </div>
+                        <input type="range" id="slideD" min="1.0" max="1.8" step="0.1" value="1.5" class="slider-custom">
+                    </div>
+
+                    <!-- Soil Percolation Rate -->
+                    <div class="space-y-2 pt-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-emerald-700">Soil Percolation</label>
+                            <span id="valPerc" class="text-sm font-bold text-emerald-900 bg-emerald-100 px-2 py-1 rounded">60 L/m²/d</span>
+                        </div>
+                        <input type="range" id="slidePerc" min="20" max="150" step="10" value="60" class="slider-custom">
+                        <p class="text-[10px] text-emerald-600">Rate at which effluent absorbs into the ground (Soak Pit Design).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column: Mathematical Breakdown -->
+            <div class="lg:col-span-3 flex flex-col space-y-6">
+                <div class="glass-panel p-5 flex-grow flex flex-col">
+                    <h2 class="font-bold text-lg text-slate-800 border-b border-slate-200 pb-2 mb-4">Calculations</h2>
+                    
+                    <div class="space-y-4 text-sm text-slate-700 flex-grow">
+                        
+                        <!-- Volumes -->
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            <div class="font-bold text-slate-800 mb-2 border-b border-slate-200 pb-1">1. Required Volumes</div>
+                            <div class="math-font text-xs space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600">V<sub class="text-[10px]">1</sub> (Settling, 1 day):</span>
+                                    <span class="font-bold hl-v1" id="mathV1">6.75 m³</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600">V<sub class="text-[10px]">2</sub> (Digestion) 0.0425×N:</span>
+                                    <span class="font-bold hl-v2" id="mathV2">2.13 m³</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600">V<sub class="text-[10px]">3</sub> (Storage) Cds×N:</span>
+                                    <span class="font-bold hl-v3" id="mathV3">2.20 m³</span>
+                                </div>
+                                <div class="h-px w-full bg-slate-300"></div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="font-bold text-slate-800">Total Volume (V):</span>
+                                    <span class="font-bold text-slate-900" id="mathVtot">11.08 m³</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Septic Dimensions -->
+                        <div class="bg-sky-50/50 p-3 rounded-lg border border-sky-100">
+                            <div class="font-bold text-sky-900 mb-2 border-b border-sky-200 pb-1">2. Tank Dimensions</div>
+                            <div class="math-font text-xs space-y-1">
+                                Area (A) = V / d = <span id="mathArea" class="font-bold">7.38</span> m² <br>
+                                Since L = <span id="mathLBr">3</span>B, 3B² = A <br><br>
+                                <span class="font-bold text-sky-700 text-sm">B = <span id="mathB">1.57</span> m</span><br>
+                                <span class="font-bold text-sky-700 text-sm">L = <span id="mathL">4.71</span> m</span><br>
+                                Total Depth (D) = d + 0.3m (FB)<br>
+                                <span class="font-bold text-sky-700 text-sm">D = <span id="mathDtot">1.80</span> m</span>
+                            </div>
+                        </div>
+
+                        <!-- Soak Pit -->
+                        <div class="bg-emerald-50/50 p-3 rounded-lg border border-emerald-100">
+                            <div class="font-bold text-emerald-900 mb-2 border-b border-emerald-200 pb-1">3. Soak Pit Design</div>
+                            <div class="math-font text-xs space-y-1">
+                                Q<sub class="text-[10px]">eff</sub> = N × Lpcd = <span id="mathQeff">6750</span> L/day <br>
+                                Wall Area = Q<sub class="text-[10px]">eff</sub> / Perc. Rate = <span id="mathSpArea" class="font-bold">112.5</span> m² <br><br>
+                                Assume Diameter (D<sub class="text-[10px]">sp</sub>) = 2.0 m<br>
+                                Depth = Area / (π × D<sub class="text-[10px]">sp</sub>)<br>
+                                <span class="font-bold text-emerald-700 text-sm">Depth (H<sub class="text-[10px]">sp</sub>) = <span id="mathSpH">17.90</span> m</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Visual Simulation -->
+            <div class="lg:col-span-5 flex flex-col h-[600px] lg:h-auto">
+                <div class="glass-panel flex flex-col h-full w-full overflow-hidden">
+                    
+                    <!-- Tabs -->
+                    <div class="flex grid grid-cols-2 bg-slate-100 border-b border-slate-200 cursor-pointer">
+                        <div id="tab-side" class="tab-btn active p-3 text-center font-bold text-sm text-slate-500 hover:bg-slate-200/50" onclick="switchView('side')">
+                            Side View (Architectural Sketch)
+                        </div>
+                        <div id="tab-top" class="tab-btn p-3 text-center font-bold text-sm text-slate-500 hover:bg-slate-200/50" onclick="switchView('top')">
+                            Top View (Blueprint)
+                        </div>
+                    </div>
+                    
+                    <div id="canvas-container" class="flex-grow w-full rounded-none">
+                        <canvas id="simCanvas" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const slideN = document.getElementById('slideN');
+        const slideQ = document.getElementById('slideQ');
+        const slideY = document.getElementById('slideY');
+        const slideLB = document.getElementById('slideLB');
+        const slideD = document.getElementById('slideD');
+        const slidePerc = document.getElementById('slidePerc');
+        
+        const valN = document.getElementById('valN');
+        const valQ = document.getElementById('valQ');
+        const valY = document.getElementById('valY');
+        const valLB = document.getElementById('valLB');
+        const valD = document.getElementById('valD');
+        const valPerc = document.getElementById('valPerc');
+
+        // Math Elements
+        const mathV1 = document.getElementById('mathV1');
+        const mathV2 = document.getElementById('mathV2');
+        const mathV3 = document.getElementById('mathV3');
+        const mathVtot = document.getElementById('mathVtot');
+        const mathArea = document.getElementById('mathArea');
+        const mathLBr = document.getElementById('mathLBr');
+        const mathB = document.getElementById('mathB');
+        const mathL = document.getElementById('mathL');
+        const mathDtot = document.getElementById('mathDtot');
+        
+        const mathQeff = document.getElementById('mathQeff');
+        const mathSpArea = document.getElementById('mathSpArea');
+        const mathSpH = document.getElementById('mathSpH');
+
+        // Canvas
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        // State variables
+        let state = {
+            N: 50,
+            Q_lpcd: 135,
+            Y: 1,
+            LB: 3.0,
+            d: 1.5,
+            perc: 60,
+            
+            // Calculated
+            V1: 0, V2: 0, V3: 0, V: 0,
+            B: 0, L: 0, D_tot: 0,
+            Q_eff: 0, Sp_H: 0,
+            
+            view: 'side', // 'side' or 'top'
+            particles: []
+        };
+
+        // Initialize particles for sewage animation
+        function initParticles() {
+            state.particles = [];
+            for(let i=0; i<120; i++) {
+                state.particles.push({
+                    x: Math.random(), // 0 to 1 across the flow path
+                    y: Math.random(), // 0 to 1 vertical spread
+                    speed: 0.2 + Math.random() * 0.5,
+                    type: Math.random() > 0.7 ? 'solid' : 'liquid'
+                });
+            }
+        }
+
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function switchView(view) {
+            state.view = view;
+            document.getElementById('tab-side').classList.remove('active');
+            document.getElementById('tab-top').classList.remove('active');
+            document.getElementById(`tab-${view}`).classList.add('active');
+        }
+
+        function updateMath() {
+            // Get inputs
+            state.N = parseFloat(slideN.value);
+            state.Q_lpcd = parseFloat(slideQ.value);
+            state.Y = parseInt(slideY.value);
+            state.LB = parseFloat(slideLB.value);
+            state.d = parseFloat(slideD.value);
+            state.perc = parseFloat(slidePerc.value);
+
+            // Update UI Labels
+            valN.innerHTML = state.N;
+            valQ.innerHTML = `${state.Q_lpcd} L/d`;
+            valY.innerHTML = `${state.Y} Year${state.Y > 1 ? 's' : ''}`;
+            valLB.innerHTML = state.LB.toFixed(1);
+            valD.innerHTML = `${state.d.toFixed(1)} m`;
+            valPerc.innerHTML = `${state.perc} L/m²/d`;
+
+            // Calculations
+            // Cds based on Years: 1yr=0.044, 2yr=0.073, 3yr=0.100 (IS:2470 standard approx)
+            let cds = state.Y === 1 ? 0.044 : (state.Y === 2 ? 0.073 : 0.100);
+
+            state.V1 = state.N * state.Q_lpcd * 0.001; // 1 day detention
+            state.V2 = 0.0425 * state.N;
+            state.V3 = cds * state.N;
+            state.V = state.V1 + state.V2 + state.V3;
+
+            const Area = state.V / state.d;
+            state.B = Math.sqrt(Area / state.LB);
+            state.L = state.LB * state.B;
+            state.D_tot = state.d + 0.3; // 0.3m freeboard
+
+            state.Q_eff = state.N * state.Q_lpcd;
+            const Sp_Area = state.Q_eff / state.perc;
+            const D_sp = 2.0; // Assume 2m dia for soak pit
+            state.Sp_H = Sp_Area / (Math.PI * D_sp);
+
+            // Update Math Text
+            mathV1.innerHTML = `${state.V1.toFixed(2)} m³`;
+            mathV2.innerHTML = `${state.V2.toFixed(2)} m³`;
+            mathV3.innerHTML = `${state.V3.toFixed(2)} m³`;
+            mathVtot.innerHTML = `${state.V.toFixed(2)} m³`;
+            
+            mathArea.innerHTML = Area.toFixed(2);
+            mathLBr.innerHTML = state.LB.toFixed(1);
+            mathB.innerHTML = state.B.toFixed(2);
+            mathL.innerHTML = state.L.toFixed(2);
+            mathDtot.innerHTML = state.D_tot.toFixed(2);
+
+            mathQeff.innerHTML = state.Q_eff.toFixed(0);
+            mathSpArea.innerHTML = Sp_Area.toFixed(2);
+            mathSpH.innerHTML = state.Sp_H.toFixed(2);
+        }
+
+        // Arrow drawing utility
+        function drawArrow(ctx, x1, y1, x2, y2, color, text="") {
+            const headlen = 8;
+            const angle = Math.atan2(y2-y1, x2-x1);
+            ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2-headlen*Math.cos(angle-Math.PI/6), y2-headlen*Math.sin(angle-Math.PI/6));
+            ctx.lineTo(x2-headlen*Math.cos(angle+Math.PI/6), y2-headlen*Math.sin(angle+Math.PI/6));
+            ctx.fill();
+            if(text) {
+                ctx.font = "11px JetBrains Mono"; ctx.textAlign = "center";
+                // Offset text slightly above the arrow
+                ctx.fillText(text, (x1+x2)/2, (y1+y2)/2 - 8);
+            }
+        }
+
+        // --- RENDER LOGIC ---
+
+        function drawSideView(cw, ch, time) {
+            // Blueprint/Sketch Background
+            ctx.fillStyle = '#ffffff'; 
+            ctx.fillRect(0, 0, cw, ch);
+            
+            // Faint Grid
+            ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 1;
+            for(let i=0; i<cw; i+=20) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,ch); ctx.stroke(); }
+            for(let i=0; i<ch; i+=20) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(cw,i); ctx.stroke(); }
+
+            // Ground Line
+            const gy = 80; // Ground Y
+            ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(cw, gy); ctx.stroke();
+            // Ground Hatching
+            ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
+            for(let i=0; i<cw; i+=15) { ctx.beginPath(); ctx.moveTo(i, gy); ctx.lineTo(i-10, gy+10); ctx.stroke(); }
+
+            // Layout Coordinates
+            const latX = 20, latW = 60;
+            const tx = 120, tankW = cw * 0.45, tankH = 220;
+            const ty = gy + 20; // top of tank below ground
+            const liqLevel = ty + 35; // liquid level
+            const bottomY = ty + tankH;
+            const wallT = 12;
+
+            // --- 1. LATRINE SKETCH ---
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1.5;
+            // Room walls
+            ctx.strokeRect(latX, gy-70, latW, 70);
+            
+            // Squatting Pan
+            ctx.beginPath(); 
+            ctx.moveTo(latX+10, gy); ctx.lineTo(latX+50, gy);
+            ctx.lineTo(latX+35, gy+15); ctx.lineTo(latX+25, gy+15); 
+            ctx.closePath(); ctx.stroke();
+            
+            // P-Trap
+            ctx.beginPath(); 
+            ctx.moveTo(latX+30, gy+15); ctx.lineTo(latX+30, gy+30);
+            ctx.arc(latX+40, gy+30, 10, Math.PI, 0, true); 
+            ctx.lineTo(latX+50, gy+20); 
+            ctx.stroke();
+
+            // Pipe from Latrine to Tank
+            const inPipeY = liqLevel - 15;
+            ctx.beginPath(); ctx.moveTo(latX+50, gy+20); ctx.lineTo(tx, inPipeY); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(latX+50, gy+30); ctx.lineTo(tx, inPipeY+10); ctx.stroke();
+
+            // --- 2. SEPTIC TANK SKETCH ---
+            ctx.fillStyle = '#ffffff';
+            
+            // Outer Box with Sloped Slab
+            ctx.beginPath();
+            ctx.moveTo(tx, ty); ctx.lineTo(tx+tankW, ty); ctx.lineTo(tx+tankW, bottomY);
+            ctx.lineTo(tx, bottomY + 20); // 1 in 10 sloping slab towards inlet
+            ctx.closePath(); 
+            ctx.fill(); ctx.stroke();
+
+            // Inner Box
+            ctx.beginPath();
+            ctx.moveTo(tx+wallT, ty+wallT); ctx.lineTo(tx+tankW-wallT, ty+wallT);
+            ctx.lineTo(tx+tankW-wallT, bottomY-wallT); ctx.lineTo(tx+wallT, bottomY+20-wallT);
+            ctx.closePath(); 
+            ctx.stroke();
+
+            // Concrete Hatching (Diagonal lines inside walls)
+            ctx.save();
+            ctx.clip(); // Clip to inner box
+            // Inverse clip to only hatch the wall area
+            ctx.beginPath();
+            ctx.moveTo(tx, ty); ctx.lineTo(tx+tankW, ty); ctx.lineTo(tx+tankW, bottomY); ctx.lineTo(tx, bottomY + 20);
+            ctx.moveTo(tx+wallT, bottomY+20-wallT); ctx.lineTo(tx+tankW-wallT, bottomY-wallT);
+            ctx.lineTo(tx+tankW-wallT, ty+wallT); ctx.lineTo(tx+wallT, ty+wallT);
+            ctx.clip("evenodd");
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 0.5;
+            for(let i=-200; i<cw; i+=10) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i+300, 300); ctx.stroke();
+            }
+            ctx.restore();
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1.5; // restore stroke
+
+            // Baffles
+            const bx1 = tx + tankW * 0.33; // Baffle 1 at L/3
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(bx1, ty+wallT, wallT, tankH * 0.55);
+            ctx.strokeRect(bx1, ty+wallT, wallT, tankH * 0.55);
+
+            const bx2 = tx + tankW * 0.75; // Baffle 2 (Standing/Scum)
+            const b2H = tankH * 0.45;
+            const b2Y = (bottomY - wallT) - (1 - 0.75)*20; // adjust for slope roughly
+            ctx.fillRect(bx2, b2Y - b2H, wallT, b2H);
+            ctx.strokeRect(bx2, b2Y - b2H, wallT, b2H);
+
+            // --- 3. FLUIDS (Semi-transparent over sketch) ---
+            // Sludge (Bottom)
+            ctx.fillStyle = 'rgba(120, 53, 15, 0.4)';
+            ctx.beginPath(); 
+            ctx.moveTo(tx+wallT, bottomY+20-wallT); ctx.lineTo(tx+tankW-wallT, bottomY-wallT);
+            ctx.lineTo(tx+tankW-wallT, bottomY-wallT-25); ctx.lineTo(tx+wallT, bottomY+20-wallT-45); 
+            ctx.fill();
+            
+            // Clear Liquid
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+            ctx.fillRect(tx+wallT, liqLevel, tankW - wallT*2, bottomY - wallT - liqLevel);
+            
+            // Scum
+            ctx.fillStyle = 'rgba(180, 83, 9, 0.3)';
+            ctx.fillRect(tx+wallT, liqLevel, tankW - wallT*2, 12);
+
+            // --- 4. PIPES & FITTINGS ---
+            ctx.fillStyle = '#ffffff';
+            // Inlet T
+            ctx.strokeRect(tx-10, inPipeY, 10+wallT+15, 10); // horizontal
+            ctx.strokeRect(tx+wallT, inPipeY-10, 10, 60); // vertical drop
+            // Outlet T
+            const outY = liqLevel - 10;
+            ctx.strokeRect(tx+tankW-wallT-15, outY, 15+wallT+10, 10);
+            ctx.strokeRect(tx+tankW-wallT-15, outY-15, 10, 50);
+
+            // Vent Pipe
+            const ventX = tx + 30;
+            ctx.strokeRect(ventX, gy-40, 8, ty+wallT - (gy-40));
+            ctx.beginPath(); ctx.arc(ventX+4, gy-40, 12, Math.PI, 0); ctx.stroke();
+            // Faint odor lines
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(ventX+4, gy-55); ctx.quadraticCurveTo(ventX-5, gy-65-(time%1000)/20, ventX+5, gy-75-(time%1000)/20); ctx.stroke();
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1.5; // restore
+
+            // --- 5. SOAK PIT SKETCH ---
+            const spX = tx + tankW + 60;
+            const spW = 90;
+            const spH = tankH + 40;
+            const spY = gy + 20;
+
+            // Connecting Pipe
+            ctx.beginPath(); ctx.moveTo(tx+tankW, outY); ctx.lineTo(spX, outY+10); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(tx+tankW, outY+10); ctx.lineTo(spX, outY+20); ctx.stroke();
+
+            // Pit Outer Boundary
+            ctx.fillRect(spX, spY, spW, spH);
+            ctx.strokeRect(spX, spY, spW, spH);
+            
+            // Honeycomb Masonry Wall (Dashed inner boundary)
+            ctx.strokeStyle = '#1e293b'; ctx.setLineDash([4,4]);
+            ctx.strokeRect(spX+12, spY, spW-24, spH);
+            ctx.setLineDash([]);
+
+            // Gravel/Brick Bat Bed at bottom
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(spX+12, spY + spH - 70, spW-24, 70);
+            // Draw discrete rocks
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 1;
+            for(let i=0; i<40; i++) {
+                ctx.beginPath(); 
+                // Pseudo random based on index
+                let rx = spX+16 + (i*13)%(spW-32);
+                let ry = spY+spH-65 + (i*7)%60;
+                ctx.arc(rx, ry, 2+(i%4), 0, Math.PI*2); 
+                ctx.stroke();
+            }
+
+            // --- 6. REALISTIC FLOW ANIMATION (Particles) ---
+            state.particles.forEach(p => {
+                let px, py;
+                p.x += p.speed * 0.002 * (state.Q_lpcd / 100);
+                if(p.x > 1) p.x = 0;
+
+                // Path routing
+                if (p.x < 0.05) {
+                    // Dropping in latrine
+                    px = latX+30; py = gy-10 + p.x*20*10; 
+                } else if (p.x < 0.15) {
+                    // Slanted pipe
+                    const prog = (p.x - 0.05)/0.1;
+                    px = latX+50 + prog * (tx - (latX+50));
+                    py = gy+25 + prog * (inPipeY+5 - (gy+25));
+                } else if (p.x < 0.2) {
+                    // Down inlet T
+                    px = tx+wallT+5;
+                    py = inPipeY + ((p.x-0.15)/0.05)*40;
+                } else if (p.x < 0.45) {
+                    // Chamber 1 -> under baffle 1
+                    const prog = (p.x-0.2)/0.25;
+                    px = tx+wallT+5 + prog*(bx1 - (tx+wallT+5));
+                    if (p.type === 'solid') {
+                        py = liqLevel + 10 + prog*120; // solids settle
+                    } else {
+                        py = liqLevel + 10 + p.y*80; 
+                        if(prog > 0.8) py = Math.max(py, ty+wallT+tankH*0.55 + 5); // dive under baffle
+                    }
+                } else if (p.x < 0.7) {
+                    if (p.type === 'solid') { p.x = 1; return; } // trap solids
+                    // Chamber 2 -> over standing baffle 2
+                    const prog = (p.x-0.45)/0.25;
+                    px = bx1+wallT + prog*(bx2 - bx1 - wallT);
+                    py = (ty+wallT+tankH*0.55+5) - prog*80 + p.y*40; // rise up
+                } else if (p.x < 0.85) {
+                    // Chamber 3 (outlet zone)
+                    const prog = (p.x-0.7)/0.15;
+                    px = bx2+wallT + prog*(tx+tankW-wallT-15 - (bx2+wallT));
+                    py = liqLevel + 10 + p.y*30;
+                    if(prog > 0.8) py = outY+15; // funnel up to outlet T
+                } else if (p.x < 0.95) {
+                    // Outlet pipe to soak pit
+                    const prog = (p.x-0.85)/0.1;
+                    px = tx+tankW-wallT + prog*(spX - (tx+tankW-wallT));
+                    py = outY+5 + prog*10;
+                } else {
+                    // Percolating in soak pit
+                    const prog = (p.x-0.95)/0.05;
+                    px = spX + 15 + p.y*(spW-30);
+                    py = outY+15 + prog*(spH-30);
+                }
+
+                if(px && py) {
+                    ctx.fillStyle = p.type === 'solid' ? '#78350f' : 'rgba(14, 165, 233, 0.8)';
+                    ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI*2); ctx.fill();
+                }
+            });
+
+            // --- 7. LABELS & ARROWS ---
+            ctx.fillStyle = '#0f172a'; ctx.font = 'bold 12px JetBrains Mono'; ctx.textAlign = 'center';
+            ctx.fillText('LATRINE', latX+latW/2, gy-80);
+            ctx.fillText('SEPTIC TANK', tx+tankW/2, ty-10);
+            ctx.fillText('SOAK PIT', spX+spW/2, spY-10);
+            
+            ctx.font = '10px Inter'; ctx.fillStyle = '#475569';
+            ctx.fillText('Baffle 1', bx1+wallT/2, ty+wallT+tankH*0.55+15);
+            ctx.fillText('Baffle 2', bx2+wallT/2, (bottomY-wallT)-tankH*0.45 - 5);
+            ctx.fillText('Sloping Slab', tx+tankW/2, bottomY+35);
+            ctx.fillText('Gravel Bed', spX+spW/2, spY+spH-35);
+            ctx.fillText('Honeycomb Masonry', spX+spW/2, spY+spH+15);
+
+            // Dimension / Logic Arrows
+            drawArrow(ctx, tx+tankW/2, bottomY+25, tx+tankW*0.3, bottomY+10, '#475569');
+            
+            // Soil Percolation arrows escaping soak pit
+            const pFade = (Math.sin(time/300) + 1)/2;
+            drawArrow(ctx, spX, spY+spH/2, spX-20, spY+spH/2, `rgba(14, 165, 233, ${pFade})`);
+            drawArrow(ctx, spX+spW, spY+spH/2, spX+spW+20, spY+spH/2, `rgba(14, 165, 233, ${pFade})`);
+        }
+
+        function drawTopView(cw, ch) {
+            // Blueprint Style
+            ctx.fillStyle = '#1e3a8a'; // blue-900
+            ctx.fillRect(0, 0, cw, ch);
+            
+            // Grid lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+            for(let i=0; i<cw; i+=20) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,ch); ctx.stroke(); }
+            for(let i=0; i<ch; i+=20) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(cw,i); ctx.stroke(); }
+
+            const cx = cw / 2 - 50;
+            const cy = ch / 2;
+            
+            // Scale based on calculated dimensions (state.L, state.B)
+            // Let's make L = 300px visual max
+            const scale = 250 / state.L;
+            const l_px = state.L * scale;
+            const b_px = state.B * scale;
+            const wall_px = 15; // fixed visual wall thickness
+
+            const tx = cx - l_px/2;
+            const ty = cy - b_px/2;
+
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+            
+            // Outer Wall
+            ctx.strokeRect(tx - wall_px, ty - wall_px, l_px + wall_px*2, b_px + wall_px*2);
+            // Inner Wall
+            ctx.strokeRect(tx, ty, l_px, b_px);
+
+            // Baffle Walls (Top view)
+            const bx1 = tx + l_px * 0.33;
+            ctx.strokeRect(bx1, ty, wall_px, b_px); // Divider wall
+            // Draw opening in divider (center)
+            ctx.fillStyle = '#1e3a8a'; ctx.fillRect(bx1-1, cy - 15, wall_px+2, 30);
+            ctx.beginPath(); ctx.moveTo(bx1, cy-15); ctx.lineTo(bx1, cy+15); ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+
+            const bx2 = tx + l_px * 0.75;
+            ctx.strokeRect(bx2, ty, wall_px, b_px); // Standing baffle
+
+            // Pipes
+            ctx.strokeStyle = '#60a5fa'; ctx.lineWidth = 4;
+            // Inlet
+            ctx.beginPath(); ctx.moveTo(tx - 60, cy); ctx.lineTo(tx, cy); ctx.stroke();
+            // Outlet
+            ctx.beginPath(); ctx.moveTo(tx + l_px, cy); ctx.lineTo(tx + l_px + 80, cy); ctx.stroke();
+
+            // Manholes (Circles on top)
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.arc(tx + l_px*0.15, cy, 20, 0, Math.PI*2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(tx + l_px*0.85, cy, 20, 0, Math.PI*2); ctx.stroke();
+
+            // Soak Pit (Right)
+            const spX = tx + l_px + 140;
+            // Scale Diameter D_sp = 2.0m
+            const spR = (2.0 * scale) / 2;
+            ctx.beginPath(); ctx.arc(spX, cy, spR, 0, Math.PI*2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(spX, cy, spR + wall_px, 0, Math.PI*2); ctx.stroke();
+            
+            // Draw honeycomb pattern for soak pit top view
+            for(let a=0; a<Math.PI*2; a+=Math.PI/6) {
+                ctx.beginPath(); 
+                ctx.moveTo(spX + spR*Math.cos(a), cy + spR*Math.sin(a));
+                ctx.lineTo(spX + (spR+wall_px)*Math.cos(a), cy + (spR+wall_px)*Math.sin(a));
+                ctx.stroke();
+            }
+
+            // Dimensions and Text
+            ctx.fillStyle = '#ffffff'; ctx.font = '12px JetBrains Mono'; ctx.textAlign = 'center';
+            ctx.fillText(`L = ${state.L.toFixed(2)}m`, cx, ty - 25);
+            
+            ctx.save(); ctx.translate(tx - 80, cy); ctx.rotate(-Math.PI/2);
+            ctx.fillText(`B = ${state.B.toFixed(2)}m`, 0, 0);
+            ctx.restore();
+
+            ctx.fillText('INLET', tx - 30, cy - 10);
+            ctx.fillText('OUTLET', tx + l_px + 40, cy - 10);
+            ctx.fillText('BAFFLE 1', bx1 + wall_px/2, ty + b_px + 20);
+            ctx.fillText('BAFFLE 2', bx2 + wall_px/2, ty + b_px + 35);
+            ctx.fillText('SOAK PIT', spX, cy + spR + 30);
+            ctx.fillText(`D = 2.0m`, spX, cy + spR + 45);
+
+            // Dimension arrows
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
+            drawArrow(ctx, tx, ty-15, tx+l_px, ty-15, 'rgba(255,255,255,0.5)');
+            drawArrow(ctx, tx+l_px, ty-15, tx, ty-15, 'rgba(255,255,255,0.5)');
+
+            drawArrow(ctx, tx-30, ty, tx-30, ty+b_px, 'rgba(255,255,255,0.5)');
+            drawArrow(ctx, tx-30, ty+b_px, tx-30, ty, 'rgba(255,255,255,0.5)');
+        }
+
+        // Main Animation Loop
+        function drawFrame() {
+            const cw = canvas.width / window.devicePixelRatio;
+            const ch = canvas.height / window.devicePixelRatio;
+            
+            if (state.view === 'side') {
+                drawSideView(cw, ch, Date.now());
+            } else {
+                drawTopView(cw, ch);
+            }
+
+            requestAnimationFrame(drawFrame);
+        }
+
+        // Listeners
+        [slideN, slideQ, slideY, slideLB, slideD, slidePerc].forEach(el => {
+            el.addEventListener('input', updateMath);
+        });
+
+        // Initialize
+        initParticles();
+        resizeCanvas();
+        updateMath();
+        requestAnimationFrame(drawFrame);
+
+    </script>
+</body>
+</html>
+
+

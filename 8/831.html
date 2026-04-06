@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combined Circular Sewer Design Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        .math-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border-radius: 1rem;
+        }
+
+        .slider-custom {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 9999px;
+            background: #cbd5e1;
+            outline: none;
+        }
+
+        .slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0284c7;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .slider-custom::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #0369a1;
+        }
+
+        /* Color coding for specific sections */
+        .text-sanitary { color: #d97706; } /* Amber */
+        .text-storm { color: #0284c7; } /* Light Blue */
+        .text-combined { color: #0f766e; } /* Emerald/Teal */
+
+        #canvas-container {
+            background: #ffffff;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            position: relative;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col">
+
+    <div class="max-w-7xl mx-auto w-full space-y-6 flex-grow flex flex-col">
+
+        <!-- Header -->
+        <header class="text-center space-y-3 mb-2 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-500 via-teal-500 to-sky-500"></div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Combined Circular Sewer Design</h1>
+            <p class="text-slate-500 font-medium text-base max-w-3xl mx-auto">
+                Dynamic calculation of Sanitary & Storm water discharge using the Rational Method with realistic flow simulation.
+            </p>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+            
+            <!-- Left Column: Controls -->
+            <div class="lg:col-span-4 flex flex-col space-y-6">
+                
+                <div class="glass-panel p-6 space-y-5">
+                    <h2 class="font-bold text-lg text-slate-800 border-b border-slate-200 pb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        Hydraulic Parameters
+                    </h2>
+
+                    <!-- Catchment Area -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Catchment Area (<span class="math-font text-sky-600">A</span>)</label>
+                            <span id="valArea" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">150 ha</span>
+                        </div>
+                        <input type="range" id="slideArea" min="10" max="500" step="5" value="150" class="slider-custom">
+                    </div>
+
+                    <!-- Population -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Population</label>
+                            <span id="valPop" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">100,000</span>
+                        </div>
+                        <input type="range" id="slidePop" min="10000" max="500000" step="5000" value="100000" class="slider-custom">
+                    </div>
+
+                    <!-- Water Supply (lpcd) -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Water Supply Rate</label>
+                            <span id="valLpcd" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">270 lpcd</span>
+                        </div>
+                        <input type="range" id="slideLpcd" min="100" max="350" step="10" value="270" class="slider-custom">
+                    </div>
+
+                    <!-- Time of Entry & Flow -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-700">Time of Entry</label>
+                                <span id="valTe" class="text-xs font-bold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">5 m</span>
+                            </div>
+                            <input type="range" id="slideTe" min="1" max="15" step="1" value="5" class="slider-custom">
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-700">Time of Flow</label>
+                                <span id="valTf" class="text-xs font-bold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">20 m</span>
+                            </div>
+                            <input type="range" id="slideTf" min="5" max="60" step="1" value="20" class="slider-custom">
+                        </div>
+                    </div>
+
+                    <!-- Runoff Coefficient & Max Velocity -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-700">Runoff Coeff (C)</label>
+                                <span id="valC" class="text-xs font-bold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">0.45</span>
+                            </div>
+                            <input type="range" id="slideC" min="0.1" max="0.9" step="0.05" value="0.45" class="slider-custom">
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-700">Max V (<span class="math-font">m/s</span>)</label>
+                                <span id="valVmax" class="text-xs font-bold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">3.2</span>
+                            </div>
+                            <input type="range" id="slideVmax" min="1.0" max="5.0" step="0.1" value="3.2" class="slider-custom">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column: Mathematical Breakdown -->
+            <div class="lg:col-span-4 flex flex-col space-y-6">
+                <div class="glass-panel p-5 flex-grow flex flex-col">
+                    <h2 class="font-bold text-lg text-slate-800 border-b border-slate-200 pb-2 mb-4">Step-by-Step Calculation</h2>
+                    
+                    <div class="space-y-3 text-sm text-slate-700 flex-grow overflow-y-auto pr-2">
+                        
+                        <!-- Step 1: Sanitary Sewage -->
+                        <div class="bg-amber-50 p-3 rounded-lg border border-amber-100">
+                            <div class="font-bold text-amber-900 mb-1 border-b border-amber-200 pb-1">1. Sanitary Sewage (DWF)</div>
+                            <div class="math-font text-xs space-y-1">
+                                <span class="text-[10px] text-amber-700">Assuming 80% reaches sewer & Peak Factor = 2</span><br>
+                                DWF = (Pop × Rate × 0.8) / (1000 × 24 × 3600)<br>
+                                DWF = <span id="mathDWF">0.25</span> m³/s <br>
+                                Max Sanitary = 2 × DWF = <span id="mathQsan" class="font-bold text-sanitary text-sm">0.50</span> m³/s
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Storm Water -->
+                        <div class="bg-sky-50 p-3 rounded-lg border border-sky-100">
+                            <div class="font-bold text-sky-900 mb-1 border-b border-sky-200 pb-1">2. Storm Water (Rational Method)</div>
+                            <div class="math-font text-xs space-y-1">
+                                T<sub class="text-[10px]">c</sub> = T<sub class="text-[10px]">e</sub> + T<sub class="text-[10px]">f</sub> = <span id="mathTc">25</span> min<br>
+                                <span class="text-[10px] text-sky-700" id="mathI_form">Since Tc > 20, I = 1020 / (t + 20)</span><br>
+                                I = <span id="mathI">22.67</span> mm/hr<br>
+                                Q<sub class="text-[10px]">storm</sub> = (C × I × A) / 360<br>
+                                Q<sub class="text-[10px]">storm</sub> = (<span id="mathC">0.45</span> × <span id="mathI2">22.67</span> × <span id="mathA">150</span>) / 360<br>
+                                Q<sub class="text-[10px]">storm</sub> = <span id="mathQstorm" class="font-bold text-storm text-sm">4.25</span> m³/s
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Combined Sizing -->
+                        <div class="bg-teal-50 p-3 rounded-lg border border-teal-100">
+                            <div class="font-bold text-teal-900 mb-1 border-b border-teal-200 pb-1">3. Sewer Sizing & Velocity</div>
+                            <div class="math-font text-xs space-y-1">
+                                Combined Q = Q<sub class="text-[10px]">san</sub> + Q<sub class="text-[10px]">storm</sub> = <span id="mathQtot" class="font-bold text-combined text-sm">4.75</span> m³/s<br>
+                                Area Req = Q / V<sub class="text-[10px]">max</sub> = <span id="mathAreq">1.48</span> m²<br>
+                                Dia Req = √(4A / π) = <span id="mathDreq">1.374</span> m<br>
+                                <span class="text-teal-700 font-bold bg-teal-100 px-1 rounded">Adopted D = <span id="mathD">1.4</span> m</span><br>
+                                Area<sub class="text-[10px]">act</sub> = (π/4) × D² = <span id="mathAact">1.54</span> m²<br>
+                                V<sub class="text-[10px]">act</sub> = Q / Area<sub class="text-[10px]">act</sub> = <span id="mathVact" class="font-bold text-teal-700 text-sm">3.08</span> m/s<br>
+                                <span id="mathStatus" class="inline-block mt-1 font-bold px-2 py-0.5 rounded text-[10px]">3.08 < 3.2 m/s (SAFE)</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Visual Simulation -->
+            <div class="lg:col-span-4 flex flex-col h-[500px] lg:h-auto">
+                <div class="glass-panel flex flex-col h-full w-full overflow-hidden p-4">
+                    <div class="flex justify-between items-center mb-2 px-2">
+                        <h2 class="font-bold text-slate-800 text-sm">Live Flow Simulation</h2>
+                        <div class="flex gap-2 text-[10px] font-bold">
+                            <span class="text-sanitary">■ Sanitary</span>
+                            <span class="text-storm">■ Storm</span>
+                        </div>
+                    </div>
+                    <div id="canvas-container" class="flex-grow w-full rounded-lg border border-slate-200">
+                        <canvas id="simCanvas" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const slideArea = document.getElementById('slideArea');
+        const slidePop = document.getElementById('slidePop');
+        const slideLpcd = document.getElementById('slideLpcd');
+        const slideTe = document.getElementById('slideTe');
+        const slideTf = document.getElementById('slideTf');
+        const slideC = document.getElementById('slideC');
+        const slideVmax = document.getElementById('slideVmax');
+        
+        const valArea = document.getElementById('valArea');
+        const valPop = document.getElementById('valPop');
+        const valLpcd = document.getElementById('valLpcd');
+        const valTe = document.getElementById('valTe');
+        const valTf = document.getElementById('valTf');
+        const valC = document.getElementById('valC');
+        const valVmax = document.getElementById('valVmax');
+
+        // Math Elements
+        const mathDWF = document.getElementById('mathDWF');
+        const mathQsan = document.getElementById('mathQsan');
+        const mathTc = document.getElementById('mathTc');
+        const mathI_form = document.getElementById('mathI_form');
+        const mathI = document.getElementById('mathI');
+        const mathC = document.getElementById('mathC');
+        const mathI2 = document.getElementById('mathI2');
+        const mathA = document.getElementById('mathA');
+        const mathQstorm = document.getElementById('mathQstorm');
+        const mathQtot = document.getElementById('mathQtot');
+        const mathAreq = document.getElementById('mathAreq');
+        const mathDreq = document.getElementById('mathDreq');
+        const mathD = document.getElementById('mathD');
+        const mathAact = document.getElementById('mathAact');
+        const mathVact = document.getElementById('mathVact');
+        const mathStatus = document.getElementById('mathStatus');
+
+        // Canvas
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        // State variables
+        let state = {
+            Area: 150, Pop: 100000, Lpcd: 270,
+            Te: 5, Tf: 20, C: 0.45, Vmax: 3.2,
+            
+            // Calculated
+            Qsan: 0, Qstorm: 0, Qtot: 0,
+            D: 0, Vact: 0,
+            
+            particles: []
+        };
+
+        // Initialize particles
+        function initParticles() {
+            state.particles = [];
+            for(let i=0; i<150; i++) {
+                state.particles.push({
+                    x: Math.random(), // 0 to 1
+                    y: Math.random(), // 0 to 1
+                    speedOffset: 0.8 + Math.random() * 0.4,
+                    type: Math.random() > 0.8 ? 'sanitary' : 'storm'
+                });
+            }
+        }
+
+        // Texture generation
+        let concretePattern;
+        function initTextures() {
+            const c2 = document.createElement('canvas');
+            c2.width = 20; c2.height = 20;
+            const ctx2 = c2.getContext('2d');
+            ctx2.fillStyle = '#cbd5e1'; ctx2.fillRect(0,0,20,20);
+            ctx2.fillStyle = '#94a3b8';
+            for(let i=0; i<10; i++) {
+                ctx2.beginPath(); ctx2.arc(Math.random()*20, Math.random()*20, Math.random(), 0, Math.PI*2); ctx2.fill();
+            }
+            concretePattern = ctx.createPattern(c2, 'repeat');
+        }
+
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function updateMath() {
+            // Get inputs
+            state.Area = parseFloat(slideArea.value);
+            state.Pop = parseInt(slidePop.value);
+            state.Lpcd = parseInt(slideLpcd.value);
+            state.Te = parseInt(slideTe.value);
+            state.Tf = parseInt(slideTf.value);
+            state.C = parseFloat(slideC.value);
+            state.Vmax = parseFloat(slideVmax.value);
+
+            // Update UI Labels
+            valArea.innerHTML = `${state.Area} ha`;
+            valPop.innerHTML = state.Pop.toLocaleString();
+            valLpcd.innerHTML = `${state.Lpcd} lpcd`;
+            valTe.innerHTML = `${state.Te} m`;
+            valTf.innerHTML = `${state.Tf} m`;
+            valC.innerHTML = state.C.toFixed(2);
+            valVmax.innerHTML = state.Vmax.toFixed(1);
+
+            // --- MATH CALCULATIONS ---
+            
+            // 1. Sanitary
+            let dwf = (state.Pop * state.Lpcd * 0.8) / (1000 * 24 * 3600);
+            state.Qsan = dwf * 2; // Peak factor 2
+            
+            // 2. Storm
+            let Tc = state.Te + state.Tf;
+            let I = 0;
+            if (Tc <= 20) {
+                I = 760 / (Tc + 10);
+                mathI_form.innerHTML = "Since Tc ≤ 20, I = 760 / (t + 10)";
+            } else {
+                I = 1020 / (Tc + 20);
+                mathI_form.innerHTML = "Since Tc > 20, I = 1020 / (t + 20)";
+            }
+            state.Qstorm = (state.C * I * state.Area) / 360;
+
+            // 3. Combined
+            state.Qtot = state.Qsan + state.Qstorm;
+            let Areq = state.Qtot / state.Vmax;
+            let Dreq = Math.sqrt((4 * Areq) / Math.PI);
+            
+            // Adopt commercially available size (round up to nearest 0.1m)
+            state.D = Math.ceil(Dreq * 10) / 10;
+            
+            let Aact = (Math.PI / 4) * Math.pow(state.D, 2);
+            state.Vact = state.Qtot / Aact;
+
+            // --- UPDATE TEXT ---
+            mathDWF.innerHTML = dwf.toFixed(4);
+            mathQsan.innerHTML = state.Qsan.toFixed(2);
+            mathTc.innerHTML = Tc;
+            mathI.innerHTML = I.toFixed(2);
+            mathC.innerHTML = state.C.toFixed(2);
+            mathI2.innerHTML = I.toFixed(2);
+            mathA.innerHTML = state.Area;
+            mathQstorm.innerHTML = state.Qstorm.toFixed(2);
+            
+            mathQtot.innerHTML = state.Qtot.toFixed(2);
+            mathAreq.innerHTML = Areq.toFixed(2);
+            mathDreq.innerHTML = Dreq.toFixed(3);
+            mathD.innerHTML = state.D.toFixed(1);
+            mathAact.innerHTML = Aact.toFixed(2);
+            mathVact.innerHTML = state.Vact.toFixed(2);
+
+            if (state.Vact <= state.Vmax) {
+                mathStatus.innerHTML = `${state.Vact.toFixed(2)} ≤ ${state.Vmax.toFixed(1)} m/s (SAFE)`;
+                mathStatus.className = "inline-block mt-1 font-bold px-2 py-0.5 rounded text-[10px] bg-teal-100 text-teal-800";
+            } else {
+                mathStatus.innerHTML = `${state.Vact.toFixed(2)} > ${state.Vmax.toFixed(1)} m/s (EXCEEDS)`;
+                mathStatus.className = "inline-block mt-1 font-bold px-2 py-0.5 rounded text-[10px] bg-red-100 text-red-800";
+            }
+        }
+
+        // --- RENDER LOGIC ---
+        function drawFrame() {
+            const cw = canvas.width / window.devicePixelRatio;
+            const ch = canvas.height / window.devicePixelRatio;
+            const time = Date.now();
+            
+            ctx.clearRect(0, 0, cw, ch);
+
+            // We divide the canvas: Left = Cross Section, Right = Longitudinal Profile
+            const midX = cw * 0.4;
+            
+            // Background Soil
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(0, 0, cw, ch);
+            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(midX, 0); ctx.lineTo(midX, ch); ctx.stroke();
+
+            // Mapping Geometry
+            // Max D is ~3.5m. Let's scale 1m = 30px
+            const pxPerMeter = Math.min((midX - 40) / 4, ch / 5);
+            const rPx = (state.D * pxPerMeter) / 2;
+            const wallPx = 10;
+            
+            // --- 1. CROSS SECTION (LEFT) ---
+            const cx1 = midX / 2;
+            const cy1 = ch / 2;
+
+            // Outer Pipe
+            ctx.fillStyle = concretePattern;
+            ctx.beginPath(); ctx.arc(cx1, cy1, rPx + wallPx, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 2; ctx.stroke();
+
+            // Inner Pipe (Hollow)
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.arc(cx1, cy1, rPx, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+            // Water Fill
+            // Math assumes pipe is running full, visually show ~90% full so we see the surface
+            const fillLevel = 0.9;
+            const waterY1 = cy1 + rPx - (rPx * 2 * fillLevel);
+            
+            ctx.save();
+            ctx.beginPath(); ctx.arc(cx1, cy1, rPx, 0, Math.PI*2); ctx.clip();
+            
+            // Draw Combined Sewage Water
+            const waterColor = 'rgba(15, 118, 110, 0.6)'; // Teal for combined
+            ctx.fillStyle = waterColor;
+            
+            // Wavy surface
+            ctx.beginPath();
+            ctx.moveTo(cx1 - rPx, waterY1);
+            for(let x = cx1 - rPx; x <= cx1 + rPx; x += 5) {
+                ctx.lineTo(x, waterY1 + Math.sin(x*0.05 + time*0.005)*3);
+            }
+            ctx.lineTo(cx1 + rPx, cy1 + rPx);
+            ctx.lineTo(cx1 - rPx, cy1 + rPx);
+            ctx.fill();
+            ctx.restore();
+
+            // Dimension Line D
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(cx1 - rPx, cy1); ctx.lineTo(cx1 + rPx, cy1); ctx.stroke();
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(cx1-15, cy1-8, 30, 16);
+            ctx.fillStyle = '#1e293b'; ctx.font = 'bold 11px JetBrains Mono'; ctx.textAlign = 'center';
+            ctx.fillText(`D=${state.D.toFixed(1)}m`, cx1, cy1 + 4);
+
+
+            // --- 2. LONGITUDINAL PROFILE (RIGHT) ---
+            const rxStart = midX + 20;
+            const rxEnd = cw - 20;
+            const pipeLen = rxEnd - rxStart;
+            
+            // Pipe Walls
+            ctx.fillStyle = concretePattern;
+            ctx.fillRect(rxStart, cy1 - rPx - wallPx, pipeLen, wallPx); // Top
+            ctx.fillRect(rxStart, cy1 + rPx, pipeLen, wallPx); // Bottom
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 2;
+            ctx.strokeRect(rxStart, cy1 - rPx - wallPx, pipeLen, wallPx);
+            ctx.strokeRect(rxStart, cy1 + rPx, pipeLen, wallPx);
+
+            // Water Body
+            ctx.fillStyle = waterColor;
+            ctx.beginPath();
+            ctx.moveTo(rxStart, waterY1);
+            for(let x = rxStart; x <= rxEnd; x += 10) {
+                ctx.lineTo(x, waterY1 + Math.sin(x*0.03 + time*0.005)*3);
+            }
+            ctx.lineTo(rxEnd, cy1 + rPx);
+            ctx.lineTo(rxStart, cy1 + rPx);
+            ctx.fill();
+
+            // Particle Flow Animation (Velocity representation)
+            const visualVelocity = state.Vact * 1.5; // Scaling factor for visual speed
+            
+            state.particles.forEach(p => {
+                // Update position
+                p.x += (visualVelocity * p.speedOffset) / pipeLen;
+                if (p.x > 1) p.x = 0; // Loop back
+
+                const px = rxStart + p.x * pipeLen;
+                const py = waterY1 + 10 + p.y * (cy1 + rPx - waterY1 - 15);
+
+                ctx.fillStyle = p.type === 'sanitary' ? '#d97706' : '#bae6fd';
+                ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI*2); ctx.fill();
+
+                // Motion blur trail
+                ctx.strokeStyle = `rgba(255,255,255,0.4)`;
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px - visualVelocity*2, py); ctx.stroke();
+            });
+
+            // Flow Direction Arrow
+            const arrowY = cy1;
+            ctx.strokeStyle = '#0f172a'; ctx.fillStyle = '#0f172a'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(rxStart + pipeLen*0.4, arrowY); ctx.lineTo(rxStart + pipeLen*0.6, arrowY); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(rxStart + pipeLen*0.6, arrowY); 
+            ctx.lineTo(rxStart + pipeLen*0.6 - 8, arrowY - 5); 
+            ctx.lineTo(rxStart + pipeLen*0.6 - 8, arrowY + 5); ctx.fill();
+            
+            ctx.fillText(`V = ${state.Vact.toFixed(2)} m/s`, rxStart + pipeLen*0.5, arrowY - 10);
+            ctx.fillText(`Q = ${state.Qtot.toFixed(2)} m³/s`, rxStart + pipeLen*0.5, arrowY + 15);
+
+            // Labels
+            ctx.fillStyle = '#64748b'; ctx.font = 'bold 12px Inter';
+            ctx.fillText('CROSS SECTION', cx1, 20);
+            ctx.fillText('LONGITUDINAL PROFILE', rxStart + pipeLen/2, 20);
+
+            requestAnimationFrame(drawFrame);
+        }
+
+        // Listeners
+        [slideArea, slidePop, slideLpcd, slideTe, slideTf, slideC, slideVmax].forEach(el => {
+            el.addEventListener('input', updateMath);
+        });
+
+        // Initialize
+        initTextures();
+        initParticles();
+        resizeCanvas();
+        updateMath();
+        requestAnimationFrame(drawFrame);
+
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masonry Foundation Design Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f5;
+            color: #18181b;
+        }
+
+        .math-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(228, 228, 231, 0.8);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border-radius: 1rem;
+        }
+
+        .slider-custom {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 9999px;
+            background: #e4e4e7;
+            outline: none;
+        }
+
+        .slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #2563eb;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+
+        .slider-custom::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #1d4ed8;
+        }
+
+        .radio-custom:checked + div {
+            background-color: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        #canvas-container {
+            background: radial-gradient(circle at 50% 50%, #ffffff 0%, #f4f4f5 100%);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .dimension-line { stroke: #3f3f46; stroke-width: 1.5; }
+        .dimension-text { fill: #18181b; font-family: 'JetBrains Mono'; font-size: 12px; font-weight: 600; }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col">
+
+    <div class="max-w-7xl mx-auto w-full space-y-6 flex-grow flex flex-col">
+
+        <!-- Header -->
+        <header class="text-center space-y-3 mb-4 bg-white p-8 rounded-2xl shadow-sm border border-zinc-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-zinc-900 tracking-tight">Masonry Strip Foundation Design</h1>
+            <p class="text-zinc-500 font-medium text-base max-w-3xl mx-auto">
+                Real-time structural calculation and hyper-realistic 2D visual simulation for stepped brick and stone footings.
+            </p>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+            
+            <!-- Left Column: Controls & Math -->
+            <div class="lg:col-span-4 flex flex-col space-y-6">
+                
+                <!-- Controls Panel -->
+                <div class="glass-panel p-6 space-y-6">
+                    <h2 class="font-bold text-lg text-zinc-800 border-b border-zinc-200 pb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        Design Parameters
+                    </h2>
+
+                    <!-- Material Toggle -->
+                    <div>
+                        <label class="block text-sm font-semibold text-zinc-700 mb-2">Masonry Material</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="material" value="brick" class="sr-only radio-custom" checked onchange="handleMaterialChange('brick')">
+                                <div class="text-center py-2 px-4 border border-zinc-300 rounded-lg text-sm font-medium text-zinc-600 transition-colors">
+                                    Brick Masonry
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="material" value="stone" class="sr-only radio-custom" onchange="handleMaterialChange('stone')">
+                                <div class="text-center py-2 px-4 border border-zinc-300 rounded-lg text-sm font-medium text-zinc-600 transition-colors">
+                                    Stone Masonry
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Wall Load -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-zinc-700">Load on Wall (<span class="math-font text-blue-600">W</span>)</label>
+                            <span id="valLoad" class="text-sm font-bold text-zinc-900 bg-zinc-100 px-2 py-1 rounded">50 kN/m</span>
+                        </div>
+                        <input type="range" id="slideLoad" min="20" max="250" step="5" value="50" class="slider-custom">
+                    </div>
+
+                    <!-- SBC -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-zinc-700">Safe Bearing Cap. (<span class="math-font text-blue-600">SBC</span>)</label>
+                            <span id="valSBC" class="text-sm font-bold text-zinc-900 bg-zinc-100 px-2 py-1 rounded">100 kN/m²</span>
+                        </div>
+                        <input type="range" id="slideSBC" min="50" max="300" step="10" value="100" class="slider-custom">
+                    </div>
+
+                    <!-- Wall Thickness -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-zinc-700">Wall Thickness (<span class="math-font text-blue-600">t</span>)</label>
+                            <span id="valThick" class="text-sm font-bold text-zinc-900 bg-zinc-100 px-2 py-1 rounded">230 mm</span>
+                        </div>
+                        <input type="range" id="slideThick" min="110" max="500" step="10" value="230" class="slider-custom">
+                    </div>
+                </div>
+
+                <!-- Mathematical Breakdown Panel -->
+                <div class="glass-panel p-6 flex-grow flex flex-col">
+                    <h2 class="font-bold text-lg text-zinc-800 border-b border-zinc-200 pb-2 mb-4">Calculations</h2>
+                    
+                    <div class="space-y-4 text-sm text-zinc-700 flex-grow">
+                        <!-- Step 1 -->
+                        <div class="bg-blue-50/50 p-3 rounded-lg border border-blue-100">
+                            <div class="font-semibold text-blue-800 mb-1">1. Total Load (incl. 10% self-wt)</div>
+                            <div class="math-font text-xs">
+                                W<sub class="text-[10px]">t</sub> = W + 0.1W <br>
+                                W<sub class="text-[10px]">t</sub> = <span id="mathLoad">50</span> + <span id="mathSelfWt">5</span> = <span id="mathTotalLoad" class="font-bold text-blue-600">55.0</span> kN/m
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100">
+                            <div class="font-semibold text-indigo-800 mb-1">2. Required Base Width</div>
+                            <div class="math-font text-xs">
+                                B<sub class="text-[10px]">req</sub> = W<sub class="text-[10px]">t</sub> / SBC <br>
+                                B<sub class="text-[10px]">req</sub> = <span id="mathWtDiv">55.0</span> / <span id="mathSBC">100</span> = <span id="mathBreq" class="font-bold text-indigo-600">0.550</span> m (<span id="mathBreqMM">550</span> mm)
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="bg-zinc-50 p-3 rounded-lg border border-zinc-200">
+                            <div class="font-semibold text-zinc-800 mb-1">3. PCC Bed Geometry</div>
+                            <div class="math-font text-xs">
+                                Offset<sub class="text-[10px]">m</sub> = <span id="mathOm">50</span> mm<br>
+                                Thick<sub class="text-[10px]">pcc</sub> = Offset<sub class="text-[10px]">m</sub> + 50 = <span id="mathTpcc" class="font-bold text-zinc-700">100</span> mm
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="bg-emerald-50/50 p-3 rounded-lg border border-emerald-100">
+                            <div class="font-semibold text-emerald-800 mb-1">4. Steps & Final Dimensions</div>
+                            <div class="math-font text-xs space-y-1">
+                                Steps (<span class="text-emerald-700">N</span>) required to reach B<sub class="text-[10px]">req</sub>:<br>
+                                <span id="mathSteps" class="font-bold text-emerald-700 text-sm">N = 2</span><br>
+                                B<sub class="text-[10px]">prov</sub> = t + 2(N × Offset<sub class="text-[10px]">m</sub>) + 2(Thick<sub class="text-[10px]">pcc</sub>)<br>
+                                <span class="font-bold text-emerald-700 text-[13px]">B<sub class="text-[10px] text-emerald-700">prov</sub> = <span id="mathBprov">630</span> mm</span><br>
+                                D<sub class="text-[10px]">f</sub> = Thick<sub class="text-[10px]">pcc</sub> + (N × Height<sub class="text-[10px]">step</sub>)<br>
+                                <span class="font-bold text-emerald-700 text-[13px]">D<sub class="text-[10px] text-emerald-700">f</sub> = <span id="mathDf">300</span> mm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Visualization -->
+            <div class="lg:col-span-8 flex flex-col">
+                <div class="glass-panel p-4 flex flex-col h-[600px] lg:h-full w-full">
+                    <div class="flex justify-between items-center mb-3 px-2">
+                        <h2 class="font-bold text-lg text-zinc-800">2D Scaled Cross-Section</h2>
+                        <span id="badgeStatus" class="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full uppercase tracking-wider">Safe Design</span>
+                    </div>
+                    
+                    <div id="canvas-container" class="flex-grow w-full border border-zinc-200">
+                        <canvas id="simCanvas" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const slideLoad = document.getElementById('slideLoad');
+        const slideSBC = document.getElementById('slideSBC');
+        const slideThick = document.getElementById('slideThick');
+        
+        const valLoad = document.getElementById('valLoad');
+        const valSBC = document.getElementById('valSBC');
+        const valThick = document.getElementById('valThick');
+
+        // Math Output Elements
+        const mathLoad = document.getElementById('mathLoad');
+        const mathSelfWt = document.getElementById('mathSelfWt');
+        const mathTotalLoad = document.getElementById('mathTotalLoad');
+        const mathWtDiv = document.getElementById('mathWtDiv');
+        const mathSBC = document.getElementById('mathSBC');
+        const mathBreq = document.getElementById('mathBreq');
+        const mathBreqMM = document.getElementById('mathBreqMM');
+        const mathOm = document.getElementById('mathOm');
+        const mathTpcc = document.getElementById('mathTpcc');
+        const mathSteps = document.getElementById('mathSteps');
+        const mathBprov = document.getElementById('mathBprov');
+        const mathDf = document.getElementById('mathDf');
+
+        // Canvas
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        // Textures (Generated procedurally)
+        let patternConcrete, patternBrick, patternStone, patternSoil;
+
+        // Current State
+        let state = {
+            material: 'brick',
+            W: parseFloat(slideLoad.value),
+            SBC: parseFloat(slideSBC.value),
+            t: parseFloat(slideThick.value),
+            
+            // Fixed Parameters based on material
+            offsetM: 50, // mm
+            stepH: 100, // mm
+            
+            // Calculated
+            Tpcc: 0,
+            offsetPcc: 0,
+            N: 0,
+            B_req: 0,
+            B_prov: 0,
+            Df: 0
+        };
+
+        // Initialize Procedural Textures
+        function initTextures() {
+            // 1. Concrete Pattern (Dots and small triangles)
+            const pc = document.createElement('canvas');
+            pc.width = 40; pc.height = 40;
+            const pctx = pc.getContext('2d');
+            pctx.fillStyle = '#e4e4e7'; pctx.fillRect(0,0,40,40); // zinc-200 base
+            pctx.fillStyle = '#a1a1aa'; // zinc-400 specs
+            for(let i=0; i<15; i++) {
+                pctx.beginPath();
+                pctx.arc(Math.random()*40, Math.random()*40, 0.5 + Math.random()*1.5, 0, Math.PI*2);
+                pctx.fill();
+            }
+            pctx.fillStyle = '#71717a'; // dark aggregates
+            for(let i=0; i<5; i++) {
+                pctx.beginPath();
+                let x = Math.random()*40, y = Math.random()*40;
+                pctx.moveTo(x,y); pctx.lineTo(x+3, y+4); pctx.lineTo(x-2, y+5); pctx.fill();
+            }
+            patternConcrete = ctx.createPattern(pc, 'repeat');
+
+            // 2. Brick Pattern (Running Bond)
+            const pb = document.createElement('canvas');
+            pb.width = 30; pb.height = 15;
+            const pbctx = pb.getContext('2d');
+            pbctx.fillStyle = '#b91c1c'; pbctx.fillRect(0,0,30,15); // red-700
+            pbctx.fillStyle = '#991b1b'; // slightly darker variation
+            pbctx.fillRect(0,0,15,7.5); pbctx.fillRect(15,7.5,15,7.5);
+            pbctx.strokeStyle = '#f4f4f5'; pbctx.lineWidth = 1; // mortar
+            pbctx.strokeRect(0,0,30,7.5); pbctx.strokeRect(-15,7.5,30,7.5); pbctx.strokeRect(15,7.5,30,7.5);
+            patternBrick = ctx.createPattern(pb, 'repeat');
+
+            // 3. Stone Pattern (Irregular Ashlar)
+            const ps = document.createElement('canvas');
+            ps.width = 60; ps.height = 30;
+            const psctx = ps.getContext('2d');
+            psctx.fillStyle = '#71717a'; psctx.fillRect(0,0,60,30); // zinc-500
+            psctx.strokeStyle = '#3f3f46'; psctx.lineWidth = 2; // dark mortar
+            // Draw blocks
+            psctx.fillStyle = '#a1a1aa'; psctx.fillRect(0,0,20,15); psctx.strokeRect(0,0,20,15);
+            psctx.fillStyle = '#52525b'; psctx.fillRect(20,0,40,15); psctx.strokeRect(20,0,40,15);
+            psctx.fillStyle = '#71717a'; psctx.fillRect(-10,15,30,15); psctx.strokeRect(-10,15,30,15);
+            psctx.fillStyle = '#a1a1aa'; psctx.fillRect(20,15,40,15); psctx.strokeRect(20,15,40,15);
+            patternStone = ctx.createPattern(ps, 'repeat');
+
+            // 4. Soil Pattern (Hatching)
+            const pso = document.createElement('canvas');
+            pso.width = 20; pso.height = 20;
+            const psoctx = pso.getContext('2d');
+            psoctx.fillStyle = '#fef3c7'; psoctx.fillRect(0,0,20,20); // amber-50
+            psoctx.strokeStyle = '#fde68a'; psoctx.lineWidth = 1; // amber-200
+            psoctx.beginPath(); psoctx.moveTo(0,20); psoctx.lineTo(20,0); psoctx.stroke();
+            patternSoil = ctx.createPattern(pso, 'repeat');
+        }
+
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            calculateLogic();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function handleMaterialChange(mat) {
+            state.material = mat;
+            if (mat === 'brick') {
+                state.offsetM = 50;
+                state.stepH = 100;
+                slideThick.value = 230; // standard brick wall
+            } else {
+                state.offsetM = 150;
+                state.stepH = 300;
+                slideThick.value = 380; // standard stone wall
+            }
+            updateInputs();
+        }
+
+        function updateInputs() {
+            state.W = parseFloat(slideLoad.value);
+            state.SBC = parseFloat(slideSBC.value);
+            state.t = parseFloat(slideThick.value);
+
+            valLoad.innerHTML = `${state.W} kN/m`;
+            valSBC.innerHTML = `${state.SBC} kN/m²`;
+            valThick.innerHTML = `${state.t} mm`;
+
+            calculateLogic();
+        }
+
+        function calculateLogic() {
+            // 1. Loads
+            const Ws = state.W * 0.1;
+            const Wt = state.W + Ws;
+            
+            // 2. Base Width Required
+            state.B_req = Wt / state.SBC; // in meters
+            const B_req_mm = state.B_req * 1000;
+
+            // 3. Foundation Sizing
+            state.Tpcc = state.offsetM + 50; // mm
+            state.offsetPcc = state.Tpcc; // Projection is standard equal to thickness
+
+            // Calculate minimum N steps required
+            // Base width provided = t + 2*(N * offsetM) + 2*offsetPcc
+            // We need: t + 2*N*offsetM + 2*offsetPcc >= B_req_mm
+            // 2*N*offsetM >= B_req_mm - t - 2*offsetPcc
+            const deficit = B_req_mm - state.t - (2 * state.offsetPcc);
+            
+            if (deficit <= 0) {
+                state.N = 0;
+            } else {
+                state.N = Math.ceil(deficit / (2 * state.offsetM));
+            }
+
+            state.B_prov = state.t + 2 * (state.N * state.offsetM) + 2 * state.offsetPcc;
+            state.Df = state.Tpcc + (state.N * state.stepH);
+
+            // Update Math UI
+            mathLoad.innerHTML = state.W.toFixed(1);
+            mathSelfWt.innerHTML = Ws.toFixed(1);
+            mathTotalLoad.innerHTML = Wt.toFixed(1);
+            
+            mathWtDiv.innerHTML = Wt.toFixed(1);
+            mathSBC.innerHTML = state.SBC.toFixed(1);
+            mathBreq.innerHTML = state.B_req.toFixed(3);
+            mathBreqMM.innerHTML = Math.round(B_req_mm);
+
+            mathOm.innerHTML = state.offsetM;
+            mathTpcc.innerHTML = state.Tpcc;
+
+            mathSteps.innerHTML = `N = ${state.N}`;
+            mathBprov.innerHTML = state.B_prov;
+            mathDf.innerHTML = state.Df;
+
+            drawCanvas();
+        }
+
+        // Arrow drawing utility
+        function drawDimArrow(ctx, x1, y1, x2, y2, text, vertical=false, offset=0) {
+            ctx.save();
+            ctx.strokeStyle = '#3f3f46';
+            ctx.lineWidth = 1.5;
+            ctx.fillStyle = '#18181b';
+            ctx.font = '600 12px JetBrains Mono';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Draw line
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            // Draw ticks/arrows
+            const tick = 5;
+            if(vertical) {
+                ctx.beginPath(); ctx.moveTo(x1-tick, y1); ctx.lineTo(x1+tick, y1); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x2-tick, y2); ctx.lineTo(x2+tick, y2); ctx.stroke();
+            } else {
+                ctx.beginPath(); ctx.moveTo(x1, y1-tick); ctx.lineTo(x1, y1+tick); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x2, y2-tick); ctx.lineTo(x2, y2+tick); ctx.stroke();
+            }
+
+            // Draw text background & text
+            const cx = (x1 + x2) / 2;
+            const cy = (y1 + y2) / 2;
+            
+            if (vertical) {
+                ctx.save();
+                ctx.translate(cx + offset, cy);
+                ctx.rotate(-Math.PI/2);
+                const txtW = ctx.measureText(text).width;
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(-txtW/2 - 4, -8, txtW + 8, 16);
+                ctx.fillStyle = '#18181b'; ctx.fillText(text, 0, 0);
+                ctx.restore();
+            } else {
+                const txtW = ctx.measureText(text).width;
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(cx - txtW/2 - 4, cy + offset - 8, txtW + 8, 16);
+                ctx.fillStyle = '#18181b'; ctx.fillText(text, cx, cy + offset);
+            }
+
+            ctx.restore();
+        }
+
+        function drawCanvas() {
+            const w = canvas.width / window.devicePixelRatio;
+            const h = canvas.height / window.devicePixelRatio;
+            
+            ctx.clearRect(0, 0, w, h);
+
+            // Determine scale to fit the drawing perfectly
+            // Total height of foundation = Df + Plinth/Superstructure (say 600mm)
+            const visualSuperstructureH = 600;
+            const totalVisualH = state.Df + visualSuperstructureH + 200; // 200mm padding bottom
+            const totalVisualW = state.B_prov + 1000; // 500mm padding on each side
+
+            // Calculate scale (pixels per mm)
+            const scaleY = (h - 100) / totalVisualH; // 100px UI padding
+            const scaleX = (w - 100) / totalVisualW;
+            const scale = Math.min(scaleX, scaleY);
+
+            const cx = w / 2;
+            const bottomY = h - 60; // 60px from bottom
+
+            // 1. Draw Soil Background
+            const groundLevelY = bottomY - (state.Df * scale);
+            ctx.fillStyle = patternSoil;
+            ctx.fillRect(0, groundLevelY, w, h - groundLevelY);
+            
+            // Ground Line
+            ctx.beginPath();
+            ctx.moveTo(0, groundLevelY);
+            ctx.lineTo(w, groundLevelY);
+            ctx.strokeStyle = '#854d0e'; // amber-700
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // GL Symbol
+            ctx.beginPath(); ctx.moveTo(w/4, groundLevelY); ctx.lineTo(w/4 - 10, groundLevelY - 15); ctx.lineTo(w/4 + 10, groundLevelY - 15); ctx.closePath();
+            ctx.fillStyle = '#854d0e'; ctx.fill();
+            ctx.fillStyle = '#854d0e'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.fillText('G.L.', w/4, groundLevelY - 20);
+
+            // Set Masonry Texture
+            const masonryPattern = state.material === 'brick' ? patternBrick : patternStone;
+
+            // 2. Draw Concrete Bed
+            const pccW = state.B_prov * scale;
+            const pccH = state.Tpcc * scale;
+            const pccX = cx - pccW/2;
+            const pccY = bottomY - pccH;
+
+            ctx.fillStyle = patternConcrete;
+            ctx.fillRect(pccX, pccY, pccW, pccH);
+            ctx.strokeStyle = '#52525b'; ctx.lineWidth = 2;
+            ctx.strokeRect(pccX, pccY, pccW, pccH);
+
+            // 3. Draw Masonry Steps
+            let currentY = pccY;
+            let currentW_mm = state.B_prov - 2*state.offsetPcc;
+
+            for(let i=0; i<state.N; i++) {
+                const stepW = currentW_mm * scale;
+                const stepH = state.stepH * scale;
+                const stepX = cx - stepW/2;
+                currentY -= stepH;
+
+                ctx.fillStyle = masonryPattern;
+                ctx.fillRect(stepX, currentY, stepW, stepH);
+                ctx.strokeStyle = '#3f3f46'; ctx.lineWidth = 1.5;
+                ctx.strokeRect(stepX, currentY, stepW, stepH);
+
+                // Draw Offset Dimension lines on the first step for clarity
+                if (i === 0) {
+                    const nextW_mm = currentW_mm - 2*state.offsetM;
+                    const offsetPx = state.offsetM * scale;
+                    // Left offset
+                    drawDimArrow(ctx, stepX, currentY - 10, stepX + offsetPx, currentY - 10, state.offsetM, false, -10);
+                }
+
+                currentW_mm -= 2 * state.offsetM;
+            }
+
+            // 4. Draw Superstructure Wall
+            const wallW = state.t * scale;
+            const wallX = cx - wallW/2;
+            const wallH = visualSuperstructureH * scale;
+            
+            ctx.fillStyle = masonryPattern;
+            ctx.fillRect(wallX, currentY - wallH, wallW, wallH);
+            
+            ctx.beginPath();
+            ctx.moveTo(wallX, currentY); ctx.lineTo(wallX, currentY - wallH);
+            ctx.moveTo(wallX + wallW, currentY); ctx.lineTo(wallX + wallW, currentY - wallH);
+            ctx.strokeStyle = '#3f3f46'; ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Wall break line at top (jagged line)
+            ctx.beginPath();
+            ctx.moveTo(wallX - 5, currentY - wallH);
+            ctx.lineTo(wallX + wallW/3, currentY - wallH - 10);
+            ctx.lineTo(wallX + 2*wallW/3, currentY - wallH + 10);
+            ctx.lineTo(wallX + wallW + 5, currentY - wallH);
+            ctx.fillStyle = '#f4f4f5'; // background color to clip
+            ctx.lineTo(wallX + wallW + 5, 0);
+            ctx.lineTo(wallX - 5, 0);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Re-stroke top break line
+            ctx.beginPath();
+            ctx.moveTo(wallX, currentY - wallH);
+            ctx.lineTo(wallX + wallW/3, currentY - wallH - 5);
+            ctx.lineTo(wallX + 2*wallW/3, currentY - wallH + 5);
+            ctx.lineTo(wallX + wallW, currentY - wallH);
+            ctx.strokeStyle = '#3f3f46'; ctx.lineWidth = 2;
+            ctx.stroke();
+
+
+            // 5. Draw Main Dimensions
+            // Total Base Width B
+            const dimY = bottomY + 20;
+            ctx.beginPath(); ctx.moveTo(pccX, bottomY); ctx.lineTo(pccX, dimY + 10); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(pccX + pccW, bottomY); ctx.lineTo(pccX + pccW, dimY + 10); ctx.stroke();
+            drawDimArrow(ctx, pccX, dimY, pccX + pccW, dimY, `B = ${state.B_prov} mm`, false, 0);
+
+            // Concrete offset
+            drawDimArrow(ctx, pccX, pccY - 10, pccX + state.offsetPcc*scale, pccY - 10, state.offsetPcc, false, -10);
+
+            // Wall Thickness t
+            const tDimY = currentY - (wallH * 0.5);
+            drawDimArrow(ctx, wallX, tDimY, wallX + wallW, tDimY, `t = ${state.t}`, false, 0);
+
+            // Foundation Depth Df (Right side)
+            const rightEdge = pccX + pccW + 30;
+            ctx.beginPath(); ctx.moveTo(pccX + pccW, groundLevelY); ctx.lineTo(rightEdge + 10, groundLevelY); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(pccX + pccW, bottomY); ctx.lineTo(rightEdge + 10, bottomY); ctx.stroke();
+            drawDimArrow(ctx, rightEdge, groundLevelY, rightEdge, bottomY, `Df = ${state.Df}`, true, 15);
+
+            // PCC Thickness Tpcc
+            const leftEdge = pccX - 30;
+            ctx.beginPath(); ctx.moveTo(pccX, pccY); ctx.lineTo(leftEdge - 10, pccY); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(pccX, bottomY); ctx.lineTo(leftEdge - 10, bottomY); ctx.stroke();
+            drawDimArrow(ctx, leftEdge, pccY, leftEdge, bottomY, state.Tpcc, true, -15);
+        }
+
+        // Setup Listeners
+        [slideLoad, slideSBC, slideThick].forEach(el => {
+            el.addEventListener('input', updateInputs);
+        });
+
+        // Initialize
+        initTextures();
+        resizeCanvas();
+
+    </script>
+</body>
+</html>

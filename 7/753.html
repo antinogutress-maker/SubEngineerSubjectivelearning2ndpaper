@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog-Legged Stair Design Calculator</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --surface: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --error-bg: #fef2f2;
+            --error-text: #b91c1c;
+            --success-bg: #f0fdf4;
+            --success-text: #15803d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid #fecaca;
+            display: block;
+        }
+
+        .message.warning {
+            background-color: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fde68a;
+            display: block;
+        }
+
+        .results {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .results h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .result-item {
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-ok {
+            background: var(--success-bg);
+            color: var(--success-text);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <h1>Dog-Legged Stair Calculator</h1>
+            <p>Calculate exact structural dimensions for standardized staircases.</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="height">Floor Height (m)</label>
+                    <input type="number" id="height" step="0.01" placeholder="e.g., 3.6" min="0.1">
+                </div>
+                <div class="input-group">
+                    <label for="length">Room Length (m)</label>
+                    <input type="number" id="length" step="0.01" placeholder="e.g., 5.0" min="0.1">
+                </div>
+                <div class="input-group">
+                    <label for="breadth">Room Breadth (m)</label>
+                    <input type="number" id="breadth" step="0.01" placeholder="e.g., 2.5" min="0.1">
+                </div>
+            </div>
+
+            <button onclick="calculateStairs()">Calculate Dimensions</button>
+            <div id="msg-container" class="message"></div>
+
+            <div class="results" id="results">
+                <h2>Design Specifications</h2>
+                <div class="results-grid" id="results-grid">
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showMessage(text, type) {
+        const msgContainer = document.getElementById('msg-container');
+        msgContainer.innerText = text;
+        msgContainer.className = `message ${type}`;
+    }
+
+    function hideMessage() {
+        const msgContainer = document.getElementById('msg-container');
+        msgContainer.className = 'message';
+        msgContainer.innerText = '';
+    }
+
+    function createResultItem(label, value, badgeText = null) {
+        let badgeHTML = badgeText ? `<span class="status-badge status-ok">${badgeText}</span>` : '';
+        return `
+            <div class="result-item">
+                <span class="result-label">${label}</span>
+                <span class="result-value">${value} ${badgeHTML}</span>
+            </div>
+        `;
+    }
+
+    function calculateStairs() {
+        const H_m = parseFloat(document.getElementById('height').value);
+        const L_m = parseFloat(document.getElementById('length').value);
+        const B_m = parseFloat(document.getElementById('breadth').value);
+        
+        hideMessage();
+        document.getElementById('results').style.display = 'none';
+
+        if (!H_m || !L_m || !B_m) {
+            showMessage("Please fill out all dimensional fields.", "error");
+            return;
+        }
+
+        // Hidden constraints
+        if (H_m > 7 || L_m > 7 || B_m > 7) {
+            showMessage("System Error: Dimensions exceed allowable processing limits.", "error");
+            return;
+        }
+
+        // Convert to mm
+        const H = H_m * 1000;
+        const L = L_m * 1000;
+        const B = B_m * 1000;
+
+        const stairWidth = 1000;
+        const landingWidth = 1000;
+
+        if (B < stairWidth * 2) {
+            showMessage("Error: Room breadth must be at least 2.0m (2000mm) to fit a standard dog-legged stair.", "error");
+            return;
+        }
+
+        const flightHeight = H / 2;
+
+        // Accurate Riser Calculation (150mm to 170mm constraint)
+        const min_N = Math.ceil(flightHeight / 170);
+        const max_N = Math.floor(flightHeight / 150);
+        
+        let risersPerFlight;
+        
+        if (min_N <= max_N) {
+            // Pick max_N because it provides a riser height closest to the ideal 150mm
+            risersPerFlight = max_N; 
+        } else {
+            // Fallback if height prevents an exact integer match between 150-170mm
+            risersPerFlight = Math.round(flightHeight / 150);
+        }
+
+        const R_exact = flightHeight / risersPerFlight;
+        
+        if (R_exact < 150 || R_exact > 170) {
+            showMessage(`Warning: Unable to fit exact riser between 150-170mm. Adjusted to ${R_exact.toFixed(1)}mm.`, "warning");
+        }
+
+        const treadsPerFlight = risersPerFlight - 1;
+
+        // Empirical Rule T + 2R = 600
+        const T = 600 - (2 * R_exact);
+
+        // Space calculations
+        const spaceOccupiedByTreads = treadsPerFlight * T;
+        const spaceLeft = L - spaceOccupiedByTreads - landingWidth;
+
+        if (spaceLeft < 0) {
+            showMessage("Warning: The room length is too short to accommodate this stair design. Passage space is negative.", "warning");
+        }
+
+        const totalRisers = risersPerFlight * 2;
+        const totalTreads = treadsPerFlight * 2;
+
+        // Populate Results
+        let gridHTML = createResultItem("Stair Type", "Dog-Legged");
+        gridHTML += createResultItem("Width of Stairs / Landing", `${landingWidth} mm`);
+        gridHTML += createResultItem("Height of Each Flight", `${flightHeight.toFixed(0)} mm`);
+        gridHTML += createResultItem("Exact Riser Height (R)", `${R_exact.toFixed(2)} mm`);
+        gridHTML += createResultItem("Exact Tread Width (T)", `${T.toFixed(2)} mm`);
+        gridHTML += createResultItem("Risers per Flight", `${risersPerFlight} nos.`);
+        gridHTML += createResultItem("Treads per Flight", `${treadsPerFlight} nos.`);
+        gridHTML += createResultItem("Total Risers (Whole Stair)", `${totalRisers}`);
+        gridHTML += createResultItem("Total Treads (Whole Stair)", `${totalTreads}`);
+        
+        let spaceBadge = spaceLeft >= 0 ? "OK" : null;
+        gridHTML += createResultItem("Space Left for Passage", `${spaceLeft.toFixed(2)} mm`, spaceBadge);
+
+        document.getElementById('results-grid').innerHTML = gridHTML;
+        document.getElementById('results').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

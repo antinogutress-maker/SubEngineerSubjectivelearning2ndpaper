@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masonry Wall Stability | Lateral Loads Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .math-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border-radius: 1rem;
+        }
+
+        .slider-custom {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 9999px;
+            background: #cbd5e1;
+            outline: none;
+        }
+
+        .slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #334155;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .slider-custom::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #0f172a;
+        }
+
+        .btn-wind { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); }
+        .btn-wind:hover { background: linear-gradient(135deg, #0369a1 0%, #075985 100%); }
+        
+        .btn-seismic { background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); }
+        .btn-seismic:hover { background: linear-gradient(135deg, #c2410c 0%, #9a3412 100%); }
+
+        #canvas-container {
+            background: radial-gradient(circle at 50% 50%, #ffffff 0%, #f8fafc 100%);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-pass { background-color: #dcfce7; color: #166534; border-color: #bbf7d0; }
+        .status-fail { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; animation: pulse-border 1.5s infinite; }
+        .status-warn { background-color: #fef9c3; color: #854d0e; border-color: #fde047; }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col">
+
+    <div class="max-w-7xl mx-auto w-full space-y-6 flex-grow flex flex-col">
+
+        <!-- Header -->
+        <header class="text-center space-y-3 mb-2 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-slate-700 to-slate-900"></div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Load-Bearing Wall Stability</h1>
+            <p class="text-slate-500 font-medium text-base max-w-3xl mx-auto">
+                Evaluate in-plane (Seismic) and out-of-plane (Wind) lateral load behavior based on Slenderness and Aspect ratios.
+            </p>
+        </header>
+
+        <!-- Warning Banner -->
+        <div id="slendernessWarning" class="hidden bg-red-100 border-l-4 border-red-600 text-red-800 p-4 rounded-r-lg shadow-sm font-bold text-sm">
+            ⚠️ WARNING: Slenderness Ratio exceeds 27! Wall is extremely slender and lacks sufficient self-weight restoring moment, making it highly susceptible to rigid-body overturning.
+        </div>
+
+        <!-- Main Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+            
+            <!-- Left Column: Controls & Actions -->
+            <div class="lg:col-span-4 flex flex-col space-y-6">
+                
+                <!-- Controls Panel -->
+                <div class="glass-panel p-6 space-y-6">
+                    <h2 class="font-bold text-lg text-slate-800 border-b border-slate-200 pb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        Wall Geometry
+                    </h2>
+
+                    <!-- Height -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Wall Height (<span class="math-font text-slate-600">H</span>)</label>
+                            <span id="valH" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">3.0 m</span>
+                        </div>
+                        <input type="range" id="slideH" min="2.0" max="10.0" step="0.5" value="3.0" class="slider-custom">
+                    </div>
+
+                    <!-- Length -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Wall Length (<span class="math-font text-slate-600">L</span>)</label>
+                            <span id="valL" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">5.0 m</span>
+                        </div>
+                        <input type="range" id="slideL" min="2.0" max="15.0" step="0.5" value="5.0" class="slider-custom">
+                    </div>
+
+                    <!-- Thickness -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Thickness (<span class="math-font text-slate-600">t</span>)</label>
+                            <span id="valT" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">230 mm</span>
+                        </div>
+                        <input type="range" id="slideT" min="110" max="500" step="10" value="230" class="slider-custom">
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="glass-panel p-6 space-y-4">
+                    <h2 class="font-bold text-lg text-slate-800 border-b border-slate-200 pb-2">Apply Lateral Loads</h2>
+                    
+                    <button id="btnWind" class="w-full btn-wind text-white font-bold py-3 px-4 rounded-xl shadow-md transition-transform transform active:scale-95 flex justify-center items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        Apply Wind Load (Out-of-Plane)
+                    </button>
+
+                    <button id="btnSeismic" class="w-full btn-seismic text-white font-bold py-3 px-4 rounded-xl shadow-md transition-transform transform active:scale-95 flex justify-center items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        Apply Seismic Load (In-Plane)
+                    </button>
+                    
+                    <button id="btnReset" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-4 rounded-lg transition-colors text-sm">
+                        Reset View
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Middle Column: Visual Simulation -->
+            <div class="lg:col-span-5 flex flex-col h-[500px] lg:h-auto">
+                <div class="glass-panel p-4 flex flex-col h-full w-full">
+                    <div class="flex justify-between items-center mb-3 px-2">
+                        <h2 class="font-bold text-lg text-slate-800" id="canvasTitle">Isometric View</h2>
+                        <span id="canvasStatus" class="text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-100 px-2 py-1 rounded">Static</span>
+                    </div>
+                    
+                    <div id="canvas-container" class="flex-grow w-full border border-slate-200">
+                        <canvas id="simCanvas" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Mathematics & Results -->
+            <div class="lg:col-span-3 flex flex-col space-y-4">
+                
+                <!-- Slenderness Ratio -->
+                <div class="glass-panel p-5" id="cardSR">
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Slenderness Ratio (SR)</div>
+                    <div class="math-font text-sm text-slate-600 mb-2">SR = H / t</div>
+                    <div class="flex justify-between items-end">
+                        <div class="text-2xl font-bold font-mono tracking-tight" id="mathSR">13.04</div>
+                        <div class="text-xs font-bold px-2 py-1 rounded" id="badgeSR">SAFE (< 27)</div>
+                    </div>
+                </div>
+
+                <!-- Aspect Ratio -->
+                <div class="glass-panel p-5" id="cardAR">
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Aspect Ratio (AR)</div>
+                    <div class="math-font text-sm text-slate-600 mb-2">AR = H / L</div>
+                    <div class="flex justify-between items-end">
+                        <div class="text-2xl font-bold font-mono tracking-tight" id="mathAR">0.60</div>
+                        <div class="text-xs font-bold px-2 py-1 rounded" id="badgeAR">SHEAR WALL</div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-2" id="descAR">Behavior governed by shear. Highly resistant to in-plane forces.</p>
+                </div>
+
+                <!-- Wind Result -->
+                <div class="glass-panel p-5 flex-grow flex flex-col border-l-4 border-blue-500 bg-blue-50/30">
+                    <div class="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">Out-of-Plane Stability (Wind)</div>
+                    <div id="statusWind" class="text-sm font-bold text-slate-800 mb-2">Awaiting Test...</div>
+                    <p class="text-xs text-slate-600" id="descWind">Wind tests the wall's resistance to overturning across its thinnest dimension (t). Masonry lacks ductility, so failure occurs as rigid-body tipping.</p>
+                </div>
+
+                <!-- Seismic Result -->
+                <div class="glass-panel p-5 flex-grow flex flex-col border-l-4 border-orange-500 bg-orange-50/30">
+                    <div class="text-xs font-bold text-orange-700 uppercase tracking-wider mb-2">In-Plane Stability (Seismic)</div>
+                    <div id="statusSeismic" class="text-sm font-bold text-slate-800 mb-2">Awaiting Test...</div>
+                    <p class="text-xs text-slate-600" id="descSeismic">Seismic forces act along the length (L) of the wall. Tall/Short Aspect Ratios dictate if the wall overturns (flexure) or cracks diagonally (shear).</p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const slideH = document.getElementById('slideH');
+        const slideL = document.getElementById('slideL');
+        const slideT = document.getElementById('slideT');
+        
+        const valH = document.getElementById('valH');
+        const valL = document.getElementById('valL');
+        const valT = document.getElementById('valT');
+
+        const slendernessWarning = document.getElementById('slendernessWarning');
+
+        const mathSR = document.getElementById('mathSR');
+        const badgeSR = document.getElementById('badgeSR');
+        const mathAR = document.getElementById('mathAR');
+        const badgeAR = document.getElementById('badgeAR');
+        const descAR = document.getElementById('descAR');
+
+        const statusWind = document.getElementById('statusWind');
+        const descWind = document.getElementById('descWind');
+        const statusSeismic = document.getElementById('statusSeismic');
+        const descSeismic = document.getElementById('descSeismic');
+
+        const canvasTitle = document.getElementById('canvasTitle');
+        const canvasStatus = document.getElementById('canvasStatus');
+        
+        const btnWind = document.getElementById('btnWind');
+        const btnSeismic = document.getElementById('btnSeismic');
+        const btnReset = document.getElementById('btnReset');
+
+        // Canvas
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        // State & Math
+        let H, L, t_mm, t_m, SR, AR;
+        let windPass, seismicPass, seismicFailType; // 'overturn', 'shear', 'buckling'
+
+        // Animation State
+        let animMode = 'idle'; // 'idle', 'wind', 'seismic'
+        let animProgress = 0;
+        let animReq = null;
+
+        // Brick Pattern Cache
+        let patternBrick;
+
+        function initPattern() {
+            const pb = document.createElement('canvas');
+            pb.width = 40; pb.height = 20;
+            const pbctx = pb.getContext('2d');
+            pbctx.fillStyle = '#b91c1c'; pbctx.fillRect(0,0,40,20);
+            pbctx.fillStyle = '#991b1b'; pbctx.fillRect(0,0,20,10); pbctx.fillRect(20,10,20,10);
+            pbctx.strokeStyle = '#f8fafc'; pbctx.lineWidth = 1;
+            pbctx.strokeRect(0,0,40,10); pbctx.strokeRect(-20,10,40,10); pbctx.strokeRect(20,10,40,10);
+            patternBrick = ctx.createPattern(pb, 'repeat');
+        }
+
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            drawFrame();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function updateMath() {
+            H = parseFloat(slideH.value);
+            L = parseFloat(slideL.value);
+            t_mm = parseFloat(slideT.value);
+            t_m = t_mm / 1000;
+
+            valH.innerHTML = `${H.toFixed(1)} m`;
+            valL.innerHTML = `${L.toFixed(1)} m`;
+            valT.innerHTML = `${t_mm} mm`;
+
+            // Calculations
+            SR = (H / t_m);
+            AR = (H / L);
+
+            // Update SR UI
+            mathSR.innerHTML = SR.toFixed(2);
+            if (SR > 27) {
+                badgeSR.innerHTML = "FAIL (> 27)";
+                badgeSR.className = "text-xs font-bold px-2 py-1 rounded status-fail";
+                slendernessWarning.classList.remove('hidden');
+            } else if (SR > 20) {
+                badgeSR.innerHTML = "WARN (> 20)";
+                badgeSR.className = "text-xs font-bold px-2 py-1 rounded status-warn";
+                slendernessWarning.classList.add('hidden');
+            } else {
+                badgeSR.innerHTML = "SAFE (≤ 20)";
+                badgeSR.className = "text-xs font-bold px-2 py-1 rounded status-pass";
+                slendernessWarning.classList.add('hidden');
+            }
+
+            // Update AR UI
+            mathAR.innerHTML = AR.toFixed(2);
+            if (AR < 1.5) {
+                badgeAR.innerHTML = "SQUAT / SHEAR WALL";
+                badgeAR.className = "text-xs font-bold px-2 py-1 rounded status-pass";
+                descAR.innerHTML = "Behavior governed by shear. Highly resistant to in-plane overturning forces.";
+            } else if (AR < 3.0) {
+                badgeAR.innerHTML = "INTERMEDIATE";
+                badgeAR.className = "text-xs font-bold px-2 py-1 rounded bg-blue-100 text-blue-800";
+                descAR.innerHTML = "Combined shear and flexural behavior under in-plane lateral loads.";
+            } else {
+                badgeAR.innerHTML = "SLENDER / FLEXURAL";
+                badgeAR.className = "text-xs font-bold px-2 py-1 rounded status-warn";
+                descAR.innerHTML = "Behavior governed by flexure. Vulnerable to in-plane overturning.";
+            }
+
+            // Pass / Fail Logic
+            // Wind: Fails if SR > 20
+            windPass = SR <= 20;
+
+            // Seismic: Fails if SR > 27 (Buckling), AR > 3.0 (Overturning), or AR > 1.5 && SR > 22 (Diagonal Shear)
+            if (SR > 27) {
+                seismicPass = false;
+                seismicFailType = 'buckling';
+            } else if (AR >= 3.0) {
+                seismicPass = false;
+                seismicFailType = 'overturn';
+            } else if (AR > 1.5 && SR > 20) {
+                seismicPass = false;
+                seismicFailType = 'shear';
+            } else {
+                seismicPass = true;
+                seismicFailType = 'none';
+            }
+
+            // Reset Status Texts
+            statusWind.innerHTML = "Awaiting Test...";
+            statusWind.className = "text-sm font-bold text-slate-800 mb-2";
+            statusSeismic.innerHTML = "Awaiting Test...";
+            statusSeismic.className = "text-sm font-bold text-slate-800 mb-2";
+
+            resetView();
+        }
+
+        // --- DRAWING LOGIC ---
+
+        function drawIsometricBox(ctx, x, y, w, h, d, bowOffset = 0) {
+            // Standard 30 degree iso
+            const angle = Math.PI / 6;
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
+            const dx = d * cos * 0.7;
+            const dy = d * sin * 0.7;
+            const wx = w * cos;
+            const wy = w * sin;
+
+            // Base points
+            const p0 = {x: x, y: y}; // front bottom left
+            const p1 = {x: x + wx, y: y - wy}; // front bottom right
+            const p2 = {x: x + wx + dx, y: y - wy - dy}; // back bottom right
+            const p3 = {x: x + dx, y: y - dy}; // back bottom left
+
+            // Top points
+            const pt0 = {x: x, y: y - h};
+            const pt1 = {x: x + wx, y: y - wy - h};
+            const pt2 = {x: x + wx + dx, y: y - wy - dy - h};
+            const pt3 = {x: x + dx, y: y - dy - h};
+
+            // Left Face (Thickness face)
+            ctx.fillStyle = '#7f1d1d'; // dark red
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y); ctx.lineTo(p3.x, p3.y);
+            ctx.lineTo(pt3.x, pt3.y); ctx.lineTo(pt0.x, pt0.y);
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+
+            // Front Face (Length face)
+            ctx.fillStyle = patternBrick;
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y);
+            ctx.lineTo(pt1.x, pt1.y); ctx.lineTo(pt0.x, pt0.y);
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+
+            // Top Face
+            ctx.fillStyle = '#991b1b'; // medium red
+            ctx.beginPath();
+            ctx.moveTo(pt0.x, pt0.y); ctx.lineTo(pt1.x, pt1.y);
+            ctx.lineTo(pt2.x, pt2.y); ctx.lineTo(pt3.x, pt3.y);
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+        }
+
+        function drawGround(ctx, w, h, groundY) {
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillRect(0, groundY, w, h - groundY);
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(w, groundY); ctx.stroke();
+        }
+
+        function drawWindArrows(ctx, x, y, size, opacity) {
+            ctx.save();
+            ctx.globalAlpha = opacity;
+            ctx.strokeStyle = '#0284c7';
+            ctx.fillStyle = '#0284c7';
+            ctx.lineWidth = 3;
+
+            for(let i=0; i<3; i++) {
+                const py = y - (i * size * 1.5);
+                ctx.beginPath();
+                ctx.moveTo(x - size*2, py);
+                ctx.lineTo(x, py);
+                ctx.stroke();
+                
+                // Arrow head
+                ctx.beginPath();
+                ctx.moveTo(x, py);
+                ctx.lineTo(x - 8, py - 5);
+                ctx.lineTo(x - 8, py + 5);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        function drawFrame() {
+            const cw = canvas.width / window.devicePixelRatio;
+            const ch = canvas.height / window.devicePixelRatio;
+            ctx.clearRect(0, 0, cw, ch);
+
+            const groundY = ch - 80;
+            const cx = cw / 2;
+
+            // Map physical units to pixels
+            const pxPerMeter = 28;
+            const h_px = H * pxPerMeter;
+            const l_px = L * pxPerMeter;
+            const t_px = Math.max(10, t_m * pxPerMeter * 2); // exaggerated thickness slightly for visibility
+
+            drawGround(ctx, cw, ch, groundY);
+
+            ctx.strokeStyle = '#450a0a';
+            ctx.lineWidth = 1;
+
+            if (animMode === 'idle') {
+                // Isometric View
+                const isoX = cx - (l_px * 0.8) / 2;
+                drawIsometricBox(ctx, isoX, groundY, l_px, h_px, t_px);
+                
+                // Dimensions
+                ctx.fillStyle = '#334155'; ctx.font = '12px Inter';
+                ctx.fillText(`H = ${H}m`, isoX - 40, groundY - h_px/2);
+                ctx.fillText(`L = ${L}m`, cx, groundY + 20);
+                
+                // Add 3D Thickness Dimension
+                const angle = Math.PI / 6;
+                const frontRightX = isoX + l_px * Math.cos(angle);
+                const frontRightY = groundY - l_px * Math.sin(angle);
+                ctx.fillText(`t = ${t_mm}mm`, frontRightX + 20, frontRightY + 10);
+                
+            } else if (animMode === 'wind') {
+                // Side View (Looking at thickness - Rigid Body Overturning)
+                let rotation = 0;
+
+                if (!windPass) {
+                    // Overturning failure (Rigid body rotation around the leeward toe)
+                    if (animProgress > 0.2) {
+                        rotation = Math.pow((animProgress - 0.2) * 1.25, 2) * (Math.PI / 3); // rotate up to 60 deg
+                    }
+                } else {
+                    // Passes: very slight elastic rocking (almost imperceptible) indicating stability
+                    rotation = Math.sin(animProgress * Math.PI) * (Math.PI / 90); 
+                }
+
+                ctx.save();
+                // Hinge point is bottom-right toe
+                ctx.translate(cx + t_px/2, groundY);
+                ctx.rotate(rotation);
+                
+                ctx.fillStyle = '#7f1d1d'; // Side texture
+                ctx.fillRect(-t_px, -h_px, t_px, h_px);
+                ctx.strokeRect(-t_px, -h_px, t_px, h_px);
+                
+                // Draw crack at the windward (left) base if failing overturning
+                if (!windPass && rotation > 0.05) {
+                    ctx.beginPath();
+                    ctx.moveTo(-t_px, 0);
+                    ctx.lineTo(-t_px + (t_px * 0.8), -5);
+                    ctx.strokeStyle = '#f8fafc'; ctx.lineWidth=2; ctx.stroke();
+                }
+
+                ctx.restore();
+
+                // Draw Wind Arrows
+                const windOpacity = Math.sin(animProgress * Math.PI);
+                drawWindArrows(ctx, cx - t_px/2 - 20, groundY - h_px*0.5, 20, windOpacity);
+
+            } else if (animMode === 'seismic') {
+                // Front View (Looking at Length)
+                const shakeAmount = seismicPass ? 5 : 15;
+                const shakeX = Math.sin(animProgress * Math.PI * 8) * shakeAmount; // rapid back and forth
+                
+                let rotation = 0;
+                let showCrack = false;
+
+                if (!seismicPass && animProgress > 0.4) {
+                    if (seismicFailType === 'overturn') {
+                        rotation = Math.pow((animProgress - 0.4) * 1.5, 2) * (Math.PI / 6); // rotate up to 30 deg
+                    } else if (seismicFailType === 'shear') {
+                        showCrack = true;
+                    } else if (seismicFailType === 'buckling') {
+                        showCrack = true;
+                        // add vertical crushing effect by lowering height slightly
+                    }
+                }
+
+                ctx.save();
+                
+                // Shake ground visually
+                drawGround(ctx, cw, ch, groundY);
+                ctx.translate(cx + shakeX, groundY);
+                ctx.rotate(rotation);
+
+                ctx.fillStyle = patternBrick;
+                const wx = -l_px / 2;
+                const wy = -h_px;
+                
+                ctx.fillRect(wx, wy, l_px, h_px);
+                ctx.strokeRect(wx, wy, l_px, h_px);
+
+                if (showCrack && animProgress > 0.5) {
+                    ctx.strokeStyle = '#1e293b';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    
+                    if (seismicFailType === 'shear') {
+                        // X crack
+                        ctx.moveTo(wx + 10, wy + 10); ctx.lineTo(wx + l_px - 10, -10);
+                        ctx.moveTo(wx + l_px - 10, wy + 10); ctx.lineTo(wx + 10, -10);
+                    } else if (seismicFailType === 'buckling') {
+                        // Crushing at bottom
+                        ctx.moveTo(wx, -20); ctx.lineTo(wx + l_px, -20);
+                        ctx.moveTo(wx+10, -40); ctx.lineTo(wx + l_px - 10, -40);
+                    }
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+
+                // Draw Ground Shaking arrows
+                ctx.globalAlpha = Math.sin(animProgress * Math.PI);
+                ctx.fillStyle = '#ea580c'; ctx.font = 'bold 14px Inter';
+                ctx.fillText('⟷ Ground Acceleration', cx, groundY + 30);
+                ctx.globalAlpha = 1.0;
+            }
+
+            // Animation Loop
+            if (animMode !== 'idle') {
+                animProgress += 0.01;
+                if (animProgress >= 1.0) {
+                    animProgress = 1.0;
+                    finalizeTest();
+                } else {
+                    animReq = requestAnimationFrame(drawFrame);
+                }
+            }
+        }
+
+        function triggerWind() {
+            if(animReq) cancelAnimationFrame(animReq);
+            animMode = 'wind';
+            animProgress = 0;
+            canvasTitle.innerHTML = "Side View (Out-of-Plane Profile)";
+            canvasStatus.innerHTML = "Testing Wind...";
+            canvasStatus.className = "text-xs font-bold text-blue-800 uppercase tracking-wider bg-blue-100 px-2 py-1 rounded animate-pulse";
+            statusWind.innerHTML = "Simulating...";
+            statusWind.className = "text-sm font-bold text-blue-600 mb-2 animate-pulse";
+            drawFrame();
+        }
+
+        function triggerSeismic() {
+            if(animReq) cancelAnimationFrame(animReq);
+            animMode = 'seismic';
+            animProgress = 0;
+            canvasTitle.innerHTML = "Front View (In-Plane Elevation)";
+            canvasStatus.innerHTML = "Testing Seismic...";
+            canvasStatus.className = "text-xs font-bold text-orange-800 uppercase tracking-wider bg-orange-100 px-2 py-1 rounded animate-pulse";
+            statusSeismic.innerHTML = "Simulating...";
+            statusSeismic.className = "text-sm font-bold text-orange-600 mb-2 animate-pulse";
+            drawFrame();
+        }
+
+        function resetView() {
+            if(animReq) cancelAnimationFrame(animReq);
+            animMode = 'idle';
+            animProgress = 0;
+            canvasTitle.innerHTML = "Isometric View";
+            canvasStatus.innerHTML = "Static";
+            canvasStatus.className = "text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-100 px-2 py-1 rounded";
+            
+            // Re-apply pass fail logic to cards if tests were run
+            statusWind.innerHTML = "Awaiting Test...";
+            statusWind.className = "text-sm font-bold text-slate-800 mb-2";
+            statusSeismic.innerHTML = "Awaiting Test...";
+            statusSeismic.className = "text-sm font-bold text-slate-800 mb-2";
+            
+            drawFrame();
+        }
+
+        function finalizeTest() {
+            if (animMode === 'wind') {
+                if (windPass) {
+                    canvasStatus.innerHTML = "PASS";
+                    canvasStatus.className = "text-xs font-bold text-green-800 bg-green-100 px-2 py-1 rounded";
+                    statusWind.innerHTML = "PASS: Stable Base Moment";
+                    statusWind.className = "text-sm font-bold text-green-600 mb-2";
+                    descWind.innerHTML = "Wall self-weight provides enough restoring moment to resist wind overturning forces.";
+                } else {
+                    canvasStatus.innerHTML = "FAIL";
+                    canvasStatus.className = "text-xs font-bold text-red-800 bg-red-100 px-2 py-1 rounded";
+                    statusWind.innerHTML = "FAIL: Out-of-Plane Overturning";
+                    statusWind.className = "text-sm font-bold text-red-600 mb-2";
+                    descWind.innerHTML = "Wall is too slender (t is too small). The lateral wind pressure overcomes the stabilizing gravity load, causing rigid-body overturning at the base.";
+                }
+            } else if (animMode === 'seismic') {
+                if (seismicPass) {
+                    canvasStatus.innerHTML = "PASS";
+                    canvasStatus.className = "text-xs font-bold text-green-800 bg-green-100 px-2 py-1 rounded";
+                    statusSeismic.innerHTML = "PASS: Sufficient Shear Capacity";
+                    statusSeismic.className = "text-sm font-bold text-green-600 mb-2";
+                    descSeismic.innerHTML = "Squat proportions (AR < 1.5) allow the wall to rigidly resist base shear forces without severe cracking.";
+                } else {
+                    canvasStatus.innerHTML = "FAIL";
+                    canvasStatus.className = "text-xs font-bold text-red-800 bg-red-100 px-2 py-1 rounded";
+                    if (seismicFailType === 'overturn') {
+                        statusSeismic.innerHTML = "FAIL: Flexural Overturning";
+                        descSeismic.innerHTML = "Wall aspect ratio is too high (Slender). Inertial forces cause the wall to rock and tip over in-plane.";
+                    } else if (seismicFailType === 'shear') {
+                        statusSeismic.innerHTML = "FAIL: Diagonal Shear Cracking";
+                        descSeismic.innerHTML = "Wall geometry results in high principal tensile stresses, forming characteristic 'X' shear cracks.";
+                    } else {
+                        statusSeismic.innerHTML = "FAIL: Toe Crushing";
+                        descSeismic.innerHTML = "Extreme slenderness combined with lateral rocking causes compressive failure at the wall toes.";
+                    }
+                    statusSeismic.className = "text-sm font-bold text-red-600 mb-2";
+                }
+            }
+        }
+
+        // Setup Listeners
+        [slideH, slideL, slideT].forEach(el => el.addEventListener('input', updateMath));
+        
+        btnWind.addEventListener('click', triggerWind);
+        btnSeismic.addEventListener('click', triggerSeismic);
+        btnReset.addEventListener('click', resetView);
+
+        // Initialize
+        initPattern();
+        updateMath();
+        resizeCanvas();
+
+    </script>
+</body>
+</html>

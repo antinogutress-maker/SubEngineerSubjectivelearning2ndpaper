@@ -3,571 +3,677 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hydraulic & Energy Grade Line Simulator</title>
+    <title>Fluid Energy: HGL & EGL Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            /* Palette Configuration */
-            --bg-dash: #0f172a;
-            --panel-bg: #1e293b;
-            --accent: #3b82f6;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            
-            --svg-bg: #fafafa;
-            --fluid-blue: #e0f7fa;
-            --pipe-grey: #b0bec5;
-            --earth-warm: #8d6e63;
-            --earth-dark: #4e342e;
-            --pump-grey: #607d8b;
-            --hgl-color: #03a9f4;
-            --egl-color: #ff5722;
-            --label-dark: #212121;
-            
-            /* Dynamic Physics Variables */
-            --sim-progress: 0;
-            --hgl-length: 1500;
-            --egl-length: 1500;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=KaTeX_Math:ital@1&display=swap');
+        
         body {
-            background-color: var(--bg-dash);
-            color: var(--text-main);
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+        
+        .math {
+            font-family: 'KaTeX_Math', serif;
+            font-style: italic;
         }
 
-        .dashboard {
-            background: var(--panel-bg);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
-            width: 100%;
-            max-width: 1280px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .titles h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            letter-spacing: -0.025em;
-            margin-bottom: 6px;
-        }
-
-        .titles p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .status-badge {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--accent);
-            padding: 8px 16px;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .canvas-container {
-            background: var(--svg-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            width: 100%;
-            position: relative;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
-        }
-
-        svg {
-            display: block;
-            width: 100%;
-            height: auto;
-        }
-
-        .controls-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            background: rgba(0,0,0,0.2);
-            padding: 16px;
-            border-radius: 12px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        button {
-            background: #334155;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        button:hover {
-            background: #475569;
-        }
-
-        button:active {
-            transform: scale(0.96);
-        }
-
-        .slider-container {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        input[type=range] {
+        .slider-custom {
             -webkit-appearance: none;
             width: 100%;
             height: 6px;
-            background: #334155;
-            border-radius: 3px;
+            border-radius: 5px;
+            background: #cbd5e1;
             outline: none;
         }
 
-        input[type=range]::-webkit-slider-thumb {
+        .slider-custom::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: var(--accent);
+            background: #0ea5e9;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-            transition: transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: 0.1s;
+        }
+        
+        .slider-custom::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+        #slider-loss::-webkit-slider-thumb { background: #f97316; } /* Orange */
+        #slider-z2::-webkit-slider-thumb { background: #10b981; } /* Green */
+
+        canvas {
+            border-radius: 0.5rem;
+            background: #ffffff;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.03);
         }
 
-        input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
 
-        /* SVG Animations & Dynamic Styles */
-        .grade-line {
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            transition: stroke-dashoffset 0.1s linear;
-        }
-
-        #hgl-path {
-            stroke: var(--hgl-color);
-            stroke-width: 4;
-            stroke-dasharray: var(--hgl-length);
-            stroke-dashoffset: calc(var(--hgl-length) - (var(--hgl-length) * var(--sim-progress)));
-        }
-
-        #egl-path {
-            stroke: var(--egl-color);
-            stroke-width: 4;
-            stroke-dasharray: 8 8; /* Dotted visually, but we need JS trickery to animate a dashed line properly. 
-                                      We will wrap it in a mask to reveal it smoothly. */
-        }
-
-        /* The reveal mask for EGL and HGL to support tracing smoothly */
-        #reveal-mask-path {
-            fill: none;
-            stroke: white;
-            stroke-width: 600; /* Giant stroke to cover bounding box */
-            stroke-dasharray: var(--egl-length);
-            stroke-dashoffset: calc(var(--egl-length) - (var(--egl-length) * var(--sim-progress)));
-            transition: stroke-dashoffset 0.1s linear;
-        }
-
-        .impeller {
-            transform-origin: 750px 550px;
-            animation: spin 0.8s cubic-bezier(0.36, 0, 0.64, 1) infinite;
-        }
-
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-
-        .flow-particle {
-            fill: none;
-            stroke: #ffffff;
-            stroke-width: 6;
-            stroke-linecap: round;
-            stroke-dasharray: 1 30;
-            opacity: 0.6;
-            animation: flowAnim 1.5s linear infinite;
-        }
-
-        @keyframes flowAnim {
-            to { stroke-dashoffset: -31; }
-        }
-
-        .water-surface {
-            fill: none;
-            stroke: rgba(255,255,255,0.6);
-            stroke-width: 2;
-            stroke-dasharray: 20 40;
-            animation: ripple 3s linear infinite;
-        }
-
-        @keyframes ripple {
-            to { stroke-dashoffset: -60; }
-        }
-
-        /* Tooltip Logic */
-        .svg-tooltip {
-            opacity: 0;
-            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            transform: translateY(10px);
-            pointer-events: none;
-        }
-
-        .svg-tooltip.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Syphon Peak Warning Pulse */
-        .pulse-warning {
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { filter: drop-shadow(0 0 2px rgba(255,0,0,0.5)); }
-            50% { filter: drop-shadow(0 0 15px rgba(255,0,0,0.9)); }
-            100% { filter: drop-shadow(0 0 2px rgba(255,0,0,0.5)); }
-        }
+        /* Head Breakdown Bars */
+        .bar-z { background-color: #10b981; } /* Emerald */
+        .bar-p { background-color: #3b82f6; } /* Blue */
+        .bar-v { background-color: #ef4444; } /* Red */
+        .bar-l { background-color: #f97316; } /* Orange */
     </style>
 </head>
-<body>
+<body class="text-slate-800 antialiased p-4 md:p-8">
 
-    <div class="dashboard">
-        <div class="header-section">
-            <div class="titles">
-                <h1>Pipeline Energy Dynamics Simulator</h1>
-                <p>Interactive tracking of HGL (Hydraulic Grade Line) & EGL (Energy Grade Line)</p>
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <header class="text-center space-y-2 mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">Energy of Flowing Fluid</h1>
+            <p class="text-slate-600 font-medium text-lg">Pipeline from Reservoir to Tap (HGL & EGL)</p>
+        </header>
+
+        <!-- Simulation Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Controls (Left: 3 columns) -->
+            <div class="lg:col-span-3 glass-panel rounded-xl p-5 flex flex-col space-y-5">
+                
+                <h2 class="font-semibold text-lg border-b pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Flow Parameters
+                </h2>
+
+                <!-- Discharge Q -->
+                <div class="bg-sky-50 p-3 rounded-lg border border-sky-100">
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-bold text-sky-900">Discharge (<span class="math">Q</span>)</label>
+                        <span id="valQ" class="font-bold text-sky-700">0.50 m³/s</span>
+                    </div>
+                    <input type="range" id="slider-q" min="0.1" max="1.5" step="0.05" value="0.5" class="slider-custom">
+                </div>
+
+                <!-- Pipe Diameters -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Diameter 1 (<span class="math">D_1</span>)</label>
+                        <span id="valD1" class="font-bold text-blue-600">1.0 m</span>
+                    </div>
+                    <input type="range" id="slider-d1" min="0.4" max="1.5" step="0.1" value="1.0" class="slider-custom">
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Diameter 2 (<span class="math">D_2</span>)</label>
+                        <span id="valD2" class="font-bold text-blue-600">0.5 m</span>
+                    </div>
+                    <input type="range" id="slider-d2" min="0.4" max="1.5" step="0.1" value="0.5" class="slider-custom">
+                </div>
+
+                <!-- Elevation Z2 -->
+                <div class="mt-2">
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-medium text-slate-700">Elevation 2 (<span class="math">Z_2</span>)</label>
+                        <span id="valZ2" class="font-bold text-emerald-600">2.0 m</span>
+                    </div>
+                    <input type="range" id="slider-z2" min="0" max="8" step="0.5" value="2.0" class="slider-custom">
+                    <p class="text-xs text-slate-500 mt-1">Section 1 elevation is fixed at 2.0 m.</p>
+                </div>
+
+                <!-- Head Loss (Friction) -->
+                <div class="mt-2 p-3 rounded-lg border border-orange-200 bg-orange-50">
+                    <div class="flex justify-between text-sm mb-1">
+                        <label class="font-bold text-orange-900">Friction Loss (<span class="math">h_L</span>)</label>
+                        <span id="valLoss" class="font-bold text-orange-700">1.0 m</span>
+                    </div>
+                    <input type="range" id="slider-loss" min="0" max="5" step="0.5" value="1.0" class="slider-custom">
+                </div>
+
             </div>
-            <div id="status-badge" class="status-badge">Phase: Source Energy</div>
-        </div>
 
-        <div class="canvas-container">
-            <svg viewBox="0 0 1200 650" id="main-svg">
-                <defs>
-                    <linearGradient id="terrain-grad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#a1887f"/>
-                        <stop offset="40%" stop-color="#8d6e63"/>
-                        <stop offset="100%" stop-color="#4e342e"/>
-                    </linearGradient>
-
-                    <linearGradient id="pipe-body" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#90a4ae"/>
-                        <stop offset="30%" stop-color="#cfd8dc"/>
-                        <stop offset="100%" stop-color="#546e7a"/>
-                    </linearGradient>
-
-                    <linearGradient id="water-grad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#b2ebf2" stop-opacity="0.9"/>
-                        <stop offset="100%" stop-color="#00bcd4" stop-opacity="0.8"/>
-                    </linearGradient>
-
-                    <radialGradient id="pump-grad" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stop-color="#78909c"/>
-                        <stop offset="80%" stop-color="#455a64"/>
-                        <stop offset="100%" stop-color="#263238"/>
-                    </radialGradient>
-
-                    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-                        <feDropShadow dx="2" dy="5" stdDeviation="4" flood-opacity="0.3"/>
-                    </filter>
+            <!-- Visualization Canvas (Middle: 6 columns) -->
+            <div class="lg:col-span-6 flex flex-col space-y-4">
+                <div class="glass-panel rounded-xl p-4 flex flex-col relative h-[500px]">
                     
-                    <filter id="tooltip-shadow">
-                        <feDropShadow dx="0" dy="8" stdDeviation="6" flood-opacity="0.15"/>
-                    </filter>
-
-                    <mask id="reveal-mask">
-                        <path id="reveal-mask-path" class="grade-line" 
-                              d="M 50,400 L 120,400 L 120,402 C 150,404 180,405 250,410 L 450,420 C 500,422 510,428 550,430 C 590,432 600,438 650,440 L 730,445 M 770,215 L 820,220 C 870,225 880,230 950,235 L 1080,240"/>
-                    </mask>
-                </defs>
-
-                <path d="M 0,100 L 1200,100 M 0,200 L 1200,200 M 0,300 L 1200,300 M 0,400 L 1200,400 M 0,500 L 1200,500 M 0,600 L 1200,600" stroke="#eceff1" stroke-width="1" fill="none"/>
-
-                <path d="M 0,650 L 0,460 C 80,460 150,470 250,570 L 450,570 C 500,570 510,180 550,180 C 590,180 600,570 650,570 L 730,570 L 820,570 C 870,570 880,350 950,350 L 1200,350 L 1200,650 Z" fill="url(#terrain-grad)"/>
-
-                <path d="M 20,380 L 140,380 L 140,490 C 140,500 130,510 120,510 L 40,510 C 30,510 20,500 20,490 Z" fill="#cfd8dc" stroke="#90a4ae" stroke-width="4"/>
-                <path d="M 24,400 L 136,400 L 136,506 L 24,506 Z" fill="url(#water-grad)"/>
-                <path d="M 24,400 L 136,400" class="water-surface"/>
-                
-                <path d="M 1060,280 L 1180,280 L 1180,390 C 1180,400 1170,410 1160,410 L 1080,410 C 1070,410 1060,400 1060,390 Z" fill="#cfd8dc" stroke="#90a4ae" stroke-width="4"/>
-                <path d="M 1064,300 L 1176,300 L 1176,406 L 1064,406 Z" fill="url(#water-grad)"/>
-                <path d="M 1064,300 L 1176,300" class="water-surface"/>
-
-                <path id="main-pipe" d="M 120,450 C 150,450 180,550 250,550 L 450,550 C 500,550 510,150 550,150 C 590,150 600,550 650,550 L 730,550 M 770,550 L 820,550 C 870,550 880,250 950,250 L 1080,250" fill="none" stroke="url(#pipe-body)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)"/>
-                
-                <path d="M 120,450 C 150,450 180,550 250,550 L 450,550 C 500,550 510,150 550,150 C 590,150 600,550 650,550 L 730,550 M 770,550 L 820,550 C 870,550 880,250 950,250 L 1080,250" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.4" transform="translate(-3, -4)"/>
-                
-                <path d="M 120,450 C 150,450 180,550 250,550 L 450,550 C 500,550 510,150 550,150 C 590,150 600,550 650,550 L 730,550 M 770,550 L 820,550 C 870,550 880,250 950,250 L 1080,250" class="flow-particle"/>
-
-                <path d="M 1080,238 Q 1120,238 1130,300 L 1110,300 Q 1100,262 1080,262 Z" fill="#b2ebf2" opacity="0.8"/>
-                <path d="M 1080,238 Q 1120,238 1130,300 L 1110,300 Q 1100,262 1080,262 Z" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.5"/>
-
-                <g id="piezo-1">
-                    <path d="M 345,540 L 345,390 C 345,385 355,385 355,390 L 355,540" fill="none" stroke="#cfd8dc" stroke-width="2" opacity="0.8"/>
-                    <path d="M 347,538 L 347,425 L 353,425 L 353,538 Z" fill="url(#water-grad)"/>
-                    <path d="M 347,425 L 353,425" stroke="#ffffff" stroke-width="1"/>
-                </g>
-
-                <g id="piezo-3">
-                    <path d="M 815,540 L 815,190 C 815,185 825,185 825,190 L 825,540" fill="none" stroke="#cfd8dc" stroke-width="2" opacity="0.8"/>
-                    <path d="M 817,538 L 817,230 L 823,230 L 823,538 Z" fill="url(#water-grad)"/>
-                    <path d="M 817,230 L 823,230" stroke="#ffffff" stroke-width="1"/>
-                </g>
-
-                <g id="piezo-2-vacuum">
-                    <path d="M 548,140 L 548,110 L 552,110 L 552,140 Z" fill="#78909c"/>
-                    <path d="M 550,70 C 561,70 570,79 570,90 C 570,101 561,110 550,110 C 539,110 530,101 530,90 C 530,79 539,70 550,70 Z" fill="#eceff1" stroke="#455a64" stroke-width="3" filter="url(#shadow)"/>
-                    <path d="M 550,75 C 558,75 565,82 565,90 C 565,98 558,105 550,105 C 542,105 535,98 535,90 C 535,82 542,75 550,75 Z" fill="#ffffff"/>
-                    <path d="M 550,75 L 550,80 M 535,90 L 540,90 M 565,90 L 560,90" stroke="#212121" stroke-width="1.5"/>
-                    <path d="M 550,90 L 540,84 L 542,82 Z" fill="#ff5722"/>
-                    <path d="M 550,88 C 551,88 552,89 552,90 C 552,91 551,92 550,92 C 549,92 548,91 548,90 C 548,89 549,88 550,88 Z" fill="#212121"/>
-                </g>
-
-                <g id="pump-station" filter="url(#shadow)">
-                    <path d="M 750,490 C 790,490 810,540 810,570 C 810,610 750,620 720,590 C 690,560 700,490 750,490 Z" fill="url(#pump-grad)" stroke="#37474f" stroke-width="3"/>
-                    <path d="M 750,510 C 772,510 790,528 790,550 C 790,572 772,590 750,590 C 728,590 710,572 710,550 C 710,528 728,510 750,510 Z" fill="#263238"/>
+                    <!-- Graph Legend -->
+                    <div class="absolute top-4 right-4 z-10 bg-white/90 p-2 rounded shadow-sm border border-slate-200 text-xs font-medium space-y-1">
+                        <div class="flex items-center gap-2"><div class="w-4 h-1 bg-red-500"></div> EGL (Total Head)</div>
+                        <div class="flex items-center gap-2"><div class="w-4 h-1 border-t-2 border-dashed border-blue-600"></div> HGL (Piezometric Head)</div>
+                        <div class="flex items-center gap-2"><div class="w-3 h-3 bg-red-100 border border-red-200"></div> Kinetic Head (<span class="math">v&sup2;/2g</span>)</div>
+                        <div class="flex items-center gap-2"><div class="w-3 h-3 bg-blue-50 border border-blue-200"></div> Pressure Head (<span class="math">P/&gamma;</span>)</div>
+                        <div class="flex items-center gap-2"><div class="w-3 h-3 bg-emerald-50 border border-emerald-200"></div> Potential Head (<span class="math">Z</span>)</div>
+                    </div>
                     
-                    <g class="impeller">
-                        <path d="M 750,550 Q 770,520 785,535 Q 775,545 750,550" fill="#90a4ae"/>
-                        <path d="M 750,550 Q 780,570 765,585 Q 755,575 750,550" fill="#90a4ae"/>
-                        <path d="M 750,550 Q 730,580 715,565 Q 725,555 750,550" fill="#90a4ae"/>
-                        <path d="M 750,550 Q 720,530 735,515 Q 745,525 750,550" fill="#90a4ae"/>
-                        <path d="M 750,542 C 754,542 758,546 758,550 C 758,554 754,558 750,558 C 746,558 742,554 742,550 C 742,546 746,542 750,542 Z" fill="#cfd8dc"/>
-                    </g>
-                </g>
+                    <!-- Alert for Cavitation/Negative Pressure -->
+                    <div id="alertPressure" class="absolute top-4 left-4 z-10 bg-red-100 text-red-800 border-l-4 border-red-600 px-3 py-2 rounded shadow-sm text-xs font-bold hidden animate-pulse">
+                        ⚠️ WARNING: Negative Pressure! (Cavitation Risk)
+                    </div>
 
-                <g font-family="inherit" font-weight="bold" font-size="12" fill="#455a64">
-                    <text x="35" y="365">SOURCE (ELEV. H1)</text>
-                    <text x="1065" y="265">DISCHARGE (ELEV. H2 > H1)</text>
-                    <text x="710" y="640">BOOSTER PUMP STATION</text>
-                </g>
-
-                <g mask="url(#reveal-mask)">
-                    <path d="M 50,400 L 120,400 L 120,402 C 150,404 180,405 250,410 L 450,420 C 500,422 510,428 550,430 C 590,432 600,438 650,440 L 730,445 M 770,215 L 820,220 C 870,225 880,230 950,235 L 1080,240" 
-                          id="egl-path" fill="none" stroke-linecap="round"/>
-                    
-                    <path d="M 50,400 L 120,400 L 120,410 C 150,412 180,415 250,420 L 450,430 C 500,432 510,438 550,440 C 590,442 600,448 650,450 L 730,455 M 770,225 L 820,230 C 870,235 880,240 950,245 L 1080,250" 
-                          id="hgl-path" fill="none" stroke-linecap="round"/>
-                </g>
-
-                <g transform="translate(20, 20)" font-family="inherit" font-size="12">
-                    <path d="M 0,0 L 0,60 L 180,60 L 180,0 Z" fill="#ffffff" opacity="0.9" stroke="#eceff1"/>
-                    <path d="M 10,20 L 40,20" stroke="#03a9f4" stroke-width="4"/>
-                    <text x="50" y="24" fill="#212121" font-weight="bold">HGL (Hydraulic Grade)</text>
-                    <path d="M 10,40 L 40,40" stroke="#ff5722" stroke-width="4" stroke-dasharray="4 4"/>
-                    <text x="50" y="44" fill="#212121" font-weight="bold">EGL (Energy Grade)</text>
-                </g>
-
-                <g id="tooltip-layer">
-                    <g class="svg-tooltip" id="tt-1" transform="translate(180, 360)">
-                        <path d="M 0,0 C 5,0 10,5 10,10 L 10,35 C 10,40 5,45 0,45 L -200,45 C -205,45 -210,40 -210,35 L -210,10 C -210,5 -205,0 -200,0 Z M -10,45 L 0,55 L 10,45 Z" fill="#1e293b" filter="url(#tooltip-shadow)"/>
-                        <text x="-100" y="20" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle">HGL = EGL = Total Energy</text>
-                        <text x="-100" y="35" fill="#94a3b8" font-size="10" text-anchor="middle">v²/2g is zero at surface</text>
-                    </g>
-
-                    <g class="svg-tooltip" id="tt-2" transform="translate(350, 320)">
-                        <path d="M 0,0 C 5,0 10,5 10,10 L 10,35 C 10,40 5,45 0,45 L -160,45 C -165,45 -170,40 -170,35 L -170,10 C -170,5 -165,0 -160,0 Z M -10,45 L 0,55 L 10,45 Z" fill="#1e293b" filter="url(#tooltip-shadow)"/>
-                        <text x="-80" y="20" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle">Friction Loss (hf)</text>
-                        <text x="-80" y="35" fill="#94a3b8" font-size="10" text-anchor="middle">HGL drops in direction of flow</text>
-                    </g>
-
-                    <g class="svg-tooltip pulse-warning" id="tt-3" transform="translate(550, 40)">
-                        <path d="M -130,-10 C -125,-10 -120,-5 -120,0 L -120,35 C -120,40 -125,45 -130,45 L -140,45 L -150,55 L -160,45 L -330,45 C -335,45 -340,40 -340,35 L -340,0 C -340,-5 -335,-10 -330,-10 Z" fill="#7f1d1d" filter="url(#tooltip-shadow)"/>
-                        <text x="-230" y="10" fill="#fca5a5" font-size="13" font-weight="bold" text-anchor="middle">SYPHON PEAK</text>
-                        <text x="-230" y="28" fill="#f8fafc" font-size="11" text-anchor="middle">Pipe is above HGL.</text>
-                        <text x="-230" y="40" fill="#f8fafc" font-size="11" text-anchor="middle">Negative (Suction) Pressure!</text>
-                    </g>
-
-                    <g class="svg-tooltip" id="tt-4" transform="translate(750, 150)">
-                        <path d="M 80,-10 C 85,-10 90,-5 90,0 L 90,35 C 90,40 85,45 80,45 L -20,45 L -30,55 L -40,45 L -100,45 C -105,45 -110,40 -110,35 L -110,0 C -110,-5 -105,-10 -100,-10 Z" fill="#065f46" filter="url(#tooltip-shadow)"/>
-                        <text x="-10" y="10" fill="#6ee7b7" font-size="12" font-weight="bold" text-anchor="middle">BOOSTER PUMP</text>
-                        <text x="-10" y="25" fill="#f8fafc" font-size="10" text-anchor="middle">Net Head Addition (Hp)</text>
-                        <text x="-10" y="38" fill="#f8fafc" font-size="10" text-anchor="middle">Instant vertical energy jump.</text>
-                    </g>
-
-                    <g class="svg-tooltip" id="tt-5" transform="translate(1080, 180)">
-                        <path d="M 0,0 C 5,0 10,5 10,10 L 10,35 C 10,40 5,45 0,45 L -20,45 L -30,55 L -40,45 L -160,45 C -165,45 -170,40 -170,35 L -170,10 C -170,5 -165,0 -160,0 Z" fill="#1e293b" filter="url(#tooltip-shadow)"/>
-                        <text x="-80" y="20" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle">FREE DISCHARGE</text>
-                        <text x="-80" y="35" fill="#94a3b8" font-size="10" text-anchor="middle">HGL aligns with pipe centerline</text>
-                    </g>
-                </g>
-            </svg>
-        </div>
-
-        <div class="controls-wrapper">
-            <div class="btn-group">
-                <button id="btn-replay" title="Replay">⏮</button>
-                <button id="btn-prev" title="Step Backward">⏪</button>
-                <button id="btn-play" title="Play/Pause">⏯</button>
-                <button id="btn-next" title="Step Forward">Press 👉  </button>
+                    <div class="relative w-full h-full flex-grow" id="simContainer">
+                        <canvas id="simCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="slider-container">
-                <input type="range" id="progress-slider" min="0" max="1000" value="0">
+
+            <!-- Real-Time Mathematics (Right: 3 columns) -->
+            <div class="lg:col-span-3 flex flex-col h-full gap-4">
+                
+                <!-- Section 1 Breakdown -->
+                <div class="glass-panel rounded-xl p-4 flex-1">
+                    <h3 class="font-bold text-slate-800 border-b pb-2 mb-3 text-center">Section 1 (Reservoir Exit)</h3>
+                    
+                    <div class="space-y-2 text-sm font-mono text-slate-700">
+                        <div class="flex justify-between items-center"><span class="text-slate-500 font-sans text-xs">Velocity (V₁)</span><span id="txtV1">0.00 m/s</span></div>
+                        
+                        <div class="h-px bg-slate-200 my-2"></div>
+                        
+                        <div class="flex justify-between items-center"><span class="text-emerald-600 font-bold font-sans text-xs flex gap-1"><div class="w-2 h-2 rounded bg-emerald-500 mt-1"></div> Potential (Z₁)</span><span id="txtZ1">2.00 m</span></div>
+                        <div class="flex justify-between items-center"><span class="text-blue-600 font-bold font-sans text-xs flex gap-1"><div class="w-2 h-2 rounded bg-blue-500 mt-1"></div> Pressure (P₁/γ)</span><span id="txtP1">0.00 m</span></div>
+                        <div class="flex justify-between items-center"><span class="text-red-500 font-bold font-sans text-xs flex gap-1"><div class="w-2 h-2 rounded bg-red-500 mt-1"></div> Kinetic (v₁²/2g)</span><span id="txtK1">0.00 m</span></div>
+                    </div>
+                    
+                    <!-- Stacked Bar Sec 1 -->
+                    <div class="w-full h-8 flex rounded-md overflow-hidden mt-3 border border-slate-300">
+                        <div id="b1-z" class="h-full bar-z flex items-center justify-center text-[10px] text-white font-bold" style="width: 20%">Z</div>
+                        <div id="b1-p" class="h-full bar-p flex items-center justify-center text-[10px] text-white font-bold" style="width: 60%">P/γ</div>
+                        <div id="b1-v" class="h-full bar-v flex items-center justify-center text-[10px] text-white font-bold" style="width: 20%">v²/2g</div>
+                    </div>
+                    <div class="text-center text-xs font-bold mt-1">Total Head: <span id="txtH1" class="text-slate-800">15.00 m</span></div>
+                </div>
+
+                <!-- Section 2 Breakdown -->
+                <div class="glass-panel rounded-xl p-4 flex-1">
+                    <h3 class="font-bold text-slate-800 border-b pb-2 mb-3 text-center">Section 2 (Tap / Valve)</h3>
+                    
+                    <div class="space-y-2 text-sm font-mono text-slate-700">
+                        <div class="flex justify-between items-center"><span class="text-slate-500 font-sans text-xs">Velocity (V₂)</span><span id="txtV2">0.00 m/s</span></div>
+                        
+                        <div class="h-px bg-slate-200 my-2"></div>
+                        
+                        <div class="flex justify-between items-center"><span class="text-emerald-600 font-bold font-sans text-xs flex gap-1"><div class="w-2 h-2 rounded bg-emerald-500 mt-1"></div> Potential (Z₂)</span><span id="txtZ2">2.00 m</span></div>
+                        <div class="flex justify-between items-center"><span class="text-blue-600 font-bold font-sans text-xs flex gap-1"><div class="w-2 h-2 rounded bg-blue-500 mt-1"></div> Pressure (P₂/γ)</span><span id="txtP2">0.00 m</span></div>
+                        <div class="flex justify-between items-center"><span class="text-red-500 font-bold font-sans text-xs flex gap-1"><div class="w-2 h-2 rounded bg-red-500 mt-1"></div> Kinetic (v₂²/2g)</span><span id="txtK2">0.00 m</span></div>
+                    </div>
+                    
+                    <!-- Stacked Bar Sec 2 -->
+                    <div class="w-full h-8 flex rounded-md overflow-hidden mt-3 border border-slate-300">
+                        <div id="b2-z" class="h-full bar-z flex items-center justify-center text-[10px] text-white font-bold" style="width: 20%"></div>
+                        <div id="b2-p" class="h-full bar-p flex items-center justify-center text-[10px] text-white font-bold" style="width: 40%"></div>
+                        <div id="b2-v" class="h-full bar-v flex items-center justify-center text-[10px] text-white font-bold" style="width: 30%"></div>
+                        <div id="b2-l" class="h-full bar-l flex items-center justify-center text-[10px] text-white font-bold" style="width: 10%">Loss</div>
+                    </div>
+                    <div class="text-center text-xs font-bold mt-1">Total Head: <span id="txtH2" class="text-slate-800">14.00 m</span></div>
+                </div>
+
             </div>
         </div>
+
+        <!-- Educational Theory Section -->
+        <div class="glass-panel rounded-xl p-6 md:p-8 mt-8 border-l-4 border-l-sky-500">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4">Understanding Fluid Energies & Grade Lines</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-700">
+                <div class="space-y-4">
+                    <p>According to Bernoulli's equation, the total energy of an incompressible fluid flowing in a pipe consists of three independent heads (energies per unit weight):</p>
+                    
+                    <ul class="space-y-3">
+                        <li class="bg-emerald-50 p-3 rounded border border-emerald-100">
+                            <strong class="text-emerald-800">1. Potential Head (<span class="math">Z</span>):</strong> Energy due to the elevation of the fluid above a reference datum line.
+                        </li>
+                        <li class="bg-blue-50 p-3 rounded border border-blue-100">
+                            <strong class="text-blue-800">2. Pressure Head (<span class="math">P / \gamma</span>):</strong> Energy stored in the fluid due to static pressure. It represents the height a column of water would rise in a physical tube.
+                        </li>
+                        <li class="bg-red-50 p-3 rounded border border-red-100">
+                            <strong class="text-red-800">3. Kinetic or Velocity Head (<span class="math">v^2 / 2g</span>):</strong> Kinetic energy due to the bulk motion of the fluid.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="font-bold text-lg border-b pb-2">The Grade Lines Explained</h3>
+                    
+                    <div class="bg-slate-50 p-4 rounded shadow-sm border border-slate-200">
+                        <strong class="text-slate-800 text-lg">Energy Grade Line (EGL)</strong>
+                        <p class="text-sm mt-1 mb-2">Represents the <strong>Total Head</strong> available in the fluid.</p>
+                        <div class="font-mono text-center bg-white p-2 rounded text-red-600 border border-slate-200">
+                            <span class="math">EGL = Z + \frac{P}{\gamma} + \frac{v^2}{2g}</span>
+                        </div>
+                        <p class="text-sm mt-2 text-slate-500">In a real fluid, the EGL always drops in the direction of flow due to friction losses (<span class="math">h_L</span>).</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded shadow-sm border border-slate-200">
+                        <strong class="text-slate-800 text-lg">Hydraulic Grade Line (HGL)</strong>
+                        <p class="text-sm mt-1 mb-2">Represents the <strong>Piezometric Head</strong> (Elevation + Pressure).</p>
+                        <div class="font-mono text-center bg-white p-2 rounded text-blue-600 border border-slate-200">
+                            <span class="math">HGL = Z + \frac{P}{\gamma} = EGL - \frac{v^2}{2g}</span>
+                        </div>
+                        <p class="text-sm mt-2 text-slate-500">The HGL lies exactly <em>below</em> the EGL by a distance equal to the Kinetic Head. If the pipe narrows, velocity increases, so the HGL dips down significantly!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const root = document.documentElement;
-            const slider = document.getElementById('progress-slider');
-            const statusBadge = document.getElementById('status-badge');
+        // DOM Elements
+        const sliderQ = document.getElementById('slider-q');
+        const sliderD1 = document.getElementById('slider-d1');
+        const sliderD2 = document.getElementById('slider-d2');
+        const sliderZ2 = document.getElementById('slider-z2');
+        const sliderLoss = document.getElementById('slider-loss');
+
+        const valQ = document.getElementById('valQ');
+        const valD1 = document.getElementById('valD1');
+        const valD2 = document.getElementById('valD2');
+        const valZ2 = document.getElementById('valZ2');
+        const valLoss = document.getElementById('valLoss');
+
+        const txtV1 = document.getElementById('txtV1'); const txtZ1 = document.getElementById('txtZ1'); const txtP1 = document.getElementById('txtP1'); const txtK1 = document.getElementById('txtK1'); const txtH1 = document.getElementById('txtH1');
+        const txtV2 = document.getElementById('txtV2'); const txtZ2 = document.getElementById('txtZ2'); const txtP2 = document.getElementById('txtP2'); const txtK2 = document.getElementById('txtK2'); const txtH2 = document.getElementById('txtH2');
+        
+        const b1Z = document.getElementById('b1-z'); const b1P = document.getElementById('b1-p'); const b1V = document.getElementById('b1-v');
+        const b2Z = document.getElementById('b2-z'); const b2P = document.getElementById('b2-p'); const b2V = document.getElementById('b2-v'); const b2L = document.getElementById('b2-l');
+
+        const alertPressure = document.getElementById('alertPressure');
+
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('simContainer');
+
+        // Physics Constants
+        const g = 9.81;
+        const Z1 = 2.0; // Fixed starting elevation
+
+        // State
+        let state = {
+            Q: parseFloat(sliderQ.value),
+            D1: parseFloat(sliderD1.value),
+            D2: parseFloat(sliderD2.value),
+            Z2: parseFloat(sliderZ2.value),
+            hL: parseFloat(sliderLoss.value),
+            H_res: 0, // Dynamically calculated Required Reservoir Head
+            particles: []
+        };
+
+        // Initialize particles
+        for(let i=0; i<150; i++) {
+            state.particles.push({
+                x: Math.random(), // normalized 0 to 1 along pipe
+                yOffset: (Math.random() - 0.5), // normalized -0.5 to 0.5 across diameter
+                speedVariability: 0.8 + Math.random() * 0.4
+            });
+        }
+
+        // Setup Canvas
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            canvas.style.width = `${rect.width}px`;
+            canvas.style.height = `${rect.height}px`;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Calculate Data at a given normalized distance x (0 to 1)
+        function calcDataAtX(x) {
+            const D = state.D1 + x * (state.D2 - state.D1);
+            const Z = Z1 + x * (state.Z2 - Z1);
+            const A = (Math.PI * Math.pow(D, 2)) / 4;
+            const V = state.Q / A;
+            const K = Math.pow(V, 2) / (2 * g);
+            const loss = x * state.hL; // Linear loss assumption
             
-            // Buttons
-            const btnReplay = document.getElementById('btn-replay');
-            const btnPrev = document.getElementById('btn-prev');
-            const btnPlay = document.getElementById('btn-play');
-            const btnNext = document.getElementById('btn-next');
+            const EGL = state.H_res - loss;
+            const HGL = EGL - K;
+            const P = HGL - Z; // P/gamma
             
-            // Tooltips
-            const tooltips = [
-                document.getElementById('tt-1'),
-                document.getElementById('tt-2'),
-                document.getElementById('tt-3'),
-                document.getElementById('tt-4'),
-                document.getElementById('tt-5')
-            ];
+            return { D, Z, A, V, K, loss, EGL, HGL, P };
+        }
 
-            // Setup accurate lengths for tracing
-            const maskPath = document.getElementById('reveal-mask-path');
-            const pathLength = maskPath.getTotalLength();
-            root.style.setProperty('--egl-length', pathLength);
-            root.style.setProperty('--hgl-length', pathLength);
+        function updateMath() {
+            state.Q = parseFloat(sliderQ.value);
+            state.D1 = parseFloat(sliderD1.value);
+            state.D2 = parseFloat(sliderD2.value);
+            state.Z2 = parseFloat(sliderZ2.value);
+            state.hL = parseFloat(sliderLoss.value);
 
-            let isPlaying = false;
-            let animationFrame;
+            // Flawless Hydraulic Boundary Condition: P2 = 0 (Free Jet to Atmosphere)
+            const A2 = (Math.PI * Math.pow(state.D2, 2)) / 4;
+            const V2 = state.Q / A2;
+            const K2 = Math.pow(V2, 2) / (2 * g);
+            
+            // EGL2 = Z2 + P2/gamma + K2. Since P2 = 0, EGL2 = Z2 + K2
+            const EGL2 = state.Z2 + K2;
+            
+            // Required Reservoir Head (EGL1 = EGL2 + head loss)
+            state.H_res = EGL2 + state.hL;
 
-            // Phase definitions
-            const phases = [
-                { threshold: 0,   text: "Source Total Energy: HGL and EGL start together." },
-                { threshold: 0.2, text: "Plain Area: Continuous friction loss (hf) visible." },
-                { threshold: 0.45, text: "Syphon Peak: Negative (suction) pressure zone." },
-                { threshold: 0.65, text: "Pump Station: Adding mechanical head (Hp)." },
-                { threshold: 0.9, text: "Final Discharge: Free jet to higher elevation." }
-            ];
+            // Update Input Texts
+            valQ.innerHTML = `${state.Q.toFixed(2)} m³/s`;
+            valD1.innerHTML = `${state.D1.toFixed(1)} m`;
+            valD2.innerHTML = `${state.D2.toFixed(1)} m`;
+            valZ2.innerHTML = `${state.Z2.toFixed(1)} m`;
+            valLoss.innerHTML = `${state.hL.toFixed(1)} m`;
 
-            function updateState(value) {
-                const progress = value / 1000;
-                root.style.setProperty('--sim-progress', progress);
+            // Section 1
+            const d1 = calcDataAtX(0);
+            txtV1.innerHTML = `${d1.V.toFixed(2)} m/s`;
+            txtZ1.innerHTML = `${d1.Z.toFixed(2)} m`;
+            txtP1.innerHTML = `${d1.P.toFixed(2)} m`;
+            txtK1.innerHTML = `${d1.K.toFixed(2)} m`;
+            txtH1.innerHTML = `${d1.EGL.toFixed(2)} m`;
 
-                // Update text and tooltips
-                let currentPhase = phases[0];
-                let activeTooltipIdx = 0;
+            // Section 2
+            const d2 = calcDataAtX(1);
+            txtV2.innerHTML = `${d2.V.toFixed(2)} m/s`;
+            txtZ2.innerHTML = `${d2.Z.toFixed(2)} m`;
+            txtP2.innerHTML = `${d2.P.toFixed(2)} m`;
+            txtK2.innerHTML = `${d2.K.toFixed(2)} m`;
+            txtH2.innerHTML = `${d2.EGL.toFixed(2)} m`;
 
-                for (let i = phases.length - 1; i >= 0; i--) {
-                    if (progress >= phases[i].threshold) {
-                        currentPhase = phases[i];
-                        activeTooltipIdx = i;
-                        break;
-                    }
-                }
+            // Update Bar charts
+            const setWidth = (el, val, total) => {
+                if(val < 0) { el.style.width = '0%'; return; }
+                el.style.width = `${(val/total)*100}%`;
+            };
 
-                statusBadge.textContent = "Phase: " + currentPhase.text;
+            setWidth(b1Z, d1.Z, state.H_res);
+            setWidth(b1P, d1.P, state.H_res);
+            setWidth(b1V, d1.K, state.H_res);
 
-                // Toggle tooltip visibility
-                tooltips.forEach((tt, idx) => {
-                    if (idx === activeTooltipIdx) {
-                        tt.classList.add('active');
-                    } else {
-                        tt.classList.remove('active');
-                    }
-                });
+            setWidth(b2Z, d2.Z, state.H_res);
+            setWidth(b2P, d2.P, state.H_res);
+            setWidth(b2V, d2.K, state.H_res);
+            setWidth(b2L, state.hL, state.H_res);
+
+            // Cavitation Warning
+            if(d2.P < 0 || d1.P < 0) {
+                alertPressure.classList.remove('hidden');
+                b1P.style.backgroundColor = d1.P < 0 ? '#ef4444' : '';
+                b2P.style.backgroundColor = d2.P < 0 ? '#ef4444' : '';
+            } else {
+                alertPressure.classList.add('hidden');
+                b1P.style.backgroundColor = '';
+                b2P.style.backgroundColor = '';
+            }
+        }
+
+        // Animation Loop
+        function drawSimulation() {
+            const width = canvas.width / window.devicePixelRatio;
+            const height = canvas.height / window.devicePixelRatio;
+            ctx.clearRect(0, 0, width, height);
+
+            // Setup mapping coordinate system
+            // Dynamic Max Head based on Required Reservoir Level to keep visual stable but responsive
+            const maxHead = Math.max(12, state.H_res + 2); 
+            
+            // Expanded to fit entire screen better
+            const padX = 40; 
+            const padRight = 80; // Extra room for the water jet
+            const pipeLenX = width - padX - padRight;
+            
+            const pxPerMeter = (height - 60) / maxHead;
+            const mapX = (x) => padX + x * pipeLenX;
+            const mapY = (h) => height - 30 - (h * pxPerMeter);
+
+            // 1. Draw Datum Line
+            const y0 = mapY(0);
+            ctx.beginPath();
+            ctx.moveTo(0, y0);
+            ctx.lineTo(width, y0);
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#64748b';
+            ctx.font = '12px Inter';
+            ctx.fillText('Datum (Z=0)', 10, y0 - 5);
+
+            // 1b. Draw Reservoir (Source)
+            const resX = 5;
+            const resWidth = padX - 5;
+            const resYTop = mapY(state.H_res); // Fluid surface is EXACTLY the EGL starting point
+            const resYBottom = y0 + 10; // slightly below datum
+
+            // Reservoir Water
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.4)'; // Blue water
+            ctx.fillRect(resX + 4, resYTop, resWidth - 4, resYBottom - resYTop);
+
+            // Reservoir Surface Line & Symbol
+            ctx.beginPath();
+            ctx.moveTo(resX + 4, resYTop);
+            ctx.lineTo(resX + resWidth, resYTop);
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(resX + resWidth/2, resYTop);
+            ctx.lineTo(resX + resWidth/2 - 6, resYTop - 10);
+            ctx.lineTo(resX + resWidth/2 + 6, resYTop - 10);
+            ctx.closePath();
+            ctx.fillStyle = '#3b82f6';
+            ctx.fill();
+
+            // Label the Required Head
+            ctx.fillStyle = '#1e293b';
+            ctx.font = '10px Inter';
+            ctx.fillText(`Req. Head = ${state.H_res.toFixed(1)}m`, resX, resYTop - 15);
+
+            // Reservoir Walls
+            ctx.fillStyle = '#94a3b8'; // Slate walls
+            ctx.fillRect(resX, resYTop - 20, 4, resYBottom - resYTop + 20); // Left wall
+            ctx.fillRect(resX, resYBottom, resWidth, 4); // Bottom wall
+            
+            // Right wall of reservoir with opening for pipe
+            const pipeTopY_1 = mapY(Z1 + state.D1/2);
+            const pipeBotY_1 = mapY(Z1 - state.D1/2);
+            ctx.fillRect(resX + resWidth - 4, resYTop - 20, 4, pipeTopY_1 - (resYTop - 20));
+            ctx.fillRect(resX + resWidth - 4, pipeBotY_1, 4, resYBottom - pipeBotY_1);
+
+            // EGL starting line in Reservoir (Velocity is 0, so EGL = Water Surface)
+            ctx.beginPath();
+            ctx.moveTo(resX + resWidth/2, resYTop);
+            ctx.lineTo(padX, resYTop);
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([4, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 2. Calculate Arrays for continuous plotting
+            const pts = 50;
+            let dataArr = [];
+            for(let i=0; i<=pts; i++) {
+                const x = i / pts;
+                dataArr.push({x: x, px: mapX(x), ...calcDataAtX(x)});
             }
 
-            function playAnimation() {
-                if (!isPlaying) return;
+            // 3. Draw Shade Zones (Z, P, K)
+            
+            // Z Zone (Potential - Emerald)
+            ctx.beginPath();
+            ctx.moveTo(dataArr[0].px, y0);
+            for(let d of dataArr) ctx.lineTo(d.px, mapY(d.Z));
+            ctx.lineTo(dataArr[dataArr.length-1].px, y0);
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.05)';
+            ctx.fill();
+
+            // P Zone (Pressure - Blue)
+            ctx.beginPath();
+            ctx.moveTo(dataArr[0].px, mapY(dataArr[0].Z));
+            for(let d of dataArr) ctx.lineTo(d.px, mapY(d.HGL));
+            for(let i=dataArr.length-1; i>=0; i--) ctx.lineTo(dataArr[i].px, mapY(dataArr[i].Z));
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.05)';
+            ctx.fill();
+
+            // K Zone (Kinetic - Red)
+            ctx.beginPath();
+            ctx.moveTo(dataArr[0].px, mapY(dataArr[0].HGL));
+            for(let d of dataArr) ctx.lineTo(d.px, mapY(d.EGL));
+            for(let i=dataArr.length-1; i>=0; i--) ctx.lineTo(dataArr[i].px, mapY(dataArr[i].HGL));
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.05)';
+            ctx.fill();
+
+            // 4. Draw Lines
+            // Centerline Z
+            ctx.beginPath();
+            for(let d of dataArr) { d.x===0 ? ctx.moveTo(d.px, mapY(d.Z)) : ctx.lineTo(d.px, mapY(d.Z)); }
+            ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+            
+            // HGL
+            ctx.beginPath();
+            for(let d of dataArr) { d.x===0 ? ctx.moveTo(d.px, mapY(d.HGL)) : ctx.lineTo(d.px, mapY(d.HGL)); }
+            ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2.5; ctx.setLineDash([8, 4]); ctx.stroke(); ctx.setLineDash([]);
+            
+            // EGL
+            ctx.beginPath();
+            for(let d of dataArr) { d.x===0 ? ctx.moveTo(d.px, mapY(d.EGL)) : ctx.lineTo(d.px, mapY(d.EGL)); }
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3; ctx.stroke();
+
+            // 5. Draw Pipe Body
+            ctx.beginPath();
+            for(let d of dataArr) { d.x===0 ? ctx.moveTo(d.px, mapY(d.Z + d.D/2)) : ctx.lineTo(d.px, mapY(d.Z + d.D/2)); }
+            for(let i=dataArr.length-1; i>=0; i--) { ctx.lineTo(dataArr[i].px, mapY(dataArr[i].Z - dataArr[i].D/2)); }
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.2)'; // water inside
+            ctx.fill();
+            
+            // Pipe borders
+            ctx.beginPath();
+            for(let d of dataArr) { d.x===0 ? ctx.moveTo(d.px, mapY(d.Z + d.D/2)) : ctx.lineTo(d.px, mapY(d.Z + d.D/2)); }
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 4; ctx.stroke();
+            ctx.beginPath();
+            for(let d of dataArr) { d.x===0 ? ctx.moveTo(d.px, mapY(d.Z - d.D/2)) : ctx.lineTo(d.px, mapY(d.Z - d.D/2)); }
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 4; ctx.stroke();
+
+            // 5b. Draw Tap/Valve at the end
+            const tapX = mapX(1);
+            const d2 = dataArr[pts]; // Last data point
+            const pipeTopY_2 = mapY(d2.Z + d2.D/2);
+            const pipeBotY_2 = mapY(d2.Z - d2.D/2);
+
+            // Valve Flange
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(tapX, pipeTopY_2 - 5, 8, pipeBotY_2 - pipeTopY_2 + 10);
+            
+            // Valve Body
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(tapX + 8, pipeTopY_2, 12, pipeBotY_2 - pipeTopY_2);
+            
+            // Valve Handle
+            ctx.fillStyle = '#ef4444'; // Red handle
+            ctx.fillRect(tapX + 12, pipeTopY_2 - 15, 4, 15);
+            ctx.beginPath(); ctx.arc(tapX + 14, pipeTopY_2 - 15, 8, 0, Math.PI*2); ctx.fill();
+
+            // 5c. Draw Exiting Water Jet (Realistic Parabola)
+            if (state.Q > 0) {
+                ctx.beginPath();
+                const jetStartX = tapX + 20;
+                const jetStartY = mapY(d2.Z); // Exits from center
+                ctx.moveTo(jetStartX, jetStartY);
                 
-                let val = parseInt(slider.value);
-                val += 2; // Animation speed
-                
-                if (val >= 1000) {
-                    val = 1000;
-                    isPlaying = false;
+                // Kinematics: y = 0.5 * g * (x / V)^2
+                const jetV = d2.V;
+                for (let dx_m = 0; dx_m <= 8; dx_m += 0.2) {
+                    const dy_m = 0.5 * 9.81 * Math.pow(dx_m / jetV, 2);
+                    const jx = jetStartX + dx_m * pxPerMeter;
+                    const jy = jetStartY + dy_m * pxPerMeter;
+                    if (jy > height) break; // Don't draw below canvas
+                    ctx.lineTo(jx, jy);
                 }
                 
-                slider.value = val;
-                updateState(val);
-                
-                if (isPlaying) {
-                    animationFrame = requestAnimationFrame(playAnimation);
-                }
+                // Thickness of jet shrinks slightly as it speeds up falling
+                ctx.strokeStyle = 'rgba(59, 130, 246, 0.6)';
+                ctx.lineWidth = (d2.D * pxPerMeter) * 0.8; 
+                ctx.stroke();
             }
 
-            // Event Listeners
-            slider.addEventListener('input', (e) => {
-                isPlaying = false;
-                cancelAnimationFrame(animationFrame);
-                updateState(e.target.value);
+            // 6. Draw Piezometers and Pitot Tubes
+            const drawTubesAt = [0.1, 0.5, 0.9];
+            drawTubesAt.forEach(pos => {
+                const d = calcDataAtX(pos);
+                const pX = mapX(pos);
+                
+                // Base Top of pipe
+                const pipeTopY = mapY(d.Z + d.D/2);
+                const hglY = mapY(d.HGL);
+                const eglY = mapY(d.EGL);
+
+                // Check cavitation to avoid drawing tubes downwards weirdly
+                if (d.HGL < d.Z + d.D/2) return; 
+
+                // --- Piezometer (Reads HGL) ---
+                const pTubeX = pX - 10;
+                ctx.beginPath();
+                ctx.moveTo(pTubeX-3, pipeTopY); ctx.lineTo(pTubeX-3, hglY-10);
+                ctx.moveTo(pTubeX+3, pipeTopY); ctx.lineTo(pTubeX+3, hglY-10);
+                ctx.strokeStyle = 'rgba(51, 65, 85, 0.8)'; ctx.lineWidth = 2; ctx.stroke();
+                // Water in piezometer
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.5)';
+                ctx.fillRect(pTubeX-2, hglY, 4, pipeTopY - hglY);
+
+                // --- Pitot Tube (Reads EGL) ---
+                const ptTubeX = pX + 10;
+                ctx.beginPath();
+                ctx.moveTo(ptTubeX-3, pipeTopY); ctx.lineTo(ptTubeX-3, eglY-10);
+                ctx.moveTo(ptTubeX+3, pipeTopY); ctx.lineTo(ptTubeX+3, eglY-10);
+                // Hook into the pipe center
+                ctx.moveTo(ptTubeX-3, pipeTopY); ctx.lineTo(ptTubeX-3, mapY(d.Z)); ctx.lineTo(ptTubeX-15, mapY(d.Z));
+                ctx.moveTo(ptTubeX+3, pipeTopY); ctx.lineTo(ptTubeX+3, mapY(d.Z)-6); ctx.lineTo(ptTubeX-15, mapY(d.Z)-6);
+                ctx.stroke();
+                // Water in Pitot
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.5)'; // Reddish to indicate kinetic inclusion
+                ctx.fillRect(ptTubeX-2, eglY, 4, pipeTopY - eglY);
+                ctx.fillRect(ptTubeX-2, pipeTopY, 4, mapY(d.Z) - pipeTopY);
             });
 
-            btnPlay.addEventListener('click', () => {
-                isPlaying = !isPlaying;
-                if (isPlaying) {
-                    if (slider.value >= 1000) slider.value = 0;
-                    playAnimation();
-                } else {
-                    cancelAnimationFrame(animationFrame);
-                }
+            // 7. Particle Animation
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            state.particles.forEach(p => {
+                const d = calcDataAtX(p.x);
+                // Velocity visual mapping
+                const visualSpeed = d.V * 0.002 * p.speedVariability; 
+                
+                p.x += visualSpeed;
+                if(p.x > 1) p.x = 0; // wrap around
+
+                const px = mapX(p.x);
+                // Offset vertically inside the diameter
+                const currentD = d.D * 0.8; // keep slightly inside walls
+                const py = mapY(d.Z + p.yOffset * currentD);
+
+                ctx.beginPath();
+                ctx.arc(px, py, 2, 0, Math.PI*2);
+                ctx.fill();
+
+                // Draw motion blur trail
+                ctx.beginPath();
+                ctx.moveTo(px, py);
+                ctx.lineTo(px - visualSpeed * 500, py);
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
             });
 
-            btnReplay.addEventListener('click', () => {
-                isPlaying = false;
-                cancelAnimationFrame(animationFrame);
-                slider.value = 0;
-                updateState(0);
-            });
+            requestAnimationFrame(drawSimulation);
+        }
 
-            btnNext.addEventListener('click', () => {
-                isPlaying = false;
-                cancelAnimationFrame(animationFrame);
-                let val = parseInt(slider.value);
-                val = Math.min(1000, val + 200);
-                slider.value = val;
-                updateState(val);
-            });
-
-            btnPrev.addEventListener('click', () => {
-                isPlaying = false;
-                cancelAnimationFrame(animationFrame);
-                let val = parseInt(slider.value);
-                val = Math.max(0, val - 200);
-                slider.value = val;
-                updateState(val);
-            });
-
-            // Initialize
-            updateState(0);
+        // Event Listeners
+        [sliderQ, sliderD1, sliderD2, sliderZ2, sliderLoss].forEach(slider => {
+            slider.addEventListener('input', updateMath);
         });
+
+        // Init
+        resizeCanvas();
+        updateMath();
+        requestAnimationFrame(drawSimulation);
+
     </script>
 </body>
 </html>

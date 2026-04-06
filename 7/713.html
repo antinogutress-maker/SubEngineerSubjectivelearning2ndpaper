@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shoring and Dewatering Simulations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@500;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .sim-card {
+            background: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s;
+        }
+        
+        .sim-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .canvas-container {
+            background: #f1f5f9;
+            position: relative;
+            width: 100%;
+            height: 250px;
+            border-bottom: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            display: inline-block;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        /* Themed Highlights */
+        .theme-shore { color: #b45309; } /* Amber/Wood */
+        .theme-water { color: #0284c7; } /* Light Blue */
+        
+        .bg-shore-light { background-color: #fffbeb; }
+        .bg-water-light { background-color: #f0f9ff; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-12">
+
+        <!-- Header -->
+        <header class="text-center space-y-4 mb-12 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Temporary Construction Works</h1>
+            <p class="text-slate-600 font-medium text-lg max-w-3xl mx-auto">
+                Automatic Visual Simulations of <span class="text-amber-600 font-bold">Shoring</span> and <span class="text-sky-600 font-bold">Dewatering</span> techniques. Watch the dynamic load transfers and water table reductions in real-time.
+            </p>
+        </header>
+
+        <!-- ========================================== -->
+        <!-- SHORING SECTION                            -->
+        <!-- ========================================== -->
+        <section>
+            <div class="text-center md:text-left">
+                <h2 class="section-title text-2xl font-bold flex items-center gap-3">
+                    <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1"></path></svg>
+                    Types of Shoring
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Raking Shore -->
+                <div class="sim-card bg-shore-light">
+                    <div class="canvas-container">
+                        <canvas id="c-raking" width="400" height="250"></canvas>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">1. Raking Shoring (Inclined)</h3>
+                        <p class="text-sm text-slate-600 mb-3">
+                            <strong class="text-amber-700">Mechanism:</strong> Inclined timber or steel members (rakers) support an unsafe wall. The lateral forces are safely transmitted down to the ground.
+                        </p>
+                        <ul class="text-xs text-slate-500 list-disc pl-4 space-y-1">
+                            <li>Used when a wall is bulging or leaning outward.</li>
+                            <li>Angle of raker is usually between 45&deg; to 75&deg;.</li>
+                            <li><span class="font-bold text-red-500">Red arrows</span> indicate the continuous load path being diverted to the solid ground.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Flying Shore -->
+                <div class="sim-card bg-shore-light">
+                    <div class="canvas-container">
+                        <canvas id="c-flying" width="400" height="250"></canvas>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">2. Flying Shoring (Horizontal)</h3>
+                        <p class="text-sm text-slate-600 mb-3">
+                            <strong class="text-amber-700">Mechanism:</strong> Horizontal supports placed between two parallel walls. They counteract the inward forces of both buildings against each other.
+                        </p>
+                        <ul class="text-xs text-slate-500 list-disc pl-4 space-y-1">
+                            <li>Used when an intermediate building is demolished.</li>
+                            <li>Does not touch the ground (keeps the working area clear).</li>
+                            <li>Maximum effective span is usually around 9 to 12 meters.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Dead Shore -->
+                <div class="sim-card bg-shore-light">
+                    <div class="canvas-container">
+                        <canvas id="c-dead" width="400" height="250"></canvas>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">3. Dead Shoring (Vertical)</h3>
+                        <p class="text-sm text-slate-600 mb-3">
+                            <strong class="text-amber-700">Mechanism:</strong> Vertical props (dead shores) support a horizontal beam (needle) inserted through a hole in the wall to temporarily carry the upper load.
+                        </p>
+                        <ul class="text-xs text-slate-500 list-disc pl-4 space-y-1">
+                            <li>Used when the lower part of a wall is being removed or rebuilt.</li>
+                            <li>Allows creation of large openings (doors/windows) in load-bearing walls.</li>
+                            <li>Transfers the entire upper dead weight to the ground.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- DEWATERING SECTION                         -->
+        <!-- ========================================== -->
+        <section class="mt-16">
+            <div class="text-center md:text-left">
+                <h2 class="section-title text-2xl font-bold flex items-center gap-3" style="background: linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%);">
+                    <svg class="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    Types of Dewatering
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Open Sump -->
+                <div class="sim-card bg-water-light">
+                    <div class="canvas-container h-48">
+                        <canvas id="c-sump" width="300" height="200"></canvas>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2 leading-tight">Open Sump Pumping</h3>
+                        <p class="text-xs text-slate-600 mb-2">Water seeps into the excavation, flows to a localized pit (sump), and is pumped out directly.</p>
+                        <div class="mt-auto text-[11px] font-bold text-sky-700 bg-sky-100 p-2 rounded">Best for: Shallow depths, coarse soils.</div>
+                    </div>
+                </div>
+
+                <!-- Well Points -->
+                <div class="sim-card bg-water-light">
+                    <div class="canvas-container h-48">
+                        <canvas id="c-wellpoint" width="300" height="200"></canvas>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2 leading-tight">Well Point System</h3>
+                        <p class="text-xs text-slate-600 mb-2">Series of small pipes driven around the pit connected to a header pump, lowering the water table creating a "Cone of Depression".</p>
+                        <div class="mt-auto text-[11px] font-bold text-sky-700 bg-sky-100 p-2 rounded">Best for: Sandy soils, lowering table ~6m.</div>
+                    </div>
+                </div>
+
+                <!-- Deep Wells -->
+                <div class="sim-card bg-water-light">
+                    <div class="canvas-container h-48">
+                        <canvas id="c-deepwell" width="300" height="200"></canvas>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2 leading-tight">Deep Well System</h3>
+                        <p class="text-xs text-slate-600 mb-2">Large diameter wells with submersible pumps placed deep below the excavation level. Creates a massive drawdown curve.</p>
+                        <div class="mt-auto text-[11px] font-bold text-sky-700 bg-sky-100 p-2 rounded">Best for: Very deep excavations (>6m), large areas.</div>
+                    </div>
+                </div>
+
+                <!-- Electro-osmosis -->
+                <div class="sim-card bg-water-light">
+                    <div class="canvas-container h-48">
+                        <canvas id="c-electro" width="300" height="200"></canvas>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2 leading-tight">Electro-Osmosis</h3>
+                        <p class="text-xs text-slate-600 mb-2">DC current is passed between an Anode (+) and Cathode (-). Water in fine clay physically migrates to the negative well to be pumped.</p>
+                        <div class="mt-auto text-[11px] font-bold text-sky-700 bg-sky-100 p-2 rounded">Best for: Highly cohesive soils (Silts, dense Clays).</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Animation Scripts -->
+    <script>
+        // Utilities
+        function drawArrow(ctx, x, y, angle, size, color) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            
+            // Arrow line
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(size, 0);
+            ctx.stroke();
+            
+            // Arrow head
+            ctx.beginPath();
+            ctx.moveTo(size, 0);
+            ctx.lineTo(size - 6, -4);
+            ctx.lineTo(size - 6, 4);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawWall(ctx, x, y, w, h) {
+            ctx.fillStyle = '#b91c1c'; // brick red
+            ctx.fillRect(x, y, w, h);
+            ctx.strokeStyle = '#7f1d1d';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, w, h);
+            
+            // Brick pattern (simplified)
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 1;
+            for(let i=10; i<h; i+=10) {
+                ctx.beginPath(); ctx.moveTo(x, y+i); ctx.lineTo(x+w, y+i); ctx.stroke();
+            }
+        }
+
+        // ==========================================
+        // SHORING ANIMATIONS
+        // ==========================================
+
+        function renderRaking(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            
+            // Ground
+            ctx.fillStyle = '#d4d4d8'; ctx.fillRect(0, h-30, w, 30);
+            ctx.strokeStyle = '#52525b'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, h-30); ctx.lineTo(w, h-30); ctx.stroke();
+
+            // Wall (Bulging slightly)
+            ctx.fillStyle = '#b91c1c';
+            ctx.beginPath();
+            ctx.moveTo(60, 20); ctx.lineTo(100, 20); ctx.lineTo(100, h-30); ctx.lineTo(60, h-30);
+            ctx.fill();
+            ctx.strokeStyle = '#7f1d1d'; ctx.lineWidth = 2; ctx.stroke();
+
+            // Raker (Timber)
+            ctx.fillStyle = '#b45309'; // amber-700
+            ctx.save();
+            ctx.translate(100, 100); // touch point on wall
+            ctx.rotate(55 * Math.PI/180); // angle
+            ctx.fillRect(0, -10, 160, 20); // main raker
+            ctx.strokeStyle = '#78350f'; ctx.strokeRect(0, -10, 160, 20);
+            ctx.restore();
+
+            // Wall Plate & Cleat
+            ctx.fillRect(95, 60, 10, 100);
+            ctx.fillRect(105, 90, 15, 10);
+
+            // Sole Plate
+            ctx.fillRect(180, h-35, 60, 10);
+
+            // Load Flow Animation (Red arrows moving down the raker)
+            const cycle = (time % 2000) / 2000; // 0 to 1
+            const startX = 105; const startY = 100;
+            const endX = 190; const endY = h-30;
+            
+            const pX = startX + (endX - startX) * cycle;
+            const pY = startY + (endY - startY) * cycle;
+            
+            const angle = Math.atan2(endY - startY, endX - startX);
+            
+            // Wall Load moving down
+            drawArrow(ctx, 80, 20 + cycle * 70, Math.PI/2, 20, '#ef4444');
+            // Transfer to ground
+            drawArrow(ctx, pX, pY, angle, 25, '#ef4444');
+        }
+
+        function renderFlying(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            
+            // Ground
+            ctx.fillStyle = '#d4d4d8'; ctx.fillRect(0, h-30, w, 30);
+            ctx.beginPath(); ctx.moveTo(0, h-30); ctx.lineTo(w, h-30); ctx.stroke();
+
+            // Walls (Left and Right)
+            drawWall(ctx, 30, 20, 50, h-50);
+            drawWall(ctx, w-80, 20, 50, h-50);
+
+            // Flying Shore (Timber)
+            ctx.fillStyle = '#b45309'; ctx.strokeStyle = '#78350f'; ctx.lineWidth=2;
+            // Horizontal Beam
+            ctx.fillRect(80, 100, w-160, 20); ctx.strokeRect(80, 100, w-160, 20);
+            // Wall Plates
+            ctx.fillRect(75, 70, 10, 80); ctx.fillRect(w-85, 70, 10, 80);
+            // Struts (Diagonals)
+            ctx.beginPath(); ctx.moveTo(85, 80); ctx.lineTo(130, 100); ctx.lineTo(130,110); ctx.lineTo(85,90); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(w-85, 80); ctx.lineTo(w-130, 100); ctx.lineTo(w-130,110); ctx.lineTo(w-85,90); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(85, 140); ctx.lineTo(130, 120); ctx.lineTo(130,110); ctx.lineTo(85,130); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(w-85, 140); ctx.lineTo(w-130, 120); ctx.lineTo(w-130,110); ctx.lineTo(w-85,130); ctx.fill(); ctx.stroke();
+
+            // Load Flow Animation (Forces pushing inward, shore pushing outward)
+            const cycle = (time % 1500) / 1500;
+            const pushDist = cycle * 15;
+            
+            // Walls pushing in
+            drawArrow(ctx, 40 + pushDist, 110, 0, 20, '#ef4444');
+            drawArrow(ctx, w-40 - pushDist, 110, Math.PI, 20, '#ef4444');
+
+            // Shore resisting
+            drawArrow(ctx, 160 - pushDist, 110, Math.PI, 20, '#22c55e'); // Green resistance
+            drawArrow(ctx, w-160 + pushDist, 110, 0, 20, '#22c55e');
+        }
+
+        function renderDead(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            
+            // Ground
+            ctx.fillStyle = '#d4d4d8'; ctx.fillRect(0, h-20, w, 20);
+            ctx.beginPath(); ctx.moveTo(0, h-20); ctx.lineTo(w, h-20); ctx.stroke();
+
+            // Wall with Gap
+            drawWall(ctx, 150, 20, 100, 90); // Upper wall
+            // Gap is 150 to 250, from 110 to h-20
+            
+            // Timber Structure
+            ctx.fillStyle = '#b45309'; ctx.strokeStyle = '#78350f'; ctx.lineWidth=2;
+            
+            // Sole plates
+            ctx.fillRect(80, h-30, 60, 10); ctx.strokeRect(80, h-30, 60, 10);
+            ctx.fillRect(260, h-30, 60, 10); ctx.strokeRect(260, h-30, 60, 10);
+            
+            // Vertical Dead Shores
+            ctx.fillRect(100, 80, 20, h-110); ctx.strokeRect(100, 80, 20, h-110);
+            ctx.fillRect(280, 80, 20, h-110); ctx.strokeRect(280, 80, 20, h-110);
+
+            // Horizontal Needle (piercing wall)
+            ctx.fillRect(90, 80, 220, 25); ctx.strokeRect(90, 80, 220, 25);
+
+            // Load Flow Animation (Transfer from wall, through needle, down shores)
+            const cycle = (time % 2000) / 2000;
+            
+            // Initial load from wall
+            drawArrow(ctx, 200, 40 + cycle * 30, Math.PI/2, 20, '#ef4444');
+            
+            // Splits down the two shores
+            if(cycle > 0.3) {
+                const drop = (cycle - 0.3) * 1.4 * (h-110);
+                drawArrow(ctx, 110, 100 + drop, Math.PI/2, 20, '#ef4444');
+                drawArrow(ctx, 290, 100 + drop, Math.PI/2, 20, '#ef4444');
+            }
+        }
+
+
+        // ==========================================
+        // DEWATERING ANIMATIONS
+        // ==========================================
+        
+        function drawWaterDrops(ctx, time, x, yStart, yEnd, count, speed) {
+            ctx.fillStyle = '#0ea5e9'; // sky-500
+            for(let i=0; i<count; i++) {
+                const offset = (time * speed + (i/count)) % 1;
+                const py = yStart + (yEnd - yStart) * offset;
+                ctx.beginPath(); ctx.arc(x, py, 3, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        function renderSump(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            
+            // Soil background
+            ctx.fillStyle = '#fef3c7'; ctx.fillRect(0,0,w,h);
+            
+            // Excavation
+            ctx.fillStyle = '#f8fafc'; // empty space
+            ctx.beginPath(); ctx.moveTo(40,0); ctx.lineTo(100, 120); ctx.lineTo(w-40, 120); ctx.lineTo(w,0); ctx.fill();
+            
+            // Original Water Table (Dashed)
+            ctx.beginPath(); ctx.moveTo(0, 60); ctx.lineTo(w, 60);
+            ctx.strokeStyle = '#94a3b8'; ctx.setLineDash([5,5]); ctx.lineWidth=1; ctx.stroke(); ctx.setLineDash([]);
+            
+            // Sump pit at bottom corner
+            ctx.fillStyle = '#e2e8f0'; ctx.fillRect(w-80, 120, 40, 30);
+            
+            // Seeping water (Sine wave animation in the sump)
+            const waveY = 135 + Math.sin(time/200)*2;
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.6)';
+            ctx.fillRect(w-80, waveY, 40, 150-waveY);
+
+            // Water seeping from sides into sump
+            const seepCycle = (time % 1500) / 1500;
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.4)';
+            ctx.beginPath(); ctx.arc(120 + seepCycle*100, 115, 3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(150 + ((seepCycle+0.5)%1)*70, 115, 3, 0, Math.PI*2); ctx.fill();
+
+            // Pump and hose
+            ctx.fillStyle = '#475569'; ctx.fillRect(w-70, 10, 20, 30); // pump
+            ctx.strokeStyle = '#334155'; ctx.lineWidth=3;
+            ctx.beginPath(); ctx.moveTo(w-60, 40); ctx.lineTo(w-60, 140); ctx.stroke(); // pipe down
+            ctx.beginPath(); ctx.moveTo(w-50, 25); ctx.lineTo(w-10, 25); ctx.stroke(); // pipe out
+
+            // Water moving UP the pipe
+            drawWaterDrops(ctx, time, w-60, 140, 40, 5, 0.001);
+            // Water shooting out
+            drawWaterDrops(ctx, time, w-20 + (time%500)/50, 25, 35, 3, 0); // Horizontal ish
+        }
+
+        function renderWellpoint(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            ctx.fillStyle = '#fef3c7'; ctx.fillRect(0,0,w,h);
+            
+            // Excavation
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(80, 0, w-160, 100);
+
+            // Well Points (Pipes array)
+            ctx.strokeStyle = '#475569'; ctx.lineWidth=2;
+            const pipeXs = [50, 65, w-65, w-50];
+            pipeXs.forEach(x => {
+                ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, 150); ctx.stroke();
+                // Filter tips
+                ctx.fillStyle = '#94a3b8'; ctx.fillRect(x-2, 130, 4, 20);
+                // Water going up
+                drawWaterDrops(ctx, time, x, 140, 30, 4, 0.001);
+            });
+
+            // Header Pipe
+            ctx.fillRect(40, 20, w-80, 6);
+
+            // Water Table (Cone of depression)
+            ctx.beginPath();
+            ctx.moveTo(0, 50); // Original level
+            // Draw down curve
+            ctx.quadraticCurveTo(40, 50, 57, 130); // Left side drawdown
+            ctx.lineTo(w-57, 130); // Lowered table under excavation
+            ctx.quadraticCurveTo(w-40, 50, w, 50); // Right side curve
+            
+            ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth=2; ctx.stroke();
+            ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.3)'; ctx.fill();
+
+            // Original WT Line
+            ctx.beginPath(); ctx.moveTo(0, 50); ctx.lineTo(w, 50);
+            ctx.strokeStyle = 'rgba(14, 165, 233, 0.4)'; ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+        }
+
+        function renderDeepWell(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            ctx.fillStyle = '#fef3c7'; ctx.fillRect(0,0,w,h);
+            
+            // Deep Excavation
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(60, 0, w-120, 140);
+
+            // Original WT
+            ctx.beginPath(); ctx.moveTo(0, 40); ctx.lineTo(w, 40);
+            ctx.strokeStyle = 'rgba(14, 165, 233, 0.4)'; ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+
+            // Single Deep Well
+            const wx = w/2;
+            // Well casing
+            ctx.fillStyle = '#e2e8f0'; ctx.fillRect(wx-10, 20, 20, h-40);
+            ctx.strokeStyle = '#475569'; ctx.lineWidth=2; ctx.strokeRect(wx-10, 20, 20, h-40);
+            
+            // Submersible Pump at bottom
+            ctx.fillStyle = '#334155'; ctx.fillRect(wx-6, h-60, 12, 30);
+            
+            // Discharge Pipe inside
+            ctx.beginPath(); ctx.moveTo(wx, h-60); ctx.lineTo(wx, 10); ctx.lineTo(wx+40, 10); ctx.stroke();
+
+            // Water Table (Deep Cone)
+            ctx.beginPath();
+            ctx.moveTo(0, 40);
+            ctx.quadraticCurveTo(wx-20, 45, wx-10, h-50);
+            ctx.lineTo(wx+10, h-50);
+            ctx.quadraticCurveTo(wx+20, 45, w, 40);
+            
+            ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth=2; ctx.stroke();
+            ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.3)'; ctx.fill();
+
+            // Water moving up pipe
+            drawWaterDrops(ctx, time, wx, h-60, 10, 8, 0.0015);
+            
+            // Arrows showing deep groundwater flow towards well
+            const flowOffset = (time % 2000) / 2000;
+            const fx1 = 20 + flowOffset * 40;
+            drawArrow(ctx, fx1, h-30, 0, 15, '#0ea5e9');
+            drawArrow(ctx, w - fx1, h-30, Math.PI, 15, '#0ea5e9');
+        }
+
+        function renderElectro(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            
+            // Dense Clay Soil
+            ctx.fillStyle = '#d6d3d1'; ctx.fillRect(0,0,w,h); // stone-300
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';
+            for(let i=0; i<w; i+=20) { ctx.fillRect(i, 0, 1, h); } // subtle grid indicating dense clay
+
+            // Water table (ambient)
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.2)'; ctx.fillRect(0, 40, w, h-40);
+
+            const anodeX = 80;
+            const cathodeX = w - 80;
+
+            // Anode (+)
+            ctx.fillStyle = '#ef4444'; ctx.fillRect(anodeX-4, 20, 8, h-40);
+            ctx.font = 'bold 16px sans-serif'; ctx.fillText('+', anodeX-5, 15);
+
+            // Cathode (-) (Well point)
+            ctx.fillStyle = '#0ea5e9'; ctx.fillRect(cathodeX-4, 20, 8, h-40);
+            ctx.fillText('-', cathodeX-3, 15);
+            // Suction pipe from Cathode
+            ctx.strokeStyle = '#334155'; ctx.lineWidth=2;
+            ctx.beginPath(); ctx.moveTo(cathodeX, 20); ctx.lineTo(cathodeX, h-40); ctx.stroke();
+
+            // Electric Field Lines (Pulsing)
+            const pulse = (Math.sin(time/200) + 1) / 2;
+            ctx.strokeStyle = `rgba(239, 68, 68, ${0.1 + pulse*0.3})`;
+            ctx.lineWidth = 1;
+            for(let i=60; i<h-20; i+=20) {
+                ctx.beginPath(); ctx.moveTo(anodeX, i); ctx.lineTo(cathodeX, i); ctx.stroke();
+            }
+
+            // Water molecules migrating (Osmosis)
+            ctx.fillStyle = '#0284c7'; // dark blue
+            const pSpeed = 0.0005;
+            for(let i=0; i<15; i++) {
+                const y = 50 + (i * 9); // spread vertically
+                const offset = (time * pSpeed + (i/15)) % 1;
+                const x = anodeX + (cathodeX - anodeX) * offset;
+                
+                // Draw water molecule
+                ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI*2); ctx.fill();
+            }
+
+            // Water being extracted up the cathode
+            drawWaterDrops(ctx, time, cathodeX, h-40, 20, 6, 0.001);
+        }
+
+        // ==========================================
+        // MAIN ANIMATION LOOP
+        // ==========================================
+        
+        const canvasEls = {
+            raking: document.getElementById('c-raking'),
+            flying: document.getElementById('c-flying'),
+            dead: document.getElementById('c-dead'),
+            sump: document.getElementById('c-sump'),
+            wellpoint: document.getElementById('c-wellpoint'),
+            deepwell: document.getElementById('c-deepwell'),
+            electro: document.getElementById('c-electro')
+        };
+
+        const ctxs = {};
+        for(let key in canvasEls) {
+            ctxs[key] = canvasEls[key].getContext('2d');
+        }
+
+        function animate() {
+            const time = Date.now();
+            
+            renderRaking(ctxs.raking, canvasEls.raking.width, canvasEls.raking.height, time);
+            renderFlying(ctxs.flying, canvasEls.flying.width, canvasEls.flying.height, time);
+            renderDead(ctxs.dead, canvasEls.dead.width, canvasEls.dead.height, time);
+            
+            renderSump(ctxs.sump, canvasEls.sump.width, canvasEls.sump.height, time);
+            renderWellpoint(ctxs.wellpoint, canvasEls.wellpoint.width, canvasEls.wellpoint.height, time);
+            renderDeepWell(ctxs.deepwell, canvasEls.deepwell.width, canvasEls.deepwell.height, time);
+            renderElectro(ctxs.electro, canvasEls.electro.width, canvasEls.electro.height, time);
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        animate();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grading of Aggregates | Concrete Technology</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Matter.js Physics Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        h1, h2, h3, .heading-font {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .tab-btn {
+            transition: all 0.2s ease-in-out;
+            border-bottom: 4px solid transparent;
+        }
+        .tab-btn.active {
+            background-color: #f8fafc;
+        }
+        .tab-btn.active-well { border-bottom-color: #10b981; color: #047857; }
+        .tab-btn.active-poor { border-bottom-color: #ef4444; color: #b91c1c; }
+        .tab-btn.active-gap { border-bottom-color: #f59e0b; color: #b45309; }
+
+        .graph-canvas {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, #ffffff, #f8fafc);
+        }
+
+        /* Content Sections */
+        .desc-section { display: none; animation: fadeIn 0.5s ease-in-out; }
+        .desc-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Keyword Highlights */
+        .hl-voids { color: #475569; font-weight: 700; }
+        .hl-cement { color: #64748b; font-weight: 700; }
+        .hl-strength { color: #dc2626; font-weight: 700; }
+        .hl-good { color: #16a34a; font-weight: 700; }
+        .hl-warn { color: #d97706; font-weight: 700; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-8">
+
+        <!-- Header -->
+        <header class="text-center space-y-4 mb-8 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Grading of Aggregates</h1>
+            <p class="text-slate-600 font-medium text-lg max-w-3xl mx-auto">
+                Automatic Physics Simulation & Particle Size Distribution Curves
+            </p>
+        </header>
+
+        <!-- Simulation & Graph Container -->
+        <div class="glass-panel">
+            
+            <!-- Tabs -->
+            <div class="flex grid grid-cols-3 bg-slate-100 border-b border-slate-200 cursor-pointer">
+                <div id="tab-well" class="tab-btn active active-well p-4 text-center font-bold text-slate-500 hover:bg-slate-200/50" onclick="switchMode('well')">
+                    1. Well Graded
+                </div>
+                <div id="tab-poor" class="tab-btn p-4 text-center font-bold text-slate-500 hover:bg-slate-200/50" onclick="switchMode('poor')">
+                    2. Poorly Graded
+                </div>
+                <div id="tab-gap" class="tab-btn p-4 text-center font-bold text-slate-500 hover:bg-slate-200/50" onclick="switchMode('gap')">
+                    3. Gap Graded
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 h-[450px]">
+                
+                <!-- Physics Simulation Area -->
+                <div class="relative bg-slate-800 border-r border-slate-200 flex flex-col items-center justify-end overflow-hidden" id="physics-container">
+                    <div class="absolute top-4 left-4 z-10 bg-white/90 px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 text-xs font-bold text-slate-700">
+                        Physical Packing & Voids
+                    </div>
+                    <!-- Matter.js Canvas injects here -->
+                </div>
+
+                <!-- Grading Curve Area -->
+                <div class="relative p-4 flex flex-col">
+                    <div class="absolute top-4 right-4 z-10 bg-white/90 px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 text-xs font-bold text-slate-700">
+                        Particle Size Distribution Curve
+                    </div>
+                    <canvas id="graphCanvas" class="graph-canvas rounded"></canvas>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Explanations Container -->
+        <div class="glass-panel p-6 md:p-8">
+            
+            <!-- Well Graded Info -->
+            <div id="desc-well" class="desc-section active border-l-4 border-emerald-500 pl-4">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="bg-emerald-100 p-2 rounded text-emerald-700 font-bold text-xl heading-font">Well Graded Aggregates</div>
+                </div>
+                <div class="space-y-3 text-slate-700">
+                    <p><strong>Observation:</strong> The grading curve forms a smooth, continuous "S" shape. The physical simulation shows large rocks, with medium rocks filling the large gaps, and fine sands filling the remaining tiny gaps.</p>
+                    <p><strong>Characteristics & Engineering Impact:</strong></p>
+                    <ul class="list-disc pl-6 space-y-1">
+                        <li>Contains particles of <strong class="text-emerald-700">all standard sizes</strong> in appropriate proportions.</li>
+                        <li>Results in <span class="hl-voids">minimum void space</span> between particles, creating a highly dense mass.</li>
+                        <li>Requires <span class="hl-cement">less cement paste</span> to fill the voids, making the concrete mix highly economical.</li>
+                        <li>Yields concrete that is highly <span class="hl-good">workable and attains maximum compressive strength</span>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Poorly Graded Info -->
+            <div id="desc-poor" class="desc-section border-l-4 border-red-500 pl-4">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="bg-red-100 p-2 rounded text-red-700 font-bold text-xl heading-font">Poorly Graded (Uniform) Aggregates</div>
+                </div>
+                <div class="space-y-3 text-slate-700">
+                    <p><strong>Observation:</strong> The grading curve is very steep, almost a vertical line, indicating particles are concentrated around one specific size. The physical simulation shows large, visible voids between the identical stones.</p>
+                    <p><strong>Characteristics & Engineering Impact:</strong></p>
+                    <ul class="list-disc pl-6 space-y-1">
+                        <li>A majority of the particles are of the <strong class="text-red-700">exact same size</strong> (Uniformly graded).</li>
+                        <li>Because there are no smaller particles to fit in the gaps, it results in a <span class="hl-voids">very high void ratio</span>.</li>
+                        <li>Requires a <span class="hl-cement">large amount of cement paste</span> to fill these empty voids, making the mix highly uneconomical.</li>
+                        <li>If cement paste is insufficient, it leads to porous, <span class="hl-strength">weak, and permeable concrete</span>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Gap Graded Info -->
+            <div id="desc-gap" class="desc-section border-l-4 border-amber-500 pl-4">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="bg-amber-100 p-2 rounded text-amber-700 font-bold text-xl heading-font">Gap Graded Aggregates</div>
+                </div>
+                <div class="space-y-3 text-slate-700">
+                    <p><strong>Observation:</strong> The grading curve has a distinctly flat, horizontal section. The physical simulation shows large rocks and very fine dust, but completely lacks any medium-sized intermediate stones.</p>
+                    <p><strong>Characteristics & Engineering Impact:</strong></p>
+                    <ul class="list-disc pl-6 space-y-1">
+                        <li>One or more <strong class="text-amber-700">intermediate sizes are completely missing</strong> from the sample.</li>
+                        <li>Can occur naturally or be intentionally engineered for specific architectural finishes (e.g., exposed aggregate concrete).</li>
+                        <li>Prone to <span class="hl-warn">segregation</span> during vibration because the fine mortar can easily separate from the large coarse aggregate.</li>
+                        <li>Requires careful mix design to achieve adequate strength compared to well-graded mixes.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // PHYSICS ENGINE (Matter.js)
+        // ==========================================
+        const Engine = Matter.Engine,
+              Render = Matter.Render,
+              Runner = Matter.Runner,
+              Bodies = Matter.Bodies,
+              Composite = Matter.Composite,
+              World = Matter.World;
+
+        // Create engine
+        const engine = Engine.create();
+        const container = document.getElementById('physics-container');
+        
+        // Define canvas dimensions based on container
+        let renderWidth = container.clientWidth;
+        let renderHeight = 450;
+
+        // Create renderer
+        const render = Render.create({
+            element: container,
+            engine: engine,
+            options: {
+                width: renderWidth,
+                height: renderHeight,
+                wireframes: false,
+                background: '#1e293b' // slate-800
+            }
+        });
+
+        // Create boundaries (Container walls)
+        const wallOptions = { 
+            isStatic: true, 
+            render: { fillStyle: '#94a3b8' } // slate-400
+        };
+        const ground = Bodies.rectangle(renderWidth/2, renderHeight + 25, renderWidth, 50, wallOptions);
+        const leftWall = Bodies.rectangle(-25, renderHeight/2, 50, renderHeight, wallOptions);
+        const rightWall = Bodies.rectangle(renderWidth + 25, renderHeight/2, 50, renderHeight, wallOptions);
+        
+        Composite.add(engine.world, [ground, leftWall, rightWall]);
+
+        // Run the engine & renderer
+        Render.run(render);
+        const runner = Runner.create();
+        Runner.run(runner, engine);
+
+        // Resize handler for physics canvas
+        window.addEventListener('resize', () => {
+            renderWidth = container.clientWidth;
+            render.canvas.width = renderWidth;
+            render.options.width = renderWidth;
+            Matter.Body.setPosition(ground, { x: renderWidth/2, y: renderHeight + 25 });
+            Matter.Body.setPosition(rightWall, { x: renderWidth + 25, y: renderHeight/2 });
+        });
+
+        // Particle generation logic
+        let spawnInterval;
+        
+        // Stone colors
+        const colors = ['#64748b', '#475569', '#334155', '#94a3b8', '#a8a29e'];
+
+        function createParticle(sizeType) {
+            let radius;
+            switch(sizeType) {
+                case 'large': radius = 28 + Math.random()*4; break;
+                case 'medium': radius = 16 + Math.random()*3; break;
+                case 'small': radius = 8 + Math.random()*2; break;
+                case 'fine': radius = 4 + Math.random(); break;
+                default: radius = 15;
+            }
+
+            // Spawn near top center with slight randomness
+            const x = renderWidth/2 + (Math.random() - 0.5) * (renderWidth - 100);
+            const y = -50; // Drop from above canvas
+
+            // Use polygons to simulate irregular rock shapes (5 to 8 sides)
+            const sides = Math.floor(Math.random() * 4) + 5;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            return Bodies.polygon(x, y, sides, radius, {
+                friction: 0.8,
+                restitution: 0.1, // low bounciness
+                density: 0.04,
+                render: {
+                    fillStyle: color,
+                    strokeStyle: '#1e293b',
+                    lineWidth: 1
+                }
+            });
+        }
+
+        function startPhysicsSimulation(type) {
+            // Clear existing particles (keep boundaries)
+            const bodiesToRemove = Composite.allBodies(engine.world).filter(b => !b.isStatic);
+            Composite.remove(engine.world, bodiesToRemove);
+
+            clearInterval(spawnInterval);
+
+            let particlesToSpawn = [];
+
+            if (type === 'well') {
+                // Mix of all sizes
+                for(let i=0; i<40; i++) particlesToSpawn.push('large');
+                for(let i=0; i<80; i++) particlesToSpawn.push('medium');
+                for(let i=0; i<150; i++) particlesToSpawn.push('small');
+                for(let i=0; i<200; i++) particlesToSpawn.push('fine');
+            } else if (type === 'poor') {
+                // Almost entirely medium/large uniform size
+                for(let i=0; i<180; i++) particlesToSpawn.push('medium');
+            } else if (type === 'gap') {
+                // Large and fine only, NO medium or small
+                for(let i=0; i<60; i++) particlesToSpawn.push('large');
+                for(let i=0; i<250; i++) particlesToSpawn.push('fine');
+            }
+
+            // Shuffle array
+            particlesToSpawn.sort(() => Math.random() - 0.5);
+
+            let index = 0;
+            // Spawn in batches for performance and visual flow
+            spawnInterval = setInterval(() => {
+                const batchSize = type === 'poor' ? 3 : 8; // Drop fewer big ones at once
+                let batch = [];
+                for(let i=0; i<batchSize; i++) {
+                    if (index < particlesToSpawn.length) {
+                        batch.push(createParticle(particlesToSpawn[index]));
+                        index++;
+                    }
+                }
+                
+                if (batch.length > 0) {
+                    Composite.add(engine.world, batch);
+                } else {
+                    clearInterval(spawnInterval);
+                }
+            }, 50); // 50ms interval
+        }
+
+
+        // ==========================================
+        // GRAPHING (HTML5 Canvas)
+        // ==========================================
+        const graphCanvas = document.getElementById('graphCanvas');
+        const gCtx = graphCanvas.getContext('2d');
+        
+        // Define animation state
+        let graphAnimationReq;
+        let progress = 0;
+        let currentCurvePoints = [];
+        let currentLineColor = '#10b981';
+
+        function resizeGraph() {
+            const rect = graphCanvas.parentElement.getBoundingClientRect();
+            // Subtract padding
+            const w = rect.width - 32;
+            const h = rect.height - 32;
+            
+            graphCanvas.width = w * window.devicePixelRatio;
+            graphCanvas.height = h * window.devicePixelRatio;
+            gCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            graphCanvas.style.width = `${w}px`;
+            graphCanvas.style.height = `${h}px`;
+        }
+        window.addEventListener('resize', () => {
+            resizeGraph();
+            drawGraphBase();
+            drawAnimatedCurve(1); // fully draw if resized
+        });
+
+        const graphConfig = {
+            padL: 60, padR: 20, padT: 30, padB: 50,
+            xMin: 0, xMax: 100, // Representing log scale visually (fine to coarse)
+            yMin: 0, yMax: 100
+        };
+
+        // Curve definitions (Normalized 0 to 100)
+        // X roughly correlates to sieve size (fine -> coarse)
+        // Y is % passing
+        const curves = {
+            well: {
+                color: '#10b981', // emerald
+                points: [{x:0, y:0}, {x:20, y:30}, {x:50, y:60}, {x:80, y:85}, {x:100, y:100}]
+            },
+            poor: {
+                color: '#ef4444', // red
+                points: [{x:0, y:0}, {x:40, y:5}, {x:45, y:95}, {x:100, y:100}] // steep vertical jump
+            },
+            gap: {
+                color: '#f59e0b', // amber
+                points: [{x:0, y:0}, {x:25, y:45}, {x:75, y:50}, {x:100, y:100}] // horizontal gap
+            }
+        };
+
+        function mapX(x) {
+            const w = (graphCanvas.width / window.devicePixelRatio) - graphConfig.padL - graphConfig.padR;
+            return graphConfig.padL + (x / graphConfig.xMax) * w;
+        }
+
+        function mapY(y) {
+            const h = (graphCanvas.height / window.devicePixelRatio) - graphConfig.padT - graphConfig.padB;
+            return graphConfig.padT + h - (y / graphConfig.yMax) * h;
+        }
+
+        function drawGraphBase() {
+            const w = graphCanvas.width / window.devicePixelRatio;
+            const h = graphCanvas.height / window.devicePixelRatio;
+            gCtx.clearRect(0, 0, w, h);
+
+            const gw = w - graphConfig.padL - graphConfig.padR;
+            const gh = h - graphConfig.padT - graphConfig.padB;
+
+            // Draw Grid Lines
+            gCtx.strokeStyle = '#e2e8f0';
+            gCtx.lineWidth = 1;
+            
+            // Horizontal lines (Y axis)
+            gCtx.textAlign = 'right';
+            gCtx.textBaseline = 'middle';
+            gCtx.fillStyle = '#64748b';
+            gCtx.font = '11px Inter';
+            for (let y = 0; y <= 100; y += 20) {
+                const py = mapY(y);
+                gCtx.beginPath(); gCtx.moveTo(graphConfig.padL, py); gCtx.lineTo(w - graphConfig.padR, py); gCtx.stroke();
+                gCtx.fillText(`${y}%`, graphConfig.padL - 10, py);
+            }
+
+            // Vertical lines (X axis representation)
+            gCtx.textAlign = 'center';
+            gCtx.textBaseline = 'top';
+            const xLabels = ['Fine (0.15)', 'Sand (2.36)', 'Gravel (10)', 'Coarse (40)'];
+            for (let i = 0; i <= 4; i++) {
+                const xVal = i * 25;
+                const px = mapX(xVal);
+                gCtx.beginPath(); gCtx.moveTo(px, graphConfig.padT); gCtx.lineTo(px, h - graphConfig.padB); gCtx.stroke();
+                if(i < 4) gCtx.fillText(xLabels[i], px + gw/8, h - graphConfig.padB + 10);
+            }
+
+            // Draw Axes
+            gCtx.strokeStyle = '#475569';
+            gCtx.lineWidth = 2;
+            gCtx.beginPath();
+            gCtx.moveTo(graphConfig.padL, graphConfig.padT);
+            gCtx.lineTo(graphConfig.padL, h - graphConfig.padB);
+            gCtx.lineTo(w - graphConfig.padR, h - graphConfig.padB);
+            gCtx.stroke();
+
+            // Axis Titles
+            gCtx.fillStyle = '#1e293b';
+            gCtx.font = 'bold 12px Inter';
+            // Y title
+            gCtx.save();
+            gCtx.translate(20, h/2);
+            gCtx.rotate(-Math.PI/2);
+            gCtx.textAlign = 'center';
+            gCtx.fillText('Percentage Passing (%)', 0, 0);
+            gCtx.restore();
+            // X title
+            gCtx.fillText('Particle Size / Sieve Size (Log Scale Representation)', w/2, h - 15);
+        }
+
+        // Catmull-Rom spline interpolation for smooth curves
+        function getCurvePoints(pts, segments=50) {
+            let res = [];
+            for (let i = 0; i < pts.length - 1; i++) {
+                const p0 = i === 0 ? pts[0] : pts[i - 1];
+                const p1 = pts[i];
+                const p2 = pts[i + 1];
+                const p3 = i === pts.length - 2 ? pts[i + 1] : pts[i + 2];
+
+                for (let t = 0; t <= 1; t += 1/segments) {
+                    const t2 = t * t;
+                    const t3 = t2 * t;
+                    const x = 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3);
+                    const y = 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3);
+                    res.push({x, y});
+                }
+            }
+            return res;
+        }
+
+        function startGraphAnimation(type) {
+            if(graphAnimationReq) cancelAnimationFrame(graphAnimationReq);
+            progress = 0;
+            currentLineColor = curves[type].color;
+            
+            // For poor graded, use straight lines to emphasize the sudden jump
+            if (type === 'poor') {
+                currentCurvePoints = curves[type].points;
+            } else {
+                currentCurvePoints = getCurvePoints(curves[type].points);
+            }
+
+            function animate() {
+                progress += 0.015; // Animation speed
+                if (progress > 1) progress = 1;
+                
+                drawGraphBase();
+                drawAnimatedCurve(progress);
+                
+                if (progress < 1) {
+                    graphAnimationReq = requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+
+        function drawAnimatedCurve(prog) {
+            if (currentCurvePoints.length === 0) return;
+
+            const targetLength = Math.floor(prog * (currentCurvePoints.length - 1));
+
+            gCtx.beginPath();
+            gCtx.moveTo(mapX(currentCurvePoints[0].x), mapY(currentCurvePoints[0].y));
+            
+            // Draw up to current progress
+            for (let i = 1; i <= targetLength; i++) {
+                gCtx.lineTo(mapX(currentCurvePoints[i].x), mapY(currentCurvePoints[i].y));
+            }
+            
+            // Interpolate the final segment for smooth ending
+            if (prog < 1 && targetLength < currentCurvePoints.length - 1) {
+                const p1 = currentCurvePoints[targetLength];
+                const p2 = currentCurvePoints[targetLength + 1];
+                const segmentProg = (prog * (currentCurvePoints.length - 1)) - targetLength;
+                
+                const curX = p1.x + (p2.x - p1.x) * segmentProg;
+                const curY = p1.y + (p2.y - p1.y) * segmentProg;
+                gCtx.lineTo(mapX(curX), mapY(curY));
+            }
+
+            gCtx.strokeStyle = currentLineColor;
+            gCtx.lineWidth = 4;
+            gCtx.stroke();
+        }
+
+
+        // ==========================================
+        // UI / STATE MANAGEMENT
+        // ==========================================
+        function switchMode(type) {
+            // Update Tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'active-well', 'active-poor', 'active-gap');
+            });
+            const activeTab = document.getElementById(`tab-${type}`);
+            activeTab.classList.add('active', `active-${type}`);
+
+            // Update Descriptions
+            document.querySelectorAll('.desc-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(`desc-${type}`).classList.add('active');
+
+            // Trigger Simulations
+            startPhysicsSimulation(type);
+            startGraphAnimation(type);
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            resizeGraph();
+            // Start default mode
+            switchMode('well');
+        };
+
+    </script>
+</body>
+</html>

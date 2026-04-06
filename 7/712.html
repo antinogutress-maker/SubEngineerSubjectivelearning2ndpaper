@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Types of Foundations | Building Construction Technology</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4; /* Very light mint/green background */
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .foundation-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-top: 6px solid;
+        }
+
+        .foundation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Shallow Foundation Theme (Warm/Earth Colors) */
+        .card-shallow { border-top-color: #10b981; } /* Emerald */
+        .card-shallow .icon-bg { background-color: #d1fae5; }
+        .card-shallow .diagram-bg { background-color: #f8fafc; }
+
+        /* Deep Foundation Theme (Deep Blues/Stone Colors) */
+        .card-deep { border-top-color: #3b82f6; } /* Blue */
+        .card-deep .icon-bg { background-color: #dbeafe; }
+        .card-deep .diagram-bg { background-color: #f0f9ff; }
+
+        /* Memorization Keyword Highlighting */
+        .kw-red { color: #dc2626; font-weight: 700; }
+        .kw-blue { color: #2563eb; font-weight: 700; }
+        .kw-green { color: #16a34a; font-weight: 700; }
+        .kw-purple { color: #9333ea; font-weight: 700; }
+        .kw-orange { color: #ea580c; font-weight: 700; }
+
+        .svg-soil { fill: #fef3c7; }
+        .svg-hard-soil { fill: #d4d4d8; }
+        .svg-concrete { fill: #94a3b8; stroke: #334155; stroke-width: 2; }
+        .svg-water { fill: #bae6fd; opacity: 0.6; }
+        .svg-line { stroke: #334155; stroke-width: 2; stroke-linecap: round; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-12">
+        
+        <!-- Header Section -->
+        <header class="text-center space-y-4 mb-12 bg-white p-8 rounded-2xl shadow-sm border border-emerald-100 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 via-blue-500 to-indigo-600"></div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+                Types of <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-blue-600">Foundations</span>
+            </h1>
+            <p class="text-slate-600 font-medium text-lg max-w-3xl mx-auto">
+                A visual encyclopedia of Shallow and Deep foundations. Designed with structural diagrams and <span class="kw-purple">color-coded keywords</span> for rapid memorization and Loksewa exam preparation.
+            </p>
+        </header>
+
+        <!-- ========================================== -->
+        <!-- SHALLOW FOUNDATIONS SECTION                -->
+        <!-- ========================================== -->
+        <section>
+            <div class="flex items-center gap-4 mb-8">
+                <div class="p-3 bg-emerald-100 rounded-xl">
+                    <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900">Shallow Foundations</h2>
+                    <p class="text-emerald-700 font-medium">Depth is generally less than or equal to Width (D &le; B)</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- 1. Isolated Footing -->
+                <div class="foundation-card card-shallow flex flex-col">
+                    <div class="diagram-bg h-48 flex justify-center items-center relative border-b border-slate-200">
+                        <span class="absolute top-2 right-2 bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded">1. Isolated / Pad</span>
+                        <svg width="200" height="150" viewBox="0 0 200 150">
+                            <!-- Soil -->
+                            <rect x="20" y="100" width="160" height="40" class="svg-soil" />
+                            <line x1="20" y1="100" x2="180" y2="100" class="svg-line" stroke-dasharray="4" />
+                            <!-- Footing -->
+                            <polygon points="60,120 140,120 120,100 80,100" class="svg-concrete" />
+                            <rect x="60" y="120" width="80" height="20" class="svg-concrete" />
+                            <!-- Column -->
+                            <rect x="85" y="20" width="30" height="80" class="svg-concrete" />
+                            <!-- Load Arrow -->
+                            <line x1="100" y1="5" x2="100" y2="20" class="svg-line" stroke="#dc2626" />
+                            <polygon points="100,20 95,15 105,15" fill="#dc2626" />
+                        </svg>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Isolated (Pad) Footing</h3>
+                        <p class="text-slate-600 mb-4 text-sm">
+                            <span class="font-bold text-slate-800">Definition:</span> The most common type of foundation. It consists of a single pad (square, rectangular, or circular) provided under a <span class="kw-blue">single individual column</span> to distribute its load safely to the soil.
+                        </p>
+                        <div class="bg-emerald-50 p-4 rounded-lg mt-auto border border-emerald-100">
+                            <h4 class="font-bold text-emerald-800 text-sm mb-2 uppercase tracking-wide">Main Suitability:</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700">
+                                <li>When columns are <span class="kw-green">lightly loaded</span> and spaced widely apart.</li>
+                                <li>When the safe <span class="kw-orange">bearing capacity of soil is high</span> at a very shallow depth.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Combined Footing -->
+                <div class="foundation-card card-shallow flex flex-col">
+                    <div class="diagram-bg h-48 flex justify-center items-center relative border-b border-slate-200">
+                        <span class="absolute top-2 right-2 bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded">2. Combined</span>
+                        <svg width="240" height="150" viewBox="0 0 240 150">
+                            <!-- Soil -->
+                            <rect x="10" y="110" width="220" height="30" class="svg-soil" />
+                            <line x1="10" y1="110" x2="230" y2="110" class="svg-line" stroke-dasharray="4" />
+                            <!-- Footing -->
+                            <rect x="30" y="110" width="180" height="25" class="svg-concrete" />
+                            <!-- Column 1 -->
+                            <rect x="50" y="30" width="25" height="80" class="svg-concrete" />
+                            <!-- Column 2 (Heavier) -->
+                            <rect x="150" y="30" width="40" height="80" class="svg-concrete" />
+                            <text x="120" y="100" font-size="10" font-weight="bold" fill="#334155">Common Base Slab</text>
+                        </svg>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Combined Footing</h3>
+                        <p class="text-slate-600 mb-4 text-sm">
+                            <span class="font-bold text-slate-800">Definition:</span> A single continuous footing (usually rectangular or trapezoidal) that supports <span class="kw-blue">two or more adjacent columns</span>.
+                        </p>
+                        <div class="bg-emerald-50 p-4 rounded-lg mt-auto border border-emerald-100">
+                            <h4 class="font-bold text-emerald-800 text-sm mb-2 uppercase tracking-wide">Main Suitability:</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700">
+                                <li>When columns are <span class="kw-red">spaced very closely</span>, causing their individual isolated footings to overlap.</li>
+                                <li>When an exterior column is constrained by a <span class="kw-purple">property line</span>, restricting symmetric footing growth.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Strap Footing -->
+                <div class="foundation-card card-shallow flex flex-col">
+                    <div class="diagram-bg h-48 flex justify-center items-center relative border-b border-slate-200">
+                        <span class="absolute top-2 right-2 bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded">3. Strap / Cantilever</span>
+                        <svg width="240" height="150" viewBox="0 0 240 150">
+                            <!-- Soil -->
+                            <rect x="10" y="110" width="220" height="30" class="svg-soil" />
+                            <!-- Property Line -->
+                            <line x1="30" y1="10" x2="30" y2="140" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,5" />
+                            <text x="5" y="20" font-size="10" fill="#dc2626" transform="rotate(-90 5,20)">Property Line</text>
+                            
+                            <!-- Footing 1 (Eccentric) -->
+                            <rect x="30" y="110" width="60" height="20" class="svg-concrete" />
+                            <!-- Footing 2 (Concentric) -->
+                            <rect x="160" y="110" width="60" height="20" class="svg-concrete" />
+                            
+                            <!-- Strap Beam -->
+                            <rect x="50" y="95" width="150" height="15" fill="#64748b" stroke="#334155" stroke-width="2" />
+                            <text x="100" y="90" font-size="10" font-weight="bold" fill="#334155">Rigid Strap Beam</text>
+
+                            <!-- Column 1 -->
+                            <rect x="30" y="30" width="25" height="65" class="svg-concrete" />
+                            <!-- Column 2 -->
+                            <rect x="175" y="30" width="30" height="65" class="svg-concrete" />
+                        </svg>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Strap (Cantilever) Footing</h3>
+                        <p class="text-slate-600 mb-4 text-sm">
+                            <span class="font-bold text-slate-800">Definition:</span> Consists of two separate isolated footings connected by a structural member called a <span class="kw-orange">rigid strap beam</span>. The beam transfers bending moments but does not bear on the soil.
+                        </p>
+                        <div class="bg-emerald-50 p-4 rounded-lg mt-auto border border-emerald-100">
+                            <h4 class="font-bold text-emerald-800 text-sm mb-2 uppercase tracking-wide">Main Suitability:</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700">
+                                <li>When an exterior column is on a <span class="kw-red">property line</span>, making its footing highly eccentric.</li>
+                                <li>When the distance between the two columns is <span class="kw-blue">too large</span> to economically construct a combined footing.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Mat / Raft Foundation -->
+                <div class="foundation-card card-shallow flex flex-col">
+                    <div class="diagram-bg h-48 flex justify-center items-center relative border-b border-slate-200">
+                        <span class="absolute top-2 right-2 bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded">4. Mat / Raft</span>
+                        <svg width="260" height="150" viewBox="0 0 260 150">
+                            <!-- Soil (Soft) -->
+                            <rect x="10" y="110" width="240" height="30" fill="#fef3c7" stroke="#fbbf24" stroke-width="1" />
+                            <!-- Massive Slab -->
+                            <rect x="20" y="100" width="220" height="20" fill="#94a3b8" stroke="#334155" stroke-width="3" />
+                            <!-- Multiple Columns -->
+                            <rect x="40" y="30" width="20" height="70" class="svg-concrete" />
+                            <rect x="100" y="30" width="20" height="70" class="svg-concrete" />
+                            <rect x="160" y="30" width="20" height="70" class="svg-concrete" />
+                            <rect x="220" y="30" width="20" height="70" class="svg-concrete" />
+                            
+                            <line x1="20" y1="125" x2="240" y2="125" stroke="#ea580c" stroke-width="2" stroke-dasharray="2" />
+                            <text x="60" y="140" font-size="10" font-weight="bold" fill="#ea580c">Weak / Erratic Soil Profile</text>
+                        </svg>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Mat / Raft Foundation</h3>
+                        <p class="text-slate-600 mb-4 text-sm">
+                            <span class="font-bold text-slate-800">Definition:</span> A large, massive, continuous thick concrete slab covering the entire footprint of the building, supporting <span class="kw-purple">all columns and walls</span>.
+                        </p>
+                        <div class="bg-emerald-50 p-4 rounded-lg mt-auto border border-emerald-100">
+                            <h4 class="font-bold text-emerald-800 text-sm mb-2 uppercase tracking-wide">Main Suitability:</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700">
+                                <li>When the soil has <span class="kw-red">very low bearing capacity</span>, requiring a massive area to distribute heavy loads.</li>
+                                <li>To prevent <span class="kw-orange">differential settlement</span> where individual footings would cover more than 50% of the building area.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- DEEP FOUNDATIONS SECTION                   -->
+        <!-- ========================================== -->
+        <section class="mt-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="p-3 bg-blue-100 rounded-xl">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900">Deep Foundations</h2>
+                    <p class="text-blue-700 font-medium">Depth is significantly greater than Width (D &gg; B)</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- 1. Pile Foundation -->
+                <div class="foundation-card card-deep flex flex-col">
+                    <div class="diagram-bg h-56 flex justify-center items-center relative border-b border-slate-200">
+                        <span class="absolute top-2 right-2 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">1. Pile Foundation</span>
+                        <svg width="200" height="200" viewBox="0 0 200 200">
+                            <!-- Soft Soil -->
+                            <rect x="20" y="60" width="160" height="90" class="svg-soil" />
+                            <text x="30" y="80" font-size="10" fill="#b45309">Soft Topsoil</text>
+                            <!-- Hard Strata -->
+                            <rect x="20" y="150" width="160" height="40" class="svg-hard-soil" />
+                            <text x="30" y="170" font-size="10" font-weight="bold" fill="#52525b">Hard Strata</text>
+                            
+                            <!-- Column -->
+                            <rect x="85" y="10" width="30" height="40" class="svg-concrete" />
+                            <!-- Pile Cap -->
+                            <rect x="50" y="50" width="100" height="20" fill="#64748b" stroke="#1e293b" stroke-width="2" />
+                            <!-- Piles -->
+                            <rect x="60" y="70" width="15" height="90" class="svg-concrete" />
+                            <polygon points="60,160 75,160 67.5,170" fill="#94a3b8" stroke="#334155" />
+                            
+                            <rect x="125" y="70" width="15" height="90" class="svg-concrete" />
+                            <polygon points="125,160 140,160 132.5,170" fill="#94a3b8" stroke="#334155" />
+
+                            <!-- Friction / End Bearing Arrows -->
+                            <line x1="50" y1="110" x2="60" y2="100" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow)" />
+                            <line x1="67.5" y1="180" x2="67.5" y2="170" stroke="#dc2626" stroke-width="2" marker-end="url(#arrow)" />
+
+                            <defs>
+                                <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+                                </marker>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Pile Foundation</h3>
+                        <p class="text-slate-600 mb-4 text-sm">
+                            <span class="font-bold text-slate-800">Definition:</span> Slender structural members driven or cast deep into the ground. They transfer loads via <span class="kw-red">End-Bearing</span> (resting on hard strata) or <span class="kw-blue">Skin Friction</span> (friction along the pile surface).
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-lg mt-auto border border-blue-100">
+                            <h4 class="font-bold text-blue-800 text-sm mb-2 uppercase tracking-wide">Main Suitability:</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700">
+                                <li>When topsoil is <span class="kw-orange">highly compressible</span> or very weak, and hard strata is deep.</li>
+                                <li>When the structure is subjected to heavy <span class="kw-purple">uplift or lateral forces</span> (e.g., tall towers, offshore structures).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Pier Foundation -->
+                <div class="foundation-card card-deep flex flex-col">
+                    <div class="diagram-bg h-56 flex justify-center items-center relative border-b border-slate-200">
+                        <span class="absolute top-2 right-2 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">2. Pier Foundation</span>
+                        <svg width="200" height="200" viewBox="0 0 200 200">
+                            <!-- Soil -->
+                            <rect x="20" y="50" width="160" height="110" class="svg-soil" />
+                            <text x="30" y="100" font-size="10" fill="#b45309">Stiff Clays / Boulders</text>
+                            <!-- Rock -->
+                            <rect x="20" y="160" width="160" height="30" class="svg-hard-soil" />
+                            
+                            <!-- Massive Pier -->
+                            <rect x="75" y="20" width="50" height="120" class="svg-concrete" />
+                            <!-- Belled Bottom -->
+                            <polygon points="75,140 125,140 145,160 55,160" fill="#94a3b8" stroke="#334155" stroke-width="2" />
+                            <text x="85" y="180" font-size="10" font-weight="bold" fill="#334155">Bedrock</text>
+                        </svg>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Pier Foundation</h3>
+                        <p class="text-slate-600 mb-4 text-sm">
+                            <span class="font-bold text-slate-800">Definition:</span> A vertical, <span class="kw-purple">large-diameter</span> cylindrical column (often belled at the bottom) cast-in-situ by excavating a deep shaft, transferring massive loads to stiff strata.
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-lg mt-auto border border-blue-100">
+                            <h4 class="font-bold text-blue-800 text-sm mb-2 uppercase tracking-wide">Main Suitability:</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700">
+                                <li>To transfer exceedingly <span class="kw-red">heavy axial loads</span> directly to underlying bedrock.</li>
+                                <li>When top layers contain boulders or stiff clays where <span class="kw-orange">driving piles is impossible</span> or causes severe damage.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Caisson / Well Foundation -->
+                <div class="foundation-card card-deep flex flex-col">
+                    <div class="diagram-bg h-56 flex justify-center items-center relative border-b border-slate-200">
+                        <span class="absolute top-2 right-2 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">3. Caisson / Well</span>
+                        <svg width="200" height="200" viewBox="0 0 200 200">
+                            <!-- Water Layer -->
+                            <rect x="10" y="60" width="180" height="60" class="svg-water" />
+                            <path d="M 10 60 Q 30 50 50 60 T 90 60 T 130 60 T 170 60 T 190 60" fill="none" stroke="#0284c7" stroke-width="2" />
+                            <text x="20" y="80" font-size="10" font-weight="bold" fill="#0284c7">River / Water</text>
+
+                            <!-- River Bed / Soil -->
+                            <rect x="10" y="120" width="180" height="70" class="svg-soil" />
+                            <line x1="10" y1="120" x2="190" y2="120" stroke="#b45309" stroke-width="3" />
+                            
+                            <!-- Bridge Pier on top -->
+                            <polygon points="85,60 115,60 110,20 90,20" class="svg-concrete" />
+                            
+                            <!-- Caisson Box (Well) -->
+                            <!-- Outer wall -->
+                            <rect x="60" y="60" width="80" height="120" fill="#e2e8f0" stroke="#334155" stroke-width="3" />
+                            <!-- Inner hollow/concrete core -->
+                            <rect x="75" y="60" width="50" height="120" class="svg-concrete" />
+                            <!-- Bottom seal -->
+                            <polygon points="60,180 140,180 120,190 80,190" fill="#475569" stroke="#1e293b" stroke-width="2" />
+                            
+                            <text x="145" y="140" font-size="10" font-weight="bold" fill="#334155">Hollow Well</text>
+                            <line x1="145" y1="135" x2="125" y2="135" stroke="#334155" stroke-width="1.5" />
+                        </svg>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Caisson (Well) Foundation</h3>
+                        <p class="text-slate-600 mb-4 text-sm">
+                            <span class="font-bold text-slate-800">Definition:</span> A watertight retaining structure (box or cylinder) sunk into the ground or water body, then filled with concrete. Widely known as a <span class="kw-blue">Well Foundation</span> in bridges.
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-lg mt-auto border border-blue-100">
+                            <h4 class="font-bold text-blue-800 text-sm mb-2 uppercase tracking-wide">Main Suitability:</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700">
+                                <li>For constructing bridge piers over <span class="kw-blue">rivers, lakes, or oceans</span> where severe scouring occurs.</li>
+                                <li>For massive structures needing placement below water level where <span class="kw-green">dry working conditions</span> are required during excavation.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Footer Note -->
+        <footer class="mt-12 text-center text-sm text-slate-500 py-6 border-t border-slate-200">
+            <p>Memorization Tip: Shallow foundations spread loads <strong>horizontally</strong> near the surface. Deep foundations transfer loads <strong>vertically</strong> down to stronger strata.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>

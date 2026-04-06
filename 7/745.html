@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workability & Strength Factors | Concrete Technology</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        h1, h2, h3, .venn-title {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            border-radius: 1rem;
+        }
+
+        /* Venn Diagram SVG Styling */
+        .venn-circle-a { fill: rgba(14, 165, 233, 0.15); stroke: #0ea5e9; stroke-width: 4; transition: all 0.3s; }
+        .venn-circle-b { fill: rgba(239, 68, 68, 0.15); stroke: #ef4444; stroke-width: 4; transition: all 0.3s; }
+        .venn-intersection { fill: rgba(168, 85, 247, 0.25); transition: all 0.3s; }
+        
+        .venn-circle-a:hover, .venn-circle-b:hover { fill-opacity: 0.3; }
+
+        .text-a { fill: #0284c7; font-weight: 600; font-size: 18px; }
+        .text-b { fill: #b91c1c; font-weight: 600; font-size: 18px; }
+        .text-ab { fill: #6b21a8; font-weight: 700; font-size: 18px; }
+
+        /* Memory Highlight Colors */
+        .hl-water { color: #0284c7; font-weight: 700; } /* Blue */
+        .hl-strength { color: #dc2626; font-weight: 700; } /* Red */
+        .hl-shape { color: #d97706; font-weight: 700; } /* Amber */
+        .hl-voids { color: #4b5563; font-weight: 700; } /* Gray */
+        .hl-bond { color: #16a34a; font-weight: 700; } /* Green */
+        .hl-chem { color: #9333ea; font-weight: 700; } /* Purple */
+    </style>
+</head>
+<body class="text-slate-800 antialiased p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto space-y-10">
+        
+        <!-- Header Section -->
+        <header class="text-center space-y-4 mb-8 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-sky-400 via-purple-500 to-rose-500"></div>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+                Concrete: <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-rose-600">Workability & Strength</span>
+            </h1>
+            <p class="text-slate-600 font-medium text-lg max-w-3xl mx-auto">
+                <span class="font-bold text-slate-800">n(U)</span> = Factors affecting Workability and Strength of Concrete. Explore the intersection of mechanics, hydration, and materials.
+            </p>
+        </header>
+
+        <!-- ========================================== -->
+        <!-- VENN DIAGRAM SECTION                       -->
+        <!-- ========================================== -->
+        <section class="glass-panel p-4 md:p-8 flex flex-col items-center justify-center">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center border-b-2 border-slate-200 pb-2 inline-block">The Concrete Venn Diagram</h2>
+            
+            <div class="w-full max-w-4xl relative">
+                <svg viewBox="0 0 1000 600" class="w-full h-auto drop-shadow-lg">
+                    
+                    <!-- Background Definition n(U) -->
+                    <rect x="10" y="10" width="980" height="580" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" rx="20" />
+                    <text x="30" y="40" font-family="Poppins" font-size="20" font-weight="bold" fill="#475569">Set U: Concrete Properties</text>
+
+                    <!-- Circle A: Workability (Left) -->
+                    <circle cx="350" cy="320" r="260" class="venn-circle-a" />
+                    
+                    <!-- Circle B: Strength (Right) -->
+                    <circle cx="650" cy="320" r="260" class="venn-circle-b" />
+
+                    <!-- Intersection Clip Path -->
+                    <clipPath id="intersection-clip">
+                        <circle cx="350" cy="320" r="260" />
+                    </clipPath>
+                    <!-- Intersection Area Fill -->
+                    <circle cx="650" cy="320" r="260" class="venn-intersection" clip-path="url(#intersection-clip)" />
+
+                    <!-- ================= TITLES ================= -->
+                    <text x="200" y="120" font-family="Poppins" font-size="28" font-weight="800" fill="#0369a1" text-anchor="middle">Set A: Workability</text>
+                    <text x="800" y="120" font-family="Poppins" font-size="28" font-weight="800" fill="#be123c" text-anchor="middle">Set B: Strength</text>
+                    <text x="500" y="130" font-family="Poppins" font-size="22" font-weight="800" fill="#6b21a8" text-anchor="middle">A ∩ B</text>
+
+                    <!-- ================= A ONLY TEXT ================= -->
+                    <g transform="translate(180, 240)" class="text-a">
+                        <text x="0" y="0" font-weight="800" font-size="20" fill="#0369a1" text-decoration="underline">A Only:</text>
+                        <text x="0" y="40">• Time of Transit</text>
+                        <text x="0" y="80">• Temperature</text>
+                        <text x="0" y="120">• Wind Velocity</text>
+                        <text x="0" y="160">• Mixing Time</text>
+                    </g>
+
+                    <!-- ================= B ONLY TEXT ================= -->
+                    <g transform="translate(700, 240)" class="text-b">
+                        <text x="0" y="0" font-weight="800" font-size="20" fill="#be123c" text-decoration="underline">B Only:</text>
+                        <text x="0" y="40">• Curing of Concrete</text>
+                        <text x="0" y="80">• Age of Concrete</text>
+                        <text x="0" y="120">• Rate of Loading</text>
+                        <text x="0" y="160">• Compaction Level</text>
+                    </g>
+
+                    <!-- ================= A ∩ B TEXT ================= -->
+                    <g transform="translate(500, 190)" class="text-ab" text-anchor="middle">
+                        <text x="0" y="0">• Size of Aggregate</text>
+                        <text x="0" y="40">• Shape of Aggregate</text>
+                        <text x="0" y="80">• Surface Texture</text>
+                        <text x="0" y="120">• Grading of Aggregate</text>
+                        <text x="0" y="160">• Water Content (w/c)</text>
+                        <text x="0" y="200">• Cement Content</text>
+                        <text x="0" y="240">• Admixtures</text>
+                    </g>
+
+                </svg>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- EXPLANATIONS SECTION                       -->
+        <!-- ========================================== -->
+        
+        <div class="space-y-8">
+            
+            <!-- INTERSECTION (A ∩ B) -->
+            <section class="glass-panel p-6 md:p-8 border-t-8 border-t-purple-500">
+                <div class="flex items-center gap-3 mb-6 border-b pb-4">
+                    <div class="bg-purple-100 p-2 rounded text-purple-700 font-bold text-xl">A ∩ B</div>
+                    <h2 class="text-2xl font-bold text-slate-800">Intersection: Affects Both Workability & Strength</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-slate-700">
+                    
+                    <!-- Size -->
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                        <h3 class="font-bold text-lg text-purple-900 mb-2">1. Size of Aggregate</h3>
+                        <p class="text-sm leading-relaxed">
+                            <span class="hl-shape">Larger aggregates</span> have less total surface area. Therefore, they require <span class="hl-water">less water for lubrication with same water content than smaller aggregates</span> (increasing Workability) and (improving Strength up to Certain limit of Size). , too large sizes can reduce interlocking and lower strength.
+                        </p>
+                    </div>
+
+                    <!-- Shape -->
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                        <h3 class="font-bold text-lg text-purple-900 mb-2">2. Shape of Aggregate</h3>
+                        <p class="text-sm leading-relaxed">
+                            <span class="hl-shape">Rounded aggregates</span> offer minimum friction, yielding <span class="hl-water">high workability</span> but poor interlocking (<span class="hl-strength">lower strength</span>). <span class="hl-shape">Angular aggregates</span> have high friction (<span class="hl-water">low workability</span>) but provide excellent interlocking (<span class="hl-strength">high strength</span>).
+                        </p>
+                    </div>
+
+                    <!-- Water Content -->
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                        <h3 class="font-bold text-lg text-purple-900 mb-2">3. Water Content (w/c ratio)</h3>
+                        <p class="text-sm leading-relaxed">
+                            Adding more water severely increases fluidity and <span class="hl-water">increases Workability</span>. However, excess water evaporates, leaving behind <span class="hl-voids">voids and capillary pores</span>, which drastically <span class="hl-strength">reduces Compressive Strength</span> (Abram's Law).
+                        </p>
+                    </div>
+
+                    <!-- Grading -->
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                        <h3 class="font-bold text-lg text-purple-900 mb-2">4. Grading of Aggregate</h3>
+                        <p class="text-sm leading-relaxed">
+                            <span class="hl-shape">Well-graded aggregates</span> pack closely together, leaving <span class="hl-voids">minimum voids</span>. This requires less cement paste for lubrication (<span class="hl-water">good workability</span>) and creates a highly dense matrix (<span class="hl-strength">maximum strength</span>).
+                        </p>
+                    </div>
+
+                    <!-- Texture -->
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                        <h3 class="font-bold text-lg text-purple-900 mb-2">5. Surface Texture</h3>
+                        <p class="text-sm leading-relaxed">
+                            <span class="hl-shape">Smooth textures</span> allow particles to slide easily (<span class="hl-water">high workability</span>) but create a <span class="hl-bond">weak bond</span> with cement paste. <span class="hl-shape">Rough textures</span> restrict movement but form an <span class="hl-bond">intense mechanical bond</span> (<span class="hl-strength">higher strength</span>).
+                        </p>
+                    </div>
+
+                    <!-- Cement Content -->
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                        <h3 class="font-bold text-lg text-purple-900 mb-2">6. Cement Content / Paste</h3>
+                        <p class="text-sm leading-relaxed">
+                            A higher aggregate-to-cement ratio makes the mix lean and harsh (<span class="hl-water">low workability</span>). More cement paste provides better lubrication between aggregates and creates a stronger, denser <span class="hl-bond">binding matrix</span> (<span class="hl-strength">higher strength</span>).
+                        </p>
+                    </div>
+
+                    <!-- Admixtures -->
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 md:col-span-2">
+                        <h3 class="font-bold text-lg text-purple-900 mb-2">7. Admixtures</h3>
+                        <p class="text-sm leading-relaxed">
+                            <span class="hl-chem">Plasticizers / Superplasticizers</span> disperse cement particles, vastly <span class="hl-water">increasing workability</span> without adding water, thereby maintaining or <span class="hl-strength">increasing strength</span>. Accelerators and retarders chemically alter setting time and early strength development.
+                        </p>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- SET A & SET B GRID -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- A ONLY -->
+                <section class="glass-panel p-6 md:p-8 border-t-8 border-t-sky-500">
+                    <div class="flex items-center gap-3 mb-6 border-b pb-4">
+                        <div class="bg-sky-100 p-2 rounded text-sky-700 font-bold text-xl">A Only</div>
+                        <h2 class="text-2xl font-bold text-slate-800">Affects Workability Only</h2>
+                    </div>
+                    <div class="space-y-4 text-slate-700">
+                        <div class="bg-sky-50 p-3 rounded-lg border border-sky-100">
+                            <h3 class="font-bold text-sky-900">Time of Transit</h3>
+                            <p class="text-sm mt-1">As time passes between mixing and placing, concrete loses moisture via <span class="hl-water">evaporation</span> and initial hydration. This causes "slump loss" and <span class="hl-shape">reduces workability</span>.</p>
+                        </div>
+                        <div class="bg-sky-50 p-3 rounded-lg border border-sky-100">
+                            <h3 class="font-bold text-sky-900">Temperature & Wind</h3>
+                            <p class="text-sm mt-1">High ambient temperatures and strong winds accelerate <span class="hl-water">evaporation of mixing water</span> and speed up the chemical setting process, making the mix harsh and <span class="hl-shape">difficult to work with</span>.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- B ONLY -->
+                <section class="glass-panel p-6 md:p-8 border-t-8 border-t-rose-500">
+                    <div class="flex items-center gap-3 mb-6 border-b pb-4">
+                        <div class="bg-rose-100 p-2 rounded text-rose-700 font-bold text-xl">B Only</div>
+                        <h2 class="text-2xl font-bold text-slate-800">Affects Strength Only</h2>
+                    </div>
+                    <div class="space-y-4 text-slate-700">
+                        <div class="bg-rose-50 p-3 rounded-lg border border-rose-100">
+                            <h3 class="font-bold text-rose-900">Curing of Concrete</h3>
+                            <p class="text-sm mt-1">Curing prevents moisture loss, allowing the <span class="hl-chem">chemical process of hydration</span> to complete fully. Proper curing is the most critical post-placement factor for achieving <span class="hl-strength">maximum design strength</span>.</p>
+                        </div>
+                        <div class="bg-rose-50 p-3 rounded-lg border border-rose-100">
+                            <h3 class="font-bold text-rose-900">Age of Concrete & Loading</h3>
+                            <p class="text-sm mt-1">Hydration continues over time, meaning <span class="hl-strength">strength increases with age</span> (rapidly up to 28 days, then slowly). Additionally, rapid rates of loading show slightly higher apparent strength than slow, sustained loading (which causes creep).</p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

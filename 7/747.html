@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formwork & Curing Types | Concrete Technology</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .sim-card {
+            background: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s;
+        }
+        
+        .sim-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .canvas-container {
+            background: #f1f5f9;
+            position: relative;
+            width: 100%;
+            height: 220px;
+            border-bottom: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .section-title {
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            display: inline-block;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .title-formwork { background: linear-gradient(135deg, #b45309 0%, #78350f 100%); }
+        .title-curing { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); }
+
+        /* Themed Highlights */
+        .hl-wood { color: #b45309; font-weight: 700; }
+        .hl-steel { color: #475569; font-weight: 700; }
+        .hl-water { color: #0284c7; font-weight: 700; }
+        .hl-chem { color: #9333ea; font-weight: 700; }
+        .hl-heat { color: #ea580c; font-weight: 700; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-12">
+
+        <!-- Header -->
+        <header class="text-center space-y-4 mb-12 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Formwork & Curing Techniques</h1>
+            <p class="text-slate-600 font-medium text-lg max-w-3xl mx-auto">
+                Automatic Visual Simulations. Observe the continuous cycles of formwork assembly/stripping and the physical mechanisms behind different concrete curing methods.
+            </p>
+        </header>
+
+        <!-- ========================================== -->
+        <!-- FORMWORK SECTION                           -->
+        <!-- ========================================== -->
+        <section>
+            <div class="text-center md:text-left">
+                <h2 class="section-title title-formwork text-2xl font-bold flex items-center gap-3">
+                    <svg class="w-6 h-6 text-amber-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1"></path></svg>
+                    Types of Formwork (Shuttering)
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Timber Formwork -->
+                <div class="sim-card border-t-4 border-amber-600">
+                    <div class="canvas-container">
+                        <canvas id="c-timber" width="400" height="220"></canvas>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">1. Timber Formwork</h3>
+                        <p class="text-xs text-slate-600 mb-3 flex-grow">
+                            Traditional formwork made of wooden planks and runners. It is easy to cut and assemble on-site.
+                        </p>
+                        <ul class="text-[11px] text-slate-500 list-disc pl-4 space-y-1">
+                            <li>Leaves a <span class="hl-wood">wood grain texture</span> on the concrete.</li>
+                            <li>Can absorb water from concrete if not oiled.</li>
+                            <li>Low initial cost but limited reusability.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Steel Formwork -->
+                <div class="sim-card border-t-4 border-slate-600">
+                    <div class="canvas-container">
+                        <canvas id="c-steel" width="400" height="220"></canvas>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">2. Steel Formwork</h3>
+                        <p class="text-xs text-slate-600 mb-3 flex-grow">
+                            Constructed from steel plates stiffened by angles. Highly durable and rigid.
+                        </p>
+                        <ul class="text-[11px] text-slate-500 list-disc pl-4 space-y-1">
+                            <li>Produces a <span class="hl-steel">perfectly smooth</span>, unblemished finish.</li>
+                            <li>Zero water absorption (completely impermeable).</li>
+                            <li>High initial cost, but can be reused hundreds of times.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Plywood Formwork -->
+                <div class="sim-card border-t-4 border-orange-500">
+                    <div class="canvas-container">
+                        <canvas id="c-plywood" width="400" height="220"></canvas>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">3. Plywood Formwork</h3>
+                        <p class="text-xs text-slate-600 mb-3 flex-grow">
+                            Large manufactured wooden sheets backed by a timber frame.
+                        </p>
+                        <ul class="text-[11px] text-slate-500 list-disc pl-4 space-y-1">
+                            <li>Covers <span class="hl-wood">large areas quickly</span> with fewer joints.</li>
+                            <li>Provides a smoother finish than standard timber.</li>
+                            <li>Often resin-coated to prevent water absorption.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- CURING SECTION                             -->
+        <!-- ========================================== -->
+        <section class="mt-16">
+            <div class="text-center md:text-left">
+                <h2 class="section-title title-curing text-2xl font-bold flex items-center gap-3">
+                    <svg class="w-6 h-6 text-sky-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                    Methods of Curing
+                </h2>
+            </div>
+
+            <!-- Row 1: Water Curing -->
+            <h3 class="text-xl font-bold text-sky-800 mb-4 border-b border-sky-200 pb-2">1. Water Curing Methods</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                
+                <!-- Ponding -->
+                <div class="sim-card bg-sky-50">
+                    <div class="canvas-container h-48">
+                        <canvas id="c-ponding" width="400" height="220"></canvas>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-base font-bold text-slate-800 mb-1">A. Ponding</h3>
+                        <p class="text-[11px] text-slate-600 mb-2">Small clay/sand bounds are built across a flat slab, and water is filled into these "ponds".</p>
+                        <div class="mt-auto text-[10px] font-bold text-sky-700">Best for: Horizontal slabs, pavements, floors.</div>
+                    </div>
+                </div>
+
+                <!-- Immersion -->
+                <div class="sim-card bg-sky-50">
+                    <div class="canvas-container h-48">
+                        <canvas id="c-immersion" width="400" height="220"></canvas>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-base font-bold text-slate-800 mb-1">B. Immersion</h3>
+                        <p class="text-[11px] text-slate-600 mb-2">The concrete element is completely submerged in a tank of curing water.</p>
+                        <div class="mt-auto text-[10px] font-bold text-sky-700">Best for: Lab test cubes, small precast elements.</div>
+                    </div>
+                </div>
+
+                <!-- Spraying / Fogging -->
+                <div class="sim-card bg-sky-50">
+                    <div class="canvas-container h-48">
+                        <canvas id="c-spraying" width="400" height="220"></canvas>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-base font-bold text-slate-800 mb-1">C. Spraying / Fogging</h3>
+                        <p class="text-[11px] text-slate-600 mb-2">Water is continuously or periodically sprayed over the concrete surface to keep it continually damp.</p>
+                        <div class="mt-auto text-[10px] font-bold text-sky-700">Best for: Vertical columns, retaining walls.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Row 2: Advanced Curing -->
+            <h3 class="text-xl font-bold text-indigo-800 mb-4 border-b border-indigo-200 pb-2">2. Advanced & Alternative Curing</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Membrane / Chemical -->
+                <div class="sim-card bg-purple-50">
+                    <div class="canvas-container h-48">
+                        <canvas id="c-membrane" width="400" height="220"></canvas>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-base font-bold text-slate-800 mb-1">Membrane / Chemical Curing</h3>
+                        <p class="text-[11px] text-slate-600 mb-2">A liquid curing compound is sprayed. It dries to form an impermeable film that traps internal moisture.</p>
+                        <div class="mt-auto text-[10px] font-bold text-purple-700">Best for: Areas with water scarcity, large highways.</div>
+                    </div>
+                </div>
+
+                <!-- Steam Curing -->
+                <div class="sim-card bg-orange-50">
+                    <div class="canvas-container h-48">
+                        <canvas id="c-steam" width="400" height="220"></canvas>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-base font-bold text-slate-800 mb-1">Steam Curing</h3>
+                        <p class="text-[11px] text-slate-600 mb-2">Concrete is placed in a chamber filled with hot steam. The heat and moisture accelerate hydration massively.</p>
+                        <div class="mt-auto text-[10px] font-bold text-orange-700">Best for: Pre-cast concrete factories (rapid demolding).</div>
+                    </div>
+                </div>
+
+                <!-- Wet Covering -->
+                <div class="sim-card bg-emerald-50">
+                    <div class="canvas-container h-48">
+                        <canvas id="c-covering" width="400" height="220"></canvas>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="text-base font-bold text-slate-800 mb-1">Wet Coverings (Gunny Bags)</h3>
+                        <p class="text-[11px] text-slate-600 mb-2">Concrete is wrapped in moisture-retaining fabrics like burlap or gunny bags, which are kept constantly wet.</p>
+                        <div class="mt-auto text-[10px] font-bold text-emerald-700">Best for: Columns, complex shapes on standard sites.</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Animation Scripts -->
+    <script>
+        // Utility Functions
+        function drawIsometricPrism(ctx, x, y, w, h, d, topColor, leftColor, rightColor) {
+            // Isometric angles (30 degrees approx)
+            const dx = d * Math.cos(Math.PI/6);
+            const dy = d * Math.sin(Math.PI/6);
+
+            // Left face
+            ctx.fillStyle = leftColor;
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y+h); ctx.lineTo(x+w, y+h+(w*0.5)); ctx.lineTo(x+w, y+(w*0.5)); ctx.fill();
+            
+            // Right face
+            ctx.fillStyle = rightColor;
+            ctx.beginPath(); ctx.moveTo(x+w, y+(w*0.5)); ctx.lineTo(x+w, y+h+(w*0.5)); ctx.lineTo(x+w+dx, y+h+(w*0.5)-dy); ctx.lineTo(x+w+dx, y+(w*0.5)-dy); ctx.fill();
+
+            // Top face
+            ctx.fillStyle = topColor;
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+w, y+(w*0.5)); ctx.lineTo(x+w+dx, y+(w*0.5)-dy); ctx.lineTo(x+dx, y-dy); ctx.fill();
+            
+            // Outlines
+            ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        // ==========================================
+        // FORMWORK ANIMATIONS
+        // ==========================================
+        
+        function renderFormworkBase(ctx, w, h, time, type) {
+            ctx.clearRect(0,0,w,h);
+            // Cycle: 0-1s Assemble, 1-2.5s Pour, 2.5-4s Set, 4-5s Strip, 5-6s Show Finish
+            const cycleTime = 6000;
+            const t = time % cycleTime;
+            
+            const cx = w/2;
+            const cy = h/2 + 40;
+            const colW = 60;
+            const colH = 120;
+
+            // Draw Base
+            ctx.fillStyle = '#e2e8f0'; ctx.fillRect(cx - 100, cy, 200, 20);
+
+            let formAlpha = 1;
+            let concHeight = 0;
+            let isStripped = false;
+
+            if (t < 1000) {
+                // Assembling (sliding in)
+                formAlpha = t / 1000;
+                concHeight = 0;
+            } else if (t < 2500) {
+                // Pouring
+                concHeight = ((t - 1000) / 1500) * colH;
+            } else if (t < 4000) {
+                // Setting
+                concHeight = colH;
+            } else if (t < 5000) {
+                // Stripping
+                concHeight = colH;
+                formAlpha = 1 - ((t - 4000) / 1000);
+            } else {
+                // Finished
+                concHeight = colH;
+                formAlpha = 0;
+                isStripped = true;
+            }
+
+            // Draw Concrete
+            if (concHeight > 0) {
+                ctx.fillStyle = '#94a3b8'; // Base concrete
+                ctx.fillRect(cx - colW/2, cy - concHeight, colW, concHeight);
+                
+                if (isStripped) {
+                    // Draw finish textures
+                    if (type === 'timber') {
+                        // Wood grain transfer
+                        ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1;
+                        for(let i=0; i<colH; i+=15) {
+                            ctx.beginPath(); ctx.moveTo(cx-colW/2, cy-i); 
+                            ctx.lineTo(cx+colW/2, cy-i + Math.sin(i)*5); ctx.stroke();
+                        }
+                    } else if (type === 'steel') {
+                        // Smooth, slightly glossy
+                        const grad = ctx.createLinearGradient(cx - colW/2, 0, cx + colW/2, 0);
+                        grad.addColorStop(0, '#94a3b8');
+                        grad.addColorStop(0.3, '#cbd5e1'); // highlight
+                        grad.addColorStop(1, '#64748b');
+                        ctx.fillStyle = grad;
+                        ctx.fillRect(cx - colW/2, cy - colH, colW, colH);
+                        // Joint line
+                        ctx.beginPath(); ctx.moveTo(cx-colW/2, cy-colH/2); ctx.lineTo(cx+colW/2, cy-colH/2);
+                        ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.stroke();
+                    } else if (type === 'plywood') {
+                        // Flat, smooth but matte
+                        ctx.fillStyle = '#cbd5e1';
+                        ctx.fillRect(cx - colW/2, cy - colH, colW, colH);
+                    }
+                }
+            }
+
+            // Pouring animation (falling concrete)
+            if (t > 1000 && t < 2500) {
+                ctx.fillStyle = '#64748b';
+                ctx.fillRect(cx - 15, cy - colH - 50, 30, colH + 50 - concHeight);
+            }
+
+            // Draw Formwork Panels
+            if (formAlpha > 0) {
+                ctx.globalAlpha = formAlpha;
+                
+                // Displacement during assembly/stripping
+                let disp = 0;
+                if(t < 1000) disp = 40 * (1 - formAlpha);
+                if(t > 4000 && t < 5000) disp = 40 * (1 - formAlpha);
+
+                if (type === 'timber') {
+                    ctx.fillStyle = '#b45309'; ctx.strokeStyle = '#78350f'; ctx.lineWidth=1;
+                    // Left planks
+                    for(let i=0; i<colW; i+=15) {
+                        ctx.fillRect(cx - colW/2 - 10 - disp, cy - colH, 10, colH);
+                        ctx.strokeRect(cx - colW/2 - 10 - disp, cy - colH, 10, colH);
+                    }
+                    // Right planks
+                    for(let i=0; i<colW; i+=15) {
+                        ctx.fillRect(cx + colW/2 + disp, cy - colH, 10, colH);
+                        ctx.strokeRect(cx + colW/2 + disp, cy - colH, 10, colH);
+                    }
+                    // Horizontal battens
+                    ctx.fillStyle = '#92400e';
+                    ctx.fillRect(cx - colW/2 - 15 - disp, cy - colH + 20, 15, 10);
+                    ctx.fillRect(cx - colW/2 - 15 - disp, cy - 30, 15, 10);
+                    ctx.fillRect(cx + colW/2 + disp, cy - colH + 20, 15, 10);
+                    ctx.fillRect(cx + colW/2 + disp, cy - 30, 15, 10);
+                } 
+                else if (type === 'steel') {
+                    ctx.fillStyle = '#475569'; ctx.strokeStyle = '#1e293b'; ctx.lineWidth=2;
+                    // Left panel
+                    ctx.fillRect(cx - colW/2 - 8 - disp, cy - colH, 8, colH);
+                    ctx.strokeRect(cx - colW/2 - 8 - disp, cy - colH, 8, colH);
+                    // Right panel
+                    ctx.fillRect(cx + colW/2 + disp, cy - colH, 8, colH);
+                    ctx.strokeRect(cx + colW/2 + disp, cy - colH, 8, colH);
+                    // Steel stiffeners (angles)
+                    ctx.fillStyle = '#334155';
+                    for(let i=0; i<=colH; i+=30) {
+                        ctx.fillRect(cx - colW/2 - 12 - disp, cy - i - 5, 4, 10);
+                        ctx.fillRect(cx + colW/2 + 8 + disp, cy - i - 5, 4, 10);
+                    }
+                }
+                else if (type === 'plywood') {
+                    ctx.fillStyle = '#d97706'; ctx.strokeStyle = '#92400e'; ctx.lineWidth=1;
+                    // Large flat sheet left
+                    ctx.fillRect(cx - colW/2 - 5 - disp, cy - colH, 5, colH);
+                    // Large flat sheet right
+                    ctx.fillRect(cx + colW/2 + disp, cy - colH, 5, colH);
+                    
+                    // Timber backing
+                    ctx.fillStyle = '#b45309';
+                    ctx.fillRect(cx - colW/2 - 15 - disp, cy - colH, 10, colH);
+                    ctx.fillRect(cx + colW/2 + 5 + disp, cy - colH, 10, colH);
+                }
+
+                ctx.globalAlpha = 1.0;
+            }
+
+            // Labels
+            ctx.fillStyle = '#0f172a'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
+            let status = "";
+            if (t < 1000) status = "Assembling Formwork";
+            else if (t < 2500) status = "Pouring Concrete";
+            else if (t < 4000) status = "Concrete Setting";
+            else if (t < 5000) status = "Stripping Formwork";
+            else status = "Finished Surface";
+            ctx.fillText(status, cx, cy + 18);
+        }
+
+        // ==========================================
+        // CURING ANIMATIONS
+        // ==========================================
+
+        function renderPonding(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            const cx = w/2 - 40;
+            const cy = h/2;
+            
+            // Draw Isometric Slab
+            drawIsometricPrism(ctx, cx, cy, 80, 10, 60, '#cbd5e1', '#94a3b8', '#64748b');
+
+            // Draw clay bounds around perimeter
+            ctx.fillStyle = '#b45309'; // Clay/sand color
+            // Left/Bottom bounds
+            ctx.beginPath(); ctx.moveTo(cx-5, cy-5); ctx.lineTo(cx-5, cy+15); ctx.lineTo(cx+85, cy+15+40); ctx.lineTo(cx+85, cy-5+40); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(cx+85, cy+15+40); ctx.lineTo(cx+85+52, cy+15+40-30); ctx.lineTo(cx+85+52, cy-5+40-30); ctx.lineTo(cx+85, cy-5+40); ctx.fill();
+
+            // Water Level Cycle (Fill -> Evaporate -> Refill)
+            const cycle = (time % 4000) / 4000;
+            let waterLevel = 1.0; // 0 to 1
+            if (cycle < 0.2) waterLevel = cycle / 0.2; // fill
+            else if (cycle > 0.5 && cycle < 0.9) waterLevel = 1.0 - ((cycle - 0.5)/0.4)*0.8; // evaporate slowly
+            else if (cycle >= 0.9) waterLevel = 0.2 + ((cycle - 0.9)/0.1)*0.8; // fast refill
+
+            if (waterLevel > 0) {
+                ctx.fillStyle = `rgba(59, 130, 246, ${0.5 * waterLevel})`; // Blue water
+                // Draw water plane inside bounds
+                const d = 56;
+                const wx = cx + 2; const wy = cy - 2 - (waterLevel*5);
+                const dx = d * Math.cos(Math.PI/6); const dy = d * Math.sin(Math.PI/6);
+                
+                ctx.beginPath(); 
+                ctx.moveTo(wx, wy); 
+                ctx.lineTo(wx+76, wy+(76*0.5)); 
+                ctx.lineTo(wx+76+dx, wy+(76*0.5)-dy); 
+                ctx.lineTo(wx+dx, wy-dy); 
+                ctx.fill();
+            }
+
+            // Evaporation visual (arrows up)
+            if (cycle > 0.5 && cycle < 0.9) {
+                const op = Math.sin((time%500)/500 * Math.PI);
+                ctx.fillStyle = `rgba(255,255,255,${op})`;
+                ctx.font = '14px Arial';
+                ctx.fillText('↑', cx+40, cy-10 - (time%1000)/50);
+                ctx.fillText('↑', cx+70, cy+10 - ((time+200)%1000)/50);
+            }
+        }
+
+        function renderSpraying(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            const cx = w/2;
+            const cy = h/2 + 40;
+
+            // Draw Column
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(cx - 30, cy - 100, 60, 100);
+            
+            // Draw Sprinkler Pipe
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(cx - 60, cy - 120); ctx.lineTo(cx + 60, cy - 120); ctx.stroke();
+
+            // Water droplets falling
+            ctx.fillStyle = '#0ea5e9';
+            for(let i=0; i<30; i++) {
+                const dropX = cx - 50 + (i * 100/30);
+                // pseudo-random fall based on time and index
+                let dropY = cy - 120 + ((time * 0.2 + i*15) % 120);
+                
+                // Make drops fan out slightly
+                const drift = Math.sin(i) * (dropY - (cy-120)) * 0.2;
+                
+                ctx.beginPath(); ctx.arc(dropX + drift, dropY, 2, 0, Math.PI*2); ctx.fill();
+            }
+
+            // Concrete looks darker (wet) where water hits
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.2)'; // Darkening overlay
+            ctx.fillRect(cx - 30, cy - 100, 60, 100);
+
+            // Water pooling at base
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.4)';
+            ctx.beginPath(); ctx.ellipse(cx, cy, 40, 10, 0, 0, Math.PI*2); ctx.fill();
+        }
+
+        function renderImmersion(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            const cx = w/2;
+            const cy = h/2 + 20;
+
+            // Water Tank
+            ctx.fillStyle = '#cbd5e1'; ctx.fillRect(cx - 70, cy - 60, 140, 90); // Tank back
+            
+            // Water inside tank
+            const wave = Math.sin(time/300) * 2;
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.6)';
+            ctx.fillRect(cx - 70, cy - 40 + wave, 140, 70 - wave);
+
+            // Concrete Block (Bobbing slightly or being lowered)
+            const cycle = (time % 6000) / 6000;
+            let blockY = cy - 100; // Start high
+            if (cycle > 0.1 && cycle < 0.2) blockY = cy - 100 + ((cycle-0.1)/0.1)*80; // Lower
+            else if (cycle >= 0.2 && cycle < 0.8) blockY = cy - 20; // Submerged
+            else if (cycle >= 0.8 && cycle < 0.9) blockY = cy - 20 - ((cycle-0.8)/0.1)*80; // Lift
+
+            // Crane rope
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, blockY - 20); ctx.stroke();
+
+            // Concrete Cube
+            ctx.fillStyle = '#94a3b8'; ctx.fillRect(cx - 20, blockY - 20, 40, 40);
+            ctx.strokeStyle = '#475569'; ctx.strokeRect(cx - 20, blockY - 20, 40, 40);
+
+            // Tank Front Glass (Semi transparent)
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.fillRect(cx - 70, cy - 60, 140, 90);
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 4;
+            ctx.strokeRect(cx - 70, cy - 60, 140, 90);
+        }
+
+        function renderMembrane(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            const cx = w/2;
+            const cy = h/2 + 30;
+
+            // Concrete Slab
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(cx - 80, cy - 40, 160, 40);
+
+            const cycle = (time % 5000) / 5000;
+            
+            // 1. Spraying nozzle moves across
+            if (cycle < 0.3) {
+                const nx = (cx - 100) + (cycle/0.3) * 200;
+                // Nozzle
+                ctx.fillStyle = '#334155'; ctx.fillRect(nx, cy - 80, 10, 20);
+                // Spray cone
+                ctx.fillStyle = 'rgba(147, 51, 234, 0.4)'; // Purple chemical
+                ctx.beginPath(); ctx.moveTo(nx+5, cy-60); ctx.lineTo(nx-20, cy-40); ctx.lineTo(nx+30, cy-40); ctx.fill();
+            }
+
+            // 2. Membrane forms (Purple overlay)
+            let memAlpha = 0;
+            if (cycle > 0.1 && cycle < 0.3) memAlpha = (cycle-0.1)/0.2;
+            else if (cycle >= 0.3) memAlpha = 1.0;
+
+            if (memAlpha > 0) {
+                ctx.fillStyle = `rgba(147, 51, 234, ${memAlpha * 0.4})`;
+                ctx.fillRect(cx - 80, cy - 42, 160, 4); // Thin film on top
+            }
+
+            // 3. Internal Moisture trying to escape
+            ctx.fillStyle = '#0ea5e9'; // Water particles inside
+            for(let i=0; i<10; i++) {
+                let py = cy - 10 - ((time*0.05 + i*15) % 30);
+                const px = cx - 60 + i*13;
+                
+                // If membrane is active, water hits it and bounces back/stops
+                if (memAlpha === 1.0 && py <= cy - 40) {
+                    py = cy - 40; // Blocked!
+                    // Draw little ripple
+                    ctx.strokeStyle = 'rgba(147, 51, 234, 0.8)';
+                    ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI); ctx.stroke();
+                } else if (memAlpha < 1.0 && py <= cy - 40) {
+                    // Escapes (evaporation)
+                    ctx.globalAlpha = 1.0 - (cy - 40 - py)/20;
+                    if(ctx.globalAlpha < 0) ctx.globalAlpha = 0;
+                }
+
+                ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI*2); ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function renderSteam(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            const cx = w/2;
+            const cy = h/2 + 20;
+
+            const cycle = (time % 6000) / 6000;
+            
+            // Precast Bed
+            ctx.fillStyle = '#475569'; ctx.fillRect(cx - 80, cy, 160, 10);
+            // Concrete Block
+            ctx.fillStyle = '#cbd5e1'; ctx.fillRect(cx - 60, cy - 50, 120, 50);
+
+            // Chamber Enclosure (Closes -> Steams -> Opens)
+            let doorY = cy - 120; // Open state
+            if (cycle > 0.1 && cycle < 0.2) doorY = cy - 120 + ((cycle-0.1)/0.1)*120; // Closing
+            else if (cycle >= 0.2 && cycle < 0.8) doorY = cy; // Closed
+            else if (cycle >= 0.8 && cycle < 0.9) doorY = cy - ((cycle-0.8)/0.1)*120; // Opening
+
+            // Steam filling
+            let steamAlpha = 0;
+            if (cycle > 0.25 && cycle < 0.35) steamAlpha = ((cycle-0.25)/0.1) * 0.8;
+            else if (cycle >= 0.35 && cycle < 0.75) steamAlpha = 0.8;
+            else if (cycle >= 0.75 && cycle < 0.85) steamAlpha = 0.8 - ((cycle-0.75)/0.1)*0.8;
+
+            if (steamAlpha > 0) {
+                // Draw steam clouds inside chamber boundaries
+                ctx.save();
+                ctx.beginPath(); ctx.rect(cx - 90, cy - 100, 180, 100); ctx.clip();
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${steamAlpha})`;
+                for(let i=0; i<20; i++) {
+                    const sx = cx - 90 + (Math.sin(time*0.001 + i) * 90 + 90);
+                    const sy = cy - 100 + ((time*0.05 + i*20) % 100);
+                    ctx.beginPath(); ctx.arc(sx, sy, 15 + (i%10), 0, Math.PI*2); ctx.fill();
+                }
+                ctx.restore();
+            }
+
+            // Draw Chamber Doors
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.8)'; // Dark semi-transparent doors
+            ctx.fillRect(cx - 90, doorY - 100, 180, 100);
+            ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 4;
+            ctx.strokeRect(cx - 90, doorY - 100, 180, 100);
+
+            // Thermometer indicating heat
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(cx + 100, cy - 80, 10, 60);
+            ctx.fillStyle = '#ef4444'; 
+            let tempH = 10;
+            if(cycle > 0.3 && cycle < 0.7) tempH = 50; // Heat goes up!
+            ctx.fillRect(cx + 100, cy - 20 - tempH, 10, tempH);
+            ctx.beginPath(); ctx.arc(cx + 105, cy - 20, 8, 0, Math.PI*2); ctx.fill(); // Bulb
+        }
+
+        function renderCovering(ctx, w, h, time) {
+            ctx.clearRect(0,0,w,h);
+            const cx = w/2;
+            const cy = h/2 + 30;
+
+            // Draw Column
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(cx - 30, cy - 100, 60, 100);
+
+            // Gunny Bags / Burlap wrap
+            ctx.fillStyle = '#d97706'; // Amber/brown fabric
+            ctx.fillRect(cx - 35, cy - 105, 70, 105);
+
+            // Texture for burlap
+            ctx.strokeStyle = 'rgba(0,0,0,0.1)'; ctx.lineWidth = 1;
+            for(let i=0; i<=105; i+=5) {
+                ctx.beginPath(); ctx.moveTo(cx-35, cy-105+i); ctx.lineTo(cx+35, cy-105+i); ctx.stroke();
+            }
+            for(let i=0; i<=70; i+=5) {
+                ctx.beginPath(); ctx.moveTo(cx-35+i, cy-105); ctx.lineTo(cx-35+i, cy); ctx.stroke();
+            }
+
+            // Dripping water (keeping it wet)
+            const dropY = (time * 0.05) % 120;
+            ctx.fillStyle = '#0ea5e9';
+            ctx.beginPath(); ctx.arc(cx - 35, cy - 105 + dropY, 2, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx + 35, cy - 80 + (dropY%100), 2, 0, Math.PI*2); ctx.fill();
+        }
+
+        // ==========================================
+        // MAIN ANIMATION LOOP
+        // ==========================================
+        
+        const canvasEls = {
+            timber: document.getElementById('c-timber'),
+            steel: document.getElementById('c-steel'),
+            plywood: document.getElementById('c-plywood'),
+            ponding: document.getElementById('c-ponding'),
+            immersion: document.getElementById('c-immersion'),
+            spraying: document.getElementById('c-spraying'),
+            membrane: document.getElementById('c-membrane'),
+            steam: document.getElementById('c-steam'),
+            covering: document.getElementById('c-covering')
+        };
+
+        const ctxs = {};
+        for(let key in canvasEls) {
+            ctxs[key] = canvasEls[key].getContext('2d');
+        }
+
+        function animate() {
+            const time = Date.now();
+            
+            // Formwork
+            renderFormworkBase(ctxs.timber, canvasEls.timber.width, canvasEls.timber.height, time, 'timber');
+            renderFormworkBase(ctxs.steel, canvasEls.steel.width, canvasEls.steel.height, time, 'steel');
+            renderFormworkBase(ctxs.plywood, canvasEls.plywood.width, canvasEls.plywood.height, time, 'plywood');
+            
+            // Curing
+            renderPonding(ctxs.ponding, canvasEls.ponding.width, canvasEls.ponding.height, time);
+            renderSpraying(ctxs.spraying, canvasEls.spraying.width, canvasEls.spraying.height, time);
+            renderImmersion(ctxs.immersion, canvasEls.immersion.width, canvasEls.immersion.height, time);
+            renderMembrane(ctxs.membrane, canvasEls.membrane.width, canvasEls.membrane.height, time);
+            renderSteam(ctxs.steam, canvasEls.steam.width, canvasEls.steam.height, time);
+            renderCovering(ctxs.covering, canvasEls.covering.width, canvasEls.covering.height, time);
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        animate();
+
+    </script>
+</body>
+</html>

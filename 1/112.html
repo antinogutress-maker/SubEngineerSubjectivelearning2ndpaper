@@ -78,15 +78,18 @@
 
         /* Mobile Controls */
         #mobile-fire-btn {
-            display: none; position: absolute; right: 6vmin; bottom: 15vmin; 
+            display: none; position: absolute; right: 6vmin; bottom: 35vmin; /* Increased bottom from 15vmin to move it higher */
             /* Use clamp to lock the size proportionally, protecting it from Desktop Mode inflation */
             width: clamp(70px, 15vmin, 90px); 
             height: clamp(70px, 15vmin, 90px);
-            background: rgba(239, 68, 68, 0.2); border: 2px solid #ef4444; border-radius: 50%;
+            background: rgba(255, 50, 50, 0.8); /* Made the red much brighter and less transparent */
+            border: 3px solid #ff3333; /* Brighter, slightly thicker border */
+            box-shadow: 0 0 20px rgba(255, 50, 50, 0.6); /* Added a neon glow effect to make it pop */
+            border-radius: 50%;
             color: white; font-weight: 900; font-size: 1.2rem; align-items: center; justify-content: center; 
             pointer-events: auto; backdrop-filter: blur(5px); transition: all 0.1s;
         }
-        #mobile-fire-btn:active { background: rgba(239, 68, 68, 0.5); transform: scale(0.9); }
+        #mobile-fire-btn:active { background: rgba(255, 0, 0, 1); transform: scale(0.9); box-shadow: 0 0 30px rgba(255, 0, 0, 0.9); }
         #mobile-look-zone { display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 75vh; pointer-events: auto; }
         @media (pointer: coarse) {
             #mobile-fire-btn { display: flex; }
@@ -164,17 +167,18 @@
                 { id: 101, targetId: 1, text: "Main and first principle" },
                 { id: 102, targetId: 1, text: "To prevent accumulation of error" },
                 { id: 103, targetId: 1, text: "Divide large areas into number of parts" },
-                { id: 104, targetId: 1, text: "Will help to find errors and eliminate" },
+                
                 { id: 201, targetId: 2, text: "To determine relative position of new point" },
                 { id: 202, targetId: 2, text: "Angular, linear, or both measurements" },
                 { id: 301, targetId: 3, text: "Same method, instruments" },
                 { id: 302, targetId: 3, text: "Same reading and noting " },
-                { id: 304, targetId: 3, text: "Helps to get desired accuracy" },
+                
                 { id: 401, targetId: 4, text: "To recheck the field measurements" },
                 { id: 402, targetId: 4, text: "Find the error and eliminate" },
                 { id: 501, targetId: 5, text: "Using proper method and instruments" },
                 { id: 502, targetId: 5, text: "Ensuring degree of accuracy" }
             ]
+            
         };
     </script>
 

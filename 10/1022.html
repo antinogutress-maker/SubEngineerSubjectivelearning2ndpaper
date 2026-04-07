@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Highway Engineering - Cross Sections</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 45vh;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid #334155;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        /* Blueprint grid background CSS */
+        .canvas-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .overlay-title {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; box-shadow: 0 0 10px #10b981; }
+            50% { opacity: 0.5; box-shadow: 0 0 2px #10b981; }
+            100% { opacity: 1; box-shadow: 0 0 10px #10b981; }
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center z-20 shadow-lg">
+        <div>
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 tracking-tight">
+                Highway Engineering Simulations
+            </h1>
+            <p class="text-slate-400 text-sm mt-1 flex items-center">
+                <span class="status-indicator"></span> Automatic Cross-Section Generator Running
+            </p>
+        </div>
+        <div class="text-right">
+            <div class="font-mono text-xs text-slate-500 bg-slate-800 px-3 py-1 rounded-md">SCALE: NOT TO SCALE (EXAGGERATED Y)</div>
+        </div>
+    </header>
+
+    <!-- Simulation 1: Filling -->
+    <div class="canvas-container relative flex-1">
+        <div class="overlay-title">
+            <h2 class="text-xl font-bold text-white tracking-wide">1. Road in Embankment (Filling)</h2>
+            <p class="text-cyan-400 text-sm font-mono mt-1">Formation Level > Natural Ground Level</p>
+        </div>
+        <canvas id="canvas-filling"></canvas>
+    </div>
+
+    <!-- Simulation 2: Cutting -->
+    <div class="canvas-container relative flex-1">
+        <div class="overlay-title">
+            <h2 class="text-xl font-bold text-white tracking-wide">2. Road in Cutting</h2>
+            <p class="text-amber-400 text-sm font-mono mt-1">Formation Level < Natural Ground Level</p>
+        </div>
+        <canvas id="canvas-cutting"></canvas>
+    </div>
+
+    <script>
+        /**
+         * Highway Engineering Cross Section Simulation Engine
+         * Built for automatic sequential drawing
+         */
+
+        const ANIMATION_DURATION = 14000; // 14 seconds total loop
+
+        class CrossSectionSimulation {
+            constructor(canvasId, type) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.type = type; // 'filling' or 'cutting'
+                this.dpr = window.devicePixelRatio || 1;
+                
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            resize() {
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                this.canvas.width = rect.width * this.dpr;
+                this.canvas.height = rect.height * this.dpr;
+                this.ctx.scale(this.dpr, this.dpr);
+                this.width = rect.width;
+                this.height = rect.height;
+                this.cx = this.width / 2;
+            }
+
+            // Easing function for smooth animations
+            easeOutQuart(x) {
+                return 1 - Math.pow(1 - x, 4);
+            }
+
+            clamp(val, min = 0, max = 1) {
+                return Math.max(min, Math.min(max, val));
+            }
+
+            // Draw a line with a specific progress (0 to 1) for animation
+            drawPath(points, progress, options = {}) {
+                if (progress <= 0 || points.length < 2) return;
+
+                const ctx = this.ctx;
+                const { color = '#fff', width = 2, dash = [], fill = null, shadow = null } = options;
+
+                // Calculate total length
+                let totalLength = 0;
+                const segments = [];
+                for (let i = 0; i < points.length - 1; i++) {
+                    const dx = points[i+1].x - points[i].x;
+                    const dy = points[i+1].y - points[i].y;
+                    const len = Math.sqrt(dx*dx + dy*dy);
+                    segments.push({ len, dx, dy });
+                    totalLength += len;
+                }
+
+                const targetLength = totalLength * this.easeOutQuart(progress);
+
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+
+                let currentLength = 0;
+                for (let i = 0; i < segments.length; i++) {
+                    const seg = segments[i];
+                    if (currentLength + seg.len <= targetLength) {
+                        ctx.lineTo(points[i+1].x, points[i+1].y);
+                        currentLength += seg.len;
+                    } else {
+                        const ratio = (targetLength - currentLength) / seg.len;
+                        ctx.lineTo(
+                            points[i].x + seg.dx * ratio,
+                            points[i].y + seg.dy * ratio
+                        );
+                        break;
+                    }
+                }
+
+                if (fill && progress > 0.95) {
+                    // Close path and fill if requested (fades in at end of stroke)
+                    ctx.lineTo(points[points.length-1].x, this.height);
+                    ctx.lineTo(points[0].x, this.height);
+                    ctx.fillStyle = fill;
+                    ctx.globalAlpha = (progress - 0.95) * 20; // fade in fill
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                }
+
+                ctx.strokeStyle = color;
+                ctx.lineWidth = width;
+                if (dash.length) ctx.setLineDash(dash); else ctx.setLineDash([]);
+                
+                if (shadow) {
+                    ctx.shadowColor = shadow;
+                    ctx.shadowBlur = 10;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+
+                ctx.stroke();
+                ctx.shadowBlur = 0; // reset
+            }
+
+            drawVerticalMarker(x, progress, label, color) {
+                if (progress <= 0) return;
+                
+                const ctx = this.ctx;
+                const p = this.easeOutQuart(progress);
+                const startY = this.height * 0.9;
+                const targetY = this.height * 0.1;
+                const currentY = startY - ((startY - targetY) * p);
+
+                ctx.beginPath();
+                ctx.moveTo(x, startY);
+                ctx.lineTo(x, currentY);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                if (progress > 0.8) {
+                    const alpha = (progress - 0.8) * 5;
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = color;
+                    ctx.font = '10px JetBrains Mono';
+                    ctx.textAlign = 'center';
+                    
+                    // Draw text vertically
+                    ctx.save();
+                    ctx.translate(x, targetY - 10);
+                    ctx.rotate(-Math.PI / 2);
+                    ctx.fillText(label, 0, -5);
+                    ctx.restore();
+                    ctx.globalAlpha = 1.0;
+                }
+            }
+
+            drawLabel(x, y, text, progress, align='center') {
+                if (progress <= 0) return;
+                const ctx = this.ctx;
+                const alpha = this.clamp(progress * 2); // fast fade in
+                const yOffset = 10 * (1 - this.easeOutQuart(progress));
+
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px Inter';
+                ctx.textAlign = align;
+
+                // Draw background pill
+                const metrics = ctx.measureText(text);
+                const padding = 6;
+                const bgWidth = metrics.width + padding * 2;
+                const bgHeight = 20;
+                
+                let bgX = x - bgWidth/2;
+                if(align === 'left') bgX = x - padding;
+                if(align === 'right') bgX = x - bgWidth + padding;
+
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.roundRect(bgX, y + yOffset - 14, bgWidth, bgHeight, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                // Draw Text
+                ctx.fillStyle = '#e2e8f0';
+                ctx.fillText(text, x, y + yOffset);
+                
+                // Draw pointer dot
+                ctx.beginPath();
+                ctx.arc(x, y + yOffset + 15, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#38bdf8';
+                ctx.fill();
+
+                ctx.globalAlpha = 1.0;
+            }
+
+            render(currentTime) {
+                // Time calculations
+                const t = currentTime % ANIMATION_DURATION;
+                
+                // Timeline progress calculations
+                const pNgl = this.clamp((t - 500) / 1500);
+                const pProfile = this.clamp((t - 2500) / 2000);
+                const pPave = this.clamp((t - 5000) / 1500);
+                const pBounds = this.clamp((t - 7000) / 2000);
+                const pLabels = this.clamp((t - 9000) / 1500);
+                
+                // Clear canvas
+                this.ctx.clearRect(0, 0, this.width, this.height);
+
+                if (this.type === 'filling') {
+                    this.renderFilling(pNgl, pProfile, pPave, pBounds, pLabels);
+                } else {
+                    this.renderCutting(pNgl, pProfile, pPave, pBounds, pLabels);
+                }
+            }
+
+            renderFilling(pNgl, pProfile, pPave, pBounds, pLabels) {
+                const CX = this.cx;
+                const FL = this.height * 0.4; // Formation Level Y
+                const NGL = this.height * 0.8; // Natural Ground Level Y
+                
+                // 1. Natural Ground Level
+                const nglPoints = [
+                    {x: 0, y: NGL + 10},
+                    {x: CX - 300, y: NGL},
+                    {x: CX, y: NGL - 5},
+                    {x: CX + 300, y: NGL},
+                    {x: this.width, y: NGL + 10}
+                ];
+                this.drawPath(nglPoints, pNgl, { color: '#22c55e', width: 2, dash: [10, 5] });
+                if (pNgl > 0.8) this.drawLabel(CX - 400, NGL + 30, "Natural Ground Level (NGL)", pLabels, 'left');
+
+                // 2. Earthwork Profile (Embankment with Berm)
+                const profilePoints = [
+                    {x: CX - 350, y: NGL}, // Toe left
+                    {x: CX - 220, y: FL + 60}, // Berm outer left
+                    {x: CX - 180, y: FL + 60}, // Berm inner left
+                    {x: CX - 120, y: FL}, // Shoulder edge left
+                    {x: CX + 120, y: FL}, // Shoulder edge right
+                    {x: CX + 180, y: FL + 60}, // Berm inner right
+                    {x: CX + 220, y: FL + 60}, // Berm outer right
+                    {x: CX + 350, y: NGL} // Toe right
+                ];
+                this.drawPath(profilePoints, pProfile, { 
+                    color: '#fbbf24', 
+                    width: 3, 
+                    fill: 'rgba(251, 191, 36, 0.05)',
+                    shadow: '#fbbf24'
+                });
+
+                // 3. Pavement (Carriageway + Shoulders)
+                if (pPave > 0) {
+                    // Carriageway
+                    const cwPoints = [
+                        {x: CX - 70, y: FL},
+                        {x: CX, y: FL - 8}, // Camber
+                        {x: CX + 70, y: FL}
+                    ];
+                    this.drawPath(cwPoints, pPave, { color: '#38bdf8', width: 6, shadow: '#38bdf8' });
+                    
+                    // Shoulders
+                    this.drawPath([
+                        {x: CX - 120, y: FL + 5}, {x: CX - 70, y: FL}
+                    ], pPave, { color: '#94a3b8', width: 4 });
+                    
+                    this.drawPath([
+                        {x: CX + 70, y: FL}, {x: CX + 120, y: FL + 5}
+                    ], pPave, { color: '#94a3b8', width: 4 });
+                }
+
+                // 4. Boundary Lines
+                this.drawVerticalMarker(CX - 400, pBounds, "Road Boundary (ROW)", '#ef4444');
+                this.drawVerticalMarker(CX + 400, pBounds, "Road Boundary (ROW)", '#ef4444');
+                
+                this.drawVerticalMarker(CX - 480, pBounds, "Building Line", '#8b5cf6');
+                this.drawVerticalMarker(CX + 480, pBounds, "Building Line", '#8b5cf6');
+                
+                this.drawVerticalMarker(CX - 560, pBounds, "Control Line", '#6366f1');
+                this.drawVerticalMarker(CX + 560, pBounds, "Control Line", '#6366f1');
+
+                // Center line
+                this.drawVerticalMarker(CX, pBounds, "Center Line", '#ffffff');
+
+                // 5. Labels
+                this.drawLabel(CX, FL - 30, "Carriageway", pLabels);
+                this.drawLabel(CX - 95, FL - 20, "Shoulder", pLabels);
+                this.drawLabel(CX + 95, FL - 20, "Shoulder", pLabels);
+                this.drawLabel(CX - 150, FL + 30, "Side Slope", pLabels);
+                this.drawLabel(CX - 200, FL + 85, "Berm", pLabels);
+            }
+
+            renderCutting(pNgl, pProfile, pPave, pBounds, pLabels) {
+                const CX = this.cx;
+                const FL = this.height * 0.7; // Formation Level Y (Low)
+                const NGL = this.height * 0.25; // Natural Ground Level Y (High)
+                
+                // 1. Natural Ground Level
+                const nglPoints = [
+                    {x: 0, y: NGL - 10},
+                    {x: CX, y: NGL + 5},
+                    {x: this.width, y: NGL - 5}
+                ];
+                this.drawPath(nglPoints, pNgl, { color: '#22c55e', width: 2, dash: [10, 5] });
+                if (pNgl > 0.8) this.drawLabel(CX + 350, NGL - 20, "Natural Ground Level (NGL)", pLabels, 'left');
+
+                // 2. Earthwork Profile (Cutting + Drains + Spoil Bank)
+                const profilePoints = [
+                    // Left Spoil Bank (Mound of excavated earth)
+                    {x: CX - 380, y: NGL},
+                    {x: CX - 350, y: NGL - 40},
+                    {x: CX - 310, y: NGL - 40},
+                    {x: CX - 280, y: NGL},
+                    // Left Side Slope
+                    {x: CX - 160, y: FL},
+                    // Left Drain (Trench)
+                    {x: CX - 140, y: FL + 20},
+                    {x: CX - 120, y: FL + 20},
+                    {x: CX - 110, y: FL},
+                    // Right Side (Symmetric base)
+                    {x: CX + 110, y: FL},
+                    // Right Drain
+                    {x: CX + 120, y: FL + 20},
+                    {x: CX + 140, y: FL + 20},
+                    {x: CX + 160, y: FL},
+                    // Right Side Slope
+                    {x: CX + 280, y: NGL},
+                    // Right Spoil Bank
+                    {x: CX + 310, y: NGL - 40},
+                    {x: CX + 350, y: NGL - 40},
+                    {x: CX + 380, y: NGL}
+                ];
+                this.drawPath(profilePoints, pProfile, { 
+                    color: '#f97316', 
+                    width: 3,
+                    shadow: '#f97316' 
+                });
+
+                // 3. Pavement (Carriageway + Shoulders)
+                if (pPave > 0) {
+                    // Carriageway
+                    const cwPoints = [
+                        {x: CX - 60, y: FL},
+                        {x: CX, y: FL - 6}, // Camber
+                        {x: CX + 60, y: FL}
+                    ];
+                    this.drawPath(cwPoints, pPave, { color: '#38bdf8', width: 6, shadow: '#38bdf8' });
+                    
+                    // Shoulders
+                    this.drawPath([
+                        {x: CX - 110, y: FL + 3}, {x: CX - 60, y: FL}
+                    ], pPave, { color: '#94a3b8', width: 4 });
+                    
+                    this.drawPath([
+                        {x: CX + 60, y: FL}, {x: CX + 110, y: FL + 3}
+                    ], pPave, { color: '#94a3b8', width: 4 });
+                }
+
+                // 4. Boundary Lines
+                this.drawVerticalMarker(CX - 420, pBounds, "Road Boundary (ROW)", '#ef4444');
+                this.drawVerticalMarker(CX + 420, pBounds, "Road Boundary (ROW)", '#ef4444');
+                
+                this.drawVerticalMarker(CX - 490, pBounds, "Building Line", '#8b5cf6');
+                this.drawVerticalMarker(CX + 490, pBounds, "Building Line", '#8b5cf6');
+                
+                this.drawVerticalMarker(CX - 560, pBounds, "Control Line", '#6366f1');
+                this.drawVerticalMarker(CX + 560, pBounds, "Control Line", '#6366f1');
+                
+                // Center line
+                this.drawVerticalMarker(CX, pBounds, "Center Line", '#ffffff');
+
+                // 5. Labels
+                this.drawLabel(CX, FL - 25, "Carriageway", pLabels);
+                this.drawLabel(CX - 85, FL - 15, "Shoulder", pLabels);
+                this.drawLabel(CX + 85, FL - 15, "Shoulder", pLabels);
+                this.drawLabel(CX - 130, FL + 45, "Side Drain", pLabels);
+                this.drawLabel(CX + 130, FL + 45, "Side Drain", pLabels);
+                this.drawLabel(CX - 220, FL - ((FL - NGL)/2), "Side Slope", pLabels);
+                this.drawLabel(CX - 330, NGL - 60, "Spoil Bank", pLabels);
+                this.drawLabel(CX + 330, NGL - 60, "Spoil Bank", pLabels);
+            }
+        }
+
+        // Initialize Simulations
+        const simFilling = new CrossSectionSimulation('canvas-filling', 'filling');
+        const simCutting = new CrossSectionSimulation('canvas-cutting', 'cutting');
+
+        // Main Animation Loop
+        function animate(time) {
+            simFilling.render(time);
+            simCutting.render(time);
+            requestAnimationFrame(animate);
+        }
+
+        // Start animation
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sight Distances - Highway Engineering</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- KaTeX for Flawless Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .textbook-font {
+            font-family: 'Merriweather', serif;
+            line-height: 1.6;
+            color: #334155;
+            font-size: 1.05rem;
+        }
+
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Mobile Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            margin: 10px 0;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px; 
+            width: 24px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: 2px solid white;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+        
+        .tab-btn {
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active {
+            color: #0284c7;
+            background: #e0f2fe;
+            border-color: #0284c7;
+            font-weight: 700;
+        }
+        
+        .canvas-container {
+            background: #e2e8f0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        ::-webkit-scrollbar { display: none; } /* Mobile clean look */
+        
+        .math-block {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white p-3 shadow-md z-20 shrink-0">
+        <div class="flex justify-between items-center mb-3">
+            <h1 class="font-bold text-lg tracking-tight truncate">Sight Distances</h1>
+            <div class="p-1.5 bg-sky-500/20 rounded border border-sky-500/30">
+                <i data-lucide="eye" class="w-4 h-4 text-sky-400"></i>
+            </div>
+        </div>
+        
+        <!-- Mobile Tabs -->
+        <div class="flex bg-slate-800 p-1 rounded-lg border border-slate-700 w-full">
+            <button onclick="switchTab('ssd')" id="tab-ssd" class="flex-1 tab-btn active py-1.5 rounded text-sm flex items-center justify-center gap-2">
+                SSD Calculator
+            </button>
+            <button onclick="switchTab('osd')" id="tab-osd" class="flex-1 tab-btn text-slate-300 py-1.5 rounded text-sm flex items-center justify-center gap-2">
+                OSD Calculator
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Mobile Layout -->
+    <main class="flex-1 flex flex-col w-full max-w-2xl mx-auto bg-white shadow-xl">
+        
+        <!-- TOP: Canvas Simulation -->
+        <section class="relative w-full h-[35vh] min-h-[250px] border-b border-slate-300 canvas-container shrink-0" id="canvas-wrapper">
+            <canvas id="sim-canvas" class="absolute inset-0 w-full h-full"></canvas>
+            
+            <!-- Live Overlay -->
+            <div class="absolute bottom-2 right-2 font-mono text-[10px] bg-slate-900/90 backdrop-blur border border-slate-700 p-2 rounded shadow-lg text-slate-300 leading-tight z-10">
+                <div class="text-sky-400 font-bold border-b border-slate-700 pb-1 mb-1" id="hud-title">TOTAL SSD</div>
+                <div class="text-xl font-bold text-white" id="hud-val">0.00 m</div>
+            </div>
+        </section>
+
+        <!-- MIDDLE: Interactive Controls -->
+        <section class="p-4 bg-slate-50 border-b border-slate-200 shrink-0">
+            
+            <!-- SSD Controls -->
+            <div id="controls-ssd" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Traffic Condition</label>
+                    <select id="input-ssd-type" class="w-full bg-white border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 outline-none shadow-sm font-semibold">
+                        <option value="1">1-Way Traffic / Divided (Stationary Object)</option>
+                        <option value="2">2-Way Traffic, Single Lane (Opposing Car)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <div class="flex justify-between mb-1 text-sm font-semibold text-slate-700">
+                        <label>Design Speed ($V$)</label>
+                        <span class="text-sky-600 font-mono" id="lbl-ssd-v">80 kmph</span>
+                    </div>
+                    <input type="range" id="input-ssd-v" min="20" max="120" step="5" value="80">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <div class="flex justify-between mb-1 text-sm font-semibold text-slate-700">
+                            <label>Reaction ($t$)</label>
+                            <span class="text-sky-600 font-mono" id="lbl-ssd-t">2.5 s</span>
+                        </div>
+                        <input type="range" id="input-ssd-t" min="1.0" max="3.0" step="0.1" value="2.5">
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1 text-sm font-semibold text-slate-700">
+                            <label>Friction ($f$)</label>
+                            <span class="text-sky-600 font-mono" id="lbl-ssd-f">0.35</span>
+                        </div>
+                        <input type="range" id="input-ssd-f" min="0.30" max="0.40" step="0.01" value="0.35">
+                    </div>
+                </div>
+            </div>
+
+            <!-- OSD Controls -->
+            <div id="controls-osd" class="hidden space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <div class="flex justify-between mb-1 text-sm font-semibold text-slate-700">
+                            <label>Design Spd ($V$)</label>
+                            <span class="text-sky-600 font-mono" id="lbl-osd-v">80 kmph</span>
+                        </div>
+                        <input type="range" id="input-osd-v" min="40" max="120" step="5" value="80">
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1 text-sm font-semibold text-slate-700">
+                            <label>Slow Spd ($V_b$)</label>
+                            <span class="text-sky-600 font-mono" id="lbl-osd-vb">64 kmph</span>
+                        </div>
+                        <input type="range" id="input-osd-vb" min="20" max="100" step="1" value="64">
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between mb-1 text-sm font-semibold text-slate-700">
+                        <label>Acceleration ($a$)</label>
+                        <span class="text-sky-600 font-mono" id="lbl-osd-a">0.72 m/s²</span>
+                    </div>
+                    <input type="range" id="input-osd-a" min="0.5" max="1.5" step="0.01" value="0.72">
+                </div>
+            </div>
+            
+        </section>
+
+        <!-- BOTTOM: Flawless Calculations -->
+        <section class="p-5 pb-12 bg-white textbook-font flex-1">
+            
+            <!-- SSD Derivation -->
+            <div id="math-ssd" class="animate-fade-in">
+                <h2 class="text-xl font-bold text-slate-900 mb-2 font-sans">Stopping Sight Distance (SSD)</h2>
+                <p class="mb-4 text-justify text-sm">
+                    SSD is the minimum clear sight distance required for a driver to safely stop a vehicle traveling at design speed.
+                </p>
+                <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl overflow-x-auto text-[0.9rem]">
+                    <div id="katex-ssd" class="math-block"></div>
+                </div>
+            </div>
+
+            <!-- OSD Derivation -->
+            <div id="math-osd" class="hidden animate-fade-in">
+                <h2 class="text-xl font-bold text-slate-900 mb-2 font-sans">Overtaking Sight Distance (OSD)</h2>
+                <p class="mb-4 text-justify text-sm">
+                    OSD is the minimum distance required for a vehicle (A) to safely overtake a slow-moving vehicle (B) against opposing traffic (C).
+                </p>
+                <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl overflow-x-auto text-[0.9rem]">
+                    <div id="katex-osd" class="math-block"></div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- GLOBAL STATE ---
+        let currentTab = 'ssd'; 
+        
+        let sState = {
+            type: 1,  // 1 = stationary, 2 = two-way single lane
+            V: 80,    // kmph
+            t: 2.5,   // sec
+            f: 0.35   // friction
+        };
+
+        let oState = {
+            V: 80,    // kmph
+            Vb: 64,   // kmph
+            a: 0.72,  // m/s^2
+            t: 2.0    // sec (reaction time)
+        };
+
+        // DOM Elements
+        const wrapper = document.getElementById('canvas-wrapper');
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+
+        const inSType = document.getElementById('input-ssd-type');
+        const inSV = document.getElementById('input-ssd-v');
+        const inST = document.getElementById('input-ssd-t');
+        const inSF = document.getElementById('input-ssd-f');
+        
+        const inOV = document.getElementById('input-osd-v');
+        const inOVb = document.getElementById('input-osd-vb');
+        const inOA = document.getElementById('input-osd-a');
+
+        // --- MATH RENDERER (KaTeX) ---
+        function renderMath() {
+            if (currentTab === 'ssd') {
+                const d_lag = 0.278 * sState.V * sState.t;
+                const d_brake = Math.pow(sState.V, 2) / (254 * sState.f);
+                const base_ssd = d_lag + d_brake;
+                
+                const multiplier = sState.type === 2 ? 2 : 1;
+                const total_ssd = base_ssd * multiplier;
+
+                document.getElementById('hud-title').innerText = sState.type === 2 ? "TOTAL SSD (2-WAY)" : "TOTAL SSD";
+                document.getElementById('hud-val').innerText = total_ssd.toFixed(2) + " m";
+
+                let latex = `
+                    \\begin{aligned}
+                    \\text{Lag Dist.} &= 0.278 V \\cdot t \\\\[4pt]
+                    &= 0.278 \\cdot ${sState.V} \\cdot ${sState.t.toFixed(1)} = \\mathbf{${d_lag.toFixed(2)} \\text{ m}} \\\\[8pt]
+                    \\text{Braking Dist.} &= \\frac{V^2}{254f} \\\\[4pt]
+                    &= \\frac{${sState.V}^2}{254 \\cdot ${sState.f.toFixed(2)}} = \\mathbf{${d_brake.toFixed(2)} \\text{ m}} \\\\[12pt]
+                    \\text{Base SSD} &= ${d_lag.toFixed(2)} + ${d_brake.toFixed(2)} = \\mathbf{${base_ssd.toFixed(2)} \\text{ m}} \\\\[8pt]
+                `;
+
+                if (sState.type === 2) {
+                    latex += `
+                        \\text{Condition} &: \\text{Two-Way, Single Lane} \\\\[4pt]
+                        \\text{Total SSD} &= 2 \\times \\text{Base SSD} \\\\[4pt]
+                        &= 2 \\times ${base_ssd.toFixed(2)} = \\mathbf{${total_ssd.toFixed(2)} \\text{ m}}
+                        \\end{aligned}
+                    `;
+                } else {
+                    latex += `\\end{aligned}`;
+                }
+                
+                katex.render(latex, document.getElementById('katex-ssd'), { displayMode: true });
+
+            } else {
+                const s = 0.2 * oState.Vb + 6; 
+                const d1 = 0.278 * oState.Vb * oState.t;
+                const T = Math.sqrt((4 * s) / oState.a);
+                const d2 = (0.278 * oState.Vb * T) + (2 * s);
+                const d3 = 0.278 * oState.V * T;
+                
+                const osd = d1 + d2 + d3;
+
+                document.getElementById('hud-title').innerText = "TOTAL OSD";
+                document.getElementById('hud-val').innerText = osd.toFixed(2) + " m";
+
+                const latex = `
+                    \\begin{aligned}
+                    s &= 0.2 V_b + 6 = 0.2(${oState.Vb}) + 6 = \\mathbf{${s.toFixed(2)} \\text{ m}} \\\\[4pt]
+                    T &= \\sqrt{\\frac{4s}{a}} = \\sqrt{\\frac{4 \\cdot ${s.toFixed(2)}}{${oState.a}}} = \\mathbf{${T.toFixed(2)} \\text{ s}} \\\\[12pt]
+                    
+                    d_1 &= 0.278 V_b \\cdot t \\\\[2pt]
+                    &= 0.278 \\cdot ${oState.Vb} \\cdot ${oState.t.toFixed(1)} = \\mathbf{${d1.toFixed(2)} \\text{ m}} \\\\[8pt]
+                    
+                    d_2 &= (0.278 V_b \\cdot T) + 2s \\\\[2pt]
+                    &= (0.278 \\cdot ${oState.Vb} \\cdot ${T.toFixed(2)}) + 2(${s.toFixed(2)}) = \\mathbf{${d2.toFixed(2)} \\text{ m}} \\\\[8pt]
+                    
+                    d_3 &= 0.278 V \\cdot T \\\\[2pt]
+                    &= 0.278 \\cdot ${oState.V} \\cdot ${T.toFixed(2)} = \\mathbf{${d3.toFixed(2)} \\text{ m}} \\\\[12pt]
+                    
+                    \\text{OSD} &= d_1 + d_2 + d_3 \\\\[2pt]
+                    &= ${d1.toFixed(2)} + ${d2.toFixed(2)} + ${d3.toFixed(2)} \\\\[2pt]
+                    &= \\mathbf{${osd.toFixed(2)} \\text{ m}}
+                    \\end{aligned}
+                `;
+                katex.render(latex, document.getElementById('katex-osd'), { displayMode: true });
+            }
+        }
+
+        // --- TAB LOGIC ---
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            document.getElementById('tab-ssd').className = `flex-1 tab-btn py-1.5 rounded text-sm flex items-center justify-center gap-2 ${tab === 'ssd' ? 'active' : 'text-slate-300'}`;
+            document.getElementById('tab-osd').className = `flex-1 tab-btn py-1.5 rounded text-sm flex items-center justify-center gap-2 ${tab === 'osd' ? 'active' : 'text-slate-300'}`;
+            
+            document.getElementById('controls-ssd').classList.toggle('hidden', tab !== 'ssd');
+            document.getElementById('math-ssd').classList.toggle('hidden', tab !== 'ssd');
+            
+            document.getElementById('controls-osd').classList.toggle('hidden', tab !== 'osd');
+            document.getElementById('math-osd').classList.toggle('hidden', tab !== 'osd');
+
+            animClock = 0; 
+            renderMath();
+        }
+
+        // --- INPUT LISTENERS ---
+        function attachListeners() {
+            // SSD
+            inSType.addEventListener('change', (e) => { sState.type = parseInt(e.target.value); renderMath(); animClock = 0; });
+            inSV.addEventListener('input', (e) => { sState.V = parseFloat(e.target.value); document.getElementById('lbl-ssd-v').innerText = sState.V + " kmph"; renderMath(); animClock = 0; });
+            inST.addEventListener('input', (e) => { sState.t = parseFloat(e.target.value); document.getElementById('lbl-ssd-t').innerText = sState.t.toFixed(1) + " s"; renderMath(); animClock = 0; });
+            inSF.addEventListener('input', (e) => { sState.f = parseFloat(e.target.value); document.getElementById('lbl-ssd-f').innerText = sState.f.toFixed(2); renderMath(); animClock = 0; });
+            
+            // OSD
+            inOV.addEventListener('input', (e) => { 
+                oState.V = parseFloat(e.target.value); 
+                if (oState.Vb >= oState.V) { oState.Vb = oState.V - 1; inOVb.value = oState.Vb; document.getElementById('lbl-osd-vb').innerText = oState.Vb + " kmph"; }
+                document.getElementById('lbl-osd-v').innerText = oState.V + " kmph"; 
+                renderMath(); animClock = 0; 
+            });
+            inOVb.addEventListener('input', (e) => { 
+                oState.Vb = parseFloat(e.target.value); 
+                if (oState.Vb >= oState.V) { oState.Vb = oState.V - 1; inOVb.value = oState.Vb; } // Vb must be < V
+                document.getElementById('lbl-osd-vb').innerText = oState.Vb + " kmph"; 
+                renderMath(); animClock = 0; 
+            });
+            inOA.addEventListener('input', (e) => { oState.a = parseFloat(e.target.value); document.getElementById('lbl-osd-a').innerText = oState.a.toFixed(2) + " m/s²"; renderMath(); animClock = 0; });
+        }
+
+        // --- CANVAS ENGINE ---
+        function resizeCanvas() {
+            const rect = wrapper.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        let animClock = 0;
+        let lastTime = 0;
+
+        function drawCar(x, y, color, label, direction = 1) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            
+            const carLen = 18;
+            const carW = 12;
+            
+            // x is the EXACT front bumper.
+            if (direction === 1) {
+                ctx.roundRect(x - carLen, y - carW/2, carLen, carW, 3);
+                ctx.fill();
+                // Windshield
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.fillRect(x - 5, y - (carW/2 - 1), 4, carW - 2);
+                // Label
+                if (label) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 9px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(label, x - carLen/2, y + 3);
+                }
+            } else {
+                ctx.roundRect(x, y - carW/2, carLen, carW, 3);
+                ctx.fill();
+                // Windshield
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.fillRect(x + 1, y - (carW/2 - 1), 4, carW - 2);
+                // Label
+                if (label) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 9px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(label, x + carLen/2, y + 3);
+                }
+            }
+        }
+
+        function drawDimension(x1, x2, y, label, color="#3b82f6") {
+            ctx.beginPath();
+            ctx.moveTo(x1, y);
+            ctx.lineTo(x2, y);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(x1, y-4); ctx.lineTo(x1, y+4);
+            ctx.moveTo(x2, y-4); ctx.lineTo(x2, y+4);
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.font = 'bold 12px KaTeX_Math';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, (x1 + x2)/2, y - 8);
+        }
+
+        function easeInOutQuad(t) {
+            return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        }
+
+        function renderSSD(w, h, dt) {
+            const v_ms = sState.V / 3.6;
+            const d_lag = v_ms * sState.t;
+            const d_brake = Math.pow(v_ms, 2) / (254 * sState.f); // 254 is the IRC derived constant for V in kmph
+            const base_ssd = d_lag + d_brake;
+
+            const pad = 30;
+            const v_gap = 24; // Visual gap so they never touch
+            
+            const totalMath = sState.type === 2 ? base_ssd * 2 : base_ssd;
+            const availWidth = (w - 2*pad) - v_gap;
+            const scale = availWidth / totalMath;
+            
+            const roadY = h / 2;
+
+            // Draw Road
+            ctx.fillStyle = '#64748b';
+            ctx.fillRect(0, roadY - 20, w, 40);
+            
+            if (sState.type === 1) {
+                ctx.beginPath();
+                ctx.moveTo(0, roadY); ctx.lineTo(w, roadY);
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.setLineDash([10, 15]); ctx.stroke(); ctx.setLineDash([]);
+            }
+
+            const t_brake = v_ms / (9.81 * sState.f);
+            const totalTime = sState.t + t_brake; 
+            
+            animClock += dt; 
+            if (animClock > totalTime + 1.5) animClock = 0; 
+
+            let phase = "";
+            let frac_lag = 0;
+            let frac_brake = 0;
+
+            if (animClock <= sState.t) {
+                frac_lag = animClock / sState.t;
+                phase = "Reaction (Lag)";
+            } else if (animClock <= totalTime) {
+                frac_lag = 1.0;
+                const p = (animClock - sState.t) / t_brake;
+                frac_brake = (2*p - p*p); // Physics deceleration curve
+                phase = "Braking";
+            } else {
+                frac_lag = 1.0;
+                frac_brake = 1.0;
+                phase = "Stopped Safely";
+            }
+
+            if (sState.type === 1) {
+                // Type 1: Single Car, Stationary Obstacle
+                const x1 = pad;
+                const x2 = x1 + d_lag * scale;
+                const x3 = x2 + d_brake * scale;
+                const obsX = x3 + v_gap;
+
+                const carX = x1 + (d_lag * scale * frac_lag) + (d_brake * scale * frac_brake);
+
+                // Obstacle
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(obsX, roadY - 12, 8, 24);
+                ctx.font = '10px Inter'; ctx.fillText("Object", obsX + 15, roadY + 3);
+
+                // Dimensions
+                drawDimension(x1, x2, roadY + 30, "Lag", "#64748b");
+                drawDimension(x2, x3, roadY + 30, "Braking", "#ef4444");
+
+                drawCar(carX, roadY, '#3b82f6', '', 1);
+            } else {
+                // Type 2: Two Cars Approaching
+                const x1 = pad;
+                const x2 = x1 + d_lag * scale;
+                const x3 = x2 + d_brake * scale; // Stop point 1
+                
+                const meet2 = x3 + v_gap; // Stop point 2
+                const x4 = meet2 + d_brake * scale;
+                const x5 = x4 + d_lag * scale;
+
+                const car1X = x1 + (d_lag * scale * frac_lag) + (d_brake * scale * frac_brake);
+                const car2X = x5 - (d_lag * scale * frac_lag) - (d_brake * scale * frac_brake);
+
+                drawDimension(x1, x3, roadY + 30, "SSD (Car 1)", "#3b82f6");
+                drawDimension(meet2, x5, roadY + 30, "SSD (Car 2)", "#f97316");
+
+                drawCar(car1X, roadY, '#3b82f6', '1', 1);
+                drawCar(car2X, roadY, '#f97316', '2', -1);
+            }
+
+            ctx.fillStyle = '#0f172a'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'left';
+            ctx.fillText(`State: ${phase}`, 10, 20);
+        }
+
+        function renderOSD(w, h, dt) {
+            const v = oState.V / 3.6;
+            const vb = oState.Vb / 3.6;
+            const s = 0.2 * oState.Vb + 6; 
+            
+            const d1 = vb * oState.t;
+            const T = Math.sqrt((4 * s) / oState.a);
+            const b = vb * T;
+            const d2 = b + 2 * s;
+            const d3 = v * T;
+
+            const pad = 20;
+            const v_gap = 26; // Guarantees Cars don't touch (carLen = 18)
+            const v_gapC = 26;
+
+            const totalMath = d1 + b + d3;
+            const availWidth = (w - 2*pad) - (2*v_gap + v_gapC);
+            const scale = availWidth / totalMath;
+            
+            const roadY = h / 2;
+            const lane1Y = roadY + 12; 
+            const lane2Y = roadY - 12; 
+
+            // Waypoints
+            const x1 = pad;
+            const x2 = x1 + d1 * scale;
+            const x3 = x2 + b * scale + 2 * v_gap;
+            const x4 = x3 + v_gapC + d3 * scale;
+
+            // Draw Road
+            ctx.fillStyle = '#64748b';
+            ctx.fillRect(0, roadY - 30, w, 60);
+            ctx.beginPath();
+            ctx.moveTo(0, roadY); ctx.lineTo(w, roadY);
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.setLineDash([15, 15]); ctx.stroke(); ctx.setLineDash([]);
+
+            // Dimensions
+            drawDimension(x1, x2, h - 10, "d_1", "#64748b");
+            drawDimension(x2, x3, h - 10, "d_2", "#3b82f6");
+            drawDimension(x3, x4, h - 10, "d_3", "#ef4444");
+
+            // Animation
+            const totalTime = oState.t + T;
+            animClock += dt; 
+            if (animClock > totalTime + 1.5) animClock = 0;
+
+            let carAx = x1, carAy = lane1Y;
+            let carBx = x1 + v_gap, carBy = lane1Y; 
+            let carCx = x4, carCy = lane2Y;
+
+            let phase = "";
+
+            if (animClock <= oState.t) {
+                // Phase 1: Reaction
+                phase = "Reaction Time";
+                const p = animClock / oState.t;
+                carAx = x1 + p * (x2 - x1);
+                carBx = x1 + v_gap + p * (x2 - x1);
+                carCx = x4; // C waits
+            } else if (animClock <= totalTime) {
+                // Phase 2: Overtaking
+                phase = "Overtaking Operation";
+                const t2 = animClock - oState.t;
+                const p = t2 / T;
+                
+                carBx = (x2 + v_gap) + p * (x3 - x2 - 2 * v_gap);
+                
+                // Acceleration curve for A
+                const fracA = (vb * t2 + 0.5 * oState.a * t2 * t2) / d2;
+                carAx = x2 + fracA * (x3 - x2);
+
+                // Lane Change interpolation
+                if (p < 0.2) {
+                    carAy = lane1Y - (lane1Y - lane2Y) * easeInOutQuad(p / 0.2);
+                } else if (p > 0.8) {
+                    carAy = lane2Y + (lane1Y - lane2Y) * easeInOutQuad((p - 0.8) / 0.2);
+                } else {
+                    carAy = lane2Y;
+                }
+
+                // C moves opposite
+                carCx = x4 - p * (x4 - (x3 + v_gapC));
+            } else {
+                // Finished
+                phase = "Overtake Complete";
+                carBx = x3 - v_gap;
+                carAx = x3;
+                carAy = lane1Y;
+                carCx = x3 + v_gapC;
+            }
+
+            drawCar(carBx, carBy, '#f97316', 'B', 1); 
+            drawCar(carCx, carCy, '#ef4444', 'C', -1); 
+            drawCar(carAx, carAy, '#3b82f6', 'A', 1); 
+
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Inter'; ctx.textAlign = 'left';
+            ctx.fillText(`State: ${phase}`, 10, roadY - 35);
+        }
+
+        function animate(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            const dt = (timestamp - lastTime) / 1000; // delta time in seconds
+            lastTime = timestamp;
+
+            const rect = wrapper.getBoundingClientRect();
+            const w = canvas.width / (window.devicePixelRatio || 1);
+            const h = canvas.height / (window.devicePixelRatio || 1);
+            
+            ctx.clearRect(0, 0, w, h);
+
+            if (currentTab === 'ssd') renderSSD(w, h, dt);
+            else renderOSD(w, h, dt);
+            
+            requestAnimationFrame(animate);
+        }
+
+        // --- INIT ---
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false });
+            attachListeners();
+            resizeCanvas();
+            renderMath();
+            requestAnimationFrame(animate);
+        });
+
+    </script>
+</body>
+</html>

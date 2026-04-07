@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Super Elevation Physics - Mobile</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX for Flawless Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Textbook typography style */
+        .textbook-font {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.15rem;
+            line-height: 1.6;
+            color: #1e293b;
+        }
+
+        /* Mobile Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            margin: 10px 0;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px; /* Larger for touch */
+            width: 24px;
+            border-radius: 50%;
+            background: #2563eb;
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+
+        .canvas-bg {
+            background: linear-gradient(to bottom, #e0f2fe 0%, #f0f9ff 60%, #ffffff 100%);
+        }
+        
+        .canvas-bg-top {
+            background: #e2e8f0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Prevent math overflow on mobile */
+        .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        /* View Toggle Styling */
+        .toggle-btn {
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 9999px;
+            transition: all 0.2s ease;
+        }
+        .toggle-btn.active {
+            background-color: #2563eb;
+            color: white;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+        }
+        .toggle-btn.inactive {
+            color: #64748b;
+        }
+        .toggle-btn.inactive:hover {
+            color: #1e293b;
+            background-color: rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white p-3 shadow-md z-20 flex justify-between items-center shrink-0">
+        <h1 class="font-bold text-lg tracking-tight truncate">Super Elevation Analysis</h1>
+        <div id="sim-status" class="text-xs font-bold px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30 whitespace-nowrap transition-colors duration-300">
+            SAFE
+        </div>
+    </header>
+
+    <!-- MAIN APP WRAPPER -->
+    <main class="flex-1 flex flex-col w-full max-w-2xl mx-auto bg-white shadow-xl">
+        
+        <!-- TOP: Simulation Canvas (Fixed Aspect Ratio for Mobile) -->
+        <section class="relative w-full h-[35vh] min-h-[250px] border-b border-slate-200 canvas-bg shrink-0 transition-colors duration-500" id="canvas-wrapper">
+            
+            <!-- View Toggle -->
+            <div class="absolute top-3 left-1/2 -translate-x-1/2 flex bg-white/80 backdrop-blur-md rounded-full p-1 z-10 shadow border border-slate-200">
+                <button id="btn-rear" class="toggle-btn active">Rear View</button>
+                <button id="btn-top" class="toggle-btn inactive">Top View</button>
+            </div>
+
+            <canvas id="sim-canvas" class="absolute inset-0 w-full h-full"></canvas>
+            
+            <!-- Compact Physics Telemetry Overlay -->
+            <div class="absolute bottom-2 right-2 font-mono text-[10px] bg-white/90 backdrop-blur border border-slate-200 p-2 rounded shadow text-slate-700 leading-tight z-10">
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1">
+                    <span>Centrifugal (P):</span> <span id="out-p" class="text-right text-red-600 font-bold">0 kN</span>
+                    <span>Weight (W):</span> <span id="out-w" class="text-right text-blue-600 font-bold">0 kN</span>
+                    <span>Req. Fric (f):</span> <span id="out-f" class="text-right text-purple-600 font-bold">0.00</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- MIDDLE: Interactive Controls -->
+        <section class="p-4 bg-slate-50 border-b border-slate-200 shrink-0 relative z-20">
+            <div class="space-y-4">
+                <!-- Velocity -->
+                <div>
+                    <div class="flex justify-between mb-1 text-sm font-semibold text-slate-700">
+                        <label>Speed ($V$)</label>
+                        <span class="text-blue-600 font-mono" id="lbl-v">80 kmph</span>
+                    </div>
+                    <input type="range" id="input-v" min="20" max="150" value="80">
+                </div>
+                
+                <!-- Radius -->
+                <div>
+                    <div class="flex justify-between mb-1 text-sm font-semibold text-slate-700">
+                        <label>Radius ($R$)</label>
+                        <span class="text-blue-600 font-mono" id="lbl-r">200 m</span>
+                    </div>
+                    <input type="range" id="input-r" min="50" max="500" value="200">
+                </div>
+
+                <!-- Super Elevation -->
+                <div>
+                    <div class="flex justify-between mb-1 text-sm font-semibold text-slate-700">
+                        <label>Elevation ($e$)</label>
+                        <span class="text-blue-600 font-mono" id="lbl-e">0.07</span>
+                    </div>
+                    <input type="range" id="input-e" min="0" max="0.15" step="0.01" value="0.07">
+                </div>
+            </div>
+        </section>
+
+        <!-- BOTTOM: Exam Specific Derivation -->
+        <section class="p-5 pb-12 bg-white textbook-font flex-1 relative z-20">
+            
+            <h2 class="text-xl font-bold mb-3 font-sans">10.2.5 Super Elevation</h2>
+            
+            <p class="mb-4 text-justify">
+                In order to counteract the effect of centrifugal force and to reduce the tendency of vehicle to overturn or skid, the outer edge of pavement is raised with respect to inner edge thus providing a transverse slope throughout the length of horizontal curve. This transverse inclination to the pavement surface is known as super elevation or cant or banking.
+            </p>
+
+            <h3 class="text-lg font-bold mt-6 mb-2 font-sans border-b border-slate-200 pb-1">Analysis of super elevation</h3>
+            
+            <p class="mb-2">The forces acting on the vehicle moving on a circular curve of radius R at speed v m/s as shown in figure. The forces are;</p>
+            <ol class="list-[lower-roman] ml-8 space-y-1 mb-5">
+                <li>Centrifugal force (P) acting horizontally outward through cg</li>
+                <li>Weight of vehicle (W) acting vertically downward through cg</li>
+                <li>Frictional force developed between wheels and pavement</li>
+            </ol>
+
+            <h4 class="font-bold mb-2 font-sans">At equilibrium condition</h4>
+            
+            <div class="overflow-x-auto">
+                <div class="min-w-max text-[0.95rem] leading-relaxed">
+                    $$ 
+                    \begin{aligned}
+                    P \cos \theta &= W \sin \theta + F_A + F_B = W \sin \theta + f(R_A + R_B) \\[8pt]
+                    P \cos \theta &= W \sin \theta + P f \sin \theta + W f \cos \theta \\[8pt]
+                    P(\cos \theta - f \sin \theta) &= W(\sin \theta + f \cos \theta) \\[8pt]
+                    \frac{P}{W} &= \frac{\sin \theta + f \cos \theta}{\cos \theta - f \sin \theta} = \frac{\tan \theta + f}{1 - f \tan \theta} \\[12pt]
+                    \frac{P}{W} &= \frac{e + f}{1} = e + f \quad [\because 1 - f \sin \theta \simeq 1, f = 0.15, e = 0.07] \\[12pt]
+                    \therefore e + f &= \frac{P}{W} \\[8pt]
+                    e + f &= \frac{v^2}{gR} \quad [v = m/s] \\[8pt]
+                    e + f &= \frac{V^2}{127R} \quad [V = kmph]
+                    \end{aligned} 
+                    $$
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // --- Initialize KaTeX after the page loads --- //
+        window.addEventListener('DOMContentLoaded', function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        });
+
+        // --- PHYSICS CONSTANTS & STATE --- //
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+        const wrapper = document.getElementById('canvas-wrapper');
+        const statusEl = document.getElementById('sim-status');
+        
+        let viewMode = 'rear'; // 'rear' or 'top'
+
+        let state = {
+            V: 80,         // km/h
+            R: 200,        // m
+            e: 0.07,       // super elevation slope (tan theta)
+            f_max: 0.15,   // max lateral friction
+            mass: 1000,    // kg
+            g: 9.81,       // m/s^2
+            track_w: 1.8,  // car track width (m)
+            cg_h: 1.0,     // center of gravity height (m)
+        };
+
+        let animData = {
+            // Rear View State
+            rollAngle: 0,      
+            slideOffset: 0,    
+            roadOffset: 0,
+            
+            // Top View State
+            topT: -0.2,        // Path progress (-0.2 to 1.2)
+            topSlide: 0,       // Outward skid drift
+            topSpin: 0,        // Overturn spin
+            trail: []          // Skid marks
+        };
+
+        // DOM Elements
+        const elV = document.getElementById('input-v');
+        const elR = document.getElementById('input-r');
+        const elE = document.getElementById('input-e');
+        
+        const lblV = document.getElementById('lbl-v');
+        const lblR = document.getElementById('lbl-r');
+        const lblE = document.getElementById('lbl-e');
+
+        const outP = document.getElementById('out-p');
+        const outW = document.getElementById('out-w');
+        const outF = document.getElementById('out-f');
+
+        const btnRear = document.getElementById('btn-rear');
+        const btnTop = document.getElementById('btn-top');
+
+        // View Toggles
+        btnRear.addEventListener('click', () => {
+            viewMode = 'rear';
+            btnRear.className = 'toggle-btn active';
+            btnTop.className = 'toggle-btn inactive';
+            wrapper.className = 'relative w-full h-[35vh] min-h-[250px] border-b border-slate-200 canvas-bg shrink-0 transition-colors duration-500';
+            resetAnimations();
+        });
+
+        btnTop.addEventListener('click', () => {
+            viewMode = 'top';
+            btnTop.className = 'toggle-btn active';
+            btnRear.className = 'toggle-btn inactive';
+            wrapper.className = 'relative w-full h-[35vh] min-h-[250px] border-b border-slate-200 canvas-bg-top shrink-0 transition-colors duration-500';
+            resetAnimations();
+        });
+
+        function resetAnimations() {
+            animData.rollAngle = 0;
+            animData.slideOffset = 0;
+            animData.topT = -0.2;
+            animData.topSlide = 0;
+            animData.topSpin = 0;
+            animData.trail = [];
+        }
+
+        function updateInputs() {
+            state.V = parseFloat(elV.value);
+            state.R = parseFloat(elR.value);
+            state.e = parseFloat(elE.value);
+            
+            lblV.innerText = `${state.V} kmph`;
+            lblR.innerText = `${state.R} m`;
+            lblE.innerText = state.e.toFixed(2);
+            
+            resetAnimations();
+        }
+
+        [elV, elR, elE].forEach(el => {
+            el.addEventListener('input', updateInputs);
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function resizeCanvas() {
+            const rect = wrapper.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            canvas.style.width = `${rect.width}px`;
+            canvas.style.height = `${rect.height}px`;
+        }
+
+        // Draw an arrow vector (For Rear View)
+        function drawVector(x, y, dx, dy, color, label) {
+            const headlen = 6;
+            const angle = Math.atan2(dy, dx);
+            const toX = x + dx;
+            const toY = y + dy;
+            
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.moveTo(x, y);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.fillStyle = color;
+            ctx.fill();
+
+            if (label) {
+                ctx.fillStyle = color;
+                ctx.font = 'italic bold 14px "Inter"';
+                ctx.fillText(label, toX + 12 * Math.cos(angle) - 4, toY + 12 * Math.sin(angle) + 4);
+            }
+        }
+
+        // --- RENDER ROUTINES --- //
+
+        function drawRearView(w, h, P_N, W_N, f_req, theta, isOverturning, isSkidding) {
+            const cx = w / 2;
+            const cy = h * 0.7; 
+            const scale = (w * 0.25) / state.track_w; 
+
+            // Horizon Gradient
+            ctx.fillStyle = '#f1f5f9';
+            ctx.fillRect(0, cy + 20, w, h); 
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            
+            // Reference Line
+            ctx.beginPath();
+            ctx.strokeStyle = '#94a3b8';
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 1;
+            ctx.moveTo(-w, 0);
+            ctx.lineTo(w, 0);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.rotate(-theta);
+
+            // Banked Road
+            ctx.beginPath();
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(-w, 0, w*2, h);
+            ctx.beginPath();
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 3;
+            ctx.moveTo(-w, 0);
+            ctx.lineTo(w, 0);
+            ctx.stroke();
+
+            // Road Speed Lines
+            animData.roadOffset = (animData.roadOffset + (state.V / 10)) % 80;
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([30, 50]);
+            ctx.beginPath();
+            ctx.moveTo(-w, 0);
+            ctx.lineTo(w, 0);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Slide Offset (Skidding)
+            if (isSkidding) animData.slideOffset += (w * 0.005);
+            else animData.slideOffset = Math.max(animData.slideOffset - (w * 0.01), 0);
+            
+            ctx.translate(animData.slideOffset, 0); 
+            
+            const carW = state.track_w * scale;
+            const carH = state.cg_h * scale * 1.2; 
+            const cgY = -(state.cg_h * scale);
+            
+            // Roll (Overturning)
+            if (isOverturning) animData.rollAngle = Math.min(animData.rollAngle + 0.1, Math.PI / 2); 
+            else animData.rollAngle = Math.max(animData.rollAngle - 0.1, 0);
+
+            if (animData.rollAngle > 0) {
+                const pivotX = carW/2; 
+                ctx.translate(pivotX, 0);
+                ctx.rotate(animData.rollAngle);
+                ctx.translate(-pivotX, 0);
+            }
+
+            // Tires
+            ctx.fillStyle = '#0f172a';
+            const tireW = carW * 0.15;
+            const tireH = carH * 0.15;
+            ctx.fillRect(-carW/2 - tireW/2, -tireH, tireW, tireH); 
+            ctx.fillRect(carW/2 - tireW/2, -tireH, tireW, tireH);  
+
+            // Chassis
+            ctx.fillStyle = '#f8fafc'; 
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(-carW/2, cgY - (carH/2), carW, carH, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            // Windshield sketch
+            ctx.fillStyle = '#cbd5e1';
+            ctx.beginPath();
+            ctx.roundRect(-carW/2 + 6, cgY - (carH/2) + 6, carW - 12, carH/2 - 4, 3);
+            ctx.fill();
+
+            // CG dot
+            ctx.beginPath();
+            ctx.arc(0, cgY, 4, 0, Math.PI*2);
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
+            ctx.strokeStyle = 'white';
+            ctx.stroke();
+            
+            // Vectors
+            const vecScale = (h * 0.00015); 
+            const wDx = - (W_N * vecScale) * Math.sin(theta);
+            const wDy = (W_N * vecScale) * Math.cos(theta);
+            drawVector(0, cgY, wDx, wDy, '#2563eb', 'W'); 
+
+            const pDx = (P_N * vecScale) * Math.cos(theta);
+            const pDy = (P_N * vecScale) * Math.sin(theta);
+            drawVector(0, cgY, pDx, pDy, '#ef4444', 'P'); 
+
+            ctx.restore(); 
+        }
+
+        function drawTopView(w, h, isOverturning, isSkidding) {
+            // Dynamic scale to fit radius
+            const scale = Math.min(w * 0.6 / state.R, h * 0.6 / state.R); 
+            const scaledR = state.R * scale;
+            const cx = w * 0.8; 
+            const cy = h * 0.8; 
+
+            // Progress tracking
+            const v_ms = state.V / 3.6;
+            const arcLen = (Math.PI * state.R) / 2; // Quarter circle length
+            
+            // Normalize speed to animation step
+            let speedStep = (v_ms / arcLen) * 0.03;
+            animData.topT += speedStep;
+
+            if (animData.topT > 1.3) {
+                animData.topT = -0.2;
+                animData.topSlide = 0;
+                animData.topSpin = 0;
+                animData.trail = [];
+            }
+
+            // Draw Road Curve (Quarter circle from PI to PI*1.5)
+            // Left to Top
+            ctx.beginPath();
+            ctx.arc(cx, cy, scaledR, Math.PI, Math.PI * 1.5);
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 10 * scale; // 10m road width
+            ctx.stroke();
+
+            // Center dashed line
+            ctx.beginPath();
+            ctx.arc(cx, cy, scaledR, Math.PI, Math.PI * 1.5);
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([10, 15]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Straight entry/exit sections
+            ctx.beginPath();
+            ctx.moveTo(cx - scaledR, cy);
+            ctx.lineTo(cx - scaledR, h);
+            ctx.moveTo(cx, cy - scaledR);
+            ctx.lineTo(w, cy - scaledR);
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 10 * scale;
+            ctx.stroke();
+
+            // Calculate Vehicle Position
+            let x, y, angle;
+            
+            if (animData.topT < 0) {
+                // Driving up straight
+                x = cx - scaledR;
+                y = cy - (animData.topT * arcLen * scale);
+                angle = -Math.PI / 2;
+            } else if (animData.topT <= 1) {
+                // On Curve
+                // Angle goes from PI (left) to 1.5*PI (top)
+                let arcAngle = Math.PI + (animData.topT * Math.PI / 2);
+                x = cx + scaledR * Math.cos(arcAngle);
+                y = cy + scaledR * Math.sin(arcAngle);
+                angle = arcAngle + Math.PI / 2; // Tangent
+            } else {
+                // Driving right straight
+                let straightT = animData.topT - 1;
+                x = cx + (straightT * arcLen * scale);
+                y = cy - scaledR;
+                angle = 0;
+            }
+
+            // Physics Effects (Skidding / Overturning)
+            if (animData.topT > 0 && animData.topT < 1.2) {
+                if (isOverturning) {
+                    animData.topSpin += 0.15; // Spin uncontrollably
+                    animData.topSlide += (v_ms * 0.05 * scale); // Drift outward
+                } else if (isSkidding) {
+                    animData.topSlide += (v_ms * 0.02 * scale); // Slide outward
+                }
+            }
+
+            // Apply Slide Offset (Outwards from curve center)
+            if (animData.topT >= 0 && animData.topT <= 1) {
+                let arcAngle = Math.PI + (animData.topT * Math.PI / 2);
+                x += animData.topSlide * Math.cos(arcAngle);
+                y += animData.topSlide * Math.sin(arcAngle);
+            } else if (animData.topT > 1) {
+                // Maintain drift outwards (up)
+                y -= animData.topSlide;
+            }
+
+            angle += animData.topSpin;
+
+            // Draw Skid Marks
+            if (isSkidding || isOverturning) {
+                if (animData.topT > 0 && animData.topT < 1.1) {
+                    animData.trail.push({x, y});
+                }
+            }
+            if (animData.trail.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(animData.trail[0].x, animData.trail[0].y);
+                for(let i=1; i<animData.trail.length; i++) {
+                    ctx.lineTo(animData.trail[i].x, animData.trail[i].y);
+                }
+                ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+
+            // Draw Car
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            
+            const carW = 4.5 * scale; // Length
+            const carH = state.track_w * scale; // Width
+
+            if (isOverturning) ctx.fillStyle = '#ef4444';
+            else if (isSkidding) ctx.fillStyle = '#f97316';
+            else ctx.fillStyle = '#2563eb';
+
+            // Chassis
+            ctx.fillRect(-carW/2, -carH/2, carW, carH);
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(-carW/2, -carH/2, carW, carH);
+            
+            // Windshield direction marker
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.fillRect(carW/4, -carH/2 + 0.5, carW/4 - 1, carH - 1);
+
+            ctx.restore();
+        }
+
+        // --- MAIN SIMULATION LOOP --- //
+        function renderPhysics() {
+            const rect = wrapper.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+            
+            ctx.clearRect(0, 0, w, h);
+
+            // 1. Calculate Real Physics (Universal for both views)
+            const v_ms = state.V / 3.6;
+            const W_N = state.mass * state.g;
+            const P_N = (state.mass * Math.pow(v_ms, 2)) / state.R;
+            
+            const theta = Math.atan(state.e);
+            
+            const F_req_N = P_N * Math.cos(theta) - W_N * Math.sin(theta);
+            const N_N = W_N * Math.cos(theta) + P_N * Math.sin(theta);
+            
+            const f_req = F_req_N / N_N;
+
+            const M_restore = (W_N * Math.cos(theta) * (state.track_w/2)) + (W_N * Math.sin(theta) * state.cg_h);
+            const M_overturn = (P_N * Math.cos(theta) * state.cg_h) - (P_N * Math.sin(theta) * (state.track_w/2));
+            
+            const isOverturning = M_overturn > M_restore;
+            const isSkidding = f_req > state.f_max;
+
+            // Update UI Telemetry
+            outP.innerText = (P_N / 1000).toFixed(1) + ' kN';
+            outW.innerText = (W_N / 1000).toFixed(1) + ' kN';
+            outF.innerText = Math.max(0, f_req).toFixed(3);
+
+            // Handle Status Indicator
+            if (isOverturning) {
+                statusEl.innerText = 'OVERTURNING';
+                statusEl.className = 'text-xs font-bold px-2 py-1 rounded bg-red-500 text-white shadow-sm transition-colors duration-300';
+            } else if (isSkidding) {
+                statusEl.innerText = `SKIDDING (f > ${state.f_max})`;
+                statusEl.className = 'text-xs font-bold px-2 py-1 rounded bg-orange-500 text-white shadow-sm transition-colors duration-300';
+            } else {
+                statusEl.innerText = 'SAFE';
+                statusEl.className = 'text-xs font-bold px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30 transition-colors duration-300';
+            }
+
+            // Route to Active View Drawer
+            if (viewMode === 'rear') {
+                drawRearView(w, h, P_N, W_N, f_req, theta, isOverturning, isSkidding);
+            } else {
+                drawTopView(w, h, isOverturning, isSkidding);
+            }
+            
+            requestAnimationFrame(renderPhysics);
+        }
+
+        // Initialize and Start
+        updateInputs();
+        resizeCanvas();
+        requestAnimationFrame(renderPhysics);
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Extra Widening Calculator & Simulation</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX for Flawless Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .textbook-font {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.15rem;
+            line-height: 1.6;
+        }
+
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            margin: 12px 0;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            cursor: pointer;
+            margin-top: -9px;
+            box-shadow: 0 2px 6px rgba(14, 165, 233, 0.4);
+            border: 2px solid #fff;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .canvas-bg {
+            background: radial-gradient(circle at center, #334155 0%, #0f172a 100%);
+            background-image: 
+                radial-gradient(circle at center, #334155 0%, #0f172a 100%),
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 20px 20px, 20px 20px;
+        }
+
+        /* Calculator Panel Styling */
+        .calc-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white p-4 shadow-lg z-20 flex justify-between items-center shrink-0 border-b border-slate-700">
+        <div>
+            <h1 class="font-bold text-lg tracking-tight text-sky-400">Widening of Roads</h1>
+            <p class="text-xs text-slate-400 uppercase tracking-widest mt-0.5">Numerical Calculator</p>
+        </div>
+        <div class="px-3 py-1 bg-sky-500/20 border border-sky-500/30 rounded text-sky-400 font-mono text-xs font-bold shadow-[0_0_10px_rgba(14,165,233,0.2)]">
+            LIVE SIMULATION
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col lg:flex-row w-full max-w-7xl mx-auto bg-slate-50">
+        
+        <!-- LEFT/TOP: Canvas Simulation -->
+        <section class="relative w-full lg:w-1/2 h-[40vh] lg:h-auto min-h-[300px] border-r border-b border-slate-300 canvas-bg flex-shrink-0" id="canvas-wrapper">
+            <canvas id="sim-canvas" class="absolute inset-0 w-full h-full"></canvas>
+            
+            <!-- Legend -->
+            <div class="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-slate-700 p-3 rounded-lg text-xs flex flex-col gap-2 shadow-lg">
+                <div class="flex items-center gap-2"><span class="w-4 h-1.5 bg-slate-500 rounded"></span> Normal Lane Width</div>
+                <div class="flex items-center gap-2"><span class="w-4 h-1.5 bg-orange-500 rounded"></span> Mechanical Widening ($W_m$)</div>
+                <div class="flex items-center gap-2"><span class="w-4 h-1.5 bg-yellow-400 rounded"></span> Psych Widening ($W_{ps}$)</div>
+                <div class="flex items-center gap-2 mt-1 pt-1 border-t border-slate-700"><span class="w-4 h-1.5 bg-red-500 rounded"></span> Rear Wheel Off-tracking</div>
+            </div>
+            
+            <!-- Dynamic Info Overlay -->
+            <div class="absolute bottom-4 right-4 bg-slate-900/90 border border-sky-500/50 p-3 rounded-lg text-right shadow-[0_0_15px_rgba(14,165,233,0.15)]">
+                <div class="text-[10px] text-sky-400 font-mono mb-1">TOTAL EXTRA WIDENING</div>
+                <div class="text-2xl font-bold text-white mono-font" id="hud-we">0.00 m</div>
+            </div>
+        </section>
+
+        <!-- RIGHT/BOTTOM: Calculator & Derivation -->
+        <section class="w-full lg:w-1/2 p-4 lg:p-8 overflow-y-auto flex-1 bg-white">
+            
+            <h2 class="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2 mb-6">Numerical Calculator</h2>
+            
+            <!-- Inputs Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Speed (V) -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex justify-between mb-2">
+                        <label class="text-sm font-semibold text-slate-600">Design Speed ($V$)</label>
+                        <span class="text-sky-600 font-bold mono-font" id="lbl-v">80 kmph</span>
+                    </div>
+                    <input type="range" id="input-v" min="30" max="120" value="80" step="5">
+                </div>
+                
+                <!-- Radius (R) -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex justify-between mb-2">
+                        <label class="text-sm font-semibold text-slate-600">Curve Radius ($R$)</label>
+                        <span class="text-sky-600 font-bold mono-font" id="lbl-r">300 m</span>
+                    </div>
+                    <input type="range" id="input-r" min="50" max="600" value="300" step="10">
+                </div>
+
+                <!-- Number of Lanes (n) -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex justify-between mb-2">
+                        <label class="text-sm font-semibold text-slate-600">Number of Lanes ($n$)</label>
+                        <span class="text-sky-600 font-bold mono-font" id="lbl-n">2</span>
+                    </div>
+                    <input type="range" id="input-n" min="1" max="6" value="2" step="1">
+                </div>
+
+                <!-- Wheelbase (l) -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex justify-between mb-2">
+                        <label class="text-sm font-semibold text-slate-600">Wheelbase length ($l$)</label>
+                        <span class="text-sky-600 font-bold mono-font" id="lbl-l">6.1 m</span>
+                    </div>
+                    <input type="range" id="input-l" min="4.0" max="10.0" value="6.1" step="0.1">
+                </div>
+            </div>
+
+            <!-- Dynamic Formula Output -->
+            <div class="calc-panel p-6 mb-8 border-l-4 border-l-sky-500">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Live Calculation Steps</h3>
+                
+                <div id="math-output" class="textbook-font text-lg overflow-x-auto pb-4">
+                    <!-- KaTeX will be injected here -->
+                </div>
+            </div>
+
+            <!-- Textbook Theory Context -->
+            <div class="textbook-font text-slate-700 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                <h3 class="text-lg font-bold font-sans text-slate-900 mb-2">Theory of Extra Widening</h3>
+                <p class="mb-4 text-justify">When a vehicle negotiates a horizontal curve, the rear wheels do not follow the exact path of the front wheels. This phenomenon is called <strong>off-tracking</strong>. To provide safe passage, extra width ($W_e$) is provided on curves. It consists of two parts:</p>
+                <ol class="list-[lower-roman] ml-6 space-y-2 mb-4">
+                    <li><strong>Mechanical Widening ($W_m$):</strong> To account for the physical off-tracking of the vehicle due to its rigid wheelbase ($l$). Calculated purely by geometry.</li>
+                    <li><strong>Psychological Widening ($W_{ps}$):</strong> To account for the psychological tendency of drivers to maintain a greater clearance between vehicles on curves. It is an empirical formula dependent on speed ($V$) and radius ($R$).</li>
+                </ol>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // --- Setup KaTeX ---
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+            updateCalculations(); // Initial render
+        });
+
+        // --- STATE & CONSTANTS ---
+        const state = {
+            V: 80,   // kmph
+            R: 300,  // m
+            n: 2,    // lanes
+            l: 6.1,  // m
+            W_lane: 3.5 // standard lane width (m)
+        };
+
+        // DOM Elements for Inputs
+        const inputs = {
+            V: document.getElementById('input-v'),
+            R: document.getElementById('input-r'),
+            n: document.getElementById('input-n'),
+            l: document.getElementById('input-l')
+        };
+        const labels = {
+            V: document.getElementById('lbl-v'),
+            R: document.getElementById('lbl-r'),
+            n: document.getElementById('lbl-n'),
+            l: document.getElementById('lbl-l')
+        };
+        const hudWe = document.getElementById('hud-we');
+        const mathOutput = document.getElementById('math-output');
+
+        // --- CALCULATOR ENGINE ---
+        function updateCalculations() {
+            // Update State from DOM
+            state.V = parseFloat(inputs.V.value);
+            state.R = parseFloat(inputs.R.value);
+            state.n = parseInt(inputs.n.value);
+            state.l = parseFloat(inputs.l.value);
+
+            // Update Labels
+            labels.V.innerText = `${state.V} kmph`;
+            labels.R.innerText = `${state.R} m`;
+            labels.n.innerText = state.n;
+            labels.l.innerText = `${state.l.toFixed(1)} m`;
+
+            // Calculate Widening
+            const Wm = (state.n * Math.pow(state.l, 2)) / (2 * state.R);
+            const Wps = state.V / (9.5 * Math.sqrt(state.R));
+            const We = Wm + Wps;
+
+            // Update HUD
+            hudWe.innerText = `${We.toFixed(3)} m`;
+
+            // Generate LaTeX String for dynamic rendering
+            const latexString = `
+                \\begin{aligned}
+                \\text{Mechanical Widening } (W_m) &= \\frac{n l^2}{2R} \\\\[6pt]
+                &= \\frac{${state.n} \\times (${state.l.toFixed(1)})^2}{2 \\times ${state.R}} \\\\[6pt]
+                &= \\mathbf{${Wm.toFixed(3)} \\text{ m}} \\\\[12pt]
+                
+                \\text{Psychological Widening } (W_{ps}) &= \\frac{V}{9.5 \\sqrt{R}} \\\\[6pt]
+                &= \\frac{${state.V}}{9.5 \\sqrt{${state.R}}} \\\\[6pt]
+                &= \\mathbf{${Wps.toFixed(3)} \\text{ m}} \\\\[12pt]
+
+                \\text{Total Extra Widening } (W_e) &= W_m + W_{ps} \\\\[6pt]
+                &= ${Wm.toFixed(3)} + ${Wps.toFixed(3)} \\\\[6pt]
+                &= \\mathbf{${We.toFixed(3)} \\text{ m}}
+                \\end{aligned}
+            `;
+
+            // Render math dynamically
+            try {
+                mathOutput.innerHTML = katex.renderToString(latexString, {
+                    displayMode: true,
+                    throwOnError: false
+                });
+            } catch (e) {
+                console.error("KaTeX error:", e);
+            }
+        }
+
+        // Add event listeners to sliders
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('input', () => {
+                updateCalculations();
+                // We don't need to explicitly reset canvas animation, 
+                // the continuous render loop will pick up the new state.
+            });
+        });
+
+        // --- CANVAS SIMULATION ENGINE (Top View) ---
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+        const wrapper = document.getElementById('canvas-wrapper');
+
+        // Animation state
+        let animT = 0; // parameter for vehicle position along the curve (0 to 1)
+        let trail = []; // Off-tracking trail
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function resizeCanvas() {
+            const rect = wrapper.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            canvas.style.width = `${rect.width}px`;
+            canvas.style.height = `${rect.height}px`;
+            trail = []; // reset trail on resize
+        }
+
+        function drawRoadLayer(cx, cy, radius, width, color) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, Math.PI, 0); // half circle curve
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.stroke();
+        }
+
+        function drawArcDashed(cx, cy, radius, color) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, Math.PI, 0);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([15, 20]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function renderSimulation() {
+            const rect = wrapper.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+            
+            ctx.clearRect(0, 0, w, h);
+
+            // Calculate display scale
+            // We want to fit a radius of state.R on the screen. 
+            // Real R can be 50 to 600m. Screen width is ~w.
+            // Exaggerate widths slightly so they are visible on mobile.
+            const scale = Math.min(w / (state.R * 2.2), h / (state.R * 1.2)); 
+            
+            const cx = w / 2;
+            const cy = h * 0.9; // Center of curvature is near bottom
+
+            const scaledR = state.R * scale;
+            const standardWidth = state.n * state.W_lane * scale * 2; // exaggerated x2 for visibility
+            
+            // Calculate widenings
+            const Wm = (state.n * Math.pow(state.l, 2)) / (2 * state.R);
+            const Wps = state.V / (9.5 * Math.sqrt(state.R));
+            
+            const scaledWm = Wm * scale * 5; // highly exaggerated for visual clarity
+            const scaledWps = Wps * scale * 5;
+
+            const totalWidth = standardWidth + scaledWm + scaledWps;
+
+            // 1. Draw Base Road (Dark Slate)
+            drawRoadLayer(cx, cy, scaledR, totalWidth + (10 * scale), '#1e293b'); // Shoulder
+            
+            // 2. Standard Lanes (Slate Gray)
+            // Centered on scaledR + (totalWidth/2) - (standardWidth/2)
+            const normalLaneRadius = scaledR + (scaledWm + scaledWps)/2; 
+            drawRoadLayer(cx, cy, normalLaneRadius, standardWidth, '#475569');
+
+            // 3. Mechanical Widening Area (Orange)
+            // Applied to the inner edge
+            const innerNormalEdge = normalLaneRadius - standardWidth/2;
+            const wmRadius = innerNormalEdge - scaledWm/2;
+            drawRoadLayer(cx, cy, wmRadius, scaledWm, 'rgba(249, 115, 22, 0.6)');
+
+            // 4. Psychological Widening Area (Yellow)
+            // Applied inner to Mechanical
+            const wpsRadius = wmRadius - scaledWm/2 - scaledWps/2;
+            drawRoadLayer(cx, cy, wpsRadius, scaledWps, 'rgba(250, 204, 21, 0.4)');
+
+            // Centerline for standard lanes
+            for(let i=1; i<state.n; i++) {
+                const laneDividerR = innerNormalEdge + (standardWidth / state.n) * i;
+                drawArcDashed(cx, cy, laneDividerR, 'rgba(255,255,255,0.4)');
+            }
+
+            // --- Draw Vehicle & Off-tracking --- //
+            
+            // Speed logic: higher V = faster animation step
+            const animStep = (state.V / 3.6) * 0.0002 / (state.R / 300); // normalized step
+            animT += animStep;
+            if (animT > 1.1) {
+                animT = -0.1;
+                trail = []; // reset trail when truck wraps around
+            }
+
+            if (animT >= 0 && animT <= 1) {
+                // Vehicle follows the innermost normal lane center
+                const pathRadius = innerNormalEdge + (standardWidth / state.n) / 2;
+                
+                // Angle from Pi (left) to 0 (right)
+                const angleFront = Math.PI - (animT * Math.PI);
+                
+                // Front axle coordinates
+                const fx = cx + pathRadius * Math.cos(angleFront);
+                const fy = cy - pathRadius * Math.sin(angleFront);
+
+                // Rear axle coordinates
+                // Geometry of off-tracking: Rear axle follows a tighter circle.
+                // R_rear = sqrt(R_front^2 - l^2)
+                const scaledL = state.l * scale * 4; // Exaggerate length for visual impact
+                
+                // To find rear axle, it sits on a circle of radius R_rear, shifted by angle alpha
+                // sin(alpha) = l / R_front
+                const alpha = Math.asin(scaledL / pathRadius) || 0;
+                const angleRear = angleFront + alpha; // behind the front
+                
+                const rearRadius = Math.sqrt(Math.pow(pathRadius, 2) - Math.pow(scaledL, 2)) || pathRadius;
+                
+                const rx = cx + rearRadius * Math.cos(angleRear);
+                const ry = cy - rearRadius * Math.sin(angleRear);
+
+                // Add to trail (inner rear wheel tracking)
+                // Offset the trail inward by half vehicle width
+                const vWidth = 2.5 * scale * 2; 
+                const trailAngle = Math.atan2(fy - ry, fx - rx);
+                
+                // Calculate inner rear wheel coordinate (perpendicular to truck body)
+                const irx = rx + Math.cos(trailAngle - Math.PI/2) * (vWidth/2);
+                const iry = ry + Math.sin(trailAngle - Math.PI/2) * (vWidth/2);
+                
+                if (trail.length === 0 || Math.hypot(trail[trail.length-1].x - irx, trail[trail.length-1].y - iry) > 2) {
+                    trail.push({x: irx, y: iry});
+                }
+
+                // Draw Trail (Off-tracking path)
+                if (trail.length > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(trail[0].x, trail[0].y);
+                    for(let i=1; i<trail.length; i++) {
+                        ctx.lineTo(trail[i].x, trail[i].y);
+                    }
+                    ctx.strokeStyle = '#ef4444'; // Red trail
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                // Draw Vehicle (Cab + Trailer)
+                ctx.save();
+                ctx.translate(rx, ry);
+                ctx.rotate(trailAngle); // point towards front axle
+
+                // Draw Truck Body (Trailer)
+                ctx.fillStyle = '#f8fafc'; // White body
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 1;
+                // Rectangle from rear axle to front axle
+                ctx.beginPath();
+                ctx.roundRect(0, -vWidth/2, scaledL, vWidth, 3);
+                ctx.fill();
+                ctx.stroke();
+
+                // Draw Cab (Truck head)
+                ctx.fillStyle = '#0ea5e9'; // Sky blue cab
+                ctx.beginPath();
+                ctx.roundRect(scaledL, -vWidth/2, vWidth*0.8, vWidth, 2);
+                ctx.fill();
+
+                // Draw Axles/Wheels for realism
+                ctx.fillStyle = '#0f172a';
+                // Rear wheels
+                ctx.fillRect(-2, -vWidth/2 - 2, 8, 4);
+                ctx.fillRect(-2, vWidth/2 - 2, 8, 4);
+                // Front wheels
+                ctx.fillRect(scaledL - 2, -vWidth/2 - 2, 8, 4);
+                ctx.fillRect(scaledL - 2, vWidth/2 - 2, 8, 4);
+
+                ctx.restore();
+            }
+
+            requestAnimationFrame(renderSimulation);
+        }
+
+        // --- INIT ---
+        resizeCanvas();
+        requestAnimationFrame(renderSimulation);
+
+    </script>
+</body>
+</html>

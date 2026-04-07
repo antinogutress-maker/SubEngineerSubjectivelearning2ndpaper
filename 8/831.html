@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Combined Circular Sewer Design Simulation</title>
+    <title>Sewer Design Simulations</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
@@ -56,12 +57,27 @@
         .text-storm { color: #0284c7; } /* Light Blue */
         .text-combined { color: #0f766e; } /* Emerald/Teal */
 
-        #canvas-container {
+        .canvas-container {
             background: #ffffff;
             border-radius: 0.75rem;
             overflow: hidden;
             position: relative;
         }
+
+        /* Tab Active States */
+        .tab-btn { transition: all 0.2s ease; }
+        .tab-active { 
+            background: linear-gradient(to right, #0ea5e9, #14b8a6); 
+            color: white; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-color: transparent;
+        }
+        .tab-inactive { 
+            background: white; 
+            color: #475569; 
+            border: 1px solid #cbd5e1;
+        }
+        .tab-inactive:hover { background: #f1f5f9; }
     </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen flex flex-col">
@@ -69,27 +85,29 @@
     <div class="max-w-7xl mx-auto w-full space-y-6 flex-grow flex flex-col">
 
         <!-- Header -->
-        <header class="text-center space-y-3 mb-2 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
+        <header class="text-center space-y-4 mb-2 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-500 via-teal-500 to-sky-500"></div>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Combined Circular Sewer Design</h1>
-            <p class="text-slate-500 font-medium text-base max-w-3xl mx-auto">
-                Dynamic calculation of Sanitary & Storm water discharge using the Rational Method with realistic flow simulation.
-            </p>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Sewer Design Simulations</h1>
+            
+            <!-- Tabs -->
+            <div class="flex flex-wrap justify-center gap-3 pt-2">
+                <button id="btnTab1" class="tab-btn tab-active px-6 py-2.5 rounded-full font-bold text-sm" onclick="switchTab(1)">Combined Sewer (Rational Method)</button>
+                <button id="btnTab2" class="tab-btn tab-inactive px-6 py-2.5 rounded-full font-bold text-sm" onclick="switchTab(2)">Sanitary Sewer (Partial Flow)</button>
+            </div>
         </header>
 
-        <!-- Main Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
-            
+        <!-- ========================================== -->
+        <!-- TAB 1: COMBINED SEWER (ORIGINAL)           -->
+        <!-- ========================================== -->
+        <div id="tab1" class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
             <!-- Left Column: Controls -->
             <div class="lg:col-span-4 flex flex-col space-y-6">
-                
                 <div class="glass-panel p-6 space-y-5">
                     <h2 class="font-bold text-lg text-slate-800 border-b border-slate-200 pb-2 flex items-center gap-2">
                         <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                         Hydraulic Parameters
                     </h2>
 
-                    <!-- Catchment Area -->
                     <div class="space-y-2">
                         <div class="flex justify-between items-center">
                             <label class="text-sm font-semibold text-slate-700">Catchment Area (<span class="math-font text-sky-600">A</span>)</label>
@@ -98,7 +116,6 @@
                         <input type="range" id="slideArea" min="10" max="500" step="5" value="150" class="slider-custom">
                     </div>
 
-                    <!-- Population -->
                     <div class="space-y-2">
                         <div class="flex justify-between items-center">
                             <label class="text-sm font-semibold text-slate-700">Population</label>
@@ -107,7 +124,6 @@
                         <input type="range" id="slidePop" min="10000" max="500000" step="5000" value="100000" class="slider-custom">
                     </div>
 
-                    <!-- Water Supply (lpcd) -->
                     <div class="space-y-2">
                         <div class="flex justify-between items-center">
                             <label class="text-sm font-semibold text-slate-700">Water Supply Rate</label>
@@ -116,7 +132,6 @@
                         <input type="range" id="slideLpcd" min="100" max="350" step="10" value="270" class="slider-custom">
                     </div>
 
-                    <!-- Time of Entry & Flow -->
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
                             <div class="flex justify-between items-center">
@@ -134,7 +149,6 @@
                         </div>
                     </div>
 
-                    <!-- Runoff Coefficient & Max Velocity -->
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
                             <div class="flex justify-between items-center">
@@ -160,8 +174,6 @@
                     <h2 class="font-bold text-lg text-slate-800 border-b border-slate-200 pb-2 mb-4">Step-by-Step Calculation</h2>
                     
                     <div class="space-y-3 text-sm text-slate-700 flex-grow overflow-y-auto pr-2">
-                        
-                        <!-- Step 1: Sanitary Sewage -->
                         <div class="bg-amber-50 p-3 rounded-lg border border-amber-100">
                             <div class="font-bold text-amber-900 mb-1 border-b border-amber-200 pb-1">1. Sanitary Sewage (DWF)</div>
                             <div class="math-font text-xs space-y-1">
@@ -172,7 +184,6 @@
                             </div>
                         </div>
 
-                        <!-- Step 2: Storm Water -->
                         <div class="bg-sky-50 p-3 rounded-lg border border-sky-100">
                             <div class="font-bold text-sky-900 mb-1 border-b border-sky-200 pb-1">2. Storm Water (Rational Method)</div>
                             <div class="math-font text-xs space-y-1">
@@ -185,7 +196,6 @@
                             </div>
                         </div>
 
-                        <!-- Step 3: Combined Sizing -->
                         <div class="bg-teal-50 p-3 rounded-lg border border-teal-100">
                             <div class="font-bold text-teal-900 mb-1 border-b border-teal-200 pb-1">3. Sewer Sizing & Velocity</div>
                             <div class="math-font text-xs space-y-1">
@@ -198,7 +208,6 @@
                                 <span id="mathStatus" class="inline-block mt-1 font-bold px-2 py-0.5 rounded text-[10px]">3.08 < 3.2 m/s (SAFE)</span>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -213,320 +222,445 @@
                             <span class="text-storm">■ Storm</span>
                         </div>
                     </div>
-                    <div id="canvas-container" class="flex-grow w-full rounded-lg border border-slate-200">
-                        <canvas id="simCanvas" class="w-full h-full"></canvas>
+                    <div id="container1" class="canvas-container flex-grow w-full border border-slate-200">
+                        <canvas id="simCanvas1" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: PARTIAL FLOW (NUMERICAL PROBLEM)    -->
+        <!-- ========================================== -->
+        <div id="tab2" class="hidden grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+            <!-- Left Column: Controls -->
+            <div class="lg:col-span-4 flex flex-col space-y-6">
+                <div class="glass-panel p-6 space-y-5">
+                    <h2 class="font-bold text-lg text-slate-800 border-b border-slate-200 pb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        Numerical Problem Inputs
+                    </h2>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Population</label>
+                            <span id="valP2" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">80,000</span>
+                        </div>
+                        <input type="range" id="slideP2" min="10000" max="200000" step="1000" value="80000" class="slider-custom">
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700">Water Supply (lpcd)</label>
+                            <span id="valL2" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">145 lpcd</span>
+                        </div>
+                        <input type="range" id="slideL2" min="50" max="300" step="5" value="145" class="slider-custom">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-700">Sewage %</label>
+                                <span id="valK2" class="text-xs font-bold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">80%</span>
+                            </div>
+                            <input type="range" id="slideK2" min="50" max="100" step="1" value="80" class="slider-custom">
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-700">Peak Factor</label>
+                                <span id="valPF2" class="text-xs font-bold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">3</span>
+                            </div>
+                            <input type="range" id="slidePF2" min="1" max="5" step="0.5" value="3" class="slider-custom">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-700">Manning's n</label>
+                                <span id="valN2" class="text-xs font-bold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">0.013</span>
+                            </div>
+                            <input type="range" id="slideN2" min="0.009" max="0.020" step="0.001" value="0.013" class="slider-custom">
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-700">Slope (1:X)</label>
+                                <span id="valS2" class="text-xs font-bold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">400</span>
+                            </div>
+                            <input type="range" id="slideS2" min="100" max="1000" step="50" value="400" class="slider-custom">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-200">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-indigo-700">Flow Depth Ratio (<span class="math-font">d/D</span>)</label>
+                            <span id="valDd2" class="text-sm font-bold text-indigo-900 bg-indigo-100 px-2 py-1 rounded">0.75</span>
+                        </div>
+                        <input type="range" id="slideDd2" min="0.1" max="1.0" step="0.01" value="0.75" class="slider-custom">
                     </div>
                 </div>
             </div>
 
+            <!-- Middle Column: Mathematical Breakdown -->
+            <div class="lg:col-span-4 flex flex-col space-y-6">
+                <div class="glass-panel p-5 flex-grow flex flex-col">
+                    <h2 class="font-bold text-lg text-slate-800 border-b border-slate-200 pb-2 mb-4">Partial Flow Calculation</h2>
+                    
+                    <div class="space-y-3 text-sm text-slate-700 flex-grow overflow-y-auto pr-2">
+                        
+                        <div class="bg-amber-50 p-3 rounded-lg border border-amber-100">
+                            <div class="font-bold text-amber-900 mb-1 border-b border-amber-200 pb-1">1. Discharge Calculation</div>
+                            <div class="math-font text-xs space-y-1">
+                                Q<sub class="text-[10px]">avg</sub> = (Pop × Lpcd × %) / (1000 × 86400)<br>
+                                Q<sub class="text-[10px]">avg</sub> = (<span id="mP2">80000</span> × <span id="mL2">145</span> × <span id="mK2">0.8</span>) / 86.4M<br>
+                                Q<sub class="text-[10px]">avg</sub> = <span id="mQavg2">0.1074</span> m³/s <br>
+                                Peak q = Q<sub class="text-[10px]">avg</sub> × <span id="mPF2">3</span> = <span id="mq2" class="font-bold text-sanitary text-sm">0.3222</span> m³/s
+                            </div>
+                        </div>
+
+                        <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                            <div class="font-bold text-indigo-900 mb-1 border-b border-indigo-200 pb-1">2. Partial Flow Hydraulics</div>
+                            <div class="math-font text-xs space-y-1">
+                                d/D = <span id="mDd2">0.75</span><br>
+                                Central Angle (θ) = 2·arccos(1 - 2(d/D)) = <span id="mTheta2">4.189</span> rad<br>
+                                Area Ratio (a/A) = (θ - sinθ) / 2π = <span id="maA2">0.804</span><br>
+                                Hyd. Rad Ratio (r/R) = 1 - (sinθ/θ) = <span id="mrR2">1.207</span><br>
+                                Discharge Ratio (q/Q) = (a/A)·(r/R)<sup>2/3</sup> = <span id="mqQ2" class="font-bold text-indigo-700 text-sm">0.912</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                            <div class="font-bold text-emerald-900 mb-1 border-b border-emerald-200 pb-1">3. Manning's Full Sizing</div>
+                            <div class="math-font text-xs space-y-1">
+                                Full Q = q / (q/Q) = <span id="mQfull2">0.3533</span> m³/s<br>
+                                Q = (1/n) × A × R<sup>2/3</sup> × √S<br>
+                                Q = (1/<span id="mn2">0.013</span>) × (πD²/4) × (D/4)<sup>2/3</sup> × √(1/<span id="mS2">400</span>)<br>
+                                D<sup>8/3</sup> = (Q × n) / (0.3117 × √S) = <span id="mD83">0.2948</span><br>
+                                <span class="text-emerald-700 font-bold bg-emerald-100 px-1 rounded mt-1 inline-block text-sm">Required D = <span id="mDreq2">0.633</span> m</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Visual Simulation -->
+            <div class="lg:col-span-4 flex flex-col h-[500px] lg:h-auto">
+                <div class="glass-panel flex flex-col h-full w-full overflow-hidden p-4">
+                    <div class="flex justify-between items-center mb-2 px-2">
+                        <h2 class="font-bold text-slate-800 text-sm">Cross Section Visualization</h2>
+                        <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">d/D = <span id="vizDd">0.75</span></span>
+                    </div>
+                    <div id="container2" class="canvas-container flex-grow w-full border border-slate-200 bg-[#f8fafc]">
+                        <canvas id="simCanvas2" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
+
     </div>
 
     <script>
-        // DOM Elements
-        const slideArea = document.getElementById('slideArea');
-        const slidePop = document.getElementById('slidePop');
-        const slideLpcd = document.getElementById('slideLpcd');
-        const slideTe = document.getElementById('slideTe');
-        const slideTf = document.getElementById('slideTf');
-        const slideC = document.getElementById('slideC');
-        const slideVmax = document.getElementById('slideVmax');
+        // --- TAB SWITCHING LOGIC ---
+        function switchTab(tabIndex) {
+            const t1 = document.getElementById('tab1');
+            const t2 = document.getElementById('tab2');
+            const b1 = document.getElementById('btnTab1');
+            const b2 = document.getElementById('btnTab2');
+
+            if (tabIndex === 1) {
+                t1.classList.remove('hidden'); t1.classList.add('grid');
+                t2.classList.add('hidden'); t2.classList.remove('grid');
+                b1.className = 'tab-btn tab-active px-6 py-2.5 rounded-full font-bold text-sm';
+                b2.className = 'tab-btn tab-inactive px-6 py-2.5 rounded-full font-bold text-sm';
+            } else {
+                t2.classList.remove('hidden'); t2.classList.add('grid');
+                t1.classList.add('hidden'); t1.classList.remove('grid');
+                b2.className = 'tab-btn tab-active px-6 py-2.5 rounded-full font-bold text-sm';
+                b1.className = 'tab-btn tab-inactive px-6 py-2.5 rounded-full font-bold text-sm';
+            }
+            // Trigger resize to fix canvas dimensions if they were hidden
+            setTimeout(resizeCanvases, 50);
+        }
+
+        // ==========================================
+        // TAB 1 (COMBINED SEWER) LOGIC
+        // ==========================================
+        const slA=document.getElementById('slideArea'), slP=document.getElementById('slidePop'), slL=document.getElementById('slideLpcd');
+        const slTe=document.getElementById('slideTe'), slTf=document.getElementById('slideTf'), slC=document.getElementById('slideC'), slV=document.getElementById('slideVmax');
         
-        const valArea = document.getElementById('valArea');
-        const valPop = document.getElementById('valPop');
-        const valLpcd = document.getElementById('valLpcd');
-        const valTe = document.getElementById('valTe');
-        const valTf = document.getElementById('valTf');
-        const valC = document.getElementById('valC');
-        const valVmax = document.getElementById('valVmax');
-
-        // Math Elements
-        const mathDWF = document.getElementById('mathDWF');
-        const mathQsan = document.getElementById('mathQsan');
-        const mathTc = document.getElementById('mathTc');
-        const mathI_form = document.getElementById('mathI_form');
-        const mathI = document.getElementById('mathI');
-        const mathC = document.getElementById('mathC');
-        const mathI2 = document.getElementById('mathI2');
-        const mathA = document.getElementById('mathA');
-        const mathQstorm = document.getElementById('mathQstorm');
-        const mathQtot = document.getElementById('mathQtot');
-        const mathAreq = document.getElementById('mathAreq');
-        const mathDreq = document.getElementById('mathDreq');
-        const mathD = document.getElementById('mathD');
-        const mathAact = document.getElementById('mathAact');
-        const mathVact = document.getElementById('mathVact');
-        const mathStatus = document.getElementById('mathStatus');
-
-        // Canvas
-        const canvas = document.getElementById('simCanvas');
-        const ctx = canvas.getContext('2d');
-        const container = document.getElementById('canvas-container');
-
-        // State variables
-        let state = {
-            Area: 150, Pop: 100000, Lpcd: 270,
-            Te: 5, Tf: 20, C: 0.45, Vmax: 3.2,
-            
-            // Calculated
-            Qsan: 0, Qstorm: 0, Qtot: 0,
-            D: 0, Vact: 0,
-            
-            particles: []
-        };
-
-        // Initialize particles
-        function initParticles() {
-            state.particles = [];
-            for(let i=0; i<150; i++) {
-                state.particles.push({
-                    x: Math.random(), // 0 to 1
-                    y: Math.random(), // 0 to 1
-                    speedOffset: 0.8 + Math.random() * 0.4,
-                    type: Math.random() > 0.8 ? 'sanitary' : 'storm'
-                });
-            }
-        }
-
-        // Texture generation
+        let state1 = { Area:150, Pop:100000, Lpcd:270, Te:5, Tf:20, C:0.45, Vmax:3.2, Qsan:0, Qstorm:0, Qtot:0, D:0, Vact:0, particles:[] };
+        const ctx1 = document.getElementById('simCanvas1').getContext('2d');
         let concretePattern;
+
         function initTextures() {
-            const c2 = document.createElement('canvas');
-            c2.width = 20; c2.height = 20;
-            const ctx2 = c2.getContext('2d');
-            ctx2.fillStyle = '#cbd5e1'; ctx2.fillRect(0,0,20,20);
-            ctx2.fillStyle = '#94a3b8';
-            for(let i=0; i<10; i++) {
-                ctx2.beginPath(); ctx2.arc(Math.random()*20, Math.random()*20, Math.random(), 0, Math.PI*2); ctx2.fill();
-            }
-            concretePattern = ctx.createPattern(c2, 'repeat');
+            const c2 = document.createElement('canvas'); c2.width=20; c2.height=20;
+            const cx2 = c2.getContext('2d');
+            cx2.fillStyle='#cbd5e1'; cx2.fillRect(0,0,20,20);
+            cx2.fillStyle='#94a3b8';
+            for(let i=0;i<10;i++) { cx2.beginPath(); cx2.arc(Math.random()*20,Math.random()*20,Math.random(),0,Math.PI*2); cx2.fill(); }
+            concretePattern = ctx1.createPattern(c2, 'repeat');
         }
 
-        function resizeCanvas() {
-            const rect = container.getBoundingClientRect();
-            canvas.width = rect.width * window.devicePixelRatio;
-            canvas.height = rect.height * window.devicePixelRatio;
-            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-        }
-        window.addEventListener('resize', resizeCanvas);
-
-        function updateMath() {
-            // Get inputs
-            state.Area = parseFloat(slideArea.value);
-            state.Pop = parseInt(slidePop.value);
-            state.Lpcd = parseInt(slideLpcd.value);
-            state.Te = parseInt(slideTe.value);
-            state.Tf = parseInt(slideTf.value);
-            state.C = parseFloat(slideC.value);
-            state.Vmax = parseFloat(slideVmax.value);
-
-            // Update UI Labels
-            valArea.innerHTML = `${state.Area} ha`;
-            valPop.innerHTML = state.Pop.toLocaleString();
-            valLpcd.innerHTML = `${state.Lpcd} lpcd`;
-            valTe.innerHTML = `${state.Te} m`;
-            valTf.innerHTML = `${state.Tf} m`;
-            valC.innerHTML = state.C.toFixed(2);
-            valVmax.innerHTML = state.Vmax.toFixed(1);
-
-            // --- MATH CALCULATIONS ---
-            
-            // 1. Sanitary
-            let dwf = (state.Pop * state.Lpcd * 0.8) / (1000 * 24 * 3600);
-            state.Qsan = dwf * 2; // Peak factor 2
-            
-            // 2. Storm
-            let Tc = state.Te + state.Tf;
-            let I = 0;
-            if (Tc <= 20) {
-                I = 760 / (Tc + 10);
-                mathI_form.innerHTML = "Since Tc ≤ 20, I = 760 / (t + 10)";
-            } else {
-                I = 1020 / (Tc + 20);
-                mathI_form.innerHTML = "Since Tc > 20, I = 1020 / (t + 20)";
-            }
-            state.Qstorm = (state.C * I * state.Area) / 360;
-
-            // 3. Combined
-            state.Qtot = state.Qsan + state.Qstorm;
-            let Areq = state.Qtot / state.Vmax;
-            let Dreq = Math.sqrt((4 * Areq) / Math.PI);
-            
-            // Adopt commercially available size (round up to nearest 0.1m)
-            state.D = Math.ceil(Dreq * 10) / 10;
-            
-            let Aact = (Math.PI / 4) * Math.pow(state.D, 2);
-            state.Vact = state.Qtot / Aact;
-
-            // --- UPDATE TEXT ---
-            mathDWF.innerHTML = dwf.toFixed(4);
-            mathQsan.innerHTML = state.Qsan.toFixed(2);
-            mathTc.innerHTML = Tc;
-            mathI.innerHTML = I.toFixed(2);
-            mathC.innerHTML = state.C.toFixed(2);
-            mathI2.innerHTML = I.toFixed(2);
-            mathA.innerHTML = state.Area;
-            mathQstorm.innerHTML = state.Qstorm.toFixed(2);
-            
-            mathQtot.innerHTML = state.Qtot.toFixed(2);
-            mathAreq.innerHTML = Areq.toFixed(2);
-            mathDreq.innerHTML = Dreq.toFixed(3);
-            mathD.innerHTML = state.D.toFixed(1);
-            mathAact.innerHTML = Aact.toFixed(2);
-            mathVact.innerHTML = state.Vact.toFixed(2);
-
-            if (state.Vact <= state.Vmax) {
-                mathStatus.innerHTML = `${state.Vact.toFixed(2)} ≤ ${state.Vmax.toFixed(1)} m/s (SAFE)`;
-                mathStatus.className = "inline-block mt-1 font-bold px-2 py-0.5 rounded text-[10px] bg-teal-100 text-teal-800";
-            } else {
-                mathStatus.innerHTML = `${state.Vact.toFixed(2)} > ${state.Vmax.toFixed(1)} m/s (EXCEEDS)`;
-                mathStatus.className = "inline-block mt-1 font-bold px-2 py-0.5 rounded text-[10px] bg-red-100 text-red-800";
-            }
+        function initParticles1() {
+            state1.particles=[];
+            for(let i=0;i<150;i++) state1.particles.push({x:Math.random(), y:Math.random(), spd:0.8+Math.random()*0.4, type:Math.random()>0.8?'sanitary':'storm'});
         }
 
-        // --- RENDER LOGIC ---
-        function drawFrame() {
-            const cw = canvas.width / window.devicePixelRatio;
-            const ch = canvas.height / window.devicePixelRatio;
+        function updateMath1() {
+            state1.Area=parseFloat(slA.value); state1.Pop=parseInt(slP.value); state1.Lpcd=parseInt(slL.value);
+            state1.Te=parseInt(slTe.value); state1.Tf=parseInt(slTf.value); state1.C=parseFloat(slC.value); state1.Vmax=parseFloat(slV.value);
+
+            document.getElementById('valArea').innerText = `${state1.Area} ha`;
+            document.getElementById('valPop').innerText = state1.Pop.toLocaleString();
+            document.getElementById('valLpcd').innerText = `${state1.Lpcd} lpcd`;
+            document.getElementById('valTe').innerText = `${state1.Te} m`;
+            document.getElementById('valTf').innerText = `${state1.Tf} m`;
+            document.getElementById('valC').innerText = state1.C.toFixed(2);
+            document.getElementById('valVmax').innerText = state1.Vmax.toFixed(1);
+
+            let dwf = (state1.Pop * state1.Lpcd * 0.8)/(1000*24*3600); state1.Qsan = dwf*2;
+            let Tc = state1.Te + state1.Tf;
+            let I = Tc<=20 ? 760/(Tc+10) : 1020/(Tc+20);
+            document.getElementById('mathI_form').innerText = Tc<=20 ? "Since Tc ≤ 20, I = 760 / (t + 10)" : "Since Tc > 20, I = 1020 / (t + 20)";
+            state1.Qstorm = (state1.C * I * state1.Area)/360;
+            state1.Qtot = state1.Qsan + state1.Qstorm;
+            
+            let Areq = state1.Qtot/state1.Vmax;
+            let Dreq = Math.sqrt((4*Areq)/Math.PI);
+            state1.D = Math.ceil(Dreq*10)/10;
+            let Aact = (Math.PI/4)*Math.pow(state1.D,2);
+            state1.Vact = state1.Qtot/Aact;
+
+            document.getElementById('mathDWF').innerText=dwf.toFixed(4); document.getElementById('mathQsan').innerText=state1.Qsan.toFixed(2);
+            document.getElementById('mathTc').innerText=Tc; document.getElementById('mathI').innerText=I.toFixed(2);
+            document.getElementById('mathC').innerText=state1.C.toFixed(2); document.getElementById('mathI2').innerText=I.toFixed(2);
+            document.getElementById('mathA').innerText=state1.Area; document.getElementById('mathQstorm').innerText=state1.Qstorm.toFixed(2);
+            document.getElementById('mathQtot').innerText=state1.Qtot.toFixed(2); document.getElementById('mathAreq').innerText=Areq.toFixed(2);
+            document.getElementById('mathDreq').innerText=Dreq.toFixed(3); document.getElementById('mathD').innerText=state1.D.toFixed(1);
+            document.getElementById('mathAact').innerText=Aact.toFixed(2); document.getElementById('mathVact').innerText=state1.Vact.toFixed(2);
+            
+            let stat = document.getElementById('mathStatus');
+            if(state1.Vact<=state1.Vmax){ stat.innerText=`${state1.Vact.toFixed(2)} ≤ ${state1.Vmax.toFixed(1)} m/s (SAFE)`; stat.className="inline-block mt-1 font-bold px-2 py-0.5 rounded text-[10px] bg-teal-100 text-teal-800"; }
+            else { stat.innerText=`${state1.Vact.toFixed(2)} > ${state1.Vmax.toFixed(1)} m/s (EXCEEDS)`; stat.className="inline-block mt-1 font-bold px-2 py-0.5 rounded text-[10px] bg-red-100 text-red-800"; }
+        }
+
+        // ==========================================
+        // TAB 2 (PARTIAL FLOW NUMERICAL) LOGIC
+        // ==========================================
+        const sP2=document.getElementById('slideP2'), sL2=document.getElementById('slideL2'), sK2=document.getElementById('slideK2');
+        const sPF2=document.getElementById('slidePF2'), sN2=document.getElementById('slideN2'), sS2=document.getElementById('slideS2'), sDd2=document.getElementById('slideDd2');
+        
+        let state2 = { P:80000, L:145, K:0.8, PF:3, N:0.013, S_inv:400, Dd:0.75, Dreq:0.633, Theta:0 };
+        const ctx2 = document.getElementById('simCanvas2').getContext('2d');
+
+        function updateMath2() {
+            state2.P=parseInt(sP2.value); state2.L=parseInt(sL2.value); state2.K=parseInt(sK2.value)/100;
+            state2.PF=parseFloat(sPF2.value); state2.N=parseFloat(sN2.value); state2.S_inv=parseInt(sS2.value); state2.Dd=parseFloat(sDd2.value);
+
+            document.getElementById('valP2').innerText = state2.P.toLocaleString();
+            document.getElementById('valL2').innerText = `${state2.L} lpcd`;
+            document.getElementById('valK2').innerText = `${(state2.K*100).toFixed(0)}%`;
+            document.getElementById('valPF2').innerText = state2.PF.toFixed(1);
+            document.getElementById('valN2').innerText = state2.N.toFixed(3);
+            document.getElementById('valS2').innerText = state2.S_inv;
+            document.getElementById('valDd2').innerText = state2.Dd.toFixed(2);
+            document.getElementById('vizDd').innerText = state2.Dd.toFixed(2);
+
+            // Calculations
+            let Qavg_m3s = (state2.P * state2.L * state2.K) / (1000 * 86400);
+            let q = Qavg_m3s * state2.PF;
+            
+            // Theta math clamping for safety
+            let val = Math.max(-1, Math.min(1, 1 - 2*state2.Dd));
+            let theta = 2 * Math.acos(val);
+            state2.Theta = theta;
+            
+            let aA = (theta - Math.sin(theta)) / (2 * Math.PI);
+            // Handle divide by zero if Dd approaching 0
+            let rR = theta > 0.001 ? 1 - (Math.sin(theta)/theta) : 0; 
+            let qQ = aA * Math.pow(rR, 2/3);
+            if(state2.Dd === 1.0) qQ = 1.0; // Fix floating point for exactly full
+
+            let Qfull = qQ > 0 ? q / qQ : 0;
+            let S = 1 / state2.S_inv;
+            let K_const = Math.PI / (4 * Math.pow(4, 2/3)); // ~0.311689
+            let D83 = (Qfull * state2.N) / (K_const * Math.sqrt(S));
+            let D = Math.pow(D83, 3/8);
+            state2.Dreq = D;
+
+            // UI Update
+            document.getElementById('mP2').innerText=state2.P; document.getElementById('mL2').innerText=state2.L; document.getElementById('mK2').innerText=state2.K.toFixed(2);
+            document.getElementById('mQavg2').innerText=Qavg_m3s.toFixed(4); document.getElementById('mPF2').innerText=state2.PF; document.getElementById('mq2').innerText=q.toFixed(4);
+            document.getElementById('mDd2').innerText=state2.Dd.toFixed(2); document.getElementById('mTheta2').innerText=theta.toFixed(3);
+            document.getElementById('maA2').innerText=aA.toFixed(3); document.getElementById('mrR2').innerText=rR.toFixed(3); document.getElementById('mqQ2').innerText=qQ.toFixed(3);
+            document.getElementById('mQfull2').innerText=Qfull.toFixed(4); document.getElementById('mn2').innerText=state2.N.toFixed(3); document.getElementById('mS2').innerText=state2.S_inv;
+            document.getElementById('mD83').innerText=D83.toFixed(4); document.getElementById('mDreq2').innerText=isNaN(D)?'0.000':D.toFixed(3);
+        }
+
+        // ==========================================
+        // RENDER LOGIC
+        // ==========================================
+        function resizeCanvases() {
+            const pr = window.devicePixelRatio || 1;
+            const c1 = document.getElementById('container1');
+            const can1 = document.getElementById('simCanvas1');
+            if(c1.clientWidth > 0) {
+                can1.width = c1.clientWidth * pr; can1.height = c1.clientHeight * pr;
+                ctx1.setTransform(pr, 0, 0, pr, 0, 0);
+            }
+            
+            const c2 = document.getElementById('container2');
+            const can2 = document.getElementById('simCanvas2');
+            if(c2.clientWidth > 0) {
+                can2.width = c2.clientWidth * pr; can2.height = c2.clientHeight * pr;
+                ctx2.setTransform(pr, 0, 0, pr, 0, 0);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+
+        function renderLoop() {
             const time = Date.now();
             
-            ctx.clearRect(0, 0, cw, ch);
+            // Render Tab 1 (if visible)
+            if(!document.getElementById('tab1').classList.contains('hidden')) {
+                const cw = document.getElementById('simCanvas1').width / window.devicePixelRatio;
+                const ch = document.getElementById('simCanvas1').height / window.devicePixelRatio;
+                ctx1.clearRect(0,0,cw,ch);
+                
+                const midX = cw*0.4;
+                ctx1.fillStyle='#f8fafc'; ctx1.fillRect(0,0,cw,ch);
+                ctx1.strokeStyle='#e2e8f0'; ctx1.lineWidth=1; ctx1.beginPath(); ctx1.moveTo(midX,0); ctx1.lineTo(midX,ch); ctx1.stroke();
 
-            // We divide the canvas: Left = Cross Section, Right = Longitudinal Profile
-            const midX = cw * 0.4;
-            
-            // Background Soil
-            ctx.fillStyle = '#f8fafc';
-            ctx.fillRect(0, 0, cw, ch);
-            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(midX, 0); ctx.lineTo(midX, ch); ctx.stroke();
+                const pxPerMeter = Math.min((midX-40)/4, ch/5);
+                const rPx = (state1.D*pxPerMeter)/2;
+                const wallPx = 10;
+                const cx1 = midX/2, cy1 = ch/2;
 
-            // Mapping Geometry
-            // Max D is ~3.5m. Let's scale 1m = 30px
-            const pxPerMeter = Math.min((midX - 40) / 4, ch / 5);
-            const rPx = (state.D * pxPerMeter) / 2;
-            const wallPx = 10;
-            
-            // --- 1. CROSS SECTION (LEFT) ---
-            const cx1 = midX / 2;
-            const cy1 = ch / 2;
+                ctx1.fillStyle=concretePattern; ctx1.beginPath(); ctx1.arc(cx1,cy1,rPx+wallPx,0,Math.PI*2); ctx1.fill(); ctx1.strokeStyle='#475569'; ctx1.lineWidth=2; ctx1.stroke();
+                ctx1.fillStyle='#ffffff'; ctx1.beginPath(); ctx1.arc(cx1,cy1,rPx,0,Math.PI*2); ctx1.fill(); ctx1.stroke();
 
-            // Outer Pipe
-            ctx.fillStyle = concretePattern;
-            ctx.beginPath(); ctx.arc(cx1, cy1, rPx + wallPx, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = '#475569'; ctx.lineWidth = 2; ctx.stroke();
+                const waterY1 = cy1 + rPx - (rPx*2*0.9);
+                ctx1.save(); ctx1.beginPath(); ctx1.arc(cx1,cy1,rPx,0,Math.PI*2); ctx1.clip();
+                const waterColor = 'rgba(15, 118, 110, 0.6)';
+                ctx1.fillStyle=waterColor; ctx1.beginPath(); ctx1.moveTo(cx1-rPx,waterY1);
+                for(let x=cx1-rPx; x<=cx1+rPx; x+=5) ctx1.lineTo(x,waterY1+Math.sin(x*0.05+time*0.005)*3);
+                ctx1.lineTo(cx1+rPx,cy1+rPx); ctx1.lineTo(cx1-rPx,cy1+rPx); ctx1.fill(); ctx1.restore();
 
-            // Inner Pipe (Hollow)
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath(); ctx.arc(cx1, cy1, rPx, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                ctx1.strokeStyle='#1e293b'; ctx1.lineWidth=1.5; ctx1.beginPath(); ctx1.moveTo(cx1-rPx,cy1); ctx1.lineTo(cx1+rPx,cy1); ctx1.stroke();
+                ctx1.fillStyle='#ffffff'; ctx1.fillRect(cx1-15,cy1-8,30,16);
+                ctx1.fillStyle='#1e293b'; ctx1.font='bold 11px JetBrains Mono'; ctx1.textAlign='center'; ctx1.fillText(`D=${state1.D.toFixed(1)}m`,cx1,cy1+4);
 
-            // Water Fill
-            // Math assumes pipe is running full, visually show ~90% full so we see the surface
-            const fillLevel = 0.9;
-            const waterY1 = cy1 + rPx - (rPx * 2 * fillLevel);
-            
-            ctx.save();
-            ctx.beginPath(); ctx.arc(cx1, cy1, rPx, 0, Math.PI*2); ctx.clip();
-            
-            // Draw Combined Sewage Water
-            const waterColor = 'rgba(15, 118, 110, 0.6)'; // Teal for combined
-            ctx.fillStyle = waterColor;
-            
-            // Wavy surface
-            ctx.beginPath();
-            ctx.moveTo(cx1 - rPx, waterY1);
-            for(let x = cx1 - rPx; x <= cx1 + rPx; x += 5) {
-                ctx.lineTo(x, waterY1 + Math.sin(x*0.05 + time*0.005)*3);
+                const rxStart=midX+20, rxEnd=cw-20, pipeLen=rxEnd-rxStart;
+                ctx1.fillStyle=concretePattern; ctx1.fillRect(rxStart,cy1-rPx-wallPx,pipeLen,wallPx); ctx1.fillRect(rxStart,cy1+rPx,pipeLen,wallPx);
+                ctx1.strokeStyle='#475569'; ctx1.lineWidth=2; ctx1.strokeRect(rxStart,cy1-rPx-wallPx,pipeLen,wallPx); ctx1.strokeRect(rxStart,cy1+rPx,pipeLen,wallPx);
+
+                ctx1.fillStyle=waterColor; ctx1.beginPath(); ctx1.moveTo(rxStart,waterY1);
+                for(let x=rxStart; x<=rxEnd; x+=10) ctx1.lineTo(x,waterY1+Math.sin(x*0.03+time*0.005)*3);
+                ctx1.lineTo(rxEnd,cy1+rPx); ctx1.lineTo(rxStart,cy1+rPx); ctx1.fill();
+
+                const visV = state1.Vact*1.5;
+                state1.particles.forEach(p => {
+                    p.x += (visV*p.spd)/pipeLen; if(p.x>1) p.x=0;
+                    const px=rxStart+p.x*pipeLen, py=waterY1+10+p.y*(cy1+rPx-waterY1-15);
+                    ctx1.fillStyle=p.type==='sanitary'?'#d97706':'#bae6fd'; ctx1.beginPath(); ctx1.arc(px,py,2.5,0,Math.PI*2); ctx1.fill();
+                    ctx1.strokeStyle=`rgba(255,255,255,0.4)`; ctx1.lineWidth=1; ctx1.beginPath(); ctx1.moveTo(px,py); ctx1.lineTo(px-visV*2,py); ctx1.stroke();
+                });
+
+                ctx1.strokeStyle='#0f172a'; ctx1.fillStyle='#0f172a'; ctx1.lineWidth=2;
+                ctx1.beginPath(); ctx1.moveTo(rxStart+pipeLen*0.4,cy1); ctx1.lineTo(rxStart+pipeLen*0.6,cy1); ctx1.stroke();
+                ctx1.beginPath(); ctx1.moveTo(rxStart+pipeLen*0.6,cy1); ctx1.lineTo(rxStart+pipeLen*0.6-8,cy1-5); ctx1.lineTo(rxStart+pipeLen*0.6-8,cy1+5); ctx1.fill();
+                ctx1.fillText(`V = ${state1.Vact.toFixed(2)} m/s`,rxStart+pipeLen*0.5,cy1-10); ctx1.fillText(`Q = ${state1.Qtot.toFixed(2)} m³/s`,rxStart+pipeLen*0.5,cy1+15);
+
+                ctx1.fillStyle='#64748b'; ctx1.font='bold 12px Inter';
+                ctx1.fillText('CROSS SECTION',cx1,20); ctx1.fillText('LONGITUDINAL PROFILE',rxStart+pipeLen/2,20);
             }
-            ctx.lineTo(cx1 + rPx, cy1 + rPx);
-            ctx.lineTo(cx1 - rPx, cy1 + rPx);
-            ctx.fill();
-            ctx.restore();
 
-            // Dimension Line D
-            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.moveTo(cx1 - rPx, cy1); ctx.lineTo(cx1 + rPx, cy1); ctx.stroke();
-            ctx.fillStyle = '#ffffff'; ctx.fillRect(cx1-15, cy1-8, 30, 16);
-            ctx.fillStyle = '#1e293b'; ctx.font = 'bold 11px JetBrains Mono'; ctx.textAlign = 'center';
-            ctx.fillText(`D=${state.D.toFixed(1)}m`, cx1, cy1 + 4);
+            // Render Tab 2 (if visible)
+            if(!document.getElementById('tab2').classList.contains('hidden')) {
+                const cw = document.getElementById('simCanvas2').width / window.devicePixelRatio;
+                const ch = document.getElementById('simCanvas2').height / window.devicePixelRatio;
+                ctx2.clearRect(0,0,cw,ch);
 
+                const cx = cw / 2;
+                const cy = ch / 2.2;
+                const R = Math.min(cw, ch) * 0.35;
+                const wallPx = 12;
 
-            // --- 2. LONGITUDINAL PROFILE (RIGHT) ---
-            const rxStart = midX + 20;
-            const rxEnd = cw - 20;
-            const pipeLen = rxEnd - rxStart;
-            
-            // Pipe Walls
-            ctx.fillStyle = concretePattern;
-            ctx.fillRect(rxStart, cy1 - rPx - wallPx, pipeLen, wallPx); // Top
-            ctx.fillRect(rxStart, cy1 + rPx, pipeLen, wallPx); // Bottom
-            ctx.strokeStyle = '#475569'; ctx.lineWidth = 2;
-            ctx.strokeRect(rxStart, cy1 - rPx - wallPx, pipeLen, wallPx);
-            ctx.strokeRect(rxStart, cy1 + rPx, pipeLen, wallPx);
+                // Draw pipe
+                if(concretePattern) {
+                    ctx2.fillStyle=concretePattern; ctx2.beginPath(); ctx2.arc(cx,cy,R+wallPx,0,Math.PI*2); ctx2.fill();
+                    ctx2.strokeStyle='#475569'; ctx2.lineWidth=2; ctx2.stroke();
+                }
+                ctx2.fillStyle='#ffffff'; ctx2.beginPath(); ctx2.arc(cx,cy,R,0,Math.PI*2); ctx2.fill(); ctx2.stroke();
 
-            // Water Body
-            ctx.fillStyle = waterColor;
-            ctx.beginPath();
-            ctx.moveTo(rxStart, waterY1);
-            for(let x = rxStart; x <= rxEnd; x += 10) {
-                ctx.lineTo(x, waterY1 + Math.sin(x*0.03 + time*0.005)*3);
+                // Draw Water (Partial Fill)
+                if(state2.Dd > 0 && !isNaN(state2.Dreq)) {
+                    ctx2.save();
+                    
+                    // The drawing angles start at 3 o'clock (0). Bottom is PI/2.
+                    // We need to fill from bottom up. Angle from bottom is theta/2 each way.
+                    const th = state2.Theta;
+                    const startAng = Math.PI/2 - th/2;
+                    const endAng = Math.PI/2 + th/2;
+                    
+                    ctx2.beginPath();
+                    ctx2.arc(cx, cy, R, startAng, endAng);
+                    ctx2.closePath(); // Connects the top surface straight across
+
+                    // Wavy top surface trick via clip
+                    ctx2.clip();
+                    
+                    const sanColor = 'rgba(217, 119, 6, 0.7)'; // Amber for sanitary
+                    ctx2.fillStyle = sanColor;
+                    
+                    const waterY = cy + R - (2 * R * state2.Dd);
+                    ctx2.beginPath(); ctx2.moveTo(cx-R, waterY);
+                    for(let x=cx-R; x<=cx+R; x+=5) ctx2.lineTo(x, waterY+Math.sin(x*0.04+time*0.004)*3);
+                    ctx2.lineTo(cx+R, cy+R); ctx2.lineTo(cx-R, cy+R); ctx2.fill();
+                    ctx2.restore();
+
+                    // Center lines & angle markers
+                    ctx2.strokeStyle = 'rgba(71, 85, 105, 0.4)'; ctx2.lineWidth = 1; ctx2.setLineDash([5, 5]);
+                    ctx2.beginPath(); ctx2.moveTo(cx, cy-R-10); ctx2.lineTo(cx, cy+R+10); ctx2.stroke(); // Vertical
+                    ctx2.beginPath(); ctx2.moveTo(cx-R-10, cy); ctx2.lineTo(cx+R+10, cy); ctx2.stroke(); // Horizontal
+                    ctx2.setLineDash([]);
+
+                    // Theta lines
+                    if(state2.Dd < 0.99) {
+                        ctx2.strokeStyle = 'rgba(99, 102, 241, 0.6)'; ctx2.lineWidth=1.5;
+                        ctx2.beginPath(); ctx2.moveTo(cx, cy); ctx2.lineTo(cx + R*Math.cos(startAng), cy + R*Math.sin(startAng)); ctx2.stroke();
+                        ctx2.beginPath(); ctx2.moveTo(cx, cy); ctx2.lineTo(cx + R*Math.cos(endAng), cy + R*Math.sin(endAng)); ctx2.stroke();
+                    }
+                }
+
+                // Dimensioning Dreq
+                ctx2.fillStyle = '#1e293b'; ctx2.font='bold 14px JetBrains Mono'; ctx2.textAlign='center';
+                ctx2.fillText(`Diameter D = ${isNaN(state2.Dreq) ? '...' : state2.Dreq.toFixed(3)} m`, cx, ch - 20);
+                
+                // Depth d label
+                if(!isNaN(state2.Dreq)) {
+                    const act_d = state2.Dreq * state2.Dd;
+                    ctx2.fillStyle = '#d97706'; ctx2.font='bold 12px JetBrains Mono';
+                    ctx2.fillText(`Depth d = ${act_d.toFixed(3)} m`, cx, ch - 40);
+                }
             }
-            ctx.lineTo(rxEnd, cy1 + rPx);
-            ctx.lineTo(rxStart, cy1 + rPx);
-            ctx.fill();
-
-            // Particle Flow Animation (Velocity representation)
-            const visualVelocity = state.Vact * 1.5; // Scaling factor for visual speed
             
-            state.particles.forEach(p => {
-                // Update position
-                p.x += (visualVelocity * p.speedOffset) / pipeLen;
-                if (p.x > 1) p.x = 0; // Loop back
-
-                const px = rxStart + p.x * pipeLen;
-                const py = waterY1 + 10 + p.y * (cy1 + rPx - waterY1 - 15);
-
-                ctx.fillStyle = p.type === 'sanitary' ? '#d97706' : '#bae6fd';
-                ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI*2); ctx.fill();
-
-                // Motion blur trail
-                ctx.strokeStyle = `rgba(255,255,255,0.4)`;
-                ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px - visualVelocity*2, py); ctx.stroke();
-            });
-
-            // Flow Direction Arrow
-            const arrowY = cy1;
-            ctx.strokeStyle = '#0f172a'; ctx.fillStyle = '#0f172a'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(rxStart + pipeLen*0.4, arrowY); ctx.lineTo(rxStart + pipeLen*0.6, arrowY); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(rxStart + pipeLen*0.6, arrowY); 
-            ctx.lineTo(rxStart + pipeLen*0.6 - 8, arrowY - 5); 
-            ctx.lineTo(rxStart + pipeLen*0.6 - 8, arrowY + 5); ctx.fill();
-            
-            ctx.fillText(`V = ${state.Vact.toFixed(2)} m/s`, rxStart + pipeLen*0.5, arrowY - 10);
-            ctx.fillText(`Q = ${state.Qtot.toFixed(2)} m³/s`, rxStart + pipeLen*0.5, arrowY + 15);
-
-            // Labels
-            ctx.fillStyle = '#64748b'; ctx.font = 'bold 12px Inter';
-            ctx.fillText('CROSS SECTION', cx1, 20);
-            ctx.fillText('LONGITUDINAL PROFILE', rxStart + pipeLen/2, 20);
-
-            requestAnimationFrame(drawFrame);
+            requestAnimationFrame(renderLoop);
         }
 
-        // Listeners
-        [slideArea, slidePop, slideLpcd, slideTe, slideTf, slideC, slideVmax].forEach(el => {
-            el.addEventListener('input', updateMath);
-        });
+        // Attach Listeners
+        [slA, slP, slL, slTe, slTf, slC, slV].forEach(el => el.addEventListener('input', updateMath1));
+        [sP2, sL2, sK2, sPF2, sN2, sS2, sDd2].forEach(el => el.addEventListener('input', updateMath2));
 
-        // Initialize
+        // Init
         initTextures();
-        initParticles();
-        resizeCanvas();
-        updateMath();
-        requestAnimationFrame(drawFrame);
+        initParticles1();
+        updateMath1();
+        updateMath2();
+        resizeCanvases();
+        requestAnimationFrame(renderLoop);
 
     </script>
 </body>
 </html>
-

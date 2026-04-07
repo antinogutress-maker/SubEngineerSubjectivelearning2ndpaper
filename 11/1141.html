@@ -1,0 +1,696 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Master Bird Archery</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@700&display=swap');
+
+        :root {
+            --bg-sky-top: #0f172a;
+            --bg-sky-bottom: #1e293b;
+            --text-main: #f8fafc;
+            --accent-gold: #fbbf24;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-blue: #0ea5e9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-bottom) 100%);
+            color: var(--text-main);
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            touch-action: manipulation; /* Prevents double-tap zooming */
+        }
+
+        /* --- CLOUDS BACKGROUND --- */
+        .clouds {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                radial-gradient(circle at 15% 30%, rgba(255,255,255,0.03) 0%, transparent 20%),
+                radial-gradient(circle at 85% 15%, rgba(255,255,255,0.02) 0%, transparent 25%),
+                radial-gradient(circle at 50% 60%, rgba(255,255,255,0.015) 0%, transparent 35%);
+            z-index: 0; pointer-events: none;
+        }
+
+        /* --- HEADER (NOW CONTAINS TARGET HUD) --- */
+        .header {
+            flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 15px 10px; background: rgba(15, 23, 42, 0.8); border-bottom: 2px solid #334155;
+            position: relative; z-index: 10; backdrop-filter: blur(5px); gap: 15px;
+        }
+        
+        .active-topic-board {
+            background: #020617; padding: 10px 15px;
+            border-radius: 8px; border: 3px solid #38bdf8;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(56, 189, 248, 0.3);
+            text-align: center; width: 95%; max-width: 400px;
+        }
+        .topic-label {
+            font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; margin-bottom: 4px;
+        }
+        .topic-text {
+            font-size: 1.3rem; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .stats-box { display: flex; width: 100%; justify-content: space-around; gap: 10px; }
+        .stat-badge {
+            background: rgba(2, 6, 23, 0.8); border: 2px solid;
+            padding: 4px 12px; border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 5px;
+        }
+        #score-badge { border-color: var(--accent-gold); color: var(--accent-gold); }
+        #birds-badge { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+        /* --- GAME AREA --- */
+        .game-area {
+            flex: 1; position: relative; z-index: 5;
+        }
+
+        /* --- PLAYER / BOW STATION (NOW AT BOTTOM ONLY) --- */
+        .player-station {
+            position: absolute;
+            bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center;
+            z-index: 50; pointer-events: none; width: 100%;
+        }
+
+        .bow-wrapper {
+            width: 140px; height: 140px; 
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+
+        #bowGraphics {
+            width: 100%; height: 100%; overflow: visible;
+            transform-origin: center center;
+            transition: transform 0.05s linear; 
+            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.8));
+        }
+
+        /* --- REALISTIC BIRDS & DYNAMIC TEXT BOARD --- */
+        .bird-container {
+            position: absolute;
+            display: flex; 
+            align-items: center; 
+            cursor: crosshair; z-index: 20;
+            padding-right: 10px; 
+        }
+        .bird-container:active .bird-svg { filter: brightness(1.2) drop-shadow(0 5px 10px rgba(255,255,255,0.2)); }
+
+        .bird-svg {
+            width: 80px; height: 80px; 
+            overflow: visible;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.6));
+            z-index: 3; flex-shrink: 0;
+            margin-right: -10px; 
+        }
+        
+        .wing-front { animation: flapFront 0.35s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); }
+        .wing-back { animation: flapBack 0.35s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        @keyframes flapFront { 0% { transform: rotate(-55deg) scaleY(0.6); } 100% { transform: rotate(25deg) scaleY(1); } }
+        @keyframes flapBack { 0% { transform: rotate(55deg) scaleY(0.6); } 100% { transform: rotate(-25deg) scaleY(1); } }
+
+        .tail-string {
+            width: 25px; height: 2px; background: rgba(255,255,255,0.6);
+            z-index: 2; border-top: 2px dashed #0f172a; flex-shrink: 0;
+        }
+        
+        .note-card {
+            background: #fbbf24; color: #020617;
+            padding: 10px 12px; 
+            border-radius: 0px; /* STRICTLY RECTANGULAR SHAPE */
+            border: 2px solid #b45309; box-shadow: 0 6px 10px rgba(0,0,0,0.6);
+            font-size: 0.85rem; font-weight: 800; line-height: 1.35;
+            width: max-content;
+            max-width: 160px; /* Prevents it from going offscreen on small phones */
+            height: auto; /* Fits the complete text */
+            text-align: center; z-index: 1;
+            white-space: normal; 
+            word-wrap: break-word;
+            transform-origin: center left;
+            animation: flutter 1s infinite alternate ease-in-out;
+        }
+        @keyframes flutter { 0% { transform: rotate(-3deg); } 100% { transform: rotate(3deg); } }
+
+        /* Escape animation */
+        .bird-escape { animation: escapeFast 1s ease-in forwards; pointer-events: none; }
+        @keyframes escapeFast { 
+            0% { transform: translateY(0) rotate(0deg); } 
+            100% { transform: translateY(-400px) translateX(-200px) rotate(25deg); opacity: 0; } 
+        }
+
+        /* --- PROJECTILES & PARTICLES --- */
+        .flying-arrow {
+            position: absolute; z-index: 40; pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            transform-origin: center center;
+        }
+
+        .feather {
+            position: absolute; z-index: 30; pointer-events: none;
+            width: 10px; height: 25px; border-radius: 50% 50% 0 50%;
+        }
+
+        .float-text {
+            position: absolute; font-weight: 900; font-size: 1.8rem;
+            pointer-events: none; z-index: 300; text-shadow: 0 3px 8px rgba(0,0,0,1);
+            animation: floatUp 1s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -60px) scale(1.3); }
+        }
+
+        /* --- END SCREEN --- */
+        .overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center;
+            padding: 40px 20px; z-index: 500; opacity: 0; pointer-events: none;
+            transition: opacity 0.5s ease; overflow-y: auto;
+        }
+        .overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .book-summary {
+            width: 100%; max-width: 500px; background: #0f172a; border: 1px solid #334155;
+            border-radius: 12px; padding: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.8); margin-bottom: 20px;
+        }
+        .book-summary h2 {
+            font-size: 1.8rem; color: #fbbf24; text-align: center; margin-bottom: 10px;
+            text-transform: uppercase; border-bottom: 2px solid #334155; padding-bottom: 15px;
+        }
+        .book-summary p.score-report { text-align: center; font-size: 1.1rem; color: #94a3b8; margin-bottom: 20px; font-family: 'JetBrains Mono'; }
+        .chapter-section { margin-bottom: 20px; }
+        .chapter-section h3 { font-size: 1.3rem; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .chapter-section ul { list-style-type: none; padding-left: 15px; }
+        .chapter-section li { font-size: 1rem; color: #e2e8f0; margin-bottom: 8px; position: relative; line-height: 1.4; }
+        .chapter-section li::before { content: "➔"; position: absolute; left: -20px; color: #10b981; font-weight: bold; }
+        button.play-btn {
+            background: linear-gradient(135deg, #0ea5e9, #10b981); color: #000; border: none; padding: 15px 50px;
+            font-size: 1.3rem; font-weight: 900; border-radius: 30px; cursor: pointer; transition: transform 0.2s;
+            box-shadow: 0 8px 15px rgba(14, 165, 233, 0.4); flex-shrink: 0; margin-bottom: 20px;
+        }
+        button.play-btn:active { transform: scale(0.95); }
+
+    </style>
+</head>
+<body>
+
+    <script>
+        const MASTER_GAME_DATA = {
+            gameTitle: "Methods of Valuation",
+            targets: [
+                { id: 1, name: "Plinth Area Method", color: "#3b82f6" },
+                { id: 2, name: "Rental Method", color: "#10b981" },
+                { id: 3, name: "Profit Based Method", color: "#f59e0b" },
+                { id: 4, name: "Depreciation Method", color: "#ef4444" }
+            ],
+            notes: [
+                { id: 101, targetId: 1, text: "How: Value = Total Plinth Area × Current Market Rate per sq. m. of similar buildings." },
+                { id: 102, targetId: 1, text: "Usage: The simplest and fastest method for valuing new or standard residential buildings." },
+                { id: 201, targetId: 2, text: "How: Capitalized Value = Net Annual Income × Year's Purchase (Y.P.)." },
+                { id: 202, targetId: 2, text: "Usage: Best for properties that generate regular rent, like apartments or shops." },
+                { id: 301, targetId: 3, text: "How: Based on the net annual profit after deducting all expenses from gross income." },
+                { id: 302, targetId: 3, text: "Usage: Used for commercial properties like cinemas, hotels, or shopping malls." },
+                { id: 401, targetId: 4, text: "How: Current Value = Original Cost - Total Depreciation (based on age and condition)." },
+                { id: 402, targetId: 4, text: "Usage: Ideal for finding the value of old buildings nearing the end of their 'useful life'." }
+            ]
+
+        };
+    </script>
+
+    <div class="clouds"></div>
+
+    <div class="header">
+        <div class="active-topic-board" id="topicBoard">
+            <div class="topic-label">Hunt the bird with note matching:</div>
+            <div class="topic-text" id="targetHud">Loading...</div>
+        </div>
+        <div class="stats-box">
+            <div class="stat-badge" id="score-badge">⭐ <span id="score">0</span></div>
+            <div class="stat-badge" id="birds-badge">Hunted: <span id="notesCaught">0</span> / <span id="notesTotal">0</span></div>
+        </div>
+    </div>
+
+    <div class="game-area" id="gameArea">
+        
+        <div class="player-station">
+            <div class="bow-wrapper">
+                <svg id="bowGraphics" viewBox="0 0 200 200">
+                    <defs>
+                        <linearGradient id="wood" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#451a03" />
+                            <stop offset="50%" stop-color="#92400e" />
+                            <stop offset="100%" stop-color="#451a03" />
+                        </linearGradient>
+                        <filter id="bowGlow"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000" flood-opacity="0.6"/></filter>
+                    </defs>
+                    
+                    <path id="bowString" d="M 20,100 L 100,180 L 180,100" fill="none" stroke="#e2e8f0" stroke-width="4"/>
+                    <path d="M 20,100 Q 100,-20 180,100" fill="none" stroke="url(#wood)" stroke-width="20" stroke-linecap="round" filter="url(#bowGlow)"/>
+                    <path d="M 20,100 Q 100,-20 180,100" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="6" stroke-linecap="round"/>
+                    
+                    <path d="M 85,38 Q 100,28 115,38" fill="none" stroke="#020617" stroke-width="24" stroke-linecap="round"/>
+                    <path d="M 85,38 Q 100,28 115,38" fill="none" stroke="#334155" stroke-width="20" stroke-linecap="round" stroke-dasharray="4 2"/>
+                    
+                    <g id="loadedArrow">
+                        <line x1="100" y1="180" x2="100" y2="40" stroke="#f8fafc" stroke-width="6" />
+                        <polygon points="100,28 90,48 110,48" fill="#ef4444" />
+                        <polygon points="100,180 88,162 100,168" fill="#0ea5e9" />
+                        <polygon points="100,180 112,162 100,168" fill="#0ea5e9" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="endScreen">
+        <div class="book-summary">
+            <h2>Chapter Mastered</h2>
+            <p class="score-report">Final Score: <span id="finalScore" style="color:#fbbf24; font-weight:bold;">0</span></p>
+            <div id="summaryContent"></div>
+        </div>
+        <button class="play-btn" onclick="startGame()">Retake Test</button>
+    </div>
+
+    <script>
+        // --- AUDIO ENGINE ---
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        const playSound = (type) => {
+            if (!audioCtx) return;
+            try {
+                if (type === 'shoot') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'hit') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+                } else if (type === 'wrong') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                }
+            } catch (e) {}
+        };
+
+        document.body.addEventListener('click', initAudio, { once: true });
+        document.body.addEventListener('touchstart', initAudio, { once: true });
+
+        // --- GAME LOGIC ---
+        const gameData = MASTER_GAME_DATA;
+        document.getElementById('notesTotal').innerText = gameData.notes.length;
+
+        const gameArea = document.getElementById('gameArea');
+        const scoreEl = document.getElementById('score');
+        const caughtEl = document.getElementById('notesCaught');
+        const targetHud = document.getElementById('targetHud');
+        const topicBoard = document.getElementById('topicBoard');
+        const bowGraphics = document.getElementById('bowGraphics');
+        const loadedArrow = document.getElementById('loadedArrow');
+        const bowString = document.getElementById('bowString');
+
+        let score = 0;
+        let caughtCount = 0;
+        let currentTargetId = null;
+        let animationFrameId;
+        
+        let pendingQueue = []; 
+        let activeBirds = []; 
+        let completedNoteIds = new Set(); 
+        let lastSpawnTime = 0;
+        let isGameRunning = false;
+
+        const birdColors = [
+            { body: "#0ea5e9", wing: "#0284c7" },
+            { body: "#ef4444", wing: "#b91c1c" },
+            { body: "#10b981", wing: "#047857" },
+            { body: "#f59e0b", wing: "#b45309" },
+            { body: "#8b5cf6", wing: "#6d28d9" }
+        ];
+
+        function startGame() {
+            score = 0;
+            caughtCount = 0;
+            scoreEl.innerText = score;
+            caughtEl.innerText = caughtCount;
+            completedNoteIds.clear();
+            
+            activeBirds.forEach(b => b.element.remove());
+            activeBirds = [];
+            pendingQueue = [...gameData.notes].sort(() => Math.random() - 0.5);
+            
+            document.getElementById('endScreen').classList.remove('active');
+            
+            setNewTarget();
+            isGameRunning = true;
+            lastSpawnTime = Date.now();
+            cancelAnimationFrame(animationFrameId);
+            gameLoop();
+        }
+
+        function setNewTarget() {
+            const availableTargets = new Set();
+            gameData.notes.forEach(note => {
+                if (!completedNoteIds.has(note.id)) availableTargets.add(note.targetId);
+            });
+
+            const targetArray = Array.from(availableTargets);
+            if (targetArray.length === 0) {
+                isGameRunning = false;
+                setTimeout(showWinScreen, 1000);
+                return;
+            }
+
+            let newTargetId;
+            if (targetArray.length > 1) {
+                const others = targetArray.filter(id => id !== currentTargetId);
+                newTargetId = others[Math.floor(Math.random() * others.length)];
+            } else {
+                newTargetId = targetArray[0];
+            }
+
+            currentTargetId = newTargetId;
+            const targetData = gameData.targets.find(t => t.id === currentTargetId);
+
+            targetHud.innerText = targetData.name;
+            topicBoard.style.borderColor = targetData.color;
+            targetHud.style.color = targetData.color;
+        }
+
+        // --- HIGHLY REALISTIC BIRD SVG ---
+        function createBirdSVG(c) {
+            // Apply unique IDs so gradients don't conflict, fixing color consistency
+            const uId = Math.floor(Math.random() * 1000000);
+            return `
+                <svg class="bird-svg" viewBox="0 0 120 120">
+                    <defs>
+                        <radialGradient id="grad-${uId}" cx="30%" cy="30%" r="70%">
+                            <stop offset="0%" stop-color="${c.body}" />
+                            <stop offset="100%" stop-color="#020617" />
+                        </radialGradient>
+                    </defs>
+                    
+                    <path d="M 85,52 C 105,45 115,40 115,48 C 115,55 105,58 85,58 Z" fill="${c.wing}" />
+                    <path d="M 85,56 C 105,55 112,62 110,68 C 105,72 95,65 82,60 Z" fill="${c.wing}" filter="brightness(0.8)" />
+                    
+                    <g class="wing-back" style="transform-origin: 50px 48px;">
+                        <path d="M 55,48 C 65,15 35,5 15,10 C 35,25 45,35 50,48 Z" fill="${c.wing}" />
+                        <path d="M 52,48 C 60,20 40,15 25,20 C 35,30 42,38 48,48 Z" fill="${c.body}" opacity="0.6" />
+                    </g>
+
+                    <path d="M 35,40 C 20,40 10,48 10,52 C 10,58 20,68 45,68 C 70,68 85,62 90,56 C 85,48 60,40 35,40 Z" fill="url(#grad-${uId})" />
+                    
+                    <path d="M 40,42 C 30,35 15,38 12,48 C 12,55 25,58 35,55 Z" fill="${c.body}" />
+                    
+                    <path d="M 13,46 C 2,46 0,50 5,52 C 10,52 13,50 13,46 Z" fill="#fbbf24" />
+                    <circle cx="20" cy="46" r="2.5" fill="#000" />
+                    <circle cx="19.5" cy="45.5" r="0.8" fill="#fff" />
+
+                    <g class="wing-front" style="transform-origin: 45px 58px;">
+                        <path d="M 45,58 C 55,95 20,110 5,90 C 25,80 35,70 40,58 Z" fill="${c.wing}" />
+                        <path d="M 42,58 C 48,85 25,95 15,85 C 28,75 35,65 38,58 Z" fill="${c.body}" filter="brightness(1.2)" />
+                    </g>
+                </svg>
+            `;
+        }
+
+        function spawnBird() {
+            if (pendingQueue.length === 0) return;
+            const noteData = pendingQueue.shift();
+            const colors = birdColors[Math.floor(Math.random() * birdColors.length)];
+            
+            const el = document.createElement('div');
+            el.className = 'bird-container';
+            
+            el.innerHTML = `
+                ${createBirdSVG(colors)}
+                <div class="tail-string"></div>
+                <div class="note-card">${noteData.text}</div>
+            `;
+            gameArea.appendChild(el);
+
+            const playRect = gameArea.getBoundingClientRect();
+            const startX = playRect.width + 10; 
+            // Spawn inside the game area, avoiding the bow station at the bottom
+            const startY = Math.random() * (playRect.height * 0.45) + 20; 
+
+            const birdObj = {
+                data: noteData,
+                element: el,
+                color: colors.body,
+                x: startX,
+                y: startY,
+                speed: Math.random() * 0.6 + 0.4, 
+                isDead: false
+            };
+
+            const triggerHit = (e) => {
+                e.preventDefault();
+                let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                shootAtBird(birdObj, clientX, clientY);
+            }
+
+            el.addEventListener('mousedown', triggerHit);
+            el.addEventListener('touchstart', triggerHit, { passive: false });
+
+            activeBirds.push(birdObj);
+        }
+
+        function createFlyingArrow() {
+            return `
+                <svg width="45" height="15" viewBox="0 0 60 20" style="overflow:visible;">
+                    <line x1="0" y1="10" x2="50" y2="10" stroke="#f8fafc" stroke-width="5" />
+                    <polygon points="50,4 64,10 50,16" fill="#ef4444" />
+                    <polygon points="0,10 -10,0 12,10" fill="#0ea5e9" />
+                    <polygon points="0,10 -10,20 12,10" fill="#0ea5e9" />
+                </svg>
+            `;
+        }
+
+        function shootAtBird(bird, targetX, targetY) {
+            if (!isGameRunning || bird.isDead) return;
+            initAudio();
+            playSound('shoot');
+
+            const bowRect = bowGraphics.getBoundingClientRect();
+            const bowX = bowRect.left + bowRect.width / 2;
+            const bowY = bowRect.top + bowRect.height / 2;
+
+            const aimAngle = Math.atan2(targetY - bowY, targetX - bowX) * (180 / Math.PI);
+            bowGraphics.style.transform = `rotate(${aimAngle + 90}deg)`;
+
+            loadedArrow.style.display = 'none';
+            bowString.setAttribute('d', 'M 20,100 L 100,100 L 180,100'); 
+
+            const flyingArrow = document.createElement('div');
+            flyingArrow.className = 'flying-arrow';
+            flyingArrow.innerHTML = createFlyingArrow();
+            document.body.appendChild(flyingArrow);
+
+            flyingArrow.style.left = `${bowX}px`;
+            flyingArrow.style.top = `${bowY}px`;
+            flyingArrow.style.transform = `translate(-50%, -50%) rotate(${aimAngle}deg)`;
+
+            const deltaX = targetX - bowX;
+            const deltaY = targetY - bowY;
+            const dist = Math.hypot(deltaX, deltaY);
+            const flightTime = dist * 0.8; 
+
+            const anim = flyingArrow.animate([
+                { transform: `translate(-50%, -50%) rotate(${aimAngle}deg)` },
+                { transform: `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px)) rotate(${aimAngle}deg)` }
+            ], { duration: flightTime, easing: 'linear' });
+
+            anim.onfinish = () => {
+                flyingArrow.remove();
+                loadedArrow.style.display = 'block';
+                bowString.setAttribute('d', 'M 20,100 L 100,180 L 180,100'); 
+                
+                evaluateHit(bird, targetX, targetY);
+            };
+        }
+
+        function evaluateHit(bird, hitX, hitY) {
+            if (bird.isDead) return; 
+            
+            const isCorrect = (bird.data.targetId === currentTargetId);
+            bird.isDead = true;
+
+            if (isCorrect) {
+                playSound('hit');
+                score += 10;
+                caughtCount++;
+                completedNoteIds.add(bird.data.id);
+                
+                scoreEl.innerText = score;
+                caughtEl.innerText = caughtCount;
+                
+                createFeatherExplosion(hitX, hitY, bird.color);
+                showFloatingText("+10", hitX, hitY, "#10b981");
+                
+                bird.element.remove();
+                setNewTarget();
+            } else {
+                playSound('wrong');
+                score -= 5;
+                scoreEl.innerText = score;
+                showFloatingText("-5", hitX, hitY, "#ef4444");
+
+                bird.element.classList.add('bird-escape');
+                const el = bird.element;
+                setTimeout(() => el.remove(), 1000);
+
+                pendingQueue.push(bird.data);
+            }
+        }
+
+        function gameLoop() {
+            if (!isGameRunning) return;
+
+            const now = Date.now();
+            const maxBirds = Math.min(3, gameData.notes.length - completedNoteIds.size);
+            let aliveBirds = activeBirds.filter(b => !b.isDead).length;
+            
+            if (aliveBirds < maxBirds && pendingQueue.length > 0) {
+                if (now - lastSpawnTime > 2500) { 
+                    spawnBird();
+                    lastSpawnTime = now;
+                }
+            }
+
+            for (let i = activeBirds.length - 1; i >= 0; i--) {
+                const b = activeBirds[i];
+                if (b.isDead) {
+                    activeBirds.splice(i, 1);
+                    continue;
+                }
+
+                b.x -= b.speed;
+                const bob = Math.sin(now / 350 + b.y) * 10; 
+                b.element.style.transform = `translateY(${bob}px)`;
+                b.element.style.left = `${b.x}px`;
+                b.element.style.top = `${b.y}px`;
+
+                // If fully offscreen
+                if (b.x < -350) {
+                    b.element.remove();
+                    pendingQueue.push(b.data);
+                    activeBirds.splice(i, 1);
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        // --- VISUAL EFFECTS ---
+        function createFeatherExplosion(x, y, color) {
+            for (let i = 0; i < 20; i++) {
+                const feather = document.createElement('div');
+                feather.className = 'feather';
+                feather.style.background = color;
+                feather.style.borderTop = "1px solid rgba(255,255,255,0.5)";
+                
+                gameArea.appendChild(feather);
+
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 80 + 30;
+                const dx = Math.cos(angle) * distance;
+                const dy = Math.sin(angle) * distance + 30; 
+                const rot = Math.random() * 360;
+
+                const anim = feather.animate([
+                    { left: `${x}px`, top: `${y}px`, transform: `scale(1) rotate(0deg)`, opacity: 1 },
+                    { left: `${x + dx}px`, top: `${y + dy}px`, transform: `scale(0.5) rotate(${rot}deg)`, opacity: 0 }
+                ], { duration: Math.random() * 500 + 400, easing: 'ease-out' });
+                
+                anim.onfinish = () => feather.remove();
+            }
+        }
+
+        function showFloatingText(text, x, y, color) {
+            const el = document.createElement('div');
+            el.className = 'float-text';
+            el.innerText = text;
+            el.style.color = color;
+            el.style.left = `${x}px`;
+            el.style.top = `${y - 30}px`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
+        // --- END SCREEN ---
+        function showWinScreen() {
+            document.getElementById('finalScore').innerText = score;
+            const summaryContent = document.getElementById('summaryContent');
+            summaryContent.innerHTML = '';
+            
+            gameData.targets.forEach(target => {
+                const targetNotes = gameData.notes.filter(n => n.targetId === target.id);
+                if(targetNotes.length === 0) return;
+
+                const section = document.createElement('div');
+                section.className = 'chapter-section';
+                let html = `<h3 style="color: ${target.color}">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="${target.color}"><circle cx="12" cy="12" r="10"/></svg>
+                                ${target.name}
+                            </h3><ul>`;
+                targetNotes.forEach(note => { html += `<li>${note.text}</li>`; });
+                html += `</ul>`;
+                section.innerHTML = html;
+                summaryContent.appendChild(section);
+            });
+
+            document.getElementById('endScreen').classList.add('active');
+        }
+
+        // Boot Game
+        startGame();
+
+    </script>
+</body>
+</html>
+
+
+

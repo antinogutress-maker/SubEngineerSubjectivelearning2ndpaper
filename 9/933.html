@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design of Trapezoidal Canals | Manning's Formula</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        .math-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border-radius: 1rem;
+        }
+
+        .slider-custom {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 9999px;
+            background: #cbd5e1;
+            outline: none;
+        }
+
+        .slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0284c7;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .slider-custom::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #0369a1;
+        }
+
+        .tab-btn {
+            transition: all 0.2s ease-in-out;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-btn.active {
+            background-color: #f0f9ff;
+            border-bottom-color: #0ea5e9;
+            color: #0284c7;
+        }
+
+        #canvas-container {
+            background: linear-gradient(to bottom, #e0f2fe 0%, #ffffff 100%);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        /* Syntax coloring for equations */
+        .eq-var { color: #0284c7; font-weight: bold; }
+        .eq-val { color: #16a34a; font-weight: bold; }
+        .eq-ans { color: #dc2626; font-weight: bold; }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col">
+
+    <div class="max-w-7xl mx-auto w-full space-y-6 flex-grow flex flex-col">
+
+        <!-- Header -->
+        <header class="text-center space-y-3 mb-2 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Trapezoidal Canal Design</h1>
+            <p class="text-slate-500 font-medium text-base max-w-3xl mx-auto">
+                Interactive simulation applying Manning's Formula for unlined and lined channels.
+            </p>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+            
+            <!-- Left Column: Controls -->
+            <div class="lg:col-span-4 flex flex-col space-y-6">
+                
+                <div class="glass-panel overflow-hidden flex flex-col h-full">
+                    
+                    <!-- Mode Tabs -->
+                    <div class="flex grid grid-cols-2 bg-slate-50 border-b border-slate-200 cursor-pointer">
+                        <div id="modeAnalyze" class="tab-btn active p-3 text-center font-bold text-sm text-slate-500" onclick="setMode('analyze')">
+                            Analyze Section (Find Q)
+                        </div>
+                        <div id="modeDesign" class="tab-btn p-3 text-center font-bold text-sm text-slate-500" onclick="setMode('design')">
+                            Design Depth (Find d)
+                        </div>
+                    </div>
+
+                    <div class="p-6 space-y-5 flex-grow">
+                        <!-- Target Discharge (Design Mode Only) -->
+                        <div id="ctrlQ" class="space-y-2 hidden bg-blue-50 p-3 rounded-lg border border-blue-100">
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm font-bold text-blue-900">Target Discharge (<span class="math-font text-blue-600">Q</span>)</label>
+                                <span id="valQin" class="text-sm font-bold text-blue-900 bg-white px-2 py-1 rounded shadow-sm">5.0 m³/s</span>
+                            </div>
+                            <input type="range" id="slideQ" min="0.1" max="100" step="0.1" value="5.0" class="slider-custom">
+                            <p class="text-[10px] text-blue-700">The simulation will automatically calculate required depth 'd'.</p>
+                        </div>
+
+                        <!-- Bottom Width (b) -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm font-semibold text-slate-700">Bottom Width (<span class="math-font text-sky-600">b</span>)</label>
+                                <span id="valB" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">1.0 m</span>
+                            </div>
+                            <input type="range" id="slideB" min="0.5" max="20" step="0.5" value="1.0" class="slider-custom">
+                        </div>
+
+                        <!-- Flow Depth (d) - Analyze Mode Only -->
+                        <div id="ctrlD" class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm font-semibold text-slate-700">Flow Depth (<span class="math-font text-sky-600">d</span>)</label>
+                                <span id="valDin" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">2.00 m</span>
+                            </div>
+                            <input type="range" id="slideD" min="0.1" max="10" step="0.05" value="2.00" class="slider-custom">
+                        </div>
+
+                        <!-- Side Slope (z) -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm font-semibold text-slate-700">Side Slope (<span class="math-font text-sky-600">z H : 1 V</span>)</label>
+                                <span id="valZ" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">1.5 : 1</span>
+                            </div>
+                            <input type="range" id="slideZ" min="0" max="4" step="0.25" value="1.5" class="slider-custom">
+                            <p class="text-[10px] text-slate-500">Note: Value represents 'n' or 'z' horizontal units per 1 vertical unit.</p>
+                        </div>
+
+                        <!-- Bed Slope (S) -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm font-semibold text-slate-700">Bed Slope (<span class="math-font text-sky-600">S</span>)</label>
+                                <span id="valS" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">1 in 1000</span>
+                            </div>
+                            <input type="range" id="slideS" min="500" max="10000" step="100" value="1000" class="slider-custom">
+                        </div>
+
+                        <!-- Manning's n -->
+                        <div class="space-y-2 pt-2 border-t border-slate-200">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-sm font-semibold text-slate-700">Manning's Coeff. (<span class="math-font text-sky-600">n</span>)</label>
+                                <span id="valN" class="text-sm font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded">0.015</span>
+                            </div>
+                            <select id="presetN" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-xs rounded mb-2 p-1.5 outline-none focus:border-sky-500">
+                                <option value="0.013">0.013 - Smooth Concrete</option>
+                                <option value="0.015" selected>0.015 - Lined Canal / Rough Concrete</option>
+                                <option value="0.023">0.023 - Unlined Excavated Earth</option>
+                                <option value="0.030">0.030 - Gravel / Earth with Stones</option>
+                            </select>
+                            <input type="range" id="slideN" min="0.01" max="0.05" step="0.001" value="0.015" class="slider-custom">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column: Mathematical Breakdown -->
+            <div class="lg:col-span-3 flex flex-col space-y-6">
+                <div class="glass-panel p-5 flex-grow flex flex-col">
+                    <h2 class="font-bold text-lg text-slate-800 border-b border-slate-200 pb-2 mb-3">Calculations</h2>
+                    
+                    <div class="space-y-4 text-sm text-slate-700 flex-grow">
+                        
+                        <!-- Geometry -->
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 shadow-sm">
+                            <div class="font-bold text-slate-800 mb-2 border-b border-slate-200 pb-1">1. Cross-Section Geometry</div>
+                            <div class="math-font text-xs space-y-1">
+                                <span class="eq-var">Area (A)</span> = b*d + z*d²<br>
+                                A = <span class="eq-val" id="mA_eq">1*0.83 + 1.5*0.83²</span><br>
+                                A = <span class="eq-ans" id="mA_ans">1.48</span> m² <br><br>
+
+                                <span class="eq-var">Wetted Perimeter (P)</span> = b + 2d√(1+z²)<br>
+                                P = <span class="eq-val" id="mP_eq">1 + 2*0.83*√(1+1.5²)</span><br>
+                                P = <span class="eq-ans" id="mP_ans">3.99</span> m <br><br>
+
+                                <span class="eq-var">Hydraulic Radius (R)</span> = A / P<br>
+                                R = <span class="eq-val" id="mR_eq">1.48 / 3.99</span> = <span class="eq-ans" id="mR_ans">0.37</span> m
+                            </div>
+                        </div>
+
+                        <!-- Manning's Equation -->
+                        <div class="bg-blue-50/50 p-3 rounded-lg border border-blue-100 shadow-sm">
+                            <div class="font-bold text-blue-900 mb-2 border-b border-blue-200 pb-1">2. Manning's Formula</div>
+                            <div class="math-font text-xs space-y-1">
+                                <span class="eq-var">Velocity (V)</span> = (1/n) * R^(2/3) * S^(1/2)<br>
+                                V = (1/<span id="mV_n">0.015</span>) * <span id="mV_R">0.37</span>^0.67 * (1/<span id="mV_S">1000</span>)^0.5<br>
+                                V = <span class="eq-ans" id="mV_ans">3.43</span> m/s <br><br>
+
+                                <span class="eq-var">Discharge (Q)</span> = A * V<br>
+                                Q = <span id="mQ_A">1.48</span> * <span id="mQ_V">3.43</span><br>
+                                Q = <span class="eq-ans text-sm" id="mQ_ans">5.00</span> m³/s
+                            </div>
+                        </div>
+
+                        <!-- Flow State -->
+                        <div class="p-3 rounded-lg border" id="froudeCard">
+                            <div class="font-bold mb-1">3. Flow Regime (Froude No.)</div>
+                            <div class="math-font text-xs">
+                                Fr = V / √(g * D<sub class="text-[10px]">h</sub>) = <span id="mFr_ans" class="font-bold">1.2</span><br>
+                                State: <span id="mFr_state" class="font-bold uppercase tracking-wider">Supercritical</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Visual Simulation -->
+            <div class="lg:col-span-5 flex flex-col h-[500px] lg:h-auto">
+                <div class="glass-panel flex flex-col h-full w-full overflow-hidden p-4">
+                    <div class="flex justify-between items-center mb-2 px-2">
+                        <h2 class="font-bold text-slate-800 text-sm">2D Cross-Section Simulation</h2>
+                        <div class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-500" id="badgeLining">
+                            Lined Canal (Concrete)
+                        </div>
+                    </div>
+                    <div id="canvas-container" class="flex-grow w-full rounded border border-slate-200">
+                        <canvas id="simCanvas" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const modeAnalyze = document.getElementById('modeAnalyze');
+        const modeDesign = document.getElementById('modeDesign');
+        const ctrlQ = document.getElementById('ctrlQ');
+        const ctrlD = document.getElementById('ctrlD');
+
+        const slideQ = document.getElementById('slideQ');
+        const slideB = document.getElementById('slideB');
+        const slideD = document.getElementById('slideD');
+        const slideZ = document.getElementById('slideZ');
+        const slideS = document.getElementById('slideS');
+        const slideN = document.getElementById('slideN');
+        const presetN = document.getElementById('presetN');
+        
+        const valQin = document.getElementById('valQin');
+        const valB = document.getElementById('valB');
+        const valDin = document.getElementById('valDin');
+        const valZ = document.getElementById('valZ');
+        const valS = document.getElementById('valS');
+        const valN = document.getElementById('valN');
+
+        // Math Output Elements
+        const mA_eq = document.getElementById('mA_eq'); const mA_ans = document.getElementById('mA_ans');
+        const mP_eq = document.getElementById('mP_eq'); const mP_ans = document.getElementById('mP_ans');
+        const mR_eq = document.getElementById('mR_eq'); const mR_ans = document.getElementById('mR_ans');
+        
+        const mV_n = document.getElementById('mV_n'); const mV_R = document.getElementById('mV_R');
+        const mV_S = document.getElementById('mV_S'); const mV_ans = document.getElementById('mV_ans');
+        
+        const mQ_A = document.getElementById('mQ_A'); const mQ_V = document.getElementById('mQ_V');
+        const mQ_ans = document.getElementById('mQ_ans');
+
+        const mFr_ans = document.getElementById('mFr_ans');
+        const mFr_state = document.getElementById('mFr_state');
+        const froudeCard = document.getElementById('froudeCard');
+        const badgeLining = document.getElementById('badgeLining');
+
+        // Canvas
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        // Textures
+        let soilPattern, concretePattern;
+
+        // State Variables
+        let state = {
+            mode: 'analyze', // 'analyze' or 'design'
+            Q_target: 5.0,
+            b: 1.0,
+            d: 2.0,
+            z: 1.5,
+            S: 1000,
+            n: 0.015,
+            
+            // Calculated outputs
+            A: 0, P: 0, R: 0, T: 0, V: 0, Q: 0, Fr: 0,
+            
+            time: 0
+        };
+
+        function initTextures() {
+            // Earth / Soil
+            const c1 = document.createElement('canvas');
+            c1.width = 40; c1.height = 40;
+            const ctx1 = c1.getContext('2d');
+            ctx1.fillStyle = '#b45309'; ctx1.fillRect(0,0,40,40); // Amber-700
+            ctx1.strokeStyle = '#92400e'; ctx1.lineWidth = 1;
+            ctx1.beginPath(); ctx1.moveTo(0,40); ctx1.lineTo(40,0); ctx1.stroke();
+            for(let i=0; i<20; i++) {
+                ctx1.fillStyle = '#78350f';
+                ctx1.beginPath(); ctx1.arc(Math.random()*40, Math.random()*40, 1, 0, Math.PI*2); ctx1.fill();
+            }
+            soilPattern = ctx.createPattern(c1, 'repeat');
+
+            // Concrete Lining
+            const c2 = document.createElement('canvas');
+            c2.width = 20; c2.height = 20;
+            const ctx2 = c2.getContext('2d');
+            ctx2.fillStyle = '#cbd5e1'; ctx2.fillRect(0,0,20,20);
+            ctx2.fillStyle = '#94a3b8';
+            for(let i=0; i<10; i++) {
+                ctx2.beginPath(); ctx2.arc(Math.random()*20, Math.random()*20, Math.random(), 0, Math.PI*2); ctx2.fill();
+            }
+            concretePattern = ctx.createPattern(c2, 'repeat');
+        }
+
+        function setMode(mode) {
+            state.mode = mode;
+            if (mode === 'analyze') {
+                modeAnalyze.classList.add('active');
+                modeDesign.classList.remove('active');
+                ctrlQ.classList.add('hidden');
+                ctrlD.classList.remove('hidden');
+            } else {
+                modeDesign.classList.add('active');
+                modeAnalyze.classList.remove('active');
+                ctrlQ.classList.remove('hidden');
+                ctrlD.classList.add('hidden');
+            }
+            calculateHydraulics();
+        }
+
+        presetN.addEventListener('change', (e) => {
+            slideN.value = e.target.value;
+            calculateHydraulics();
+        });
+
+        // Bisection method to find Depth (d) for a given Discharge (Q)
+        function solveForDepth(Q, b, z, n, S) {
+            let low = 0.001, high = 20.0, mid = 0;
+            const K_target = (Q * n) / Math.sqrt(1/S);
+            
+            // Loop for binary search
+            for(let i=0; i<50; i++) {
+                mid = (low + high) / 2;
+                let A = (b + z*mid)*mid;
+                let P = b + 2*mid*Math.sqrt(1 + z*z);
+                let K_current = Math.pow(A, 5/3) / Math.pow(P, 2/3);
+                
+                if (K_current > K_target) high = mid;
+                else low = mid;
+            }
+            return mid;
+        }
+
+        function calculateHydraulics() {
+            // Get inputs
+            state.Q_target = parseFloat(slideQ.value);
+            state.b = parseFloat(slideB.value);
+            state.z = parseFloat(slideZ.value);
+            state.S = parseFloat(slideS.value);
+            state.n = parseFloat(slideN.value);
+
+            if (state.mode === 'analyze') {
+                state.d = parseFloat(slideD.value);
+            } else {
+                // Design mode: Calculate d
+                state.d = solveForDepth(state.Q_target, state.b, state.z, state.n, state.S);
+                // Update slider visually (without triggering event)
+                slideD.value = state.d.toFixed(2); 
+            }
+
+            // Update UI values
+            valQin.innerHTML = `${state.Q_target} m³/s`;
+            valB.innerHTML = `${state.b} m`;
+            valDin.innerHTML = `${state.d.toFixed(2)} m`;
+            valZ.innerHTML = `${state.z} : 1`;
+            valS.innerHTML = `1 in ${state.S}`;
+            valN.innerHTML = state.n.toFixed(3);
+
+            // Core Math
+            state.A = (state.b + state.z * state.d) * state.d;
+            state.P = state.b + 2 * state.d * Math.sqrt(1 + Math.pow(state.z, 2));
+            state.R = state.A / state.P;
+            state.T = state.b + 2 * state.z * state.d;
+            
+            state.V = (1/state.n) * Math.pow(state.R, 2/3) * Math.pow(1/state.S, 1/2);
+            state.Q = state.A * state.V;
+
+            // Froude Number (Fr = V / sqrt(g * Dh)), Dh = A/T
+            const Dh = state.A / state.T;
+            state.Fr = state.V / Math.sqrt(9.81 * Dh);
+
+            // Update Math Panel
+            mA_eq.innerHTML = `${state.b.toFixed(1)}*${state.d.toFixed(2)} + ${state.z.toFixed(1)}*${state.d.toFixed(2)}²`;
+            mA_ans.innerHTML = state.A.toFixed(2);
+            
+            mP_eq.innerHTML = `${state.b.toFixed(1)} + 2*${state.d.toFixed(2)}*√(1+${state.z.toFixed(1)}²)`;
+            mP_ans.innerHTML = state.P.toFixed(2);
+            
+            mR_eq.innerHTML = `${state.A.toFixed(2)} / ${state.P.toFixed(2)}`;
+            mR_ans.innerHTML = state.R.toFixed(3);
+            
+            mV_n.innerHTML = state.n.toFixed(3);
+            mV_R.innerHTML = state.R.toFixed(2);
+            mV_S.innerHTML = state.S;
+            mV_ans.innerHTML = state.V.toFixed(2);
+
+            mQ_A.innerHTML = state.A.toFixed(2);
+            mQ_V.innerHTML = state.V.toFixed(2);
+            mQ_ans.innerHTML = state.Q.toFixed(2);
+
+            mFr_ans.innerHTML = state.Fr.toFixed(2);
+            if (state.Fr < 1.0) {
+                mFr_state.innerHTML = "Subcritical (Tranquil)";
+                froudeCard.className = "p-3 rounded-lg border bg-green-50 border-green-200 text-green-900 shadow-sm";
+            } else {
+                mFr_state.innerHTML = "Supercritical (Rapid)";
+                froudeCard.className = "p-3 rounded-lg border bg-red-50 border-red-200 text-red-900 shadow-sm";
+            }
+
+            if (state.n < 0.018) {
+                badgeLining.innerHTML = "Lined Canal (Concrete/Brick)";
+                badgeLining.className = "text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-1 rounded";
+            } else {
+                badgeLining.innerHTML = "Unlined Canal (Earth/Alluvium)";
+                badgeLining.className = "text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-1 rounded";
+            }
+        }
+
+        // Arrow drawing utility
+        function drawArrow(ctx, x1, y1, x2, y2, label="", vertical=false, offset=0) {
+            ctx.save();
+            ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1.5; ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+            
+            // Ticks
+            const t = 4;
+            if(vertical) {
+                ctx.beginPath(); ctx.moveTo(x1-t, y1); ctx.lineTo(x1+t, y1); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x2-t, y2); ctx.lineTo(x2+t, y2); ctx.stroke();
+            } else {
+                ctx.beginPath(); ctx.moveTo(x1, y1-t); ctx.lineTo(x1, y1+t); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x2, y2-t); ctx.lineTo(x2, y2+t); ctx.stroke();
+            }
+
+            if(label) {
+                ctx.font = '12px JetBrains Mono'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                const cx = (x1+x2)/2; const cy = (y1+y2)/2;
+                if(vertical) {
+                    ctx.translate(cx + offset, cy); ctx.rotate(-Math.PI/2);
+                    ctx.fillText(label, 0, 0);
+                } else {
+                    ctx.fillText(label, cx, cy + offset);
+                }
+            }
+            ctx.restore();
+        }
+
+        function drawFrame() {
+            const cw = canvas.width / window.devicePixelRatio;
+            const ch = canvas.height / window.devicePixelRatio;
+            state.time = Date.now();
+            ctx.clearRect(0, 0, cw, ch);
+
+            const cx = cw / 2;
+            const cy = ch - 60; // Bottom of canal
+
+            // Dynamic Scaling
+            // Max depth visually is roughly state.d * 1.5. Total width is b + 2*z*(d*1.5)
+            const maxD = state.d * 1.5 + 0.5;
+            const totalW = state.b + 2 * state.z * maxD + 2.0; // padding
+            
+            const scaleX = cw / totalW;
+            const scaleY = (ch - 80) / maxD;
+            const scale = Math.min(scaleX, scaleY);
+
+            const b_px = state.b * scale;
+            const d_px = state.d * scale;
+            const z_px = state.z * scale; // horizontal shift per 1 unit vertical
+            const maxD_px = maxD * scale;
+
+            // Geometry Points (Canal Trench)
+            const ptBL = {x: cx - b_px/2, y: cy};
+            const ptBR = {x: cx + b_px/2, y: cy};
+            const ptTL = {x: ptBL.x - (state.z * maxD_px), y: cy - maxD_px};
+            const ptTR = {x: ptBR.x + (state.z * maxD_px), y: cy - maxD_px};
+
+            // 1. Draw Soil/Ground Background
+            ctx.fillStyle = soilPattern;
+            ctx.beginPath();
+            ctx.moveTo(0, 0); ctx.lineTo(cw, 0); ctx.lineTo(cw, ch); ctx.lineTo(0, ch);
+            ctx.closePath(); ctx.fill();
+
+            // 2. Cut out the Canal Trench
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.moveTo(ptTL.x, ptTL.y - 100); // go high above
+            ctx.lineTo(ptTL.x, ptTL.y);
+            ctx.lineTo(ptBL.x, ptBL.y);
+            ctx.lineTo(ptBR.x, ptBR.y);
+            ctx.lineTo(ptTR.x, ptTR.y);
+            ctx.lineTo(ptTR.x, ptTR.y - 100);
+            ctx.closePath();
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+
+            // Fill sky where we cut out
+            ctx.fillStyle = '#e0f2fe';
+            ctx.beginPath();
+            ctx.moveTo(ptTL.x, ptTL.y - 100); ctx.lineTo(ptTL.x, ptTL.y);
+            ctx.lineTo(ptBL.x, ptBL.y); ctx.lineTo(ptBR.x, ptBR.y);
+            ctx.lineTo(ptTR.x, ptTR.y); ctx.lineTo(ptTR.x, ptTR.y - 100);
+            ctx.closePath(); ctx.fill();
+
+            // 3. Draw Canal Lining or Rough Earth Boundary
+            ctx.beginPath();
+            ctx.moveTo(0, ptTL.y); ctx.lineTo(ptTL.x, ptTL.y);
+            ctx.lineTo(ptBL.x, ptBL.y); ctx.lineTo(ptBR.x, ptBR.y);
+            ctx.lineTo(ptTR.x, ptTR.y); ctx.lineTo(cw, ptTR.y);
+            
+            if (state.n < 0.018) {
+                // Concrete Lined
+                ctx.strokeStyle = '#475569'; ctx.lineWidth = 6; ctx.stroke();
+                ctx.strokeStyle = concretePattern; ctx.lineWidth = 4; ctx.stroke();
+            } else {
+                // Unlined Earth
+                ctx.strokeStyle = '#78350f'; ctx.lineWidth = 4; ctx.stroke();
+                // Add roughness
+                ctx.strokeStyle = '#451a03'; ctx.lineWidth = 1;
+                for(let i=0; i<20; i++) {
+                    let rx = ptTL.x + Math.random()*(ptTR.x - ptTL.x);
+                    let ry = ptTL.y + Math.random()*(ptBL.y - ptTL.y);
+                    if (ry > cy) ry = cy; // constrain roughly
+                    ctx.beginPath(); ctx.arc(rx, ry, Math.random()*2, 0, Math.PI); ctx.stroke();
+                }
+            }
+
+            // 4. Draw Water
+            const wTL = {x: ptBL.x - (state.z * d_px), y: cy - d_px};
+            const wTR = {x: ptBR.x + (state.z * d_px), y: cy - d_px};
+
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.7)'; // Sky-500 transparent
+            ctx.beginPath();
+            ctx.moveTo(wTL.x, wTL.y);
+            
+            // Surface Ripples
+            for(let x = wTL.x; x <= wTR.x; x += 10) {
+                let wave = Math.sin(x*0.05 + state.time*0.005) * 4 * (state.V / 2); // Amplitude scales with velocity
+                ctx.lineTo(x, wTL.y + wave);
+            }
+            
+            ctx.lineTo(wTR.x, wTR.y);
+            ctx.lineTo(ptBR.x, ptBR.y);
+            ctx.lineTo(ptBL.x, ptBL.y);
+            ctx.closePath(); ctx.fill();
+
+            // Water surface line
+            ctx.strokeStyle = '#0284c7'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(wTL.x, wTL.y); ctx.lineTo(wTR.x, wTR.y); ctx.stroke();
+
+            // Velocity Particles (Moving away/towards viewer pseudo-3D)
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            for(let i=0; i<30; i++) {
+                let px = ptBL.x + Math.random()*b_px + (Math.random()-0.5)*(state.z*d_px);
+                let py = cy - Math.random()*d_px;
+                // Ensure inside trapezoid
+                let halfW_at_Y = (b_px/2) + state.z * (cy - py);
+                if (px > cx - halfW_at_Y && px < cx + halfW_at_Y && py > wTL.y) {
+                    let r = 1 + ((state.time + i*100) % 1000) / 300; // expand then reset
+                    let alpha = 1 - (r/4);
+                    ctx.globalAlpha = Math.max(0, alpha);
+                    ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI*2); ctx.fill();
+                }
+            }
+            ctx.globalAlpha = 1.0;
+
+            // 5. Dimensions & Annotations
+            // Depth (d)
+            drawArrow(ctx, wTR.x + 20, wTR.y, wTR.x + 20, ptBR.y, `d=${state.d.toFixed(2)}m`, true, 15);
+            ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.setLineDash([5,5]);
+            ctx.beginPath(); ctx.moveTo(wTR.x, wTR.y); ctx.lineTo(wTR.x + 30, wTR.y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(ptBR.x, ptBR.y); ctx.lineTo(wTR.x + 30, ptBR.y); ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Base Width (b)
+            drawArrow(ctx, ptBL.x, cy + 20, ptBR.x, cy + 20, `b=${state.b.toFixed(1)}m`, false, 15);
+
+            // Top Width (T)
+            drawArrow(ctx, wTL.x, wTL.y - 20, wTR.x, wTR.y - 20, `T=${state.T.toFixed(2)}m`, false, -15);
+
+            // Side Slope Triangle (1:z)
+            const sX = ptBL.x - 20;
+            const sY = cy - 40;
+            const sW = -40; // draw to left
+            const sH = sW / state.z;
+            
+            if (state.z > 0) {
+                ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1.5; ctx.fillStyle = '#0f172a';
+                ctx.beginPath(); ctx.moveTo(sX, sY); ctx.lineTo(sX + sW, sY); ctx.lineTo(sX, sY + sH); ctx.closePath(); ctx.stroke();
+                ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'center';
+                ctx.fillText(`z=${state.z}`, sX + sW/2, sY - 5);
+                ctx.fillText('1', sX + 10, sY + sH/2);
+            }
+
+            // Velocity Label
+            ctx.fillStyle = '#0f172a'; ctx.font = 'bold 16px Inter'; ctx.textAlign = 'center';
+            ctx.fillText(`Velocity: ${state.V.toFixed(2)} m/s`, cx, wTL.y + d_px/2);
+
+            requestAnimationFrame(drawFrame);
+        }
+
+        // Setup Event Listeners
+        [slideQ, slideB, slideD, slideZ, slideS, slideN].forEach(el => {
+            el.addEventListener('input', calculateHydraulics);
+        });
+
+        window.addEventListener('resize', () => {
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        });
+
+        // Init
+        initTextures();
+        const rect = container.getBoundingClientRect();
+        canvas.width = rect.width * window.devicePixelRatio;
+        canvas.height = rect.height * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        
+        setMode('analyze'); // Initialize first calculation
+        requestAnimationFrame(drawFrame);
+
+    </script>
+</body>
+</html>
+

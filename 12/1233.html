@@ -1,0 +1,535 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Types of Contracts - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; /* Allow last item to be comfortably viewed */
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0); /* Hardware acceleration */
+        }
+
+        /* Canvas styling */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400">
+                Types of Contracts
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Deep Visual Memorization</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Point 1: Lump Sum -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-blue-500/30 shadow-[0_10px_30px_-10px_rgba(59,130,246,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-lump" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><i data-lucide="package-check" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-blue-400">1. Lump Sum Contract</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Fixed Price for Whole Work:</strong> The contractor agrees to execute a complete piece of work for a fixed, agreed-upon sum of money. Changes in material costs usually do not affect the final payout.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 2: Item Rate -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-item" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="list-ordered" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">2. Item Rate Contract</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Payment by Quantity:</strong> Also known as a Unit Price contract. The contractor is paid based on the actual quantities of work done (e.g., per cubic meter of concrete) at agreed-upon unit rates.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 3: Labour Contract -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-orange-500/30 shadow-[0_10px_30px_-10px_rgba(249,115,22,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-labour" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-orange-500/20 text-orange-400 rounded-lg"><i data-lucide="hard-hat" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-orange-400">3. Labour Contract</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Owner Provides Materials:</strong> The contractor provides only the labor, tools, and scaffolding required. The client/owner supplies all the construction materials (bricks, cement, steel).
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 4: Cost Plus Contract -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-costplus" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="badge-percent" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">4. Cost Plus Contract</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Actual Cost + Profit Fee:</strong> The contractor is reimbursed for the actual costs incurred during construction, plus a fixed percentage or lump sum as their profit fee.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 5: BOOT Contract -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-teal-500/30 shadow-[0_10px_30px_-10px_rgba(20,184,166,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-boot" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-teal-500/20 text-teal-400 rounded-lg"><i data-lucide="arrow-right-left" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-teal-400">5. B.O.O.T. Contract</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Build-Own-Operate-Transfer:</strong> A private entity Finances & Builds the project, Owns & Operates it for a concession period to recover costs (e.g., collecting tolls), and then Transfers ownership to the government.
+                </p>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            lump: document.getElementById('canvas-lump'),
+            item: document.getElementById('canvas-item'),
+            labour: document.getElementById('canvas-labour'),
+            costplus: document.getElementById('canvas-costplus'),
+            boot: document.getElementById('canvas-boot')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); // Reset
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- DRAWING PRIMITIVES --- //
+
+        function drawPerson(ctx, x, y, role, scale = 1) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            if (role === 'owner') {
+                // Owner in a suit
+                ctx.fillStyle = '#334155'; // Dark suit
+                ctx.beginPath(); ctx.roundRect(-10, -5, 20, 20, 4); ctx.fill();
+                ctx.fillStyle = '#f8fafc'; // Shirt
+                ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(-4, 4); ctx.lineTo(4, 4); ctx.fill();
+                ctx.fillStyle = '#ef4444'; // Tie
+                ctx.fillRect(-1, -5, 2, 10);
+                // Head
+                ctx.fillStyle = '#fcd34d'; // Skin
+                ctx.beginPath(); ctx.arc(0, -12, 8, 0, Math.PI * 2); ctx.fill();
+            } else if (role === 'worker') {
+                // Worker in vest and hardhat
+                ctx.fillStyle = '#f97316'; // Orange vest
+                ctx.beginPath(); ctx.roundRect(-12, -5, 24, 18, 6); ctx.fill();
+                ctx.fillStyle = '#cbd5e1'; // Stripes
+                ctx.fillRect(-8, 0, 4, 13); ctx.fillRect(4, 0, 4, 13);
+                // Head
+                ctx.fillStyle = '#fcd34d'; ctx.beginPath(); ctx.arc(0, -10, 8, 0, Math.PI * 2); ctx.fill();
+                // Hardhat
+                ctx.fillStyle = '#eab308';
+                ctx.beginPath(); ctx.arc(0, -12, 9, Math.PI, Math.PI * 2); ctx.fill();
+                ctx.fillRect(-12, -12, 24, 3);
+            }
+            ctx.restore();
+        }
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Lump Sum (Blue) - Fixed box/contract turns into a full building
+        function renderLumpSum(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+            
+            // Background Contract Paper
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(cx - 60, cy - 50, 120, 100);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(cx - 40, cy - 30, 80, 6);
+            ctx.fillRect(cx - 40, cy - 15, 60, 6);
+            
+            // Padlock (Fixed Price)
+            const lockScale = p < 0.4 ? 1 : (p < 0.5 ? 1 + (p-0.4)*2 : 1);
+            ctx.save();
+            ctx.translate(cx, cy + 15);
+            ctx.scale(lockScale, lockScale);
+            
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.arc(0, -15, 12, Math.PI, 0); ctx.stroke();
+            ctx.fillStyle = '#3b82f6';
+            ctx.beginPath(); ctx.roundRect(-18, -15, 36, 25, 4); ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.fillText("$1M", 0, 0);
+            ctx.restore();
+
+            // Transform into Building
+            if (p > 0.5) {
+                const buildProg = Math.min(1, (p - 0.5) * 2.5); // 0 to 1
+                
+                // Exploding circle transition
+                if (buildProg < 0.3) {
+                    ctx.fillStyle = '#3b82f6';
+                    ctx.beginPath(); ctx.arc(cx, cy, buildProg * 300, 0, Math.PI*2); ctx.fill();
+                }
+
+                // Building popping up
+                ctx.save();
+                ctx.translate(cx, cy + 50);
+                const popScale = Math.min(1, buildProg * 1.5);
+                ctx.scale(popScale, popScale);
+
+                ctx.fillStyle = '#334155'; // Building body
+                ctx.fillRect(-40, -80, 80, 80);
+                ctx.fillStyle = '#38bdf8'; // Windows
+                for(let i=-25; i<=15; i+=20) {
+                    for(let j=-70; j<=-20; j+=20) {
+                        ctx.fillRect(i, j, 10, 10);
+                    }
+                }
+                ctx.fillStyle = '#0ea5e9'; // Door
+                ctx.fillRect(-10, -20, 20, 20);
+
+                // Fixed Price Tag remains constant next to it
+                ctx.fillStyle = '#10b981';
+                ctx.beginPath(); ctx.roundRect(50, -60, 40, 20, 4); ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Inter'; ctx.textAlign = 'center'; ctx.fillText("FIXED", 70, -47);
+                ctx.restore();
+            }
+        }
+
+        // 2. Item Rate (Green) - Receipts growing and walls building piece by piece
+        function renderItemRate(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+            
+            // Left Side: Bill/Receipt
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath(); ctx.roundRect(cx - 100, cy - 60, 80, 120, 4); ctx.fill();
+            ctx.fillStyle = '#10b981';
+            ctx.fillRect(cx - 100, cy - 60, 80, 20); // header
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Inter'; ctx.textAlign = 'center'; ctx.fillText("BILL OF QTY", cx - 60, cy - 47);
+
+            // Right Side: Wall being built
+            const wallX = cx + 20;
+            const wallY = cy + 40;
+            
+            // Phases (3 items)
+            const phase = Math.floor(p * 4); // 0, 1, 2, 3
+
+            ctx.fillStyle = '#334155'; ctx.textAlign = 'left';
+            
+            // Item 1: Foundation
+            if (phase >= 0) {
+                ctx.fillText("1. Excav. $10", cx - 95, cy - 20);
+                ctx.fillStyle = '#78716c'; // Dirt
+                ctx.fillRect(wallX, wallY, 60, 20);
+            }
+            // Item 2: Concrete
+            if (phase >= 1) {
+                ctx.fillStyle = '#334155'; ctx.fillText("2. Concr. $20", cx - 95, cy - 5);
+                ctx.fillStyle = '#94a3b8'; // Concrete
+                ctx.fillRect(wallX + 5, wallY - 15, 50, 15);
+            }
+            // Item 3: Brickwork
+            if (phase >= 2) {
+                ctx.fillStyle = '#334155'; ctx.fillText("3. Bricks $30", cx - 95, cy + 10);
+                ctx.fillStyle = '#ef4444'; // Bricks
+                ctx.fillRect(wallX + 10, wallY - 30, 40, 15);
+                ctx.strokeStyle = '#f8fafc'; ctx.lineWidth=1;
+                ctx.strokeRect(wallX + 10, wallY - 30, 20, 15); ctx.strokeRect(wallX + 30, wallY - 30, 20, 15);
+            }
+
+            // Total dynamically updating
+            if (phase >= 3) {
+                ctx.fillStyle = '#10b981';
+                ctx.fillRect(cx - 95, cy + 25, 70, 2);
+                ctx.fillStyle = '#0f172a'; ctx.font = 'bold 12px Inter';
+                ctx.fillText("Total: $60", cx - 95, cy + 45);
+            }
+        }
+
+        // 3. Labour Contract (Orange) - Owner passes materials to Worker
+        function renderLabour(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+            
+            const ownerX = cx - 70;
+            const workerX = cx + 40;
+            const floorY = cy + 40;
+
+            // Draw Actors
+            drawPerson(ctx, ownerX, floorY, 'owner', 1.5);
+            drawPerson(ctx, workerX, floorY, 'worker', 1.5);
+            
+            ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+            ctx.fillText("Owner", ownerX, floorY + 30);
+            ctx.fillText("Contractor", workerX, floorY + 30);
+
+            // Animation Phases
+            // 0-0.4: Owner passes material
+            // 0.4-0.8: Worker places material
+            // 0.8-1.0: Idle/Reset
+
+            // Draw Wall being built by worker
+            ctx.fillStyle = '#ef4444';
+            const blocksBuilt = Math.floor(p * 3); // keep wall growing over cycles? Let's just draw a static half-built wall
+            ctx.fillRect(workerX + 30, floorY - 15, 20, 15);
+            ctx.fillRect(workerX + 30, floorY, 20, 15);
+
+            // Animated Material Block (Yellow/Cement or Red/Brick)
+            const blockColor = '#fcd34d'; // Cement bag
+            ctx.fillStyle = blockColor;
+            
+            if (p < 0.4) {
+                // Arc from Owner to Worker
+                const throwP = p / 0.4; // 0 to 1
+                const x = ownerX + 15 + (workerX - ownerX - 35) * throwP;
+                const y = (floorY - 10) - Math.sin(throwP * Math.PI) * 30; // Parabolic arc
+                ctx.beginPath(); ctx.roundRect(x, y, 15, 10, 2); ctx.fill();
+                
+                // Label "Material" above owner initially
+                ctx.fillStyle = '#f8fafc'; ctx.fillText("Provides Material", cx - 20, cy - 40);
+            } else if (p < 0.8) {
+                // Worker puts it on the wall
+                const placeP = (p - 0.4) / 0.4;
+                const x = workerX + 5 + (25 * placeP);
+                const y = (floorY - 10) - (20 * placeP);
+                ctx.beginPath(); ctx.roundRect(x, y, 15, 10, 2); ctx.fill();
+                
+                // Label
+                ctx.fillStyle = '#f97316'; ctx.fillText("Provides Labour", workerX, cy - 40);
+            } else {
+                // Block is placed
+                ctx.beginPath(); ctx.roundRect(workerX + 30, floorY - 30, 15, 10, 2); ctx.fill();
+            }
+        }
+
+        // 4. Cost Plus (Purple) - Actual Cost graph fills, then Profit Fee drops on top
+        function renderCostPlus(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 50;
+            
+            const barW = 80;
+            const maxCostH = 80;
+            
+            // Base Cost growing (Simulating actual cost fluctuating then finalizing)
+            let costH = 0;
+            if (p < 0.4) {
+                costH = maxCostH * (p / 0.4);
+            } else {
+                costH = maxCostH;
+            }
+
+            // Draw "Actual Cost" Bar
+            ctx.fillStyle = '#94a3b8'; // Slate base
+            ctx.beginPath(); ctx.roundRect(cx - barW/2, cy - costH, barW, costH, 4); ctx.fill();
+            
+            if (costH > 20) {
+                ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
+                ctx.fillText("Actual Cost", cx, cy - costH/2 + 5);
+            }
+
+            // Drop Profit Fee on Top
+            if (p >= 0.5) {
+                const dropP = Math.min(1, (p - 0.5) / 0.2); // 0 to 1
+                const feeH = 30;
+                
+                // Starts high, drops down
+                const startY = cy - maxCostH - 100;
+                const endY = cy - maxCostH - feeH;
+                const currentY = startY + (endY - startY) * Math.sin(dropP * Math.PI / 2); // Ease out
+                
+                ctx.fillStyle = '#a855f7'; // Purple fee
+                ctx.beginPath(); ctx.roundRect(cx - barW/2, currentY, barW, feeH, 4); ctx.fill();
+                
+                ctx.fillStyle = '#fff';
+                ctx.fillText("+ % Profit Fee", cx, currentY + 20);
+
+                // Add sparkle if dropped
+                if (dropP === 1) {
+                    ctx.fillStyle = '#facc15';
+                    const pulse = Math.abs(Math.sin(p * Math.PI * 10)) * 3;
+                    ctx.beginPath(); ctx.arc(cx + barW/2, currentY, 5 + pulse, 0, Math.PI*2); ctx.fill();
+                }
+            }
+        }
+
+        // 5. B.O.O.T Contract (Teal) - Four quadrants highlighting in sequence
+        function renderBOOT(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+            const r = 50;
+
+            // Draw circular timeline track
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+
+            // Quadrants: Build (Top Right), Own (Bottom Right), Operate (Bottom Left), Transfer (Top Left)
+            const phases = [
+                { text: "B: Build", angle: -Math.PI/4, icon: "🏗️", color: "#eab308" },
+                { text: "O: Own", angle: Math.PI/4, icon: "👑", color: "#a855f7" },
+                { text: "O: Operate", angle: Math.PI*0.75, icon: "⚙️", color: "#3b82f6" },
+                { text: "T: Transfer", angle: -Math.PI*0.75, icon: "🏛️", color: "#14b8a6" }
+            ];
+
+            const activeIndex = Math.floor(p * 4); // 0, 1, 2, 3
+
+            // Draw Progress Arc
+            const currentAngle = -Math.PI/2 + (p * Math.PI * 2);
+            ctx.strokeStyle = phases[activeIndex].color;
+            ctx.lineWidth = 6;
+            ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI/2, currentAngle); ctx.stroke();
+
+            phases.forEach((ph, i) => {
+                const px = cx + Math.cos(ph.angle) * r;
+                const py = cy + Math.sin(ph.angle) * r;
+                
+                const isActive = i === activeIndex;
+                
+                // Node
+                ctx.fillStyle = isActive ? ph.color : '#1e293b';
+                ctx.beginPath(); ctx.arc(px, py, isActive ? 18 : 12, 0, Math.PI*2); ctx.fill();
+                
+                // Icon
+                ctx.fillStyle = isActive ? '#fff' : '#94a3b8';
+                ctx.font = isActive ? '16px serif' : '12px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(ph.icon, px, py);
+
+                // Label (Only show active to avoid clutter)
+                if (isActive) {
+                    const lx = cx + Math.cos(ph.angle) * (r + 40);
+                    const ly = cy + Math.sin(ph.angle) * (r + 40);
+                    
+                    ctx.fillStyle = ph.color;
+                    ctx.font = 'bold 12px Inter';
+                    
+                    // Box behind text
+                    const tw = ctx.measureText(ph.text).width;
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+                    ctx.fillRect(lx - tw/2 - 5, ly - 10, tw + 10, 20);
+                    
+                    ctx.fillStyle = ph.color;
+                    ctx.fillText(ph.text, lx, ly);
+                }
+            });
+            
+            // Center Logo
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 20px Inter'; ctx.fillText("BOOT", cx, cy);
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 4000; // 4 seconds per loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; // 0.0 to 1.0
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'lump': renderLumpSum(ctx, w, h, p); break;
+                    case 'item': renderItemRate(ctx, w, h, p); break;
+                    case 'labour': renderLabour(ctx, w, h, p); break;
+                    case 'costplus': renderCostPlus(ctx, w, h, p); break;
+                    case 'boot': renderBOOT(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
+
+```

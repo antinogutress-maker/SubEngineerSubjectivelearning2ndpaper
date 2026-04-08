@@ -1,0 +1,539 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Construction Stages - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
+                Construction Lifecycle
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Deep Visual Memorization</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Phase 1: Initiation -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-yellow-500/30 shadow-[0_10px_30px_-10px_rgba(234,179,8,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-initiation" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg"><i data-lucide="lightbulb" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-yellow-400">1. Initiation Phase</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>The Idea & Charter:</strong> The project is born. Feasibility studies are conducted, the business case is made, and the <strong>Project Charter</strong> is signed. The Project Manager is officially appointed.
+                </p>
+            </div>
+        </article>
+
+        <!-- Phase 2: Planning -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-blue-500/30 shadow-[0_10px_30px_-10px_rgba(59,130,246,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-planning" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><i data-lucide="map" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-blue-400">2. Planning Phase</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Blueprints & Schedules:</strong> The "How-To" guide is created. This includes detailed engineering blueprints, budgeting, resource allocation, risk management plans, and Gantt/CPM schedules.
+                </p>
+            </div>
+        </article>
+
+        <!-- Phase 3: Execution -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-orange-500/30 shadow-[0_10px_30px_-10px_rgba(249,115,22,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-execution" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-orange-500/20 text-orange-400 rounded-lg"><i data-lucide="hammer" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-orange-400">3. Execution Phase</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Putting Plans to Action:</strong> The actual physical construction takes place. Labor, materials, and machinery are deployed. This phase consumes the most budget and time.
+                </p>
+            </div>
+        </article>
+
+        <!-- Phase 4: Controlling -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-controlling" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="activity" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">4. Controlling & Monitoring</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Keeping on Track:</strong> Runs parallel to Execution. Measuring actual progress against the planned baseline. Includes quality checks, cost tracking, and taking corrective actions if delayed.
+                </p>
+            </div>
+        </article>
+
+        <!-- Phase 5: Closing -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-closing" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="key" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">5. Closing Phase</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Handover:</strong> The project is officially finished. Conducting final inspections, handing over the keys/facility to the owner, releasing staff/equipment, and archiving project records.
+                </p>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            initiation: document.getElementById('canvas-initiation'),
+            planning: document.getElementById('canvas-planning'),
+            execution: document.getElementById('canvas-execution'),
+            controlling: document.getElementById('canvas-controlling'),
+            closing: document.getElementById('canvas-closing')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Initiation (Idea turning into a Charter)
+        function renderInitiation(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            if (p < 0.4) {
+                // Glow & Lightbulb
+                const glowP = p / 0.4;
+                
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.scale(glowP, glowP);
+                
+                ctx.shadowBlur = 30 * glowP;
+                ctx.shadowColor = '#facc15';
+                
+                // Bulb glass
+                ctx.fillStyle = '#fef08a';
+                ctx.beginPath(); ctx.arc(0, -10, 20, 0, Math.PI*2); ctx.fill();
+                ctx.fillRect(-10, -5, 20, 15);
+                
+                // Base
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillRect(-10, 10, 20, 10);
+                ctx.fillStyle = '#475569';
+                ctx.fillRect(-5, 20, 10, 5);
+
+                // Rays
+                ctx.strokeStyle = '#facc15'; ctx.lineWidth = 3;
+                const rayOffset = 30 + (Math.sin(Date.now()/100) * 5);
+                for(let i=0; i<8; i++) {
+                    ctx.save();
+                    ctx.rotate((Math.PI * 2 / 8) * i);
+                    ctx.beginPath(); ctx.moveTo(0, -rayOffset); ctx.lineTo(0, -rayOffset - 10); ctx.stroke();
+                    ctx.restore();
+                }
+                
+                ctx.fillStyle = '#facc15';
+                ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
+                ctx.fillText("THE IDEA", 0, 45);
+
+                ctx.restore();
+            } else {
+                // Morph into Project Charter & Stamp
+                const docP = Math.min(1, (p - 0.4) * 3);
+                
+                ctx.save();
+                ctx.translate(cx, cy);
+                
+                // Document appearing
+                ctx.globalAlpha = docP;
+                ctx.fillStyle = '#f8fafc';
+                ctx.beginPath(); ctx.roundRect(-40, -50, 80, 100, 4); ctx.fill();
+                
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 10px Inter'; ctx.textAlign = 'center';
+                ctx.fillText("PROJECT", 0, -35);
+                ctx.fillText("CHARTER", 0, -25);
+                
+                ctx.fillStyle = '#cbd5e1';
+                ctx.fillRect(-25, -10, 50, 4);
+                ctx.fillRect(-25, 0, 50, 4);
+                ctx.fillRect(-25, 10, 30, 4);
+
+                // Stamp slamming down
+                if (p > 0.7) {
+                    const stampP = Math.min(1, (p - 0.7) * 5);
+                    ctx.save();
+                    if (stampP < 1) {
+                        ctx.scale(1 + (1-stampP)*2, 1 + (1-stampP)*2);
+                        ctx.globalAlpha = stampP;
+                    }
+                    ctx.rotate(-0.2);
+                    ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 3;
+                    ctx.strokeRect(-35, 15, 70, 20);
+                    ctx.fillStyle = '#22c55e';
+                    ctx.font = '900 12px Inter'; ctx.fillText("APPROVED", 0, 29);
+                    ctx.restore();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        // 2. Planning (Blueprint unrolling, schedules appearing)
+        function renderPlanning(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Blueprint unrolling
+            const unrollP = Math.min(1, p * 2);
+            const bpWidth = 140 * unrollP;
+            
+            ctx.save();
+            ctx.translate(cx, cy);
+            
+            if (unrollP > 0) {
+                // Blueprint paper
+                ctx.fillStyle = '#0284c7';
+                ctx.beginPath(); ctx.roundRect(-bpWidth/2, -50, bpWidth, 100, 2); ctx.fill();
+                
+                // Grid lines (fade in)
+                if (unrollP === 1) {
+                    ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1;
+                    for(let i=-60; i<=60; i+=10) {
+                        ctx.beginPath(); ctx.moveTo(i, -50); ctx.lineTo(i, 50); ctx.stroke();
+                    }
+                    for(let i=-40; i<=40; i+=10) {
+                        ctx.beginPath(); ctx.moveTo(-70, i); ctx.lineTo(70, i); ctx.stroke();
+                    }
+
+                    // Gantt Chart appearing step by step
+                    const ganttP = Math.max(0, (p - 0.5) * 2);
+                    ctx.fillStyle = '#f8fafc';
+                    if (ganttP > 0.2) ctx.fillRect(-50, -30, 30, 8);
+                    if (ganttP > 0.5) ctx.fillRect(-30, -15, 40, 8);
+                    if (ganttP > 0.8) ctx.fillRect(0, 0, 50, 8);
+                    
+                    // Critical path line
+                    if (ganttP > 0.9) {
+                        ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2;
+                        ctx.beginPath(); ctx.moveTo(-20, -26); ctx.lineTo(-20, -11); ctx.lineTo(10, -11); ctx.lineTo(10, 4); ctx.stroke();
+                    }
+
+                    // Budget calculator icon
+                    ctx.fillStyle = '#1e293b';
+                    ctx.beginPath(); ctx.roundRect(30, 15, 25, 30, 3); ctx.fill();
+                    ctx.fillStyle = '#22c55e'; ctx.fillRect(33, 18, 19, 8); // screen
+                    ctx.fillStyle = '#cbd5e1'; 
+                    ctx.fillRect(34, 30, 4, 4); ctx.fillRect(40, 30, 4, 4); ctx.fillRect(46, 30, 4, 4);
+                    ctx.fillRect(34, 36, 4, 4); ctx.fillRect(40, 36, 4, 4); ctx.fillRect(46, 36, 4, 4);
+                }
+            }
+            ctx.restore();
+        }
+
+        // 3. Execution (Building growing, crane moving)
+        function renderExecution(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 40;
+
+            // Ground
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(0, cy, w, 20);
+
+            // Building grows in 3 stages
+            const stages = Math.floor(p * 4); // 0, 1, 2, 3
+            
+            ctx.fillStyle = '#f97316'; // Orange blocks
+            const bW = 60;
+            const bH = 20;
+
+            if (stages >= 0) { ctx.fillRect(cx - bW/2, cy - bH, bW, bH); }
+            if (stages >= 1) { ctx.fillRect(cx - bW/2, cy - bH*2, bW, bH); }
+            if (stages >= 2) { ctx.fillRect(cx - bW/2, cy - bH*3, bW, bH); }
+
+            // Grid/windows
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+            for(let i=0; i<stages && i<3; i++) {
+                ctx.strokeRect(cx - bW/2, cy - bH*(i+1), bW, bH);
+                ctx.strokeRect(cx - bW/2 + 20, cy - bH*(i+1), 20, bH);
+            }
+
+            // Crane Animation
+            ctx.save();
+            ctx.translate(cx + 60, cy); // Crane base right side
+            
+            // Tower
+            ctx.fillStyle = '#facc15'; // Yellow crane
+            ctx.fillRect(-5, -120, 10, 120);
+            
+            // Jib (Arm) rotating slightly
+            const swing = Math.sin(p * Math.PI * 2) * 0.1;
+            ctx.translate(0, -110);
+            ctx.rotate(swing);
+            
+            ctx.fillRect(-80, -5, 100, 10);
+            
+            // Hook dropping block
+            let hookY = 20;
+            if (stages < 3) {
+                // Drop animation within each stage
+                const stageP = (p * 4) % 1;
+                hookY = 20 + (stageP * 60);
+                
+                // Draw dangling block
+                ctx.fillStyle = '#f97316';
+                ctx.fillRect(-75, hookY, bW, bH);
+                ctx.strokeRect(-75, hookY, bW, bH);
+            }
+
+            // Hook line
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(-45, 5); ctx.lineTo(-45, hookY); ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // 4. Controlling (Scanning the building, dashboards)
+        function renderControlling(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 20;
+
+            // Existing Building
+            const bW = 60;
+            const bH = 60;
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(0, cy, w, 20); // ground
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(cx - 60, cy - bH, bW, bH); // Left building
+            
+            // Dashboard / HUD overlays
+            ctx.save();
+            
+            // 1. Laser Scanner going up and down
+            const scanY = (cy - bH) + (Math.sin(p * Math.PI * 2) + 1)/2 * bH;
+            ctx.strokeStyle = '#a855f7'; // Purple laser
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(cx - 80, scanY); ctx.lineTo(cx + 20, scanY); ctx.stroke();
+            ctx.fillStyle = 'rgba(168, 85, 247, 0.2)';
+            ctx.fillRect(cx - 60, cy - bH, bW, scanY - (cy - bH));
+
+            // 2. Control Dial / Gauge (Right side)
+            ctx.translate(cx + 40, cy - 30);
+            ctx.beginPath(); ctx.arc(0, 0, 25, Math.PI, 0);
+            ctx.fillStyle = '#1e293b'; ctx.fill();
+            
+            // Color zones
+            ctx.beginPath(); ctx.arc(0, 0, 20, Math.PI, Math.PI*1.3); ctx.strokeStyle = '#ef4444'; ctx.lineWidth=6; ctx.stroke();
+            ctx.beginPath(); ctx.arc(0, 0, 20, Math.PI*1.3, Math.PI*1.7); ctx.strokeStyle = '#facc15'; ctx.stroke();
+            ctx.beginPath(); ctx.arc(0, 0, 20, Math.PI*1.7, Math.PI*2); ctx.strokeStyle = '#22c55e'; ctx.stroke();
+            
+            // Needle fluctuating but settling in green
+            const needleAngle = Math.PI + (Math.sin(p * Math.PI * 6) * 0.2) + (Math.PI * 0.85); 
+            ctx.rotate(needleAngle);
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath(); ctx.moveTo(-2, 0); ctx.lineTo(2, 0); ctx.lineTo(0, -22); ctx.fill();
+            ctx.restore();
+
+            // Status Text
+            ctx.fillStyle = '#a855f7';
+            ctx.font = 'bold 10px Inter'; ctx.textAlign = 'center';
+            if (p % 0.5 < 0.25) ctx.fillText("CHECKING...", cx, cy + 35);
+            else ctx.fillText("ON TRACK ✓", cx, cy + 35);
+        }
+
+        // 5. Closing (Finished building, ribbon cut, keys)
+        function renderClosing(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 30;
+
+            // Finished Building
+            ctx.fillStyle = '#334155'; ctx.fillRect(0, cy, w, 20); // ground
+            ctx.fillStyle = '#0ea5e9'; // Glassy finished look
+            ctx.fillRect(cx - 40, cy - 80, 80, 80);
+            // Windows
+            ctx.fillStyle = '#e0f2fe';
+            for(let i=0; i<3; i++) {
+                for(let j=0; j<3; j++) {
+                    ctx.fillRect(cx - 30 + (j*25), cy - 70 + (i*20), 15, 10);
+                }
+            }
+            // Door
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(cx - 10, cy - 20, 20, 20);
+
+            // Ribbon cutting logic
+            const cutTime = 0.4;
+            
+            if (p < cutTime) {
+                // Ribbon intact
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(cx - 60, cy - 30, 120, 10);
+                
+                // Scissors moving in
+                const scissorX = cx + 50 - (p/cutTime)*50;
+                ctx.save(); ctx.translate(scissorX, cy - 25);
+                // Simple scissor shape
+                ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(-10, -10); ctx.lineTo(10, 10); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-10, 10); ctx.lineTo(10, -10); ctx.stroke();
+                ctx.fillStyle = '#3b82f6';
+                ctx.beginPath(); ctx.arc(10, 10, 4, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(10, -10, 4, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+            } else {
+                // Ribbon cut and falling away
+                const fall = (p - cutTime) * 50;
+                ctx.fillStyle = '#ef4444';
+                ctx.save(); ctx.translate(cx - 30, cy - 30 + fall); ctx.rotate(-fall*0.05); ctx.fillRect(-30, 0, 60, 10); ctx.restore();
+                ctx.save(); ctx.translate(cx + 30, cy - 30 + fall); ctx.rotate(fall*0.05); ctx.fillRect(-30, 0, 60, 10); ctx.restore();
+
+                // Handover Key rising
+                if (p > 0.6) {
+                    const keyRise = Math.min(1, (p - 0.6) * 4);
+                    ctx.save();
+                    ctx.translate(cx, cy - 30 - (keyRise * 20));
+                    ctx.scale(keyRise, keyRise);
+                    
+                    // Golden Key
+                    ctx.fillStyle = '#facc15';
+                    ctx.beginPath(); ctx.arc(-15, 0, 8, 0, Math.PI*2); ctx.fill(); // head
+                    ctx.fillRect(-15, -3, 30, 6); // shaft
+                    ctx.fillRect(5, 3, 4, 8); // tooth
+                    ctx.fillRect(12, 3, 4, 6); // tooth
+                    
+                    // Inner hole
+                    ctx.fillStyle = '#0f172a';
+                    ctx.beginPath(); ctx.arc(-15, 0, 3, 0, Math.PI*2); ctx.fill();
+                    
+                    // Sparkle
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath(); ctx.arc(15, -5, 2, 0, Math.PI*2); ctx.fill();
+
+                    ctx.restore();
+                    
+                    ctx.fillStyle = '#22c55e'; ctx.font = 'bold 14px Inter'; ctx.textAlign = 'center';
+                    ctx.fillText("HANDOVER COMPLETE", cx, cy - 70);
+                }
+            }
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 4000; // 4 seconds loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'initiation': renderInitiation(ctx, w, h, p); break;
+                    case 'planning': renderPlanning(ctx, w, h, p); break;
+                    case 'execution': renderExecution(ctx, w, h, p); break;
+                    case 'controlling': renderControlling(ctx, w, h, p); break;
+                    case 'closing': renderClosing(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
+

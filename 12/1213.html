@@ -1,0 +1,444 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Three Party System - Construction</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Very dark slate */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .canvas-container {
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Technical Grid Background */
+        .canvas-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 2;
+        }
+
+        ::-webkit-scrollbar { display: none; }
+        
+        .memory-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.3;
+            transform: scale(0.95);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .memory-card.active {
+            opacity: 1;
+            transform: scale(1);
+            background-color: #0f172a;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Card active borders matching node colors */
+        .active-client { border-color: #facc15; box-shadow: 0 0 15px rgba(250,204,21,0.2); }
+        .active-consultant { border-color: #a855f7; box-shadow: 0 0 15px rgba(168,85,247,0.2); }
+        .active-contractor { border-color: #ef4444; box-shadow: 0 0 15px rgba(239,68,68,0.2); }
+        .active-system { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56,189,248,0.2); }
+
+        .progress-bar {
+            height: 3px;
+            background: #1e293b;
+            width: 100%;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #facc15;
+            width: 0%;
+            transition: background-color 0.4s ease;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-950 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-orange-400">
+                Three Party System
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Continuous Memory Loop</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-900 px-2 py-1 rounded-full border border-slate-800">
+            <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">SYNCED</span>
+        </div>
+    </header>
+
+    <!-- Progress Indicator -->
+    <div class="progress-bar z-20 shrink-0">
+        <div id="cycle-progress" class="progress-fill"></div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <main class="flex-1 flex flex-col w-full max-w-md mx-auto">
+        
+        <!-- TOP: Canvas Simulation Area -->
+        <section class="w-full h-[48vh] min-h-[320px] border-b border-slate-800 canvas-container shrink-0" id="canvas-wrapper">
+            <canvas id="sim-canvas"></canvas>
+            
+            <!-- Dynamic Central Title -->
+            <div class="absolute top-3 left-1/2 -translate-x-1/2 z-10 text-center w-full px-4 pointer-events-none">
+                <div id="sim-title" class="font-bold text-sm tracking-widest uppercase bg-slate-900/80 backdrop-blur inline-block px-3 py-1 rounded-full border border-slate-700 transition-colors duration-300">
+                    LOADING...
+                </div>
+            </div>
+        </section>
+
+        <!-- BOTTOM: Auto-Syncing Theory Cards from Notes -->
+        <section class="flex-1 overflow-y-auto p-4 bg-slate-950 scroll-smooth" id="cards-container">
+            <div class="space-y-4 pb-20">
+                
+                <!-- Card 0: Client -->
+                <div id="card-0" class="memory-card bg-slate-900 rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg">
+                                <i data-lucide="crown" class="w-5 h-5"></i>
+                            </div>
+                            <h2 class="text-lg font-bold text-yellow-400">I. Client (Owner)</h2>
+                        </div>
+                        <span class="px-2 py-1 bg-yellow-500/10 text-yellow-500 text-xs font-mono font-bold rounded">INVEST</span>
+                    </div>
+                    <ul class="text-sm text-slate-300 space-y-1.5 ml-1 list-disc list-inside">
+                        <li>Ultimate Decision Maker.</li>
+                        <li>Finances and offers the project.</li>
+                        <li>Can be an individual or organization.</li>
+                    </ul>
+                </div>
+
+                <!-- Card 1: Consultant -->
+                <div id="card-1" class="memory-card bg-slate-900 rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg">
+                                <i data-lucide="compass" class="w-5 h-5"></i>
+                            </div>
+                            <h2 class="text-lg font-bold text-purple-400">II. Consultant (Engineer)</h2>
+                        </div>
+                        <span class="px-2 py-1 bg-purple-500/10 text-purple-400 text-xs font-mono font-bold rounded">BRIDGE</span>
+                    </div>
+                    <ul class="text-sm text-slate-300 space-y-1.5 ml-1 list-disc list-inside">
+                        <li>Client's representative at the site.</li>
+                        <li>Provides drawings, specs, and gives advice.</li>
+                        <li>Supervises work quality continuously.</li>
+                    </ul>
+                </div>
+
+                <!-- Card 2: Contractor -->
+                <div id="card-2" class="memory-card bg-slate-900 rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-red-500/20 text-red-400 rounded-lg">
+                                <i data-lucide="hammer" class="w-5 h-5"></i>
+                            </div>
+                            <h2 class="text-lg font-bold text-red-400">III. Contractor (Builder)</h2>
+                        </div>
+                        <span class="px-2 py-1 bg-red-500/10 text-red-400 text-xs font-mono font-bold rounded">EXECUTE</span>
+                    </div>
+                    <ul class="text-sm text-slate-300 space-y-1.5 ml-1 list-disc list-inside">
+                        <li>Responsible for execution of work at site.</li>
+                        <li>Ensures timely completion of the project.</li>
+                        <li>Handles the Defect Liability period.</li>
+                    </ul>
+                </div>
+
+                <!-- Card 3: The System -->
+                <div id="card-3" class="memory-card bg-slate-900 rounded-xl p-4">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="p-2 bg-sky-500/20 text-sky-400 rounded-lg">
+                            <i data-lucide="git-commit" class="w-5 h-5"></i>
+                        </div>
+                        <h2 class="text-lg font-bold text-sky-400">Two Contracts, One Goal</h2>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        The Client holds a <strong>Construction Contract</strong> with the Contractor and a <strong>Consultancy Agreement</strong> with the Engineer. The Engineer exercises <strong>Supervision, Instruction & Approval</strong> directly over the Contractor.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- APP LOGIC --- //
+        const wrapper = document.getElementById('canvas-wrapper');
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const progressFill = document.getElementById('cycle-progress');
+        const simTitle = document.getElementById('sim-title');
+        const cardsContainer = document.getElementById('cards-container');
+
+        // Animation Timing Configuration
+        const TOTAL_DURATION = 16000; // 16 seconds full loop
+        const PHASE_COUNT = 4;
+        const PHASE_DURATION = TOTAL_DURATION / PHASE_COUNT; // 4s per phase
+
+        let lastPhase = -1;
+
+        function resizeCanvas() {
+            const rect = wrapper.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // --- DRAWING UTILITIES --- //
+
+        function drawNode(ctx, x, y, radius, color, iconText, label, isActive, progress) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            // Active pulsing glow
+            if (isActive) {
+                const pulse = Math.sin(progress * Math.PI) * 15;
+                ctx.beginPath();
+                ctx.arc(0, 0, radius + 5 + pulse, 0, Math.PI*2);
+                ctx.fillStyle = color.replace('1)', '0.2)'); // Transparent version
+                ctx.fill();
+            }
+
+            // Main Circle
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, Math.PI*2);
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+            
+            ctx.lineWidth = isActive ? 4 : 2;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+
+            // Emoji / Icon
+            ctx.fillStyle = color;
+            ctx.font = `${radius}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(iconText, 0, 0);
+
+            // Label text below
+            ctx.fillStyle = isActive ? '#ffffff' : '#94a3b8';
+            ctx.font = isActive ? 'bold 14px Inter' : '600 12px Inter';
+            ctx.fillText(label, 0, radius + 20);
+
+            ctx.restore();
+        }
+
+        function drawLink(ctx, x1, y1, x2, y2, color, label, isActive, particles = [], progress) {
+            ctx.save();
+            
+            // Base Line
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = isActive ? color : '#334155';
+            ctx.lineWidth = isActive ? 3 : 1;
+            if (!isActive) ctx.setLineDash([5, 5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Label on Line
+            const mx = (x1 + x2) / 2;
+            const my = (y1 + y2) / 2;
+            
+            if (isActive) {
+                // Background for text
+                ctx.font = 'bold 10px JetBrains Mono';
+                const textWidth = ctx.measureText(label).width;
+                ctx.fillStyle = '#020617';
+                ctx.fillRect(mx - textWidth/2 - 4, my - 8, textWidth + 8, 16);
+                
+                ctx.fillStyle = color;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(label, mx, my);
+            }
+
+            // Energy Particles moving along line
+            if (isActive && particles.length > 0) {
+                particles.forEach(p => {
+                    const px = x1 + (x2 - x1) * p;
+                    const py = y1 + (y2 - y1) * p;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 4, 0, Math.PI*2);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = color;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+            }
+
+            ctx.restore();
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+
+        let particlesArray = [0, 0.33, 0.66]; // For flowing energy
+
+        function animate(timestamp) {
+            const rect = wrapper.getBoundingClientRect();
+            const w = canvas.width / (window.devicePixelRatio || 1);
+            const h = canvas.height / (window.devicePixelRatio || 1);
+            
+            ctx.clearRect(0, 0, w, h);
+
+            // Global Timing
+            const cycleTime = timestamp % TOTAL_DURATION;
+            const phase = Math.floor(cycleTime / PHASE_DURATION);
+            const phaseProgress = (cycleTime % PHASE_DURATION) / PHASE_DURATION;
+            
+            // Move particles
+            particlesArray = particlesArray.map(p => (p + 0.015) % 1);
+
+            // Node Positions (Triangular)
+            const cx = w / 2;
+            const cy = h / 2 + 10;
+            const r = 35; // Node radius
+
+            const posClient = { x: cx, y: cy - 90 };
+            const posContractor = { x: cx - 100, y: cy + 60 };
+            const posConsultant = { x: cx + 100, y: cy + 60 };
+
+            // Colors
+            const cClient = 'rgba(250, 204, 21, 1)';   // Yellow
+            const cConsultant = 'rgba(168, 85, 247, 1)'; // Purple
+            const cContractor = 'rgba(239, 68, 68, 1)';  // Red
+            const cSystem = 'rgba(56, 189, 248, 1)';     // Blue
+
+            // Update UI State Syncing
+            if (phase !== lastPhase) {
+                lastPhase = phase;
+                
+                // Reset Cards
+                for (let i = 0; i < PHASE_COUNT; i++) {
+                    const card = document.getElementById(`card-${i}`);
+                    card.className = "memory-card bg-slate-900 rounded-xl p-4"; 
+                }
+                
+                const activeCard = document.getElementById(`card-${phase}`);
+                const borderClasses = ['active-client', 'active-consultant', 'active-contractor', 'active-system'];
+                const titles = ['Phase I: Invest', 'Phase II: Bridge', 'Phase III: Execute', 'The 3-Party System'];
+                const titleColors = ['text-yellow-400 border-yellow-500/50', 'text-purple-400 border-purple-500/50', 'text-red-400 border-red-500/50', 'text-sky-400 border-sky-500/50'];
+                const fillColors = ['#facc15', '#a855f7', '#ef4444', '#38bdf8'];
+
+                activeCard.classList.add('active', borderClasses[phase]);
+                progressFill.style.backgroundColor = fillColors[phase];
+                
+                // Auto-scroll
+                const containerHeight = cardsContainer.clientHeight;
+                cardsContainer.scrollTo({
+                    top: activeCard.offsetTop - (containerHeight / 2) + (activeCard.clientHeight / 2),
+                    behavior: 'smooth'
+                });
+
+                // Title Update
+                simTitle.innerText = titles[phase];
+                simTitle.className = `font-bold text-sm tracking-widest uppercase bg-slate-900/80 backdrop-blur inline-block px-3 py-1 rounded-full border transition-colors duration-300 ${titleColors[phase]}`;
+            }
+
+            // Global Progress Bar
+            progressFill.style.width = `${(cycleTime / TOTAL_DURATION) * 100}%`;
+
+            // --- DRAW THE RELATIONSHIP GRAPH --- //
+
+            // Determine active states
+            const clientActive = (phase === 0 || phase === 3);
+            const consultantActive = (phase === 1 || phase === 3);
+            const contractorActive = (phase === 2 || phase === 3);
+
+            // Draw Links
+            // 1. Client -> Contractor (Construction Contract)
+            const link1Active = phase === 0 || phase === 3;
+            drawLink(ctx, posClient.x, posClient.y + r, posContractor.x, posContractor.y - r, cContractor, "Construction Contract", link1Active, link1Active ? particlesArray : [], phaseProgress);
+
+            // 2. Client -> Consultant (Consultancy Agreement)
+            const link2Active = phase === 0 || phase === 1 || phase === 3;
+            drawLink(ctx, posClient.x, posClient.y + r, posConsultant.x, posConsultant.y - r, cConsultant, "Consultancy Agreement", link2Active, link2Active ? particlesArray : [], phaseProgress);
+
+            // 3. Consultant -> Contractor (Supervision/Approval)
+            const link3Active = phase === 1 || phase === 2 || phase === 3;
+            drawLink(ctx, posConsultant.x - r, posConsultant.y, posContractor.x + r, posContractor.y, cSystem, "Supervision & Approval", link3Active, link3Active ? particlesArray : [], phaseProgress);
+
+            // Draw Nodes
+            drawNode(ctx, posClient.x, posClient.y, r, cClient, "👑", "Client", clientActive, phaseProgress);
+            drawNode(ctx, posConsultant.x, posConsultant.y, r, cConsultant, "🧠", "Consultant", consultantActive, phaseProgress);
+            drawNode(ctx, posContractor.x, posContractor.y, r, cContractor, "🏗️", "Contractor", contractorActive, phaseProgress);
+
+            // Draw Large Floating Mnemonics based on Phase
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            if (phase === 0) {
+                ctx.fillStyle = `rgba(250, 204, 21, ${Math.sin(phaseProgress * Math.PI)})`; // Fade in/out
+                ctx.font = '900 36px Inter';
+                ctx.fillText("INVEST", cx, cy - 20);
+            } 
+            else if (phase === 1) {
+                ctx.fillStyle = `rgba(168, 85, 247, ${Math.sin(phaseProgress * Math.PI)})`;
+                ctx.font = '900 36px Inter';
+                ctx.fillText("BRIDGE", cx + 30, cy + 10);
+            }
+            else if (phase === 2) {
+                ctx.fillStyle = `rgba(239, 68, 68, ${Math.sin(phaseProgress * Math.PI)})`;
+                ctx.font = '900 36px Inter';
+                ctx.fillText("EXECUTE", cx - 30, cy + 10);
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
+
+
+```

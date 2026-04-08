@@ -1,0 +1,505 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Approvals & Sanctions - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-blue-400">
+                Approvals & Sanctions
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Construction Management</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Point 1: Administrative Approval -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-admin" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="stamp" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">1. Administrative Approval (A/A)</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>The "Idea & Budget" Green Light:</strong> Formal acceptance of the proposal by the competent authority. It implies that the project is <em>necessary</em> and that the department is willing to <em>fund</em> it. Based on preliminary estimates.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 2: Technical Sanction -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-blue-500/30 shadow-[0_10px_30px_-10px_rgba(59,130,246,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-tech" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><i data-lucide="ruler" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-blue-400">2. Technical Sanction (T/S)</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>The "Engineering" Guarantee:</strong> Detailed estimate, design, calculations, and specifications are checked by a competent engineering authority. It guarantees the project is <em>structurally sound</em> and <em>accurately estimated</em>.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 3: The Sequence -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-sequence" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="git-merge" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">3. The Strict Sequence</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Chronological Order:</strong> Technical Sanction (T/S) can <em>never</em> be given unless Administrative Approval (A/A) has already been obtained. You cannot design the details if the budget/idea isn't approved first.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 4: Expenditure Sanction -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-expenditure" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="banknote" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">4. Expenditure Sanction</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Releasing the Funds:</strong> Even after A/A and T/S, money cannot be spent. Expenditure Sanction is the final act of actually allotting the specific funds to the project so physical work can commence.
+                </p>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            admin: document.getElementById('canvas-admin'),
+            tech: document.getElementById('canvas-tech'),
+            sequence: document.getElementById('canvas-sequence'),
+            expenditure: document.getElementById('canvas-expenditure')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); // Reset
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Admin Approval (Amber) - Proposal document gets stamped, coins appear.
+        function renderAdmin(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Background Proposal Document
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath(); ctx.roundRect(cx - 50, cy - 60, 100, 120, 6); ctx.fill();
+            
+            // Text lines on document
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(cx - 35, cy - 40, 70, 6);
+            ctx.fillRect(cx - 35, cy - 25, 50, 6);
+            ctx.fillRect(cx - 35, cy - 10, 60, 6);
+            
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
+            ctx.fillText("PROPOSAL", cx, cy - 50);
+
+            // The Stamp Animation
+            const stampHitTime = 0.4;
+            let stampScale = 1;
+            let stampY = cy - 100;
+            let stampAlpha = 1;
+
+            if (p < stampHitTime) {
+                // Stamp coming down
+                const fallP = p / stampHitTime;
+                stampY = (cy - 100) + (100 * fallP); // Moves to cy
+            } else if (p < stampHitTime + 0.1) {
+                // Impact squish
+                stampY = cy;
+                stampScale = 0.9;
+            } else if (p < stampHitTime + 0.4) {
+                // Stamp lifting off
+                const liftP = (p - (stampHitTime + 0.1)) / 0.3;
+                stampY = cy - (80 * liftP);
+                stampAlpha = 1 - liftP;
+            } else {
+                stampAlpha = 0;
+            }
+
+            // Draw Approved Mark (after hit)
+            if (p >= stampHitTime) {
+                ctx.save();
+                ctx.translate(cx, cy + 20);
+                // Pop effect on hit
+                if (p < stampHitTime + 0.1) { ctx.scale(1.2, 1.2); }
+                ctx.rotate(-0.1);
+                ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3;
+                ctx.strokeRect(-40, -15, 80, 30);
+                ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 14px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText("A/A GRANTED", 0, 0);
+                ctx.restore();
+
+                // Coins popping out to symbolize "Funds Arranged"
+                const coinP = Math.min(1, (p - stampHitTime) / 0.4);
+                ctx.fillStyle = '#facc15';
+                ctx.beginPath(); ctx.arc(cx - 60, cy + 30 - (coinP * 20), 10, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(cx + 60, cy + 10 - (coinP * 30), 10, 0, Math.PI*2); ctx.fill();
+            }
+
+            // Draw The physical Stamp
+            if (stampAlpha > 0) {
+                ctx.save();
+                ctx.translate(cx, stampY);
+                ctx.scale(stampScale, stampScale);
+                ctx.globalAlpha = stampAlpha;
+
+                // Handle
+                ctx.fillStyle = '#1e293b';
+                ctx.beginPath(); ctx.roundRect(-5, -40, 10, 30, 5); ctx.fill();
+                ctx.beginPath(); ctx.arc(0, -40, 10, 0, Math.PI*2); ctx.fill();
+                // Base
+                ctx.fillStyle = '#334155';
+                ctx.fillRect(-25, -10, 50, 10);
+                // Ink pad
+                ctx.fillStyle = '#f59e0b';
+                ctx.fillRect(-25, 0, 50, 4);
+
+                ctx.restore();
+            }
+        }
+
+        // 2. Technical Sanction (Blue) - Blueprint scanning, gear turning, engineering stamp.
+        function renderTech(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Blueprint Paper
+            ctx.fillStyle = '#0ea5e9'; // Cyan/Blue paper
+            ctx.beginPath(); ctx.roundRect(cx - 70, cy - 60, 140, 120, 2); ctx.fill();
+            
+            // Blueprint Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; ctx.lineWidth = 1;
+            for(let i=cx-60; i<=cx+60; i+=10) { ctx.beginPath(); ctx.moveTo(i, cy-50); ctx.lineTo(i, cy+50); ctx.stroke(); }
+            for(let i=cy-50; i<=cy+50; i+=10) { ctx.beginPath(); ctx.moveTo(cx-60, i); ctx.lineTo(cx+60, i); ctx.stroke(); }
+
+            // Technical Drawing (Truss/Bridge)
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+            ctx.beginPath(); 
+            ctx.moveTo(cx - 50, cy + 20); ctx.lineTo(cx + 50, cy + 20); // base
+            ctx.moveTo(cx - 50, cy + 20); ctx.lineTo(cx - 25, cy - 20); ctx.lineTo(cx, cy + 20); // triangle 1
+            ctx.moveTo(cx, cy + 20); ctx.lineTo(cx + 25, cy - 20); ctx.lineTo(cx + 50, cy + 20); // triangle 2
+            ctx.moveTo(cx - 25, cy - 20); ctx.lineTo(cx + 25, cy - 20); // top chord
+            ctx.stroke();
+
+            // Scanning Effect (Validating calculations)
+            const scanHitTime = 0.5;
+            if (p < scanHitTime) {
+                const scanP = p / scanHitTime;
+                const scanY = (cy - 60) + (120 * scanP);
+                
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.5)';
+                ctx.fillRect(cx - 70, cy - 60, 140, scanY - (cy - 60)); // Highlights area scanned
+                
+                ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(cx - 75, scanY); ctx.lineTo(cx + 75, scanY); ctx.stroke();
+                
+                // Gear spinning
+                ctx.save();
+                ctx.translate(cx, cy - 30);
+                ctx.rotate(p * Math.PI * 4);
+                ctx.fillStyle = '#fff';
+                for(let i=0; i<8; i++) {
+                    ctx.rotate(Math.PI/4);
+                    ctx.fillRect(-2, -15, 4, 10);
+                }
+                ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#0ea5e9'; ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+            }
+
+            // T/S Approved Stamp
+            if (p >= scanHitTime) {
+                ctx.save();
+                ctx.translate(cx, cy);
+                if (p < scanHitTime + 0.1) { ctx.scale(1.2, 1.2); } // Impact pop
+                ctx.rotate(0.1);
+                
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+                ctx.strokeRect(-50, -20, 100, 40);
+                ctx.fillStyle = '#fff'; ctx.font = '900 16px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText("T/S PASSED", 0, -5);
+                ctx.font = '10px Inter';
+                ctx.fillText("Structurally Safe", 0, 12);
+                ctx.restore();
+            }
+        }
+
+        // 3. The Sequence (Purple) - Document passes Gate 1 (A/A) then Gate 2 (T/S)
+        function renderSequence(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            const gate1X = cx - 40;
+            const gate2X = cx + 40;
+            
+            // Draw Gates
+            const drawGate = (x, label, color, isOpen) => {
+                ctx.strokeStyle = color; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.moveTo(x, cy - 30); ctx.lineTo(x, cy + 30); ctx.stroke();
+                
+                // Gate Arm
+                ctx.beginPath();
+                ctx.moveTo(x, cy - 10);
+                if (isOpen) {
+                    ctx.lineTo(x + 20, cy - 30); // Raised
+                } else {
+                    ctx.lineTo(x + 20, cy - 10); // Closed
+                }
+                ctx.stroke();
+
+                ctx.fillStyle = color; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
+                ctx.fillText(label, x, cy + 45);
+            };
+
+            // Logic: 
+            // p < 0.2: Moving to Gate 1
+            // p < 0.5: Pass Gate 1, move to Gate 2
+            // p > 0.5: Pass Gate 2
+
+            let docX = cx - 100;
+            let gate1Open = false;
+            let gate2Open = false;
+
+            if (p < 0.2) {
+                const moveP = p / 0.2;
+                docX = (cx - 100) + ((gate1X - 20) - (cx - 100)) * moveP;
+            } else if (p < 0.5) {
+                gate1Open = true;
+                const moveP = (p - 0.2) / 0.3;
+                docX = (gate1X - 20) + ((gate2X - 20) - (gate1X - 20)) * moveP;
+            } else if (p < 0.8) {
+                gate1Open = true;
+                gate2Open = true;
+                const moveP = (p - 0.5) / 0.3;
+                docX = (gate2X - 20) + ((cx + 100) - (gate2X - 20)) * moveP;
+            } else {
+                gate1Open = true; gate2Open = true;
+                docX = cx + 100;
+            }
+
+            // Draw Paths
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+            ctx.beginPath(); ctx.moveTo(cx - 100, cy); ctx.lineTo(cx + 100, cy); ctx.stroke(); ctx.setLineDash([]);
+
+            // Draw Gates
+            drawGate(gate1X, "A/A", "#f59e0b", gate1Open);
+            drawGate(gate2X, "T/S", "#3b82f6", gate2Open);
+
+            // Draw Document
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath(); ctx.roundRect(docX - 10, cy - 12, 20, 24, 2); ctx.fill();
+            ctx.fillStyle = '#a855f7'; // Purple stamp
+            ctx.fillRect(docX - 5, cy - 5, 10, 10);
+            
+            // Explanation text
+            ctx.fillStyle = '#a855f7'; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+            if (p < 0.2) ctx.fillText("Waiting for A/A...", cx, cy - 50);
+            else if (p < 0.5) ctx.fillText("A/A Passed. Awaiting T/S...", cx, cy - 50);
+            else ctx.fillText("T/S Passed. Ready to execute.", cx, cy - 50);
+        }
+
+        // 4. Expenditure Sanction (Emerald) - Safe opening, funds dropping
+        function renderExpenditure(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 - 10;
+
+            // Bank Vault / Safe
+            ctx.fillStyle = '#334155';
+            ctx.beginPath(); ctx.roundRect(cx - 40, cy - 40, 80, 80, 8); ctx.fill();
+
+            // Safe Door Animation
+            const openTime = 0.4;
+            let doorAngle = 0;
+            let handleAngle = 0;
+
+            if (p < 0.2) {
+                // Locked
+            } else if (p < openTime) {
+                // Handle turning
+                handleAngle = ((p - 0.2) / 0.2) * Math.PI; // 180 degrees
+            } else {
+                // Door open
+                handleAngle = Math.PI;
+                const openP = Math.min(1, (p - openTime) / 0.2);
+                doorAngle = openP * (-Math.PI / 1.5); // Opens outward
+            }
+
+            // Draw Door
+            ctx.save();
+            ctx.translate(cx - 40, cy - 40); // Hinge on left
+            
+            // Draw interior darkness if door is opening
+            if (p > openTime) {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(5, 5, 70, 70); // Vault inside
+            }
+
+            // Apply Door Rotation (simulated 3D with horizontal scaling)
+            ctx.scale(Math.cos(doorAngle), 1);
+            
+            // Door Body
+            ctx.fillStyle = '#64748b';
+            ctx.beginPath(); ctx.roundRect(0, 0, 80, 80, 8); ctx.fill();
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 4; ctx.strokeRect(4, 4, 72, 72);
+            
+            // Handle
+            ctx.save();
+            ctx.translate(40, 40);
+            ctx.rotate(handleAngle);
+            ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(-15, 0); ctx.lineTo(15, 0); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(0, 15); ctx.stroke();
+            ctx.fillStyle = '#f8fafc'; ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+            
+            ctx.restore(); // End door
+
+            // Coins dropping into Project Bucket
+            if (p > 0.5) {
+                const coinStreamP = (p - 0.5) / 0.5; // 0 to 1
+                
+                ctx.fillStyle = '#10b981'; // Green Project Box
+                ctx.beginPath(); ctx.roundRect(cx + 30, cy + 40, 50, 30, 4); ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Inter'; ctx.textAlign = 'center';
+                ctx.fillText("PROJECT", cx + 55, cy + 58);
+
+                // Animated coins
+                ctx.fillStyle = '#facc15';
+                const coinOffset = (Date.now() % 300) / 300;
+                for(let i=0; i<3; i++) {
+                    const dropY = cy - 10 + ((i + coinOffset) * 20);
+                    if (dropY < cy + 40) {
+                        ctx.beginPath(); ctx.arc(cx, dropY, 6, 0, Math.PI*2); ctx.fill();
+                    }
+                }
+                
+                // Flow path
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
+                ctx.beginPath(); ctx.moveTo(cx, cy + 30); ctx.lineTo(cx + 30, cy + 40); ctx.stroke(); ctx.setLineDash([]);
+            }
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 4000; // 4 seconds per loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; // 0.0 to 1.0
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'admin': renderAdmin(ctx, w, h, p); break;
+                    case 'tech': renderTech(ctx, w, h, p); break;
+                    case 'sequence': renderSequence(ctx, w, h, p); break;
+                    case 'expenditure': renderExpenditure(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
+
+```

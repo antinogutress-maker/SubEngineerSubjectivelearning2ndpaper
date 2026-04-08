@@ -1,0 +1,470 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sub-Engineer Responsibilities - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 50vh; /* Allow last item to scroll to top */
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+        }
+
+        /* Canvas styling */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-indigo-400">
+                Sub-Engineer Duties
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Deep Visual Memorization</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">LIVE SYNC</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Point 1: Organizing -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-blue-500/30 shadow-[0_10px_30px_-10px_rgba(59,130,246,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-org" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><i data-lucide="network" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-blue-400">1. Organizing Works</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Distributing tasks:</strong> Allocating manpower, assigning machinery, and routing clear instructions to site supervisors and laborers efficiently.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 2: Safety -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-safe" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">2. Ensuring Safety</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Zero harm policy:</strong> Strictly enforcing PPE usage (Helmets, Vests), setting up hazard barriers, and actively supervising risky operations.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 3: Training -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-train" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="presentation" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">3. Providing Training</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Toolbox Talks:</strong> Conducting skill development sessions, teaching correct construction methodologies, and raising hazard awareness.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 4: Quality Control -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-qual" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="search-check" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">4. Quality Control</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Material & Workmanship:</strong> Continuous field tests (Slump, Compaction), checking structural alignments, and approving work against specs.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 5: Reporting -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-teal-500/30 shadow-[0_10px_30px_-10px_rgba(20,184,166,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-rep" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-teal-500/20 text-teal-400 rounded-lg"><i data-lucide="clipboard-list" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-teal-400">5. Record Keeping</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Documentation:</strong> Maintaining daily progress reports (DPR), Measurement Books (MB), material consumption logs, and site diaries.
+                </p>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            org: document.getElementById('canvas-org'),
+            safe: document.getElementById('canvas-safe'),
+            train: document.getElementById('canvas-train'),
+            qual: document.getElementById('canvas-qual'),
+            rep: document.getElementById('canvas-rep')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); // Reset
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- DRAWING PRIMITIVES --- //
+        function drawWorker(ctx, x, y, vestColor = '#64748b', scale = 1) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            // Body
+            ctx.fillStyle = vestColor;
+            ctx.beginPath(); ctx.roundRect(-12, -5, 24, 18, 6); ctx.fill();
+
+            // Head & Hard Hat (Yellow)
+            ctx.fillStyle = '#eab308';
+            ctx.beginPath(); ctx.arc(0, -5, 9, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ca8a04';
+            ctx.beginPath(); ctx.arc(0, -3, 9, 0, Math.PI); ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawSubEngineer(ctx, x, y, scale = 1, angle = 0) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            ctx.scale(scale, scale);
+
+            // Body (Blue Vest)
+            ctx.fillStyle = '#3b82f6';
+            ctx.beginPath(); ctx.roundRect(-14, -5, 28, 20, 8); ctx.fill();
+
+            // Clipboard
+            ctx.fillStyle = '#e2e8f0'; ctx.fillRect(8, 0, 10, 12);
+            ctx.fillStyle = '#94a3b8'; ctx.fillRect(9, -2, 8, 3); 
+
+            // Hard Hat (White)
+            ctx.fillStyle = '#ffffff'; 
+            ctx.beginPath(); ctx.arc(0, -5, 10, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2; ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Organizing (Blue)
+        function renderOrg(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 - 10;
+            
+            drawSubEngineer(ctx, cx, cy - 30, 1.2);
+
+            const workers = [
+                { x: cx - 70, y: cy + 40, task: "Manpower" },
+                { x: cx, y: cy + 50, task: "Machinery" },
+                { x: cx + 70, y: cy + 40, task: "Drawings" }
+            ];
+
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+
+            workers.forEach((wker, i) => {
+                // Sequential line drawing
+                const lineStartP = i * 0.2;
+                const lineProg = Math.min(1, Math.max(0, (p - lineStartP) * 4));
+                
+                if (lineProg > 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy - 10);
+                    ctx.lineTo(cx + (wker.x - cx) * lineProg, cy - 10 + (wker.y - (cy - 10)) * lineProg);
+                    ctx.stroke();
+                }
+
+                drawWorker(ctx, wker.x, wker.y, '#475569', 1.1);
+
+                if (lineProg === 1) {
+                    // Task Bubble
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.beginPath(); ctx.roundRect(wker.x - 35, wker.y + 20, 70, 18, 4); ctx.fill();
+                    ctx.fillStyle = '#0f172a';
+                    ctx.font = 'bold 9px Inter'; ctx.textAlign = 'center';
+                    ctx.fillText(wker.task, wker.x, wker.y + 32);
+                }
+            });
+        }
+
+        // 2. Safety (Green)
+        function renderSafe(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Worker in middle
+            drawWorker(ctx, cx, cy, '#10b981', 1.4); // Green vest
+            
+            // Shield Pulse
+            if (p > 0.1) {
+                const shieldProg = (Date.now() % 1500) / 1500;
+                
+                ctx.beginPath();
+                ctx.arc(cx, cy, 40 + (shieldProg * 30), 0, Math.PI*2);
+                ctx.fillStyle = `rgba(16, 185, 129, ${0.3 * (1 - shieldProg)})`;
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(cx, cy, 40, 0, Math.PI*2);
+                ctx.strokeStyle = '#34d399';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([8, 8]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Hazard Cones
+            const drawCone = (x, y) => {
+                ctx.fillStyle = '#f97316';
+                ctx.beginPath(); ctx.moveTo(x, y-12); ctx.lineTo(x+10, y+6); ctx.lineTo(x-10, y+6); ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.fillRect(x-5, y-4, 10, 4);
+            };
+            drawCone(cx - 60, cy + 20);
+            drawCone(cx + 60, cy + 20);
+
+            // Falling Hazard (Block) blocked by shield
+            const dropY = cy - 80 + (p * 150);
+            if (p < 0.8) {
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(cx - 10, Math.min(dropY, cy - 45), 20, 20);
+                if (dropY >= cy - 45) {
+                    // Impact spark
+                    ctx.fillStyle = '#facc15';
+                    ctx.beginPath(); ctx.arc(cx, cy - 45, 15, 0, Math.PI*2); ctx.fill();
+                }
+            }
+        }
+
+        // 3. Training (Purple)
+        function renderTrain(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 10;
+
+            // Whiteboard
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(cx - 50, cy - 70, 100, 60);
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3;
+            ctx.strokeRect(cx - 50, cy - 70, 100, 60);
+
+            // Blueprint on board
+            if (p > 0.1) {
+                const drawP = Math.min(1, (p - 0.1) * 3);
+                ctx.strokeStyle = '#a855f7'; // Purple ink
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(cx - 40, cy - 30);
+                ctx.lineTo(cx - 40 + (30 * drawP), cy - 30 - (30 * drawP));
+                ctx.lineTo(cx - 10 + (40 * drawP), cy - 30 - (10 * drawP));
+                ctx.stroke();
+            }
+
+            // Sub E Pointing
+            drawSubEngineer(ctx, cx - 60, cy - 20, 1.1, Math.PI/8);
+
+            // Workers listening
+            drawWorker(ctx, cx, cy + 30, '#64748b', 1.1);
+            drawWorker(ctx, cx + 50, cy + 30, '#64748b', 1.1);
+
+            // Sound waves
+            if (p > 0.3) {
+                const waveProg = (Date.now() % 1000) / 1000;
+                ctx.strokeStyle = `rgba(192, 132, 252, ${1 - waveProg})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(cx - 30, cy - 20, 10 + (waveProg * 50), -Math.PI/6, Math.PI/3);
+                ctx.stroke();
+            }
+        }
+
+        // 4. Quality (Yellow/Gold)
+        function renderQual(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Brick Wall
+            const wallX = cx - 40;
+            const wallY = cy - 40;
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(wallX, wallY, 100, 80);
+            
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1;
+            for(let i=10; i<80; i+=10) { ctx.beginPath(); ctx.moveTo(wallX, wallY+i); ctx.lineTo(wallX+100, wallY+i); ctx.stroke(); }
+            for(let i=20; i<100; i+=20) { ctx.beginPath(); ctx.moveTo(wallX+i, wallY); ctx.lineTo(wallX+i, wallY+80); ctx.stroke(); }
+
+            drawSubEngineer(ctx, cx - 70, cy + 10, 1.2);
+
+            // Laser Scan
+            const scanP = Math.min(1, p * 1.5);
+            if (scanP > 0 && scanP < 1) {
+                const laserY = wallY + (scanP * 80);
+                ctx.strokeStyle = '#facc15'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(wallX - 10, laserY); ctx.lineTo(wallX + 110, laserY); ctx.stroke();
+                ctx.fillStyle = 'rgba(250, 204, 21, 0.2)';
+                ctx.fillRect(wallX, wallY, 100, scanP * 80);
+            }
+
+            // PASS Stamp
+            if (p > 0.6) {
+                ctx.save();
+                ctx.translate(cx + 10, cy);
+                const scale = Math.min(1, (p - 0.6) * 5);
+                ctx.scale(scale, scale);
+                ctx.rotate(-0.1);
+                
+                ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 3;
+                ctx.strokeRect(-30, -15, 60, 30);
+                ctx.fillStyle = '#22c55e'; ctx.font = '900 14px Inter'; ctx.textAlign = 'center';
+                ctx.fillText("PASS ✓", 0, 5);
+                ctx.restore();
+            }
+        }
+
+        // 5. Records (Teal)
+        function renderRep(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Large Clipboard
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath(); ctx.roundRect(cx - 40, cy - 60, 80, 110, 4); ctx.fill();
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(cx - 15, cy - 65, 30, 10); // Clip
+
+            // Drawing lines of text (DPR)
+            ctx.fillStyle = '#2dd4bf'; // Teal
+            const lines = 6;
+            for(let i=0; i<lines; i++) {
+                const lineP = (i / lines) * 0.5; // appears in first half
+                if (p > lineP) {
+                    const drawProg = Math.min(1, (p - lineP) * 5);
+                    ctx.fillRect(cx - 30, cy - 30 + (i * 12), 60 * drawProg, 4);
+                }
+            }
+
+            // Pie Chart
+            if (p > 0.5) {
+                const chartP = Math.min(1, (p - 0.5) * 3);
+                ctx.beginPath();
+                ctx.moveTo(cx + 60, cy + 20);
+                ctx.arc(cx + 60, cy + 20, 25, -Math.PI/2, -Math.PI/2 + (Math.PI * 2 * chartP));
+                ctx.lineTo(cx + 60, cy + 20);
+                ctx.fillStyle = '#2dd4bf';
+                ctx.fill();
+                
+                // Inner hole
+                ctx.beginPath(); ctx.arc(cx + 60, cy + 20, 12, 0, Math.PI*2);
+                ctx.fillStyle = '#0f172a'; ctx.fill();
+            }
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 3000; // 3 seconds per loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; // 0.0 to 1.0
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'org': renderOrg(ctx, w, h, p); break;
+                    case 'safe': renderSafe(ctx, w, h, p); break;
+                    case 'train': renderTrain(ctx, w, h, p); break;
+                    case 'qual': renderQual(ctx, w, h, p); break;
+                    case 'rep': renderRep(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
+
+

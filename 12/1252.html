@@ -1,0 +1,550 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Procurement Methods - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
+                Procurement Methods
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Construction Management</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Point 1: Direct Purchase -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-direct" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-4">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="shopping-cart" class="w-5 h-5"></i></div>
+                        <h2 class="text-xl font-bold text-emerald-400">1. Direct Purchase</h2>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <span class="px-2 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold rounded-full">LIMIT: ≤ Rs. 5 Lakhs</span>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Fast & Simple:</strong> Buying materials or services directly from a single supplier without competition. Used for low-value, urgent, or proprietary items.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 2: Sealed Quotation -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-yellow-500/30 shadow-[0_10px_30px_-10px_rgba(234,179,8,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-sealed" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-4">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg"><i data-lucide="mail-check" class="w-5 h-5"></i></div>
+                        <h2 class="text-xl font-bold text-yellow-400">2. Sealed Quotation</h2>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <span class="px-2 py-1 bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-xs font-mono font-bold rounded-full">LIMIT: Rs. 5 to 20 Lakhs</span>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Minimum 3 Bidders:</strong> Asking for rates in sealed envelopes from at least three suppliers. Faster than open bidding, used for medium-low value works.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 3: Users Committee -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-orange-500/30 shadow-[0_10px_30px_-10px_rgba(249,115,22,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-users" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-4">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-orange-500/20 text-orange-400 rounded-lg"><i data-lucide="users" class="w-5 h-5"></i></div>
+                        <h2 class="text-xl font-bold text-orange-400">3. Users Committee</h2>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <span class="px-2 py-1 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-mono font-bold rounded-full">LIMIT: ≤ Rs. 1 Crore (10M)</span>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Community Involvement:</strong> Local beneficiaries execute the work themselves. Promotes local employment. <em>Heavy machinery is strictly prohibited.</em>
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 4: NBC / NCB -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-blue-500/30 shadow-[0_10px_30px_-10px_rgba(59,130,246,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-nbc" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-4">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><i data-lucide="map" class="w-5 h-5"></i></div>
+                        <h2 class="text-xl font-bold text-blue-400">4. NBC (National Bidding)</h2>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <span class="px-2 py-1 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-mono font-bold rounded-full">LIMIT: Rs. 20 Lakhs to 100 Crore</span>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>National Competitive Bidding (NCB):</strong> Open tender published in a National Daily Newspaper. Only contractors registered within the country can participate.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 5: IBC / ICB -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-ibc" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-4">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="globe" class="w-5 h-5"></i></div>
+                        <h2 class="text-xl font-bold text-purple-400">5. IBC (International Bidding)</h2>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <span class="px-2 py-1 bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono font-bold rounded-full">LIMIT: > Rs. 100 Crore (1 Billion)</span>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>International Competitive Bidding (ICB):</strong> For mega projects requiring advanced tech or massive capital. Advertised globally in English. Foreign bidders allowed.
+                </p>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            direct: document.getElementById('canvas-direct'),
+            sealed: document.getElementById('canvas-sealed'),
+            users: document.getElementById('canvas-users'),
+            nbc: document.getElementById('canvas-nbc'),
+            ibc: document.getElementById('canvas-ibc')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); // Reset
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Direct Purchase (Fast transaction, Money <-> Goods)
+        function renderDirect(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            const t = (p * 2) % 1; // Faster loop
+            
+            let moneyX = cx - 80 + (t * 80);
+            let boxX = cx + 80 - (t * 80);
+
+            // Once they meet in the middle, they swap
+            if (t > 0.5) {
+                const p2 = (t - 0.5) * 2; // 0 to 1
+                moneyX = cx + (p2 * 80);
+                boxX = cx - (p2 * 80);
+            }
+
+            // Draw "Store" and "Buyer"
+            ctx.fillStyle = '#64748b';
+            ctx.beginPath(); ctx.roundRect(cx - 100, cy - 20, 20, 40, 4); ctx.fill(); // Buyer
+            ctx.beginPath(); ctx.roundRect(cx + 80, cy - 30, 40, 60, 4); ctx.fill(); // Store
+            ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter'; ctx.textAlign='center';
+            ctx.fillText("BUYER", cx - 90, cy + 35);
+            ctx.fillText("STORE", cx + 100, cy + 45);
+
+            // Draw Box
+            ctx.save();
+            ctx.translate(boxX, cy - 5);
+            ctx.fillStyle = '#d97706'; // Brown box
+            ctx.fillRect(-15, -10, 30, 20);
+            ctx.fillStyle = '#fcd34d';
+            ctx.fillRect(-15, -10, 30, 4); // Tape
+            ctx.restore();
+
+            // Draw Money
+            ctx.save();
+            ctx.translate(moneyX, cy + 15);
+            ctx.fillStyle = '#10b981'; // Green money
+            ctx.fillRect(-12, -6, 24, 12);
+            ctx.fillStyle = '#064e3b';
+            ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+
+            // Speedy lines
+            if (t > 0.1 && t < 0.9) {
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(cx - 50, cy + 25); ctx.lineTo(cx + 50, cy + 25); ctx.stroke();
+            }
+        }
+
+        // 2. Sealed Quotation (3 envelopes flying into a box)
+        function renderSealed(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Draw Tender Box
+            ctx.fillStyle = '#334155';
+            ctx.beginPath(); ctx.roundRect(cx - 30, cy - 20, 60, 50, 4); ctx.fill();
+            ctx.fillStyle = '#facc15'; // yellow slot
+            ctx.fillRect(cx - 15, cy - 20, 30, 4);
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Inter'; ctx.textAlign='center';
+            ctx.fillText("BOX", cx, cy + 15);
+
+            // Draw 3 Envelopes sliding in
+            const envs = [
+                { startX: cx - 100, startY: cy - 60 },
+                { startX: cx, startY: cy - 80 },
+                { startX: cx + 100, startY: cy - 60 }
+            ];
+
+            envs.forEach((env, i) => {
+                const delay = i * 0.15;
+                if (p > delay) {
+                    const slideP = Math.min(1, (p - delay) * 4); // Fast slide
+                    
+                    let eX, eY, eScale;
+                    if (slideP < 1) {
+                        eX = env.startX + (cx - env.startX) * slideP;
+                        eY = env.startY + (cy - 30 - env.startY) * slideP;
+                        eScale = 1 - (slideP * 0.5); // shrink as it goes in
+                    } else {
+                        // Already in box
+                        return; 
+                    }
+
+                    ctx.save();
+                    ctx.translate(eX, eY);
+                    ctx.scale(eScale, eScale);
+                    
+                    // Envelope body
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.fillRect(-15, -10, 30, 20);
+                    // Flap (Sealed)
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.beginPath(); ctx.moveTo(-15, -10); ctx.lineTo(0, 5); ctx.lineTo(15, -10); ctx.fill();
+                    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth=1; ctx.stroke();
+                    // Wax seal
+                    ctx.fillStyle = '#ef4444';
+                    ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI*2); ctx.fill();
+
+                    ctx.restore();
+                }
+            });
+
+            // Box reveals cheapest at the end
+            if (p > 0.8) {
+                const revealP = (p - 0.8) * 5; // 0 to 1
+                ctx.save();
+                ctx.translate(cx, cy - 20 - (30 * revealP));
+                
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillRect(-20, -15, 40, 30);
+                ctx.fillStyle = '#10b981';
+                ctx.font = 'bold 12px Inter'; ctx.fillText("LOWEST", 0, -2);
+                ctx.fillText("BID", 0, 10);
+                
+                ctx.restore();
+            }
+        }
+
+        // 3. Users Committee (Community members building together)
+        function renderUsers(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 30;
+
+            // Draw unbuilt wall
+            ctx.fillStyle = '#78716c';
+            ctx.fillRect(cx - 40, cy - 10, 80, 10);
+
+            // The people
+            const drawPerson = (x, y, color) => {
+                ctx.fillStyle = color;
+                ctx.beginPath(); ctx.roundRect(x - 8, y - 20, 16, 20, 4); ctx.fill();
+                ctx.beginPath(); ctx.arc(x, y - 25, 6, 0, Math.PI*2); ctx.fill();
+            };
+
+            drawPerson(cx - 60, cy, '#38bdf8'); // Left person
+            drawPerson(cx + 60, cy, '#a855f7'); // Right person
+            drawPerson(cx, cy + 20, '#f97316'); // Middle person
+
+            // Passing Bricks Animation
+            const passT = (p * 3) % 1; // loop 3 times
+            
+            // Brick 1 (Left to Middle)
+            let b1X = (cx - 50) + (50 * passT);
+            let b1Y = cy - 15 - Math.sin(passT * Math.PI) * 15;
+            
+            // Brick 2 (Middle places on wall)
+            let b2X = cx + 10;
+            let b2Y = cy - Math.sin(passT * Math.PI) * 20;
+
+            ctx.fillStyle = '#ef4444'; // Red bricks
+            ctx.fillRect(b1X - 6, b1Y - 4, 12, 8);
+            if(passT > 0.2) ctx.fillRect(b2X - 6, b2Y - 4, 12, 8);
+
+            // Wall grows gradually
+            const wallH = p * 30;
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(cx - 30, cy - 10 - wallH, 60, wallH);
+            
+            // "NO MACHINERY" sign
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.1)';
+            ctx.beginPath(); ctx.roundRect(cx + 40, cy - 70, 40, 40, 4); ctx.fill();
+            ctx.fillStyle = '#ef4444'; ctx.font = '24px serif'; ctx.textAlign='center'; ctx.fillText("🚜", cx + 60, cy - 45);
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth=3; 
+            ctx.beginPath(); ctx.moveTo(cx+45, cy-65); ctx.lineTo(cx+75, cy-35); ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx+60, cy-50, 18, 0, Math.PI*2); ctx.stroke();
+        }
+
+        // 4. NCB (Newspaper Ad -> Local Contractors arrive)
+        function renderNBC(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            if (p < 0.4) {
+                // Phase 1: Newspaper Publication
+                const scale = Math.min(1, p * 3);
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.scale(scale, scale);
+                
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillRect(-40, -50, 80, 100);
+                // Newspaper text lines
+                ctx.fillStyle = '#1e293b'; ctx.font = 'bold 12px Inter'; ctx.textAlign='center';
+                ctx.fillText("NATIONAL", 0, -35);
+                ctx.fillText("DAILY", 0, -20);
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(-30, -5, 60, 8);
+                ctx.fillStyle = '#fff'; ctx.font = 'bold 8px Inter';
+                ctx.fillText("TENDER NOTICE", 0, 2);
+                
+                ctx.fillStyle = '#94a3b8';
+                for(let i=15; i<45; i+=8) ctx.fillRect(-30, i, 60, 4);
+
+                ctx.restore();
+            } else {
+                // Phase 2: Local Contractors gathering
+                const enterP = Math.min(1, (p - 0.4) * 3);
+                
+                // Central Project Site
+                ctx.fillStyle = '#334155';
+                ctx.beginPath(); ctx.roundRect(cx - 20, cy - 20, 40, 40, 4); ctx.fill();
+                ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 10px Inter'; ctx.textAlign='center';
+                ctx.fillText("SITE", cx, cy + 4);
+
+                // 4 Local Bidders moving in
+                const bidders = [
+                    {x: -1, y: -1}, {x: 1, y: -1}, {x: -1, y: 1}, {x: 1, y: 1}
+                ];
+
+                bidders.forEach((b, i) => {
+                    const startX = cx + b.x * 120;
+                    const startY = cy + b.y * 100;
+                    const targetX = cx + b.x * 40;
+                    const targetY = cy + b.y * 40;
+
+                    const curX = startX + (targetX - startX) * enterP;
+                    const curY = startY + (targetY - startY) * enterP;
+
+                    ctx.save();
+                    ctx.translate(curX, curY);
+                    ctx.fillStyle = '#3b82f6'; // Blue local hardhats
+                    ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#fff'; ctx.fillRect(-6, 0, 12, 3);
+                    ctx.restore();
+
+                    // Dashed paths
+                    if (enterP < 1) {
+                        ctx.strokeStyle = 'rgba(59, 130, 246, 0.3)'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+                        ctx.beginPath(); ctx.moveTo(curX, curY); ctx.lineTo(targetX, targetY); ctx.stroke(); ctx.setLineDash([]);
+                    }
+                });
+            }
+        }
+
+        // 5. IBC (Globe spinning, bids flying from all over the world)
+        function renderIBC(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+            const r = 40;
+
+            // Draw Globe
+            ctx.save();
+            ctx.translate(cx, cy);
+            
+            // Ocean
+            ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2);
+            ctx.fillStyle = '#1e3a8a'; // Deep blue
+            ctx.fill();
+            
+            // Lat/Long lines spinning
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1;
+            const spin = p * Math.PI * 2;
+            
+            for(let i=0; i<3; i++) {
+                const angle = spin + (i * Math.PI/3);
+                const scaleX = Math.cos(angle);
+                ctx.beginPath(); ctx.ellipse(0, 0, Math.abs(r * scaleX), r, 0, 0, Math.PI*2); ctx.stroke();
+            }
+            ctx.beginPath(); ctx.moveTo(-r, 0); ctx.lineTo(r, 0); ctx.stroke();
+
+            // Central Mega Project Marker
+            ctx.fillStyle = '#a855f7'; // Purple marker
+            ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#fff'; ctx.lineWidth=2; ctx.stroke();
+
+            ctx.restore();
+
+            // International Bids flying in (Planes/Envelopes)
+            const bids = [
+                { startX: cx - 120, startY: cy - 60 },
+                { startX: cx + 120, startY: cy - 80 },
+                { startX: cx - 100, startY: cy + 80 },
+                { startX: cx + 100, startY: cy + 60 }
+            ];
+
+            bids.forEach((bid, i) => {
+                const flyP = (p * 2 + (i * 0.25)) % 1; // Continuous flow
+                
+                const curX = bid.startX + (cx - bid.startX) * flyP;
+                const curY = bid.startY + (cy - bid.startY) * flyP;
+                
+                // Scale down as it gets closer
+                const scale = 1 - (flyP * 0.5);
+
+                ctx.save();
+                ctx.translate(curX, curY);
+                ctx.scale(scale, scale);
+                // Rotate towards center
+                const angle = Math.atan2(cy - bid.startY, cx - bid.startX);
+                ctx.rotate(angle);
+
+                // Draw Paper Plane / Bid
+                ctx.fillStyle = '#f8fafc';
+                ctx.beginPath();
+                ctx.moveTo(10, 0); ctx.lineTo(-10, -8); ctx.lineTo(-5, 0); ctx.lineTo(-10, 8);
+                ctx.fill();
+                ctx.fillStyle = '#a855f7';
+                ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(-5, 0); ctx.lineTo(-10, 8); ctx.fill();
+
+                ctx.restore();
+            });
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 4000; // 4 seconds loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'direct': renderDirect(ctx, w, h, p); break;
+                    case 'sealed': renderSealed(ctx, w, h, p); break;
+                    case 'users': renderUsers(ctx, w, h, p); break;
+                    case 'nbc': renderNBC(ctx, w, h, p); break;
+                    case 'ibc': renderIBC(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
+
+```

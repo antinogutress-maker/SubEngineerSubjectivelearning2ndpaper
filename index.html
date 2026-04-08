@@ -183,12 +183,12 @@
     <div id="screen-2" class="screen">
         <div class="clay-card">
             <div class="warning-text">
-                "कृपया राम्ररी चलाउनको लागि आफ्नो मोबाइलको माथिल्लो दायाँ कुनामा रहेको ३ वटा Dot हरुमा Click गरेर Desktop Site ON गर्नुहोस्।"
+                "рдХреГрдкрдпрд╛ рд░рд╛рдореНрд░рд░реА рдЪрд▓рд╛рдЙрдирдХреЛ рд▓рд╛рдЧрд┐ рдЖрдлреНрдиреЛ рдореЛрдмрд╛рдЗрд▓рдХреЛ рдорд╛рдерд┐рд▓реНрд▓реЛ рджрд╛рдпрд╛рдБ рдХреБрдирд╛рдорд╛ рд░рд╣реЗрдХреЛ рей рд╡рдЯрд╛ Dot рд╣рд░реБрдорд╛ Click рдЧрд░реЗрд░ Desktop Site ON рдЧрд░реНрдиреБрд╣реЛрд╕реНред"
             </div>
             
             <div class="profile-container">
-                <div class="profile-pic" id="setup-profile-pic">👤</div>
-                <div class="edit-icon" onclick="document.getElementById('photoInput').click()">📷</div>
+                <div class="profile-pic" id="setup-profile-pic">ЁЯСд</div>
+                <div class="edit-icon" onclick="document.getElementById('photoInput').click()">ЁЯУ╖</div>
             </div>
             <p style="font-size: 0.8em; color: #888; margin-top: -5px;">Upload Photo (Optional)</p>
 
@@ -210,8 +210,8 @@
             <br><br><br> Gen Z idea</h4>
             
             <div class="profile-container">
-                <div class="profile-pic" id="display-profile-pic">👤</div>
-                <div class="edit-icon" onclick="document.getElementById('photoInput').click()">📷</div>
+                <div class="profile-pic" id="display-profile-pic">ЁЯСд</div>
+                <div class="edit-icon" onclick="document.getElementById('photoInput').click()">ЁЯУ╖</div>
             </div>
             <h3 id="display-name" style="margin: 5px 0;"></h3>
             <p id="display-qual" style="font-size: 0.8em; margin: 0;"></p>
@@ -238,7 +238,7 @@
     <div id="screen-4" class="screen">
         <div class="clay-card">
             <h2 id="subtopic-title">Subject Title</h2>
-            <p>Scroll Down 👇 Select a topic to begin</p>
+            <p>Scroll Down ЁЯСЗ Select a topic to begin</p>
             <div class="list-container" id="subtopic-list"></div>
             <button class="clay-btn back-btn" onclick="switchScreen('screen-3')">Back to Home</button>
         </div>
@@ -247,10 +247,11 @@
     <div id="screen-5" class="screen">
         <div class="clay-card">
             <h2 id="magic-title">Topic Title</h2>
+            <p>Choose your learning style</p>
             
-            <p id="magic-loading" style="color: #888; font-weight: bold;">🔍 Checking available materials...</p>
-            
-            <div id="dynamic-buttons-container"></div>
+            <button class="clay-btn magic-btn-interactive" onclick="checkLockAndOpenContent('html')">ЁЯОо Interactive Learning</button>
+            <button class="clay-btn magic-btn-visual" onclick="checkLockAndOpenContent('png')">ЁЯЦ╝я╕П Visual Learning</button>
+            <button class="clay-btn magic-btn-audio" onclick="checkLockAndOpenContent('m4a')">ЁЯОз Audio Learning</button>
             
             <button class="clay-btn back-btn" onclick="switchScreen('screen-4')">Back to Topics</button>
         </div>
@@ -258,12 +259,11 @@
 
     <div id="payment-modal" class="screen">
         <div class="clay-card">
-            <h3>Demo को लगी Surveying Subject Free हो! Check it.</h3>
-            <p>बाकी विषय को Access Ko lagi यो Esewa QR मा Payment गरेर तल Diyeko नम्बर मा स्क्रिन शट पठाउनुहोस् , हामी Verify Garera तपाईंलाई Code दिनेछौं : Thank You 😊 ❤️</p>
+            <h3>Demo рдХреЛ рд▓рдЧреА Surveying Subject Free рд╣реЛ! Check it.</h3>
+            <p>рдмрд╛рдХреА рд╡рд┐рд╖рдп рдХреЛ Access Ko lagi рдпреЛ Esewa QR рдорд╛ Payment рдЧрд░реЗрд░ рддрд▓ Diyeko рдирдореНрдмрд░ рдорд╛ рд╕реНрдХреНрд░рд┐рди рд╢рдЯ рдкрдард╛рдЙрдиреБрд╣реЛрд╕реН , рд╣рд╛рдореА Verify Garera рддрдкрд╛рдИрдВрд▓рд╛рдИ Code рджрд┐рдиреЗрдЫреМрдВ : Thank You ЁЯШК тЭдя╕П</p>
             
-            <h2 style="color: #ff4757;"><del>Rs 500</del> ✂️ With 40% discount Rs. 300</h2>
+            <h2 style="color: #ff4757;"><del>Rs 500</del> тЬВя╕П With 40% discount Rs. 300</h2>
             <p>High Quality Content in Low Price</p>
-            <p>Send Screenshot to 9865637898 for Verification </p>
 
             <img src="esewa-qr.png" alt="QR CODE" style="width: 200px; height: 200px; background: #ddd; margin: 15px auto; border-radius: 10px; display: block;">
             
@@ -319,7 +319,7 @@
                 { id: "11.1.1", name: "Types and Purpose" }, { id: "11.1.2", name: "Units of measurement" }, { id: "11.1.3", name: "Material Required and Cost Analysis" }, { id: "11.1.4", name: "BOQ, Abstract of Cost, Detail Estimate" }, { id: "11.2.1", name: "Rate Analysis" }, { id: "11.3.1", name: "Specification" }, { id: "11.4.1", name: "Valuation" }
             ],
             12: [
-                { id: "12.1.1", name: "Need for organization" }, { id: "12.1.2", name: "Sub-engineer responsibilities" }, { id: "12.1.3", name: "Owner-Contractor-Engineer" }, { id: "12.2.1", name: "Site plan preparation" }, { id: "12.2.2", name: "Organizing labor" }, { id: "12.2.3", name: "Labor efficiency" }, { id: "12.2.4", name: "Accident prevention" }, { id: "12.3.1", name: "Contracts" }, { id: "12.3.2", name: "Force account" }, { id: "12.3.3", name: "Types of contracts" }, { id: "12.3.4", name: "Tender notice" }, { id: "12.3.5", name: "Bid security" }, { id: "12.3.6", name: "Preparation for tender" }, { id: "12.3.7", name: "Agreement" }, { id: "12.3.8", name: "Conditions of contract" }, { id: "12.3.9", name: "Construction supervision" }, { id: "12.4.1", name: "Administrative approval" }, { id: "12.4.2", name: "Account formats" }, { id: "12.4.3", name: "Muster roll" }, { id: "12.4.4", name: "Completion report" }, { id: "12.5.1", name: "Construction schedule" }, { id: "12.5.2", name: "Materials schedule" }, { id: "12.5.3", name: "Construction operations" }, { id: "12.5.4", name: "Bar chart" }
+                { id: "12.1.1", name: "Need for organization" }, { id: "12.1.2", name: "Sub-engineer responsibilities" }, { id: "12.1.3", name: "Owner-Contractor-Engineer" }, { id: "12.2.1", name: "Site plan preparation" }, { id: "12.2.2", name: "Organizing labor and Labour efficiency" },  { id: "12.2.4", name: "Accident prevention" }, { id: "12.3.1", name: "Types of Contracts" }, { id: "12.3.2", name: "Force account and day works" },  { id: "12.3.5", name: "Bid security and Performance Security" }, { id: "12.3.6", name: "Preparation for tender" },  { id: "12.3.8", name: "Conditions of contract" }, { id: "12.3.9", name: "Construction supervision" }, { id: "12.4.1", name: "Administrative approval and Technical Sanction" },  { id: "12.4.3", name: "Muster roll and Completion Report" },  { id: "12.5.1", name: "Construction and Material schedule" }, { id: "12.5.2", name: "Procurement Methods" }, { id: "12.5.3", name: "Construction operations" }, { id: "12.5.4", name: "Bar chart" }
             ]
         };
 
@@ -426,69 +426,11 @@
             switchScreen('screen-4');
         }
 
-        // ==========================================
-        // DYNAMIC BUTTON GENERATOR (MAGICAL SCREEN)
-        // ==========================================
-        async function openMagicalScreen(topicId, topicName) {
+        function openMagicalScreen(topicId, topicName) {
             currentTopicCode = topicId.replace(/\./g, ''); 
             document.getElementById('magic-title').innerText = `${topicId} ${topicName}`;
-            
-            const btnContainer = document.getElementById('dynamic-buttons-container');
-            const loadingText = document.getElementById('magic-loading');
-            
-            // Clear old buttons and show loading text
-            btnContainer.innerHTML = '';
-            loadingText.style.display = 'block';
-            
-            // Switch to the screen so the user sees it loading
-            switchScreen('screen-5'); 
-
-            // The base path we want to test (e.g., "1/112")
-            const basePath = `${currentSubjectId}/${currentTopicCode}`;
-
-            // We ping the server for all three files at the exact same time
-            const checks = await Promise.all([
-                checkFileExists(`${basePath}.html`),
-                checkFileExists(`${basePath}.png`),
-                checkFileExists(`${basePath}.m4a`)
-            ]);
-
-            // Hide the loading text
-            loadingText.style.display = 'none';
-
-            let buttonsFound = 0;
-
-            // Build buttons based on the response (checks[0] = html, [1] = png, [2] = m4a)
-            if (checks[0]) {
-                btnContainer.innerHTML += `<button class="clay-btn magic-btn-interactive" onclick="checkLockAndOpenContent('html')">🎮 Interactive Learning</button>`;
-                buttonsFound++;
-            }
-            if (checks[1]) {
-                btnContainer.innerHTML += `<button class="clay-btn magic-btn-visual" onclick="checkLockAndOpenContent('png')">🖼️ Visual Learning</button>`;
-                buttonsFound++;
-            }
-            if (checks[2]) {
-                btnContainer.innerHTML += `<button class="clay-btn magic-btn-audio" onclick="checkLockAndOpenContent('m4a')">🎧 Audio Learning</button>`;
-                buttonsFound++;
-            }
-
-            // If nothing is found, show a message so the screen isn't empty
-            if (buttonsFound === 0) {
-                btnContainer.innerHTML = `<p style="color: #ff4757; font-weight: bold;">Materials uploading soon...</p>`;
-            }
+            switchScreen('screen-5');
         }
-
-        // Utility function to "Ping" a URL without downloading the whole file
-        async function checkFileExists(url) {
-            try {
-                const response = await fetch(url, { method: 'HEAD' });
-                return response.ok; // Returns true if 200 OK, false if 404 Not Found
-            } catch (error) {
-                return false;
-            }
-        }
-
-        // ==========================================
 
         function checkLockAndOpenContent(fileExtension) {
             if(currentSubjectId === 1) { launchFile(fileExtension); return; }
@@ -505,12 +447,14 @@
                 switchScreen('screen-5');
             })
             .catch(() => {
+                // Mock for testing
                 localStorage.setItem("paidAccessValid", "true");
                 switchScreen('screen-5');
             });
         }
 
         function launchFile(fileExtension) {
+            // FIXED: Looks directly in folders 1, 2, 3, etc.
             const filePath = `${currentSubjectId}/${currentTopicCode}.${fileExtension.toLowerCase()}`;
             window.open(filePath, '_blank'); 
         }

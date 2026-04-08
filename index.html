@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,7 +43,7 @@
         }
 
         .clay-input {
-            width: 90%;
+            width: 100%;
             padding: 15px;
             margin: 10px 0;
             border: none;
@@ -72,8 +73,8 @@
         }
 
         .clay-btn:active { box-shadow: var(--clay-shadow-in); }
-        .clay-btn.surveying-btn { color: var(--accent-pink); }
         .clay-btn.back-btn { margin-top: 20px; color: #888; box-shadow: var(--clay-shadow-in); }
+        .clay-btn.whatsapp-btn { background-color: #25D366; color: white; margin-top: 25px; font-size: 1.1em;}
 
         /* Typography & Utilities */
         .warning-text {
@@ -81,7 +82,6 @@
             font-weight: bold;
             font-size: 0.9em;
             margin-bottom: 20px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
         .grid-container {
@@ -89,6 +89,17 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin-top: 20px;
+        }
+        
+        .full-width-btn {
+            grid-column: 1 / -1; /* Spans across all columns */
+            background-color: #f1f2f6;
+            border: 2px dashed #a4b0be;
+        }
+
+        /* Permanently Free Subjects */
+        .free-subject {
+            color: #ff4757;
         }
 
         .list-container {
@@ -103,50 +114,40 @@
 
         .list-btn { text-align: left; padding: 12px 20px; font-size: 0.9em; }
 
-        /* Profile Picture Styling */
-        .profile-container {
-            position: relative;
-            width: 90px;
-            height: 90px;
-            margin: 0 auto 15px auto;
-        }
-
-        .profile-pic {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            box-shadow: var(--clay-shadow-out);
-            background-color: #e0e5ec;
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            border: 3px solid var(--bg-color);
-            font-size: 2rem;
-        }
-
-        .edit-icon {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background: var(--bg-color);
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: var(--clay-shadow-out);
-            cursor: pointer;
-            font-size: 14px;
-        }
-
         /* Magical Screen Buttons */
         .magic-btn-interactive { color: #ff6b6b; }
         .magic-btn-visual { color: #48dbfb; }
         .magic-btn-audio { color: #1dd1a1; }
+        .magic-btn-rapid { color: #9b59b6; background-color: #f8e9ff;}
+
+        /* Payment Animations */
+        .promo-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .promo-line {
+            opacity: 0;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 8px 0;
+            animation: slideUpFade 0.8s forwards;
+        }
+        .promo-line:nth-child(1) { color: #ff6b6b; animation-delay: 0.2s; }
+        .promo-line:nth-child(2) { color: #48dbfb; animation-delay: 0.7s; }
+        .promo-line:nth-child(3) { color: #1dd1a1; animation-delay: 1.2s; }
+        .promo-line:nth-child(4) { color: #ff9f43; animation-delay: 1.7s; }
+
+        @keyframes slideUpFade {
+            0% { opacity: 0; transform: translateY(15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        #timer-display {
+            font-size: 0.8em;
+            color: #ff4757;
+            margin-top: 10px;
+            font-weight: bold;
+        }
 
         /* DESKTOP VIEW SCALING */
         @media (min-width: 768px) {
@@ -155,135 +156,138 @@
             .clay-card { padding: 50px; }
             .clay-btn { padding: 25px 40px; font-size: 1.1em; border-radius: 20px; }
             .clay-input { padding: 20px; font-size: 1.1em; }
-            h2 { font-size: 2.2em; }
-            h3 { font-size: 1.8em; }
-            h4 { font-size: 1.3em; line-height: 1.5; }
             .grid-container { gap: 30px; }
-            .list-btn { padding: 20px 30px; font-size: 1em; }
-            .list-container { max-height: 600px; gap: 15px; }
-            .profile-container { width: 130px; height: 130px; margin-bottom: 25px; }
-            .profile-pic { font-size: 3rem; }
-            .edit-icon { width: 40px; height: 40px; font-size: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
-
-    <div id="screen-1" class="screen active-screen">
+    <div id="screen-setup" class="screen active-screen">
         <div class="clay-card">
             <h2>Welcome to Gen Z Revision</h2>
-            <p>Enter your email to start playing.</p>
-            <input type="email" id="userEmail" class="clay-input" placeholder="example@gmail.com" required>
-            <button class="clay-btn" onclick="handleLogin()">Continue</button>
-        </div>
-    </div>
-
-    <div id="screen-2" class="screen">
-        <div class="clay-card">
-            <div class="warning-text">
-                "рдХреГрдкрдпрд╛ рд░рд╛рдореНрд░рд░реА рдЪрд▓рд╛рдЙрдирдХреЛ рд▓рд╛рдЧрд┐ рдЖрдлреНрдиреЛ рдореЛрдмрд╛рдЗрд▓рдХреЛ рдорд╛рдерд┐рд▓реНрд▓реЛ рджрд╛рдпрд╛рдБ рдХреБрдирд╛рдорд╛ рд░рд╣реЗрдХреЛ рей рд╡рдЯрд╛ Dot рд╣рд░реБрдорд╛ Click рдЧрд░реЗрд░ Desktop Site ON рдЧрд░реНрдиреБрд╣реЛрд╕реНред"
-            </div>
+            <div class="warning-text" id="login-error" style="display: none;"></div>
             
-            <div class="profile-container">
-                <div class="profile-pic" id="setup-profile-pic">ЁЯСд</div>
-                <div class="edit-icon" onclick="document.getElementById('photoInput').click()">ЁЯУ╖</div>
-            </div>
-            <p style="font-size: 0.8em; color: #888; margin-top: -5px;">Upload Photo (Optional)</p>
-
-            <input type="text" id="userName" class="clay-input" placeholder="Enter Name" required>
+            <p>Enter details to start your 1-Hour Free Trial.</p>
+            
+            <input type="tel" id="userPhone" class="clay-input" placeholder="Phone Number (e.g. 98XXXXXXXX)" required>
+            <input type="text" id="userName" class="clay-input" placeholder="Full Name" required>
+            
             <select id="qualification" class="clay-input" required>
                 <option value="" disabled selected>Select Qualification</option>
                 <option value="Engineer">Engineer</option>
                 <option value="Sub Engineer">Sub Engineer</option>
             </select>
-            <input type="number" id="age" class="clay-input" placeholder="Enter Age (15-45)" min="15" max="45" required>
             
-            <button id="confirm-btn" class="clay-btn" onclick="saveDetailsAndGoHome()">CONFIRM</button>
+            <select id="gender" class="clay-input" required>
+                <option value="" disabled selected>Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <input type="number" id="age" class="clay-input" placeholder="Age (15-45)" min="15" max="45" required>
+            
+            <button id="login-btn" class="clay-btn" onclick="handleLogin()">START FREE TRIAL</button>
         </div>
     </div>
 
-    <div id="screen-3" class="screen">
+    <div id="screen-home" class="screen">
         <div class="clay-card">
             <h4 style="color: var(--accent-pink);">Let's Make Reading and Revision More Engaging and Effective 
             <br><br><br> Gen Z idea</h4>
             
-            <div class="profile-container">
-                <div class="profile-pic" id="display-profile-pic">ЁЯСд</div>
-                <div class="edit-icon" onclick="document.getElementById('photoInput').click()">ЁЯУ╖</div>
-            </div>
             <h3 id="display-name" style="margin: 5px 0;"></h3>
-            <p id="display-qual" style="font-size: 0.8em; margin: 0;"></p>
-            <p id="display-age" style="font-size: 0.8em; margin: 0;"></p>
-            <p id="display-email" style="font-size: 0.8em; margin: 5px 0; color: #888;"></p>
+            <p id="display-info" style="font-size: 0.8em; margin: 0; color: #888;"></p>
+            <div id="timer-display">Free Trial Active</div>
 
             <div class="grid-container">
-                <button class="clay-btn surveying-btn" onclick="openSubject(1, 'Surveying')">Surveying</button>
+                <!-- NEW SUBJECT: Full Width -->
+                <button class="clay-btn full-width-btn" onclick="openSubject(0, 'Old Loksewa First Paper Collections')">📚 Old Loksewa First Paper Collections</button>
+                
+                <!-- RED SUBJECTS = ALWAYS FREE -->
+                <button class="clay-btn free-subject" onclick="openSubject(1, 'Surveying')">Surveying</button>
                 <button class="clay-btn" onclick="openSubject(2, 'Construction Materials')">Construction Materials</button>
                 <button class="clay-btn" onclick="openSubject(3, 'Mechanics of Structure')">Mechanics of Structure</button>
                 <button class="clay-btn" onclick="openSubject(4, 'Hydraulics')">Hydraulics</button>
                 <button class="clay-btn" onclick="openSubject(5, 'Soil Mechanics')">Soil Mechanics</button>
                 <button class="clay-btn" onclick="openSubject(6, 'Structural Design')">Structural Design</button>
                 <button class="clay-btn" onclick="openSubject(7, 'Building Construction Tech')">Building Construction</button>
-                <button class="clay-btn" onclick="openSubject(8, 'Water Supply & Sanitation')">Water Supply & Sanitation</button>
+                <button class="clay-btn free-subject" onclick="openSubject(8, 'Water Supply & Sanitation')">Water Supply & Sanitation</button>
                 <button class="clay-btn" onclick="openSubject(9, 'Irrigation Engineering')">Irrigation Engineering</button>
                 <button class="clay-btn" onclick="openSubject(10, 'Highway Engineering')">Highway Engineering</button>
                 <button class="clay-btn" onclick="openSubject(11, 'Estimating and Costing')">Estimating & Costing</button>
-                <button class="clay-btn" onclick="openSubject(12, 'Construction Management')">Construction Management</button>
+                <button class="clay-btn free-subject" onclick="openSubject(12, 'Construction Management')">Construction Management</button>
             </div>
         </div>
     </div>
 
-    <div id="screen-4" class="screen">
+    <div id="screen-topics" class="screen">
         <div class="clay-card">
             <h2 id="subtopic-title">Subject Title</h2>
-            <p>Scroll Down ЁЯСЗ Select a topic to begin</p>
+            <p>Scroll Down 👇 Select a topic to begin</p>
             <div class="list-container" id="subtopic-list"></div>
-            <button class="clay-btn back-btn" onclick="switchScreen('screen-3')">Back to Home</button>
+            <button class="clay-btn back-btn" onclick="switchScreen('screen-home')">Back to Home</button>
         </div>
     </div>
 
-    <div id="screen-5" class="screen">
+    <div id="screen-magic" class="screen">
         <div class="clay-card">
             <h2 id="magic-title">Topic Title</h2>
-            <p>Choose your learning style</p>
             
-            <button class="clay-btn magic-btn-interactive" onclick="checkLockAndOpenContent('html')">ЁЯОо Interactive Learning</button>
-            <button class="clay-btn magic-btn-visual" onclick="checkLockAndOpenContent('png')">ЁЯЦ╝я╕П Visual Learning</button>
-            <button class="clay-btn magic-btn-audio" onclick="checkLockAndOpenContent('m4a')">ЁЯОз Audio Learning</button>
+            <p id="magic-loading" style="color: #888; font-weight: bold;">🔍 Checking materials & access...</p>
             
-            <button class="clay-btn back-btn" onclick="switchScreen('screen-4')">Back to Topics</button>
+            <div id="dynamic-buttons-container"></div>
+            
+            <button class="clay-btn back-btn" onclick="switchScreen('screen-topics')">Back to Topics</button>
         </div>
     </div>
 
     <div id="payment-modal" class="screen">
         <div class="clay-card">
-            <h3>Demo рдХреЛ рд▓рдЧреА Surveying Subject Free рд╣реЛ! Check it.</h3>
-            <p>рдмрд╛рдХреА рд╡рд┐рд╖рдп рдХреЛ Access Ko lagi рдпреЛ Esewa QR рдорд╛ Payment рдЧрд░реЗрд░ рддрд▓ Diyeko рдирдореНрдмрд░ рдорд╛ рд╕реНрдХреНрд░рд┐рди рд╢рдЯ рдкрдард╛рдЙрдиреБрд╣реЛрд╕реН , рд╣рд╛рдореА Verify Garera рддрдкрд╛рдИрдВрд▓рд╛рдИ Code рджрд┐рдиреЗрдЫреМрдВ : Thank You ЁЯШК тЭдя╕П</p>
+            <h3>Trial Ended! Unlock Premium</h3>
+            <h2 style="color: #ff4757;"><del>Rs 500</del> ✂️ Rs. 198 Only!</h2>
             
-            <h2 style="color: #ff4757;"><del>Rs 500</del> тЬВя╕П With 40% discount Rs. 300</h2>
-            <p>High Quality Content in Low Price</p>
+            <div class="promo-container">
+                <div class="promo-line">🚀 High Quality Content</div>
+                <div class="promo-line">🧠 Deep Learning & Memorization</div>
+                <div class="promo-line">🎮 Gamified Interactive Quizzes</div>
+                <div class="promo-line">🎧 Crisp Audio Explanations</div>
+            </div>
 
-            <img src="esewa-qr.png" alt="QR CODE" style="width: 200px; height: 200px; background: #ddd; margin: 15px auto; border-radius: 10px; display: block;">
+            <img src="esewa-qr.png" alt="QR CODE" style="width: 250px; height: 250px; background: #ddd; margin: 15px auto; border-radius: 10px; display: block; object-fit: contain;">
             
             <div style="max-width: 400px; margin: 0 auto;">
-                <input type="text" id="accessCode" class="clay-input" style="width: 100%;" placeholder="Enter Access Code">
-                <button class="clay-btn" onclick="verifyCode()">Verify Code</button>
-                <button class="clay-btn back-btn" onclick="switchScreen('screen-5')">Cancel</button>
+                <a href="https://wa.me/qr/4KGVE6QVMCTON1" target="_blank" style="text-decoration: none;">
+                    <button class="clay-btn whatsapp-btn">📲 Send Screenshot via WhatsApp</button>
+                </a>
+                <p style="font-size: 0.8em; color: #888; margin-top: 15px;">Admin will instantly unlock your account after receiving the screenshot.</p>
+                
+                <!-- Refresh Button allows user to check again after admin writes 'Sent' -->
+                <button class="clay-btn" style="margin-top: 10px;" onclick="openMagicalScreen(currentTopicIdOriginal, currentTopicNameOriginal)">🔄 I Paid, Check Again</button>
+                <button class="clay-btn back-btn" onclick="switchScreen('screen-topics')">Cancel</button>
             </div>
         </div>
     </div>
 
     <script>
-        const SCRIPT_1_DB = "https://script.google.com/macros/s/AKfycbwumcQXonlFGzlOifQr6q1ciNrZN3Him8z4M5ws4Qopj8pJn_oB2TkDHJYjPA18XvxORg/exec";
-        const SCRIPT_2_VERIFY = "https://script.google.com/macros/s/AKfycbw4EBwp_tSyWgTnNsdBNnCNRa0Nzj1bAjjCuG2SaffMU1_wHuIFpieOouOb0Zl5KjpsrA/exec";
+        // ==========================================
+        // REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT URL!
+        // ==========================================
+        const SCRIPT_URL = "YOUR_WEB_APP_URL_HERE"; 
 
         let currentSubjectId = null;
         let currentTopicCode = null; 
+        let currentTopicIdOriginal = null;
+        let currentTopicNameOriginal = null;
 
         // FULL SYLLABUS MAP
         const syllabus = {
+            0: [
+                { id: "0.1.1", name: "Set 1 - 2075 Questions" }, 
+                { id: "0.1.2", name: "Set 2 - 2076 Questions" },
+                { id: "0.1.3", name: "Set 3 - 2077 Questions" }
+                // Add more manually here later
+            ],
             1: [
                 { id: "1.1.1", name: "Classifications" }, { id: "1.1.2", name: "Principle of surveying" }, { id: "1.1.3", name: "Selection of suitable method" }, { id: "1.1.4", name: "plans and maps" }, { id: "1.1.5", name: "Scale" }, { id: "1.2.1", name: "Methods of levelling" }, { id: "1.2.2", name: "Levelling instruments and accessories" }, { id: "1.2.3", name: "Principles of levelling" }, { id: "1.3.1", name: "Equipments required in plane tabling" }, { id: "1.3.2", name: "Methods of palne tabling" }, { id: "1.3.3", name: " three point problems" }, { id: "1.4.1", name: "Basic difference between different theodolites" }, { id: "1.4.2", name: "Temporary adjustments of theodolites" }, { id: "1.4.3", name: "Fundamental lines and desired relations" }, { id: "1.4.4", name: "Tacheometry: stadia method" }, { id: "1.4.6", name: "Checks in closed traverse" }, { id: "1.5.1", name: "Characteristics of contour lines" }, { id: "1.5.2", name: "Method of locating contours" }, { id: "1.5.3", name: "Contour plotting" }, { id: "1.6.1", name: " Setting Out" }
             ],
@@ -305,7 +309,7 @@
             7: [
                 { id: "7.1.1", name: "Subsoil exploration" }, { id: "7.1.2", name: "Foundations: Shallow, deep" }, { id: "7.1.3", name: "Shoring and dewatering" }, { id: "7.1.4", name : "Design of simple Brick and Stone masonary Foundation" }, { id: "7.2.1", name: "Type of walls and functions" },  { id : "7.2.2", name : "Choosing Width Height and length of Wall" }, { id: "7.2.3", name: "Scaffolding" }, { id: "7.3.1", name: " Dampness" },  { id: "7.4.1", name: "Constituents of concrete" }, { id: "7.4.2", name: "Grading of aggregates" }, { id: "7.4.3", name: "Concrete mixes" },  { id: "7.4.5", name: "Factors affecting strength and workability" }, { id: "7.4.6", name: "Curing and Formwork" }, { id: "7.4.7", name: "Form work and Curing part II" }, { id: "7.4.8", name: "Slump Test" },  { id: "7.5.3", name: "Design of stairs" }, { id: "7.6.1", name: "Floor finishes" }, { id: "7.6.2", name: "Plastering" }
             ],
-            8: [
+            8: [ 
                 { id: "8.1.1", name: " objectives and Selection " }, { id: "8.1.2", name: "Types of Ground Sources" }, { id: "8.2.1", name: "Design period and Selection of pipe" }, { id: "8.2.2", name: "Determination of Daily water demand" }, { id: "8.2.3", name: "Determination of Storage tank capacity" }, { id: "8.2.4", name: "Ground Water Sources Visuals" }, { id: "8.2.5", name: "Pipe line design" }, { id: "8.2.6", name: "Valves" }, { id: "8.2.7", name: "Pipe Fittings" }, { id: "8.2.8", name: "Rural Water Supply  System" }, { id: "8.2.9", name: "Mechanics of Filtration" }, { id: "8.3.0", name: "Water supply Structures" }, { id: "8.3.1", name: "Quantity of sanitary sewage" }, { id: "8.3.2", name: "Minimum Maximum and Self cleaning velocity" }, { id: "8.4.1", name: "Pit latrine and Septic Tank" }, { id: "8.4.2", name: "Design of septic tank" }
             ],
             9: [
@@ -319,95 +323,89 @@
                 { id: "11.1.1", name: "Types and Purpose" }, { id: "11.1.2", name: "Units of measurement" }, { id: "11.1.3", name: "Material Required and Cost Analysis" }, { id: "11.1.4", name: "BOQ, Abstract of Cost, Detail Estimate" }, { id: "11.2.1", name: "Rate Analysis" }, { id: "11.3.1", name: "Specification" }, { id: "11.4.1", name: "Valuation" }
             ],
             12: [
-                { id: "12.1.1", name: "Organization" }, { id: "12.1.2", name: "Sub-engineer responsibilities" }, { id: "12.1.3", name: "Owner-Contractor-Engineer Relation" }, { id: "12.2.1", name: "Site plan preparation" }, { id: "12.2.2", name: "Organizing labor and Labour efficiency" },  { id: "12.2.4", name: "Accident prevention" }, { id: "12.3.1", name: "Types of Contracts" }, { id: "12.3.2", name: "Force account and day works" },  { id: "12.3.5", name: "Bid security and Performance Security" }, { id: "12.3.6", name: "Preparation for tender" },  { id: "12.3.8", name: "Conditions of contract" }, { id: "12.3.9", name: "Construction supervision" }, { id: "12.4.1", name: "Administrative approval and Technical Sanction" },  { id: "12.4.3", name: "Muster roll and Completion Report" }, { id: "12.4.4", name: "CPM vs PERT" },  { id: "12.5.1", name: "Construction and Material schedule" }, { id: "12.5.2", name: "Procurement Methods" }, { id: "12.5.3", name: "Construction operations" }, { id: "12.5.4", name: "Bar chart" }
+                { id: "12.1.1", name: "Need for organization" }, { id: "12.1.2", name: "Sub-engineer responsibilities" }, { id: "12.1.3", name: "Owner-Contractor-Engineer" }, { id: "12.2.1", name: "Site plan preparation" }, { id: "12.2.2", name: "Organizing labor and Labour efficiency" },  { id: "12.2.4", name: "Accident prevention" }, { id: "12.3.1", name: "Types of Contracts" }, { id: "12.3.2", name: "Force account and day works" },  { id: "12.3.5", name: "Bid security and Performance Security" }, { id: "12.3.6", name: "Preparation for tender" },  { id: "12.3.8", name: "Conditions of contract" }, { id: "12.3.9", name: "Construction supervision" }, { id: "12.4.1", name: "Administrative approval and Technical Sanction" },  { id: "12.4.3", name: "Muster roll and Completion Report" },  { id: "12.5.1", name: "Construction and Material schedule" }, { id: "12.5.2", name: "Procurement Methods" }, { id: "12.5.3", name: "Construction operations" }, { id: "12.5.4", name: "Bar chart" }
             ]
         };
 
         function switchScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById(screenId).classList.add('active-screen');
+            if(screenId === 'screen-home') { checkTimerUI(); }
         }
 
-        function handleLogin() {
-            const email = document.getElementById('userEmail').value.trim().toLowerCase();
-            if(!email || !email.endsWith("@gmail.com")) { alert("Please use a valid @gmail.com address."); return; }
-            localStorage.setItem("userEmail", email);
-            if(!localStorage.getItem("deviceUUID")) { localStorage.setItem("deviceUUID", crypto.randomUUID()); }
-            if(localStorage.getItem("userName")) { loadProfile(); switchScreen('screen-3'); } else { switchScreen('screen-2'); }
-        }
-
-        function handlePhotoUpload(event) {
-            const file = event.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 200;
-                    const scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7); 
-                    localStorage.setItem('profilePic', dataUrl);
-                    applyProfilePic(dataUrl);
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        }
-
-        function applyProfilePic(dataUrl) {
-            if(dataUrl) {
-                document.getElementById('setup-profile-pic').style.backgroundImage = `url(${dataUrl})`;
-                document.getElementById('setup-profile-pic').innerText = ''; 
-                document.getElementById('display-profile-pic').style.backgroundImage = `url(${dataUrl})`;
-                document.getElementById('display-profile-pic').innerText = ''; 
-            }
-        }
-
-        function saveDetailsAndGoHome() {
-            const name = document.getElementById('userName').value;
+        async function handleLogin() {
+            const phone = document.getElementById('userPhone').value.trim();
+            const name = document.getElementById('userName').value.trim();
             const qual = document.getElementById('qualification').value;
+            const gender = document.getElementById('gender').value;
             const age = parseInt(document.getElementById('age').value);
-            const email = localStorage.getItem("userEmail");
-            const uuid = localStorage.getItem("deviceUUID");
-            if(!name || !qual || isNaN(age) || age < 15 || age > 45) { alert("Please fill all details correctly (Age 15-45)."); return; }
-            const btn = document.getElementById('confirm-btn');
-            btn.innerText = "Saving...";
-            const userData = { email, name, qualification: qual, age, uuid };
-            fetch(SCRIPT_1_DB, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(userData)
-            })
-            .then(() => {
-                localStorage.setItem("userName", name);
-                localStorage.setItem("userQual", qual);
-                localStorage.setItem("userAge", age);
-                loadProfile();
-                switchScreen('screen-3');
-                btn.innerText = "CONFIRM";
-            })
-            .catch(() => {
-                localStorage.setItem("userName", name);
-                localStorage.setItem("userQual", qual);
-                localStorage.setItem("userAge", age);
-                loadProfile();
-                switchScreen('screen-3');
-                btn.innerText = "CONFIRM";
-            });
+            const errorDiv = document.getElementById('login-error');
+
+            if(!phone || phone.length < 9 || !name || !qual || !gender || isNaN(age) || age < 15 || age > 45) { 
+                alert("Please fill all details correctly (Age 15-45)."); return; 
+            }
+
+            const btn = document.getElementById('login-btn');
+            btn.innerText = "Processing...";
+            errorDiv.style.display = 'none';
+
+            const userData = { action: 'login', phone, name, qualification: qual, gender, age };
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(userData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === "exists") {
+                    errorDiv.innerHTML = result.message + " <br><br> <a href='https://wa.me/qr/4KGVE6QVMCTON1' target='_blank' style='color:#1e90ff'>Click here to message Admin</a>";
+                    errorDiv.style.display = 'block';
+                    btn.innerText = "START FREE TRIAL";
+                } else if (result.status === "success") {
+                    // Save to browser
+                    localStorage.setItem("userPhone", phone);
+                    localStorage.setItem("userName", name);
+                    localStorage.setItem("userQual", qual);
+                    localStorage.setItem("trialStart", Date.now().toString()); // Start Timer!
+                    loadProfile();
+                    switchScreen('screen-home');
+                } else {
+                    alert("System error. Check connection.");
+                    btn.innerText = "START FREE TRIAL";
+                }
+            } catch (e) {
+                alert("Failed to connect to server. Check your network.");
+                btn.innerText = "START FREE TRIAL";
+            }
         }
 
         function loadProfile() {
-            document.getElementById('display-name').innerText = localStorage.getItem("userName");
-            document.getElementById('display-qual').innerText = localStorage.getItem("userQual");
-            document.getElementById('display-age').innerText = "Age: " + localStorage.getItem("userAge");
-            document.getElementById('display-email').innerText = localStorage.getItem("userEmail");
-            const savedPic = localStorage.getItem('profilePic');
-            if(savedPic) applyProfilePic(savedPic);
+            document.getElementById('display-name').innerText = "Hi, " + localStorage.getItem("userName");
+            document.getElementById('display-info').innerText = localStorage.getItem("userQual") + " | " + localStorage.getItem("userPhone");
+            checkTimerUI();
+        }
+
+        function checkTimerUI() {
+            const trialStart = parseInt(localStorage.getItem('trialStart') || '0');
+            const oneHour = 60 * 60 * 1000;
+            const now = Date.now();
+            const timeElapsed = now - trialStart;
+            const display = document.getElementById('timer-display');
+
+            if(localStorage.getItem('paidAccessValid') === 'true') {
+                display.innerText = "💎 Premium Active";
+                display.style.color = "#1dd1a1";
+            } else if (timeElapsed < oneHour) {
+                let minsLeft = Math.floor((oneHour - timeElapsed) / 60000);
+                display.innerText = `⏳ Free Trial Active: ${minsLeft} minutes left`;
+                display.style.color = "#1dd1a1";
+            } else {
+                display.innerText = "❌ Free Trial Ended. Only Red Subjects Available.";
+                display.style.color = "#ff4757";
+            }
         }
 
         function openSubject(subjectId, subjectName) {
@@ -415,6 +413,7 @@
             document.getElementById('subtopic-title').innerText = subjectName;
             const listContainer = document.getElementById('subtopic-list');
             listContainer.innerHTML = ''; 
+            
             const topics = syllabus[subjectId] || [];
             topics.forEach(topic => {
                 const btn = document.createElement('button');
@@ -423,45 +422,130 @@
                 btn.onclick = () => openMagicalScreen(topic.id, topic.name);
                 listContainer.appendChild(btn);
             });
-            switchScreen('screen-4');
+            switchScreen('screen-topics');
         }
 
-        function openMagicalScreen(topicId, topicName) {
+        async function openMagicalScreen(topicId, topicName) {
+            // Save state so we can refresh this screen after payment
+            currentTopicIdOriginal = topicId;
+            currentTopicNameOriginal = topicName;
+            
             currentTopicCode = topicId.replace(/\./g, ''); 
             document.getElementById('magic-title').innerText = `${topicId} ${topicName}`;
-            switchScreen('screen-5');
+            
+            const btnContainer = document.getElementById('dynamic-buttons-container');
+            const loadingText = document.getElementById('magic-loading');
+            
+            btnContainer.innerHTML = '';
+            loadingText.innerText = "🔍 Checking available materials...";
+            loadingText.style.display = 'block';
+            switchScreen('screen-magic'); 
+
+            const basePath = `${currentSubjectId}/${currentTopicCode}`;
+
+            // Check for the 4 dynamic files (including "Rapid Learning" A.html)
+            const checks = await Promise.all([
+                checkFileExists(`${basePath}.html`),
+                checkFileExists(`${basePath}.png`),
+                checkFileExists(`${basePath}.m4a`),
+                checkFileExists(`${basePath}A.html`)
+            ]);
+
+            let buttonsFound = 0;
+
+            if (checks[0]) {
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-interactive" onclick="validateAccessAndLaunch('html')">🎮 Interactive Learning</button>`;
+                buttonsFound++;
+            }
+            if (checks[1]) {
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-visual" onclick="validateAccessAndLaunch('png')">🖼️ Visual Learning</button>`;
+                buttonsFound++;
+            }
+            if (checks[2]) {
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-audio" onclick="validateAccessAndLaunch('m4a')">🎧 Audio Learning</button>`;
+                buttonsFound++;
+            }
+            // Rapid Learning Button Check
+            if (checks[3]) {
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-rapid" onclick="validateAccessAndLaunch('A.html')">⚡ Rapid Learning</button>`;
+                buttonsFound++;
+            }
+
+            if (buttonsFound === 0) {
+                btnContainer.innerHTML = `<p style="color: #ff4757; font-weight: bold;">Materials uploading soon...</p>`;
+            }
+            
+            // Wait slightly before checking access lock visually
+            await handleAccessLockCheck(btnContainer, loadingText);
         }
 
-        function checkLockAndOpenContent(fileExtension) {
-            if(currentSubjectId === 1) { launchFile(fileExtension); return; }
-            if(localStorage.getItem("paidAccessValid") === "true") { launchFile(fileExtension); } else { switchScreen('payment-modal'); }
+        async function handleAccessLockCheck(btnContainer, loadingText) {
+            const isAlwaysFree = [1, 8, 12].includes(currentSubjectId);
+            if (isAlwaysFree || localStorage.getItem("paidAccessValid") === "true") {
+                loadingText.style.display = 'none';
+                return;
+            }
+
+            const trialStart = parseInt(localStorage.getItem('trialStart') || '0');
+            const oneHour = 60 * 60 * 1000;
+            const now = Date.now();
+
+            if ((now - trialStart) < oneHour) {
+                loadingText.style.display = 'none'; // Trial is active
+                return;
+            }
+
+            // Trial is over. Let's ping the server to see if admin unlocked them.
+            btnContainer.style.display = 'none';
+            loadingText.innerText = "🔒 Checking Premium Access on Server...";
+            
+            try {
+                const phone = localStorage.getItem('userPhone');
+                const response = await fetch(`${SCRIPT_URL}?action=check_premium&phone=${phone}`);
+                const data = await response.json();
+                
+                if(data.status === 'premium') {
+                    localStorage.setItem("paidAccessValid", "true");
+                    loadingText.style.display = 'none';
+                    btnContainer.style.display = 'block';
+                } else {
+                    switchScreen('payment-modal');
+                    btnContainer.style.display = 'block'; // Reset for later
+                }
+            } catch(e) {
+                loadingText.innerText = "⚠️ Network Error. Cannot verify premium access.";
+                setTimeout(() => switchScreen('screen-topics'), 2000);
+            }
         }
 
-        function verifyCode() {
-            const code = document.getElementById('accessCode').value;
-            const email = localStorage.getItem('userEmail');
-            if(!code) { alert("Enter code"); return; }
-            fetch(`${SCRIPT_2_VERIFY}?code=${code}&email=${email}`)
-            .then(() => {
-                localStorage.setItem("paidAccessValid", "true");
-                switchScreen('screen-5');
-            })
-            .catch(() => {
-                // Mock for testing
-                localStorage.setItem("paidAccessValid", "true");
-                switchScreen('screen-5');
-            });
+        async function checkFileExists(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return response.ok; 
+            } catch (error) {
+                return false;
+            }
         }
 
-        function launchFile(fileExtension) {
-            // FIXED: Looks directly in folders 1, 2, 3, etc.
-            const filePath = `${currentSubjectId}/${currentTopicCode}.${fileExtension.toLowerCase()}`;
+        function validateAccessAndLaunch(fileExtension) {
+            // Because the button is only visible if the access check passed in openMagicalScreen,
+            // we can safely just launch the file here.
+            let filePath = "";
+            if (fileExtension === 'A.html') {
+                filePath = `${currentSubjectId}/${currentTopicCode}A.html`;
+            } else {
+                filePath = `${currentSubjectId}/${currentTopicCode}.${fileExtension.toLowerCase()}`;
+            }
             window.open(filePath, '_blank'); 
         }
 
         window.onload = () => {
-            if(localStorage.getItem("userEmail") && localStorage.getItem("userName")) { loadProfile(); switchScreen('screen-3'); }
+            if(localStorage.getItem("userPhone") && localStorage.getItem("userName")) { 
+                loadProfile(); 
+                switchScreen('screen-home'); 
+            }
         };
     </script>
 </body>
 </html>
+

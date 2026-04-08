@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Master Step Ladder</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@700&display=swap');
@@ -28,23 +28,8 @@
             color: var(--text-main);
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             display: flex; flex-direction: column;
-            min-width: 1000px; /* Essential for side-by-side layout on Desktop Site */
             overflow: hidden;
         }
-
-        /* --- DESKTOP SITE WARNING --- */
-        #desktop-hint {
-            background: linear-gradient(90deg, #ea580c, #eab308);
-            color: white; text-align: center; padding: 8px 20px;
-            font-size: 1.1rem; font-weight: 800; display: flex;
-            justify-content: center; align-items: center; gap: 15px;
-            flex-shrink: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        #desktop-hint button {
-            background: rgba(0,0,0,0.4); border: 1px solid white; color: white;
-            padding: 4px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s;
-        }
-        #desktop-hint button:hover { background: white; color: black; }
 
         /* --- HEADER --- */
         .header {
@@ -76,20 +61,21 @@
         .ladder-zone {
             width: 550px; height: 100%;
             background: rgba(0, 0, 0, 0.3); border-right: 4px dashed #334155;
-            display: flex; justify-content: center; align-items: center;
-            position: relative; overflow-y: auto; padding: 40px 0;
+            display: flex; justify-content: center; align-items: flex-start; /* Align to top instead of center */
+            position: relative; overflow-y: auto; padding: 60px 0; /* Extra top padding to ensure pole tops are visible */
         }
         .ladder-zone::-webkit-scrollbar { width: 8px; }
         .ladder-zone::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
 
         .ladder-structure {
-            position: relative; width: 480px;
+            position: relative; width: 100%; max-width: 480px;
             display: flex; flex-direction: column; gap: 20px;
+            margin-bottom: 40px; /* Leave space at bottom to scroll past the last rung */
         }
 
         /* The Vertical Wooden Poles */
         .pole {
-            position: absolute; top: -50px; bottom: -50px; width: 35px;
+            position: absolute; top: -30px; bottom: -30px; width: 35px; /* Reduced extension so it doesn't clip */
             background: linear-gradient(90deg, var(--wood-dark), var(--wood-light), var(--wood-dark));
             box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 5px 0 15px rgba(0,0,0,0.6);
             border-radius: 5px; z-index: 1;
@@ -99,7 +85,7 @@
 
         /* Drop Slots for Rungs */
         .ladder-slot {
-            width: 100%; height: 110px; /* Height must match rung */
+            width: 100%; height: 110px;
             background: rgba(255, 255, 255, 0.05);
             border: 2px dashed rgba(255, 255, 255, 0.2);
             border-radius: 8px; position: relative; z-index: 2;
@@ -122,10 +108,11 @@
         .tray-header {
             font-size: 1.8rem; font-weight: 800; color: #f8fafc; margin-bottom: 20px;
             text-transform: uppercase; border-bottom: 2px solid #334155; padding-bottom: 10px;
+            flex-shrink: 0;
         }
 
         .parts-pool {
-            flex: 1; display: flex; flex-wrap: wrap; gap: 20px;
+            flex: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
             align-content: flex-start; overflow-y: auto; padding-bottom: 40px;
         }
         .parts-pool::-webkit-scrollbar { width: 8px; }
@@ -133,19 +120,20 @@
 
         /* --- THE RUNGS (Draggable Items) --- */
         .ladder-rung {
-            width: 480px; height: 110px; flex-shrink: 0;
+            width: 100%; max-width: 480px; height: 110px; flex-shrink: 0;
             background: linear-gradient(180deg, var(--wood-med), var(--wood-dark));
             border: 2px solid #290f02; border-radius: 6px;
             box-shadow: 0 8px 15px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2);
             display: flex; align-items: center; justify-content: center;
-            cursor: grab; position: relative; touch-action: none;
+            position: relative; 
             transition: transform 0.1s, box-shadow 0.1s; z-index: 10;
+            /* touch-action REMOVED from here to allow edge scrolling */
         }
-        .ladder-rung:active { cursor: grabbing; }
+        
         .ladder-rung.dragging {
             position: fixed; z-index: 9999;
             box-shadow: 0 15px 30px rgba(0,0,0,0.8); transform: scale(1.02); opacity: 0.95;
-            pointer-events: none; /* Crucial for dropping */
+            pointer-events: none;
         }
 
         /* Metallic Nails on the rung ends */
@@ -156,13 +144,17 @@
         }
         .nail.left { left: 10px; } .nail.right { right: 10px; }
 
-        /* The Paper Note attached to the Wood */
+        /* The Paper Note attached to the Wood - THIS IS NOW THE DRAG HANDLE */
         .rung-note {
-            width: 380px; height: 85px; background: #fef3c7; border-radius: 4px;
+            width: calc(100% - 60px); max-width: 380px; height: 85px; background: #fef3c7; border-radius: 4px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.5); display: flex; flex-direction: column;
             justify-content: center; padding: 5px 15px; color: #020617;
             border: 1px solid #d97706; position: relative; overflow: hidden;
+            cursor: grab; /* Cursor moved here */
+            touch-action: none; /* Touch Action moved here -> dragging only starts from center */
         }
+        .rung-note:active { cursor: grabbing; }
+
         .rung-note::before { /* Tape effect */
             content: ''; position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
             width: 40px; height: 15px; background: rgba(255,255,255,0.6); box-shadow: 0 1px 2px rgba(0,0,0,0.2);
@@ -192,7 +184,7 @@
 
         /* --- CHECK BUTTON --- */
         .check-btn-container {
-            margin-top: 20px; display: flex; justify-content: flex-end;
+            margin-top: 20px; display: flex; justify-content: flex-end; flex-shrink: 0;
         }
         .check-btn {
             background: linear-gradient(135deg, #0ea5e9, #8b5cf6); color: #fff;
@@ -229,13 +221,104 @@
         }
         .play-again-btn:hover { transform: scale(1.05); }
 
+        /* ========================================= */
+        /* --- MOBILE RESPONSIVENESS OVERRIDES --- */
+        /* ========================================= */
+        @media (max-width: 900px) {
+            .game-area {
+                flex-direction: column;
+            }
+
+            .header {
+                height: 60px;
+                padding: 0 15px;
+            }
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            .stat-badge {
+                font-size: 1rem;
+                padding: 5px 12px;
+            }
+
+            .ladder-zone {
+                width: 100%;
+                height: 55%;
+                border-right: none;
+                border-bottom: 4px dashed #334155;
+                padding: 40px 15px 20px 15px; /* Added extra top padding so poles are visible */
+            }
+
+            .ladder-structure {
+                width: calc(100% - 35px); 
+                margin-left: 30px;
+                gap: 12px;
+            }
+
+            .tray-zone {
+                width: 100%;
+                height: 45%;
+                padding: 15px;
+            }
+
+            .tray-header {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+
+            .ladder-slot, .ladder-rung {
+                height: 75px;
+            }
+
+            .rung-note {
+                height: 55px;
+                padding: 2px 10px;
+            }
+
+            .step-title {
+                font-size: 0.95rem;
+            }
+
+            .step-desc {
+                font-size: 0.75rem;
+            }
+
+            .slot-indicator {
+                left: -28px;
+                font-size: 1.1rem;
+            }
+
+            .parts-pool {
+                gap: 12px;
+                padding-bottom: 20px;
+            }
+
+            .check-btn {
+                padding: 15px;
+                font-size: 1.2rem;
+                width: 100%;
+                border-radius: 15px;
+            }
+
+            .check-btn-container {
+                margin-top: 10px;
+            }
+
+            /* Shrink End Screen Details */
+            .overlay { padding: 30px 15px; }
+            .book-summary { padding: 25px 15px; }
+            .book-summary h2 { font-size: 2rem; }
+            .book-summary p.score-report { font-size: 1.1rem; margin-bottom: 20px; }
+            .step-row { padding: 10px; }
+            .step-num { font-size: 1.2rem; width: 35px; }
+            .step-content strong { font-size: 1rem; }
+            .step-content span { font-size: 0.85rem; }
+            .play-again-btn { padding: 15px 40px; font-size: 1.2rem; width: 100%; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- ========================================== -->
-    <!-- 1. MASTER GAME DATA -->
-    <!-- ========================================== -->
     <script>
         const MASTER_GAME_DATA = {
             gameTitle: "Manufacture of Bricks",
@@ -253,11 +336,6 @@
         };
     </script>
 
-    <div id="desktop-hint">
-        <span>📱 Enable <strong>"Desktop Site"</strong> in your mobile browser settings for the proper side-by-side view!</span>
-        <button onclick="document.getElementById('desktop-hint').style.display='none'">Dismiss</button>
-    </div>
-
     <div class="header">
         <h1 id="ui-title">Game Title</h1>
         <div class="stats-box">
@@ -267,22 +345,18 @@
 
     <div class="game-area">
         
-        <!-- LEFT: Ladder Zone -->
-        <div class="ladder-zone">
+        <div class="ladder-zone" id="scrollableLadder">
             <div class="ladder-structure" id="ladderStructure">
                 <div class="pole left"></div>
                 <div class="pole right"></div>
-                <!-- Slots injected by JS -->
-            </div>
+                </div>
         </div>
 
-        <!-- RIGHT: Parts Tray -->
         <div class="tray-zone">
-            <div class="tray-header">Up to Down (Drag & Drop)</div>
+            <div class="tray-header"> 👇 Up  to Down (Drag Center)</div>
             
             <div class="parts-pool" id="partsPool">
-                <!-- Rungs injected and scrambled by JS -->
-            </div>
+                </div>
 
             <div class="check-btn-container">
                 <button class="check-btn" id="checkBtn">Check Alignment</button>
@@ -291,7 +365,6 @@
 
     </div>
 
-    <!-- End Game Overlay -->
     <div class="overlay" id="endScreen">
         <div class="book-summary">
             <h2>Process Mastered!</h2>
@@ -366,15 +439,19 @@
             
             buildLadder();
             buildRungs();
+
+            // FORCE SCROLL TO TOP ON START
+            setTimeout(() => {
+                document.getElementById('scrollableLadder').scrollTop = 0;
+                document.getElementById('partsPool').scrollTop = 0;
+            }, 50);
         }
 
         function buildLadder() {
-            // Keep poles, remove old slots
             const poles = ladderStructure.querySelectorAll('.pole');
             ladderStructure.innerHTML = '';
             poles.forEach(p => ladderStructure.appendChild(p));
 
-            // Build slots Top to Bottom (Step 1 is top, Step N is bottom)
             gameData.steps.forEach((step, index) => {
                 const slot = document.createElement('div');
                 slot.className = 'ladder-slot';
@@ -382,7 +459,7 @@
                 
                 const indicator = document.createElement('div');
                 indicator.className = 'slot-indicator';
-                indicator.innerText = index + 1; // 1, 2, 3...
+                indicator.innerText = index + 1;
                 slot.appendChild(indicator);
 
                 ladderStructure.appendChild(slot);
@@ -391,7 +468,6 @@
 
         function buildRungs() {
             partsPool.innerHTML = '';
-            // Scramble the steps for the pool
             const shuffledSteps = [...gameData.steps].sort(() => Math.random() - 0.5);
 
             shuffledSteps.forEach(step => {
@@ -408,7 +484,6 @@
                     <div class="nail right"></div>
                 `;
 
-                // Add Pointer Events for Drag & Drop
                 rung.addEventListener('pointerdown', dragStart);
 
                 partsPool.appendChild(rung);
@@ -423,24 +498,25 @@
 
         function dragStart(e) {
             initAudio();
-            if (e.target.closest('.ladder-rung').classList.contains('correct')) return; // Locked
+
+            // GUARD CLAUSE: Only allow drag if clicking inside the center paper note
+            if (!e.target.closest('.rung-note')) return; 
+
+            if (e.target.closest('.ladder-rung').classList.contains('correct')) return;
             
             activeRung = e.target.closest('.ladder-rung');
             initialParent = activeRung.parentElement;
-            
-            // Remove error classes if picking it up again
             activeRung.classList.remove('incorrect');
 
             const rect = activeRung.getBoundingClientRect();
             offsetX = e.clientX - rect.left;
             offsetY = e.clientY - rect.top;
 
-            // Set fixed dimensions so it doesn't shrink when popped out of flexbox
             activeRung.style.width = `${rect.width}px`;
             activeRung.style.height = `${rect.height}px`;
 
             activeRung.classList.add('dragging');
-            document.body.appendChild(activeRung); // Move to body for fixed positioning free of overflow clipping
+            document.body.appendChild(activeRung); 
             
             moveRung(e.clientX, e.clientY);
             playSound('grab');
@@ -453,10 +529,9 @@
             if (!activeRung) return;
             moveRung(e.clientX, e.clientY);
 
-            // Highlight drop zone
-            activeRung.style.pointerEvents = 'none'; // Temporarily disable to find element below
+            activeRung.style.pointerEvents = 'none'; 
             const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-            activeRung.style.pointerEvents = 'auto'; // Re-enable
+            activeRung.style.pointerEvents = 'auto'; 
 
             document.querySelectorAll('.ladder-slot').forEach(s => s.classList.remove('drag-over'));
             
@@ -478,7 +553,6 @@
             document.removeEventListener('pointermove', dragMove);
             document.removeEventListener('pointerup', dragEnd);
 
-            // Find Drop Zone
             activeRung.style.pointerEvents = 'none';
             const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
             
@@ -488,25 +562,21 @@
             activeRung.classList.remove('dragging');
             activeRung.style.left = '';
             activeRung.style.top = '';
-            activeRung.style.width = ''; // Let css handle width natively inside containers
+            activeRung.style.width = ''; 
             activeRung.style.height = '';
             activeRung.style.pointerEvents = 'auto';
 
             document.querySelectorAll('.ladder-slot').forEach(s => s.classList.remove('drag-over'));
 
             if (targetSlot) {
-                // Check if slot already has a rung (other than the indicator)
                 const existingRung = targetSlot.querySelector('.ladder-rung');
-                
                 if (existingRung && existingRung !== activeRung) {
-                    // SWAP LOGIC: Move existing rung to the activeRung's old parent
                     initialParent.appendChild(existingRung);
                 }
                 targetSlot.appendChild(activeRung);
             } else if (targetPool) {
                 partsPool.appendChild(activeRung);
             } else {
-                // Dropped in nowhere, return to initial parent
                 initialParent.appendChild(activeRung);
             }
 
@@ -521,7 +591,6 @@
             let allFilled = true;
             let allCorrect = true;
 
-            // Reset states for a fresh check
             document.querySelectorAll('.ladder-rung').forEach(r => r.classList.remove('incorrect'));
 
             slots.forEach(slot => {
@@ -534,7 +603,6 @@
                 } else {
                     if (rung.dataset.id === expectedId) {
                         rung.classList.add('correct');
-                        // Sound handled cumulatively below
                     } else {
                         rung.classList.add('incorrect');
                         allCorrect = false;
@@ -581,11 +649,8 @@
             document.getElementById('endScreen').classList.add('active');
         }
 
-        // Boot Game
         startGame();
 
     </script>
 </body>
 </html>
-
-

@@ -2,589 +2,510 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Step Ladder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Preparation Process of Paints - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@700&display=swap');
-
-        :root {
-            --bg-dark: #0f172a;
-            --bg-panel: #1e293b;
-            --text-main: #f8fafc;
-            --wood-dark: #451a03;
-            --wood-med: #78350f;
-            --wood-light: #b45309;
-            --accent-gold: #fbbf24;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-blue: #0ea5e9;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
         body {
             font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
-            color: var(--text-main);
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column;
-            min-width: 1000px; /* Essential for side-by-side layout on Desktop Site */
-            overflow: hidden;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- DESKTOP SITE WARNING --- */
-        #desktop-hint {
-            background: linear-gradient(90deg, #ea580c, #eab308);
-            color: white; text-align: center; padding: 8px 20px;
-            font-size: 1.1rem; font-weight: 800; display: flex;
-            justify-content: center; align-items: center; gap: 15px;
-            flex-shrink: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        #desktop-hint button {
-            background: rgba(0,0,0,0.4); border: 1px solid white; color: white;
-            padding: 4px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s;
-        }
-        #desktop-hint button:hover { background: white; color: black; }
-
-        /* --- HEADER --- */
-        .header {
-            height: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px; background: rgba(15, 23, 42, 0.95); border-bottom: 2px solid #334155;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6); z-index: 10;
-        }
-        .header h1 {
-            font-size: 2.2rem; font-weight: 900;
-            background: linear-gradient(to right, #fbbf24, #f97316);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        .stats-box { display: flex; gap: 20px; }
-        .stat-badge {
-            background: rgba(2, 6, 23, 0.9); border: 2px solid;
-            padding: 8px 20px; border-radius: 25px;
-            font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 700;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        #attempts-badge { border-color: var(--accent-blue); color: var(--accent-blue); }
-
-        /* --- MAIN GAME AREA --- */
-        .game-area {
-            flex: 1; display: flex; overflow: hidden; position: relative;
-        }
-
-        /* LEFT: The Ladder Construction Zone */
-        .ladder-zone {
-            width: 550px; height: 100%;
-            background: rgba(0, 0, 0, 0.3); border-right: 4px dashed #334155;
-            display: flex; justify-content: center; align-items: center;
-            position: relative; overflow-y: auto; padding: 40px 0;
-        }
-        .ladder-zone::-webkit-scrollbar { width: 8px; }
-        .ladder-zone::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-
-        .ladder-structure {
-            position: relative; width: 480px;
-            display: flex; flex-direction: column; gap: 20px;
-        }
-
-        /* The Vertical Wooden Poles */
-        .pole {
-            position: absolute; top: -50px; bottom: -50px; width: 35px;
-            background: linear-gradient(90deg, var(--wood-dark), var(--wood-light), var(--wood-dark));
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 5px 0 15px rgba(0,0,0,0.6);
-            border-radius: 5px; z-index: 1;
-        }
-        .pole.left { left: 0; }
-        .pole.right { right: 0; }
-
-        /* Drop Slots for Rungs */
-        .ladder-slot {
-            width: 100%; height: 110px; /* Height must match rung */
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 8px; position: relative; z-index: 2;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-        }
-        .ladder-slot.drag-over { background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
         
-        .slot-indicator {
-            position: absolute; left: -50px; top: 50%; transform: translateY(-50%);
-            font-size: 1.5rem; font-weight: 900; color: #475569;
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
         }
-
-        /* RIGHT: The Parts Tray & Controls */
-        .tray-zone {
-            flex: 1; display: flex; flex-direction: column;
-            padding: 30px; background: transparent; position: relative;
-        }
-
-        .tray-header {
-            font-size: 1.8rem; font-weight: 800; color: #f8fafc; margin-bottom: 20px;
-            text-transform: uppercase; border-bottom: 2px solid #334155; padding-bottom: 10px;
-        }
-
-        .parts-pool {
-            flex: 1; display: flex; flex-wrap: wrap; gap: 20px;
-            align-content: flex-start; overflow-y: auto; padding-bottom: 40px;
-        }
-        .parts-pool::-webkit-scrollbar { width: 8px; }
-        .parts-pool::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-
-        /* --- THE RUNGS (Draggable Items) --- */
-        .ladder-rung {
-            width: 480px; height: 110px; flex-shrink: 0;
-            background: linear-gradient(180deg, var(--wood-med), var(--wood-dark));
-            border: 2px solid #290f02; border-radius: 6px;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2);
-            display: flex; align-items: center; justify-content: center;
-            cursor: grab; position: relative; touch-action: none;
-            transition: transform 0.1s, box-shadow 0.1s; z-index: 10;
-        }
-        .ladder-rung:active { cursor: grabbing; }
-        .ladder-rung.dragging {
-            position: fixed; z-index: 9999;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.8); transform: scale(1.02); opacity: 0.95;
-            pointer-events: none; /* Crucial for dropping */
-        }
-
-        /* Metallic Nails on the rung ends */
-        .nail {
-            position: absolute; width: 14px; height: 14px; border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #94a3b8, #334155);
-            box-shadow: inset 1px 1px 2px rgba(255,255,255,0.5), 1px 1px 3px rgba(0,0,0,0.8);
-        }
-        .nail.left { left: 10px; } .nail.right { right: 10px; }
-
-        /* The Paper Note attached to the Wood */
-        .rung-note {
-            width: 380px; height: 85px; background: #fef3c7; border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5); display: flex; flex-direction: column;
-            justify-content: center; padding: 5px 15px; color: #020617;
-            border: 1px solid #d97706; position: relative; overflow: hidden;
-        }
-        .rung-note::before { /* Tape effect */
-            content: ''; position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
-            width: 40px; height: 15px; background: rgba(255,255,255,0.6); box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        .step-title { font-size: 1.2rem; font-weight: 900; color: #b45309; text-transform: uppercase; line-height: 1.2;}
-        .step-desc { font-size: 0.95rem; font-weight: 600; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
-
-        /* --- VALIDATION STATES --- */
-        .ladder-rung.correct {
-            border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); pointer-events: none;
-        }
-        .ladder-rung.correct .rung-note { background: #d1fae5; border-color: #10b981; }
-        .ladder-rung.correct .step-title { color: #047857; }
-
-        .ladder-rung.incorrect {
-            border-color: #ef4444; animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
-        .ladder-rung.incorrect .rung-note { background: #fee2e2; border-color: #ef4444; }
-        .ladder-rung.incorrect .step-title { color: #b91c1c; }
-
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-2px, 0, 0); }
-            20%, 80% { transform: translate3d(4px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-            40%, 60% { transform: translate3d(6px, 0, 0); }
-        }
-
-        /* --- CHECK BUTTON --- */
-        .check-btn-container {
-            margin-top: 20px; display: flex; justify-content: flex-end;
-        }
-        .check-btn {
-            background: linear-gradient(135deg, #0ea5e9, #8b5cf6); color: #fff;
-            border: none; padding: 20px 50px; font-size: 1.6rem; font-weight: 900;
-            border-radius: 40px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.5); text-transform: uppercase;
-        }
-        .check-btn:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(14, 165, 233, 0.7); }
-        .check-btn:active { transform: translateY(0); }
-
-        /* --- END SCREEN --- */
-        .overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center;
-            padding: 60px 40px; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; overflow-y: auto;
-        }
-        .overlay.active { opacity: 1; pointer-events: auto; }
-        .book-summary {
-            width: 100%; max-width: 800px; background: #0f172a; border: 1px solid #334155;
-            border-radius: 15px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); margin-bottom: 40px;
-        }
-        .book-summary h2 { font-size: 3rem; color: #10b981; text-align: center; margin-bottom: 10px; text-transform: uppercase; }
-        .book-summary p.score-report { text-align: center; font-size: 1.4rem; color: #94a3b8; margin-bottom: 40px; }
-        .chapter-section { display: flex; flex-direction: column; gap: 15px; }
-        .step-row { display: flex; align-items: center; background: #1e293b; padding: 15px; border-radius: 10px; border-left: 5px solid #fbbf24; }
-        .step-num { font-size: 1.5rem; font-weight: 900; color: #fbbf24; width: 50px; }
-        .step-content strong { color: #38bdf8; font-size: 1.3rem; display: block; margin-bottom: 5px;}
-        .step-content span { color: #e2e8f0; font-size: 1.1rem; }
         
-        .play-again-btn {
-            background: linear-gradient(135deg, #fbbf24, #f97316); color: #000; border: none; padding: 18px 60px;
-            font-size: 1.5rem; font-weight: 900; border-radius: 40px; cursor: pointer; transition: transform 0.2s;
-            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.4);
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
         }
-        .play-again-btn:hover { transform: scale(1.05); }
 
+        /* Canvas styling - Engineering Grid */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
     </style>
 </head>
-<body>
+<body class="flex flex-col h-screen overflow-hidden">
 
-    <!-- ========================================== -->
-    <!-- 1. MASTER GAME DATA -->
-    <!-- ========================================== -->
-    <script>
-                const MASTER_GAME_DATA = {
-            gameTitle: "Preparation of Paints",
-            // The steps MUST be in the correct sequential order here.
-            steps: [
-                { id: 1, title: "Grinding the Base", note: "The base material (e.g., white lead) and pigments are ground into a fine powder." },
-                { id: 2, title: "Mixing Vehicle", note: "A vehicle like linseed oil is added to the powder and mixed to form a stiff paste." },
-                { id: 3, title: "Milling the Paste", note: "The thick paste is passed through a paint mill for thorough and uniform blending." },
-                { id: 4, title: "Adding Thinner", note: "Solvents like turpentine are added to thin the mixture to a workable brushing consistency." },
-                { id: 5, title: "Incorporating Driers", note: "Driers (e.g., litharge) are added just before use to accelerate the hardening process." },
-                { id: 6, title: "Straining", note: "The final liquid paint is strained through a fine sieve or cloth to remove any remaining lumps." }
-            ]
-       
-        };
-    </script>
-
-    <div id="desktop-hint">
-        <span>📱 Enable <strong>"Desktop Site"</strong> in your mobile browser settings for the proper side-by-side view!</span>
-        <button onclick="document.getElementById('desktop-hint').style.display='none'">Dismiss</button>
-    </div>
-
-    <div class="header">
-        <h1 id="ui-title">Game Title</h1>
-        <div class="stats-box">
-            <div class="stat-badge" id="attempts-badge">Attempts: <span id="attempts">0</span></div>
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
+                Paint Preparation Process
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Manufacturing Stages</p>
         </div>
-    </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
 
-    <div class="game-area">
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
         
-        <!-- LEFT: Ladder Zone -->
-        <div class="ladder-zone">
-            <div class="ladder-structure" id="ladderStructure">
-                <div class="pole left"></div>
-                <div class="pole right"></div>
-                <!-- Slots injected by JS -->
+        <!-- Stage 1: Grinding Base -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-slate-500/30 shadow-[0_10px_30px_-10px_rgba(100,116,139,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-grind" class="absolute inset-0 w-full h-full"></canvas>
             </div>
-        </div>
-
-        <!-- RIGHT: Parts Tray -->
-        <div class="tray-zone">
-            <div class="tray-header">Up to Down (Drag & Drop)</div>
-            
-            <div class="parts-pool" id="partsPool">
-                <!-- Rungs injected and scrambled by JS -->
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-slate-500/20 text-slate-300 rounded-lg"><i data-lucide="settings-2" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-slate-300">1. Grinding the Base</h2>
+                </div>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    The raw base material (like White Lead) is fed into a grinding mill. A small quantity of oil is added, and it is heavily ground until it forms a smooth, thick, lump-free paste.
+                </p>
             </div>
+        </article>
 
-            <div class="check-btn-container">
-                <button class="check-btn" id="checkBtn">Check Alignment</button>
+        <!-- Stage 2: Mixing Vehicle -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-vehicle" class="absolute inset-0 w-full h-full"></canvas>
             </div>
-        </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="droplets" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">2. Mixing the Vehicle</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    The thick base paste is transferred to a mixing vat. The main vehicle (e.g., Linseed Oil) is gradually poured in while stirring continuously to create a uniform liquid suspension.
+                </p>
+            </div>
+        </article>
 
-    </div>
+        <!-- Stage 3: Adding Pigment -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-rose-500/30 shadow-[0_10px_30px_-10px_rgba(244,63,94,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-pigment" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-rose-500/20 text-rose-400 rounded-lg"><i data-lucide="palette" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-rose-400">3. Adding Pigment</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Fine coloring pigments are introduced into the mixture. It is thoroughly stirred mechanically so the color disperses perfectly throughout the entire batch of paint.
+                </p>
+            </div>
+        </article>
 
-    <!-- End Game Overlay -->
-    <div class="overlay" id="endScreen">
-        <div class="book-summary">
-            <h2>Process Mastered!</h2>
-            <p class="score-report">Completed in <span id="finalAttempts" style="color:#fbbf24; font-weight:bold;">0</span> attempts.</p>
-            <div class="chapter-section" id="summaryContent"></div>
-        </div>
-        <button class="play-again-btn" onclick="startGame()">Restart Process</button>
-    </div>
+        <!-- Stage 4: Thinner & Drier -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-cyan-500/30 shadow-[0_10px_30px_-10px_rgba(6,182,212,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-additives" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-cyan-500/20 text-cyan-400 rounded-lg"><i data-lucide="flask-conical" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-cyan-400">4. Thinner & Drier</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Solvent (Thinner) is added to reduce the viscosity to a workable consistency. Finally, a Drier is mixed in to accelerate the oxygen absorption and hardening process of the final paint.
+                </p>
+            </div>
+        </article>
+
+        <!-- Stage 5: Straining -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-strain" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="filter" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">5. Straining (Filtering)</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    The final mixed paint is poured through a fine mesh, cloth, or sieve. This crucial last step filters out any unground lumps, impurities, or coagulated particles, yielding pure, smooth paint.
+                </p>
+            </div>
+        </article>
+
+    </main>
 
     <script>
-        // --- AUDIO ENGINE ---
-        let audioCtx;
-        function initAudio() {
-            if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-            }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }
+        lucide.createIcons();
 
-        const playSound = (type) => {
-            if (!audioCtx) return;
-            try {
-                if (type === 'grab') {
-                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.5, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-                } else if (type === 'drop') {
-                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                    osc.type = 'square'; osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
-                    gain.gain.setValueAtTime(0.8, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.15);
-                } else if (type === 'correct') {
-                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.5, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-                } else if (type === 'wrong') {
-                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
-                    gain.gain.setValueAtTime(0.8, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-                } else if (type === 'win') {
-                    const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain();
-                    osc1.type = 'sine'; osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc1.frequency.setValueAtTime(659.25, audioCtx.currentTime+0.1); osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime+0.2); osc1.frequency.setValueAtTime(1046.50, audioCtx.currentTime+0.3);
-                    gain1.gain.setValueAtTime(0.5, audioCtx.currentTime); gain1.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
-                    osc1.connect(gain1); gain1.connect(audioCtx.destination); osc1.start(); osc1.stop(audioCtx.currentTime + 0.8);
-                }
-            } catch (e) {}
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            grind: document.getElementById('canvas-grind'),
+            vehicle: document.getElementById('canvas-vehicle'),
+            pigment: document.getElementById('canvas-pigment'),
+            additives: document.getElementById('canvas-additives'),
+            strain: document.getElementById('canvas-strain')
         };
-        document.body.addEventListener('click', initAudio, { once: true });
-        document.body.addEventListener('touchstart', initAudio, { once: true });
-
-        // --- GAME LOGIC & UI BUILDER ---
-        const gameData = MASTER_GAME_DATA;
-        document.getElementById('ui-title').innerText = gameData.gameTitle;
-        const ladderStructure = document.getElementById('ladderStructure');
-        const partsPool = document.getElementById('partsPool');
-        const checkBtn = document.getElementById('checkBtn');
-        const attemptsEl = document.getElementById('attempts');
-
-        let attempts = 0;
-
-        function startGame() {
-            attempts = 0;
-            attemptsEl.innerText = attempts;
-            document.getElementById('endScreen').classList.remove('active');
-            
-            buildLadder();
-            buildRungs();
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
         }
 
-        function buildLadder() {
-            // Keep poles, remove old slots
-            const poles = ladderStructure.querySelectorAll('.pole');
-            ladderStructure.innerHTML = '';
-            poles.forEach(p => ladderStructure.appendChild(p));
-
-            // Build slots Top to Bottom (Step 1 is top, Step N is bottom)
-            gameData.steps.forEach((step, index) => {
-                const slot = document.createElement('div');
-                slot.className = 'ladder-slot';
-                slot.dataset.expectedId = step.id;
-                
-                const indicator = document.createElement('div');
-                indicator.className = 'slot-indicator';
-                indicator.innerText = index + 1; // 1, 2, 3...
-                slot.appendChild(indicator);
-
-                ladderStructure.appendChild(slot);
-            });
-        }
-
-        function buildRungs() {
-            partsPool.innerHTML = '';
-            // Scramble the steps for the pool
-            const shuffledSteps = [...gameData.steps].sort(() => Math.random() - 0.5);
-
-            shuffledSteps.forEach(step => {
-                const rung = document.createElement('div');
-                rung.className = 'ladder-rung';
-                rung.dataset.id = step.id;
-
-                rung.innerHTML = `
-                    <div class="nail left"></div>
-                    <div class="rung-note">
-                        <div class="step-title">${step.title}</div>
-                        <div class="step-desc">${step.note}</div>
-                    </div>
-                    <div class="nail right"></div>
-                `;
-
-                // Add Pointer Events for Drag & Drop
-                rung.addEventListener('pointerdown', dragStart);
-
-                partsPool.appendChild(rung);
-            });
-        }
-
-        // --- CUSTOM DRAG & DROP LOGIC ---
-        let activeRung = null;
-        let initialParent = null;
-        let startX, startY;
-        let offsetX, offsetY;
-
-        function dragStart(e) {
-            initAudio();
-            if (e.target.closest('.ladder-rung').classList.contains('correct')) return; // Locked
-            
-            activeRung = e.target.closest('.ladder-rung');
-            initialParent = activeRung.parentElement;
-            
-            // Remove error classes if picking it up again
-            activeRung.classList.remove('incorrect');
-
-            const rect = activeRung.getBoundingClientRect();
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-
-            // Set fixed dimensions so it doesn't shrink when popped out of flexbox
-            activeRung.style.width = `${rect.width}px`;
-            activeRung.style.height = `${rect.height}px`;
-
-            activeRung.classList.add('dragging');
-            document.body.appendChild(activeRung); // Move to body for fixed positioning free of overflow clipping
-            
-            moveRung(e.clientX, e.clientY);
-            playSound('grab');
-
-            document.addEventListener('pointermove', dragMove);
-            document.addEventListener('pointerup', dragEnd);
-        }
-
-        function dragMove(e) {
-            if (!activeRung) return;
-            moveRung(e.clientX, e.clientY);
-
-            // Highlight drop zone
-            activeRung.style.pointerEvents = 'none'; // Temporarily disable to find element below
-            const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-            activeRung.style.pointerEvents = 'auto'; // Re-enable
-
-            document.querySelectorAll('.ladder-slot').forEach(s => s.classList.remove('drag-over'));
-            
-            if (elemBelow) {
-                const slot = elemBelow.closest('.ladder-slot');
-                if (slot) slot.classList.add('drag-over');
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
             }
         }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
 
-        function moveRung(x, y) {
-            activeRung.style.left = `${x - offsetX}px`;
-            activeRung.style.top = `${y - offsetY}px`;
+        // --- HELPERS --- //
+        function drawLabel(ctx, text, x, y, color='#fff', bg='rgba(15,23,42,0.8)') {
+            ctx.font = 'bold 11px Inter';
+            const w = ctx.measureText(text).width;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(x - w/2 - 6, y - 10, w + 12, 20, 4); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
         }
 
-        function dragEnd(e) {
-            if (!activeRung) return;
-            playSound('drop');
+        function drawVat(ctx, x, y) {
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 4;
+            ctx.beginPath(); 
+            ctx.moveTo(x - 45, y - 30);
+            ctx.lineTo(x - 35, y + 40);
+            ctx.quadraticCurveTo(x, y + 50, x + 35, y + 40);
+            ctx.lineTo(x + 45, y - 30);
+            ctx.stroke();
+        }
 
-            document.removeEventListener('pointermove', dragMove);
-            document.removeEventListener('pointerup', dragEnd);
+        // --- ANIMATION RENDERERS --- //
 
-            // Find Drop Zone
-            activeRung.style.pointerEvents = 'none';
-            const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-            
-            const targetSlot = elemBelow ? elemBelow.closest('.ladder-slot') : null;
-            const targetPool = elemBelow ? elemBelow.closest('.parts-pool') : null;
+        // 1. Grinding Base (Rollers crushing rough powder into paste)
+        function renderGrind(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 - 10;
 
-            activeRung.classList.remove('dragging');
-            activeRung.style.left = '';
-            activeRung.style.top = '';
-            activeRung.style.width = ''; // Let css handle width natively inside containers
-            activeRung.style.height = '';
-            activeRung.style.pointerEvents = 'auto';
-
-            document.querySelectorAll('.ladder-slot').forEach(s => s.classList.remove('drag-over'));
-
-            if (targetSlot) {
-                // Check if slot already has a rung (other than the indicator)
-                const existingRung = targetSlot.querySelector('.ladder-rung');
-                
-                if (existingRung && existingRung !== activeRung) {
-                    // SWAP LOGIC: Move existing rung to the activeRung's old parent
-                    initialParent.appendChild(existingRung);
+            // Falling rough lumps
+            ctx.fillStyle = '#f8fafc';
+            const numLumps = 6;
+            for(let i=0; i<numLumps; i++) {
+                const dropP = (p + i/numLumps) % 1;
+                if (dropP < 0.5) {
+                    const dropY = cy - 70 + (dropP * 2) * 60;
+                    ctx.beginPath(); ctx.arc(cx - 5 + Math.sin(dropP*20)*10, dropY, 3 + Math.random()*2, 0, Math.PI*2); ctx.fill();
                 }
-                targetSlot.appendChild(activeRung);
-            } else if (targetPool) {
-                partsPool.appendChild(activeRung);
-            } else {
-                // Dropped in nowhere, return to initial parent
-                initialParent.appendChild(activeRung);
             }
 
-            activeRung = null;
-            initialParent = null;
-        }
+            // Dual Rollers
+            const r = 25;
+            ctx.save();
+            ctx.translate(cx - r - 2, cy);
+            ctx.rotate(p * Math.PI * 4); // Clockwise
+            ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#94a3b8';
+            for(let a=0; a<Math.PI*2; a+=Math.PI/4) { ctx.beginPath(); ctx.arc(Math.cos(a)*18, Math.sin(a)*18, 4, 0, Math.PI*2); ctx.fill(); }
+            ctx.restore();
 
-        // --- CHECKING LOGIC ---
-        checkBtn.addEventListener('click', () => {
-            initAudio();
-            const slots = document.querySelectorAll('.ladder-slot');
-            let allFilled = true;
-            let allCorrect = true;
+            ctx.save();
+            ctx.translate(cx + r + 2, cy);
+            ctx.rotate(-p * Math.PI * 4); // Anti-clockwise
+            ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#94a3b8';
+            for(let a=0; a<Math.PI*2; a+=Math.PI/4) { ctx.beginPath(); ctx.arc(Math.cos(a)*18, Math.sin(a)*18, 4, 0, Math.PI*2); ctx.fill(); }
+            ctx.restore();
 
-            // Reset states for a fresh check
-            document.querySelectorAll('.ladder-rung').forEach(r => r.classList.remove('incorrect'));
-
-            slots.forEach(slot => {
-                const rung = slot.querySelector('.ladder-rung');
-                const expectedId = slot.dataset.expectedId;
-
-                if (!rung) {
-                    allFilled = false;
-                    allCorrect = false;
-                } else {
-                    if (rung.dataset.id === expectedId) {
-                        rung.classList.add('correct');
-                        // Sound handled cumulatively below
-                    } else {
-                        rung.classList.add('incorrect');
-                        allCorrect = false;
-                    }
-                }
-            });
-
-            attempts++;
-            attemptsEl.innerText = attempts;
-
-            if (!allFilled) {
-                playSound('wrong');
-                alert("Please place all steps on the ladder before checking!");
-                return;
-            }
-
-            if (allCorrect) {
-                playSound('win');
-                setTimeout(showWinScreen, 800);
-            } else {
-                playSound('wrong');
-            }
-        });
-
-        // --- END SCREEN ---
-        function showWinScreen() {
-            document.getElementById('finalAttempts').innerText = attempts;
-            const summaryContent = document.getElementById('summaryContent');
-            summaryContent.innerHTML = '';
+            // Smooth paste emerging below rollers
+            ctx.fillStyle = '#f1f5f9';
+            ctx.beginPath();
+            ctx.moveTo(cx - 10, cy + 15);
+            ctx.lineTo(cx + 10, cy + 15);
+            ctx.lineTo(cx + 5, cy + 60);
+            ctx.lineTo(cx - 5, cy + 60);
+            ctx.fill();
             
-            gameData.steps.forEach((step, index) => {
-                const row = document.createElement('div');
-                row.className = 'step-row';
-                row.innerHTML = `
-                    <div class="step-num">${index + 1}</div>
-                    <div class="step-content">
-                        <strong>${step.title}</strong>
-                        <span>${step.note}</span>
-                    </div>
-                `;
-                summaryContent.appendChild(row);
-            });
+            // Paste pool
+            ctx.beginPath(); ctx.ellipse(cx, cy + 60, 30, 8, 0, 0, Math.PI*2); ctx.fill();
 
-            document.getElementById('endScreen').classList.add('active');
+            drawLabel(ctx, "RAW BASE", cx, cy - 75, '#cbd5e1', 'transparent');
+            drawLabel(ctx, "SMOOTH PASTE", cx, cy + 85, '#f8fafc', 'transparent');
         }
 
-        // Boot Game
-        startGame();
+        // 2. Mixing Vehicle (Oil pouring in, stirrer spinning)
+        function renderVehicle(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 10;
+
+            drawVat(ctx, cx, cy);
+
+            // Mixer shaft & blades
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(cx, cy - 60); ctx.lineTo(cx, cy + 30); ctx.stroke();
+            
+            ctx.save();
+            ctx.translate(cx, cy + 20);
+            const spin = p * Math.PI * 10;
+            ctx.rotate(spin);
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(-25, 0); ctx.lineTo(25, 0); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, -25); ctx.lineTo(0, 25); ctx.stroke();
+            ctx.restore();
+
+            // Pouring Oil
+            if (p < 0.6) {
+                ctx.fillStyle = '#facc15'; // Linseed oil
+                ctx.fillRect(cx - 25, cy - 70, 8, 100);
+            }
+
+            // Liquid Level mixing
+            const mixP = Math.min(1, p * 1.5);
+            const liqH = 35 + (mixP * 10);
+            
+            // Paste -> Liquid transition color
+            const r = Math.floor(248 - (248-250)*mixP);
+            const g = Math.floor(250 - (250-204)*mixP);
+            const b = Math.floor(252 - (252-21)*mixP);
+            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
+            
+            ctx.beginPath();
+            ctx.moveTo(cx - 35, cy + 40);
+            ctx.lineTo(cx - 35 + (5 * mixP), cy + 40 - liqH);
+            ctx.lineTo(cx + 35 - (5 * mixP), cy + 40 - liqH);
+            ctx.lineTo(cx + 35, cy + 40);
+            ctx.fill();
+            
+            // Surface swirl
+            ctx.beginPath();
+            ctx.ellipse(cx, cy + 40 - liqH, 35 - (5 * mixP), 6, 0, 0, Math.PI*2);
+            ctx.fill();
+
+            drawLabel(ctx, "LINSEED OIL (Vehicle)", cx, cy - 80, '#facc15', 'transparent');
+            drawLabel(ctx, "MIXING VAT", cx, cy + 65, '#94a3b8', 'transparent');
+        }
+
+        // 3. Adding Pigment (Color disperses via mixer)
+        function renderPigment(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 10;
+
+            drawVat(ctx, cx, cy);
+
+            const colorP = Math.min(1, Math.max(0, (p - 0.2) * 2)); 
+
+            // Base color to Blue pigment
+            const r = Math.floor(250 - (250-59)*colorP);
+            const g = Math.floor(204 - (204-130)*colorP);
+            const b = Math.floor(21 - (21-246)*colorP);
+            
+            ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+            
+            // Paint Body
+            ctx.beginPath();
+            ctx.moveTo(cx - 35, cy + 40);
+            ctx.lineTo(cx - 30, cy);
+            ctx.lineTo(cx + 30, cy);
+            ctx.lineTo(cx + 35, cy + 40);
+            ctx.fill();
+            ctx.beginPath(); ctx.ellipse(cx, cy, 30, 6, 0, 0, Math.PI*2); ctx.fill();
+
+            // Mixer spinning fast
+            ctx.save();
+            ctx.translate(cx, cy + 20);
+            ctx.rotate(p * Math.PI * 15);
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(-20, 0); ctx.lineTo(20, 0); ctx.stroke();
+            ctx.restore();
+
+            // Falling Pigment Powder
+            if (p < 0.3) {
+                const dropY = cy - 70 + (p/0.3)*70;
+                ctx.fillStyle = '#3b82f6'; // Blue pigment
+                ctx.beginPath(); ctx.arc(cx + 15, dropY, 5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(cx+10, dropY); ctx.lineTo(cx+20, dropY); ctx.lineTo(cx+15, dropY-10); ctx.fill();
+            }
+
+            // Spreading ripples
+            if (p > 0.2 && p < 0.6) {
+                const ripple = (p - 0.2) / 0.4;
+                ctx.strokeStyle = `rgba(59, 130, 246, ${1 - ripple})`;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, 30 * ripple, 6 * ripple, 0, 0, Math.PI*2);
+                ctx.stroke();
+            }
+
+            drawLabel(ctx, "PIGMENT POWDER", cx, cy - 80, '#3b82f6', 'transparent');
+        }
+
+        // 4. Thinner & Drier (Viscosity drop and additives)
+        function renderAdditives(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 10;
+
+            drawVat(ctx, cx, cy);
+
+            // Base Paint (Blue)
+            ctx.fillStyle = '#3b82f6';
+            ctx.beginPath();
+            ctx.moveTo(cx - 35, cy + 40);
+            ctx.lineTo(cx - 30, cy - 10);
+            ctx.lineTo(cx + 30, cy - 10);
+            ctx.lineTo(cx + 35, cy + 40);
+            ctx.fill();
+
+            // Additive 1: Thinner (Cyan)
+            if (p < 0.4) {
+                ctx.fillStyle = 'rgba(34, 211, 238, 0.6)';
+                ctx.fillRect(cx - 20, cy - 70, 4, 60);
+                drawLabel(ctx, "THINNER", cx - 35, cy - 80, '#22d3ee', 'transparent');
+            }
+
+            // Additive 2: Drier (Fuchsia drops)
+            if (p > 0.1 && p < 0.5) {
+                ctx.fillStyle = '#d946ef';
+                const dropY = cy - 70 + ((p-0.1)/0.4)*60;
+                ctx.beginPath(); ctx.arc(cx + 20, dropY, 3, 0, Math.PI*2); ctx.fill();
+                drawLabel(ctx, "DRIER", cx + 35, cy - 80, '#d946ef', 'transparent');
+            }
+
+            // Viscosity / Stirring visual
+            ctx.save();
+            ctx.translate(cx, cy - 10);
+            ctx.beginPath(); ctx.ellipse(0, 0, 30, 6, 0, 0, Math.PI*2); ctx.fill();
+
+            // As p increases, swirls become faster and thinner
+            const mixStrength = p * 1.5;
+            ctx.rotate(p * Math.PI * (10 + mixStrength * 10)); // Accelerates
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+            ctx.lineWidth = Math.max(1, 3 - mixStrength); // Gets thinner
+            
+            ctx.beginPath();
+            for(let i=0; i<Math.PI*4; i+=0.5) {
+                const r = (i / (Math.PI*4)) * 25;
+                ctx.lineTo(Math.cos(i) * r, Math.sin(i) * (r * 0.25));
+            }
+            ctx.stroke();
+            ctx.restore();
+            
+            if(p > 0.6) {
+                drawLabel(ctx, "READY FOR STRAINING", cx, cy + 65, '#fff', 'transparent');
+            }
+        }
+
+        // 5. Straining (Filtering lumps through a mesh)
+        function renderStrain(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 - 20;
+
+            // Draw Sieve/Funnel
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cx - 40, cy - 30);
+            ctx.lineTo(cx - 20, cy + 20);
+            ctx.lineTo(cx - 20, cy + 40);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(cx + 40, cy - 30);
+            ctx.lineTo(cx + 20, cy + 20);
+            ctx.lineTo(cx + 20, cy + 40);
+            ctx.stroke();
+
+            // Mesh screen
+            ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
+            ctx.beginPath(); ctx.moveTo(cx - 30, cy - 5); ctx.lineTo(cx + 30, cy - 5); ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Paint pouring IN
+            if (p < 0.8) {
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(cx - 15, cy - 70, 30, 65);
+            }
+
+            // Liquid pooling on mesh
+            ctx.fillStyle = '#3b82f6';
+            ctx.beginPath();
+            ctx.moveTo(cx - 30, cy - 5); ctx.lineTo(cx + 30, cy - 5);
+            ctx.lineTo(cx + 20, cy + 20); ctx.lineTo(cx - 20, cy + 20); ctx.fill();
+
+            // Filtered paint pouring OUT (Pure stream)
+            ctx.fillStyle = '#2563eb';
+            ctx.fillRect(cx - 5, cy + 40, 10, 40);
+            
+            // Final Paint Bucket
+            ctx.strokeStyle = '#64748b'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(cx-25, cy+70); ctx.lineTo(cx-25, cy+100); ctx.lineTo(cx+25, cy+100); ctx.lineTo(cx+25, cy+70); ctx.stroke();
+            // Filling bucket
+            const fillH = p * 30;
+            ctx.fillRect(cx-23, cy+100-fillH, 46, fillH);
+
+            // The Lumps getting caught on the mesh
+            ctx.fillStyle = '#1e293b'; // dark lumps
+            const numLumps = 5;
+            for(let i=0; i<numLumps; i++) {
+                const dropP = (p + i/numLumps) % 1;
+                let lumpY = cy - 70 + dropP * 65; // falls to mesh
+                if (lumpY > cy - 8) lumpY = cy - 8; // sticks to mesh
+                
+                ctx.beginPath(); ctx.arc(cx - 15 + i*7, lumpY, 2 + (i%2), 0, Math.PI*2); ctx.fill();
+            }
+
+            drawLabel(ctx, "SIEVE / CLOTH", cx + 60, cy - 5, '#cbd5e1', 'transparent');
+            drawLabel(ctx, "PURE PAINT", cx, cy + 120, '#3b82f6', 'transparent');
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 4000; // 4 seconds loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'grind': renderGrind(ctx, w, h, p); break;
+                    case 'vehicle': renderVehicle(ctx, w, h, p); break;
+                    case 'pigment': renderPigment(ctx, w, h, p); break;
+                    case 'additives': renderAdditives(ctx, w, h, p); break;
+                    case 'strain': renderStrain(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
 
     </script>
 </body>
 </html>
-
-

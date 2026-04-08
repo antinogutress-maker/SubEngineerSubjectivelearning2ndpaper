@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Master Pop The Balloon</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
@@ -27,68 +27,49 @@
             top: 0; left: 0; right: 0; bottom: 0;
             display: flex;
             flex-direction: column;
-            min-width: 900px; /* Forces wide layout for Desktop Site */
             overflow: hidden;
+            /* Prevents double-tap zoom on mobile */
+            touch-action: manipulation;
         }
-
-        /* --- DESKTOP SITE WARNING --- */
-        #desktop-hint {
-            background: linear-gradient(90deg, #ec4899, #8b5cf6);
-            color: white;
-            text-align: center;
-            padding: 8px 20px;
-            font-size: 1.1rem;
-            font-weight: 800;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            flex-shrink: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        #desktop-hint button {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid white;
-            color: white;
-            padding: 4px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-        #desktop-hint button:hover { background: white; color: black; }
 
         /* --- HEADER --- */
         .header {
-            height: 75px;
             flex-shrink: 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 30px;
+            justify-content: center;
+            padding: 10px;
+            gap: 10px;
             background: rgba(15, 23, 42, 0.95);
             border-bottom: 2px solid #1e293b;
             position: relative;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
             z-index: 50;
         }
         .header h1 {
-            font-size: 2rem; font-weight: 800;
+            font-size: 1.4rem; font-weight: 800;
             background: linear-gradient(to right, #ec4899, #fbbf24);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-transform: uppercase; letter-spacing: 1.5px;
+            text-transform: uppercase; letter-spacing: 1px;
+            text-align: center;
         }
         .stats-box {
-            display: flex; gap: 15px;
+            display: flex; 
+            width: 100%;
+            justify-content: space-around;
+            gap: 10px;
         }
         .stat-badge {
             background: rgba(2, 6, 23, 0.9);
             border: 2px solid;
-            padding: 6px 18px; border-radius: 25px;
-            font-family: 'JetBrains Mono', monospace; font-size: 1.3rem;
+            padding: 4px 12px; border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace; font-size: 1rem;
             font-weight: 700;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         #score-badge { border-color: var(--accent-gold); color: var(--accent-gold); }
         #notes-badge { border-color: var(--accent-blue); color: var(--accent-blue); }
@@ -96,36 +77,39 @@
         /* --- TARGET HUD --- */
         .target-hud-container {
             position: absolute;
-            top: 95px; /* Below header */
+            top: 90px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 40;
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 90%;
+            pointer-events: none;
         }
         .target-hud-label {
             background: #020617;
             color: #94a3b8;
             padding: 4px 12px;
             border-radius: 10px 10px 0 0;
-            font-size: 1rem;
+            font-size: 0.8rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             border: 2px solid #334155;
             border-bottom: none;
         }
         .target-hud {
             background: rgba(15, 23, 42, 0.95);
-            padding: 15px 40px;
+            padding: 10px 20px;
             border-radius: 15px;
-            border: 4px solid #fff;
-            font-size: 2rem;
+            border: 3px solid #fff;
+            font-size: 1.3rem;
             font-weight: 900;
             color: #fff;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
+            width: 100%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8), inset 0 0 15px rgba(0,0,0,0.5);
             text-shadow: 0 2px 5px rgba(0,0,0,0.8);
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
@@ -133,7 +117,7 @@
         .hud-change-anim { animation: hudPulse 0.5s ease; }
         @keyframes hudPulse {
             0% { transform: scale(1); filter: brightness(1); }
-            50% { transform: scale(1.1); filter: brightness(1.5); }
+            50% { transform: scale(1.05); filter: brightness(1.5); }
             100% { transform: scale(1); filter: brightness(1); }
         }
 
@@ -148,41 +132,47 @@
         /* --- BALLOONS --- */
         .balloon-wrapper {
             position: absolute;
+            cursor: crosshair;
+            z-index: 10;
+        }
+        
+        .balloon-visuals {
             display: flex;
             flex-direction: column;
             align-items: center;
-            cursor: crosshair;
-            z-index: 10;
-            transition: transform 0.1s;
+            transition: transform 0.1s ease;
         }
-        .balloon-wrapper:hover { transform: scale(1.05); }
+        .balloon-wrapper:active .balloon-visuals { 
+            transform: scale(0.95); 
+        }
 
         .balloon-svg {
-            width: 80px; height: 110px;
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+            width: 65px; height: 90px;
+            filter: drop-shadow(0 8px 8px rgba(0,0,0,0.5));
             overflow: visible;
         }
 
         .hanging-note {
-            margin-top: -5px; /* Overlap with string slightly */
+            margin-top: -3px; 
             background: #fbbf24;
             color: #020617;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 1.15rem;
+            padding: 10px 12px;
+            border-radius: 0px; /* Forces sharp corners */
+            min-width: 140px; /* Forces it to always be wider than it is tall (rectangular) */
+            font-size: 0.85rem;
             font-weight: 800;
             text-align: center;
             width: max-content;
-            max-width: 260px;
-            border: 3px solid #b45309;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.6);
-            /* Gives it a slightly organic swing */
+            max-width: 160px;
+            border: 2px solid #b45309;
+            box-shadow: 0 6px 10px rgba(0,0,0,0.6);
             transform-origin: top center;
             animation: swing 3s ease-in-out infinite alternate;
+            white-space: normal;
         }
         @keyframes swing {
-            0% { transform: rotate(-3deg); }
-            100% { transform: rotate(3deg); }
+            0% { transform: rotate(-4deg); }
+            100% { transform: rotate(4deg); }
         }
 
         /* Drop Animation for Wrong Pop */
@@ -197,14 +187,14 @@
         .particle { position: absolute; border-radius: 50%; pointer-events: none; z-index: 100; }
         
         .float-text {
-            position: absolute; font-weight: 900; font-size: 2.5rem;
+            position: absolute; font-weight: 900; font-size: 2rem;
             pointer-events: none; z-index: 300;
-            text-shadow: 0 4px 10px rgba(0,0,0,1);
+            text-shadow: 0 3px 8px rgba(0,0,0,1);
             animation: floatUp 1s ease-out forwards;
         }
         @keyframes floatUp {
             0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -80px) scale(1.5); }
+            100% { opacity: 0; transform: translate(-50%, -60px) scale(1.3); }
         }
 
         /* --- END SCREEN --- */
@@ -212,7 +202,7 @@
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(2, 6, 23, 0.98);
             display: flex; flex-direction: column; align-items: center;
-            padding: 60px 40px; z-index: 500;
+            padding: 40px 20px; z-index: 500;
             opacity: 0; pointer-events: none;
             transition: opacity 0.5s ease;
             overflow-y: auto;
@@ -220,43 +210,41 @@
         .overlay.active { opacity: 1; pointer-events: auto; }
         
         .book-summary {
-            width: 100%; max-width: 800px;
+            width: 100%; max-width: 500px;
             background: #0f172a; border: 1px solid #334155;
-            border-radius: 15px; padding: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8); margin-bottom: 40px;
+            border-radius: 12px; padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); margin-bottom: 20px;
         }
         .book-summary h2 {
-            font-size: 2.8rem; color: #fbbf24; text-align: center; margin-bottom: 10px;
-            text-transform: uppercase; border-bottom: 2px solid #334155; padding-bottom: 20px;
+            font-size: 1.8rem; color: #fbbf24; text-align: center; margin-bottom: 10px;
+            text-transform: uppercase; border-bottom: 2px solid #334155; padding-bottom: 10px;
         }
         .book-summary p.score-report {
-            text-align: center; font-size: 1.4rem; color: #94a3b8; margin-bottom: 40px; font-family: 'JetBrains Mono';
+            text-align: center; font-size: 1.1rem; color: #94a3b8; margin-bottom: 20px; font-family: 'JetBrains Mono';
         }
-        .chapter-section { margin-bottom: 30px; }
+        .chapter-section { margin-bottom: 20px; }
         .chapter-section h3 {
-            font-size: 1.7rem; color: #38bdf8; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
+            font-size: 1.2rem; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
         }
-        .chapter-section ul { list-style-type: none; padding-left: 20px; }
+        .chapter-section ul { list-style-type: none; padding-left: 15px; }
         .chapter-section li {
-            font-size: 1.3rem; color: #e2e8f0; margin-bottom: 12px; position: relative; line-height: 1.5;
+            font-size: 0.95rem; color: #e2e8f0; margin-bottom: 8px; position: relative; line-height: 1.4;
         }
         .chapter-section li::before {
-            content: "➔"; position: absolute; left: -30px; color: #10b981; font-weight: bold;
+            content: "➔"; position: absolute; left: -20px; color: #10b981; font-weight: bold;
         }
         button.play-btn {
-            background: linear-gradient(135deg, #ec4899, #fbbf24); color: #000; border: none; padding: 20px 70px;
-            font-size: 1.6rem; font-weight: 900; border-radius: 40px; cursor: pointer; transition: transform 0.2s;
-            box-shadow: 0 10px 20px rgba(236, 72, 153, 0.4); flex-shrink: 0;
+            background: linear-gradient(135deg, #ec4899, #fbbf24); color: #000; border: none; padding: 15px 40px;
+            font-size: 1.2rem; font-weight: 900; border-radius: 30px; cursor: pointer; transition: transform 0.2s;
+            box-shadow: 0 8px 15px rgba(236, 72, 153, 0.4); flex-shrink: 0;
+            margin-bottom: 20px;
         }
-        button.play-btn:hover { transform: scale(1.05); }
+        button.play-btn:active { transform: scale(0.95); }
 
     </style>
 </head>
 <body>
 
-    <!-- ========================================== -->
-    <!-- 1. MASTER GAME DATA -->
-    <!-- ========================================== -->
     <script>
         const MASTER_GAME_DATA = {
             gameTitle: "Laying and Bonds of Bricks",
@@ -277,14 +265,8 @@
                 { id: 205, targetId: 2, text: "Stretcher bond is only used for half-brick thick partition walls" },
                 { id: 206, targetId: 2, text: "Header bond is best suited for curved walls and foundations" }
             ]
-
         };
     </script>
-
-    <div id="desktop-hint">
-        <span>📱 Enable <strong>"Desktop Site"</strong> in your mobile browser settings for the absolute best view!</span>
-        <button onclick="document.getElementById('desktop-hint').style.display='none'">Dismiss</button>
-    </div>
 
     <div class="header">
         <h1 id="ui-title">Game Title</h1>
@@ -294,17 +276,14 @@
         </div>
     </div>
 
-    <!-- Target HUD -->
     <div class="target-hud-container">
         <div class="target-hud-label">Find This Principle</div>
         <div class="target-hud" id="targetHud">Loading...</div>
     </div>
 
     <div class="game-area" id="gameArea">
-        <!-- Balloons will be injected here dynamically -->
-    </div>
+        </div>
 
-    <!-- End Game Overlay -->
     <div class="overlay" id="endScreen">
         <div class="book-summary">
             <h2>Chapter Mastered</h2>
@@ -329,7 +308,6 @@
             if (!audioCtx) return;
             try {
                 if (type === 'pop') {
-                    // Bright, snappy Pop!
                     const osc = audioCtx.createOscillator();
                     const gainNode = audioCtx.createGain();
                     osc.type = 'sine';
@@ -340,7 +318,6 @@
                     osc.connect(gainNode); gainNode.connect(audioCtx.destination);
                     osc.start(); osc.stop(audioCtx.currentTime + 0.1);
                 } else if (type === 'wrong') {
-                    // Dull Thud
                     const osc = audioCtx.createOscillator();
                     const gainNode = audioCtx.createGain();
                     osc.type = 'sawtooth';
@@ -371,97 +348,83 @@
         let currentTargetId = null;
         let animationFrameId;
         
-        // Note pools
-        let pendingQueue = []; // Notes waiting to be spawned
-        let activeBalloons = []; // Balloons currently floating
-        let completedNoteIds = new Set(); // Notes correctly popped
-        let lastSpawnTime = 0;
+        let pendingQueue = []; 
+        let activeBalloons = []; 
+        let completedNoteIds = new Set(); 
         let isGameRunning = false;
 
-        // Colors for balloons
-        const balloonColors = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
+        const balloonColors = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#f43f5e"];
 
         function startGame() {
             score = 0;
             caughtCount = 0;
+            currentTargetId = null;
             scoreEl.innerText = score;
             caughtEl.innerText = caughtCount;
             completedNoteIds.clear();
             
-            // Clear area
             activeBalloons.forEach(b => b.element.remove());
             activeBalloons = [];
             
-            // Queue all notes
             pendingQueue = [...gameData.notes].sort(() => Math.random() - 0.5);
             
             document.getElementById('endScreen').classList.remove('active');
             
-            setNewTarget();
+            // Spawn initial 6 minimum balloons
+            for(let i = 0; i < 6; i++) {
+                if (pendingQueue.length > 0) spawnBalloon();
+            }
+
+            updateTargetFromVisible();
 
             isGameRunning = true;
-            lastSpawnTime = Date.now();
             cancelAnimationFrame(animationFrameId);
             gameLoop();
         }
 
-        function setNewTarget() {
-            // Find targets that still have unpopped notes
-            const availableTargets = new Set();
-            gameData.notes.forEach(note => {
-                if (!completedNoteIds.has(note.id)) {
-                    availableTargets.add(note.targetId);
-                }
-            });
-
-            const targetArray = Array.from(availableTargets);
+        // Modified logic to ONLY pick targets from balloons currently floating on screen
+        function updateTargetFromVisible() {
+            const alive = activeBalloons.filter(b => !b.isDead);
             
-            if (targetArray.length === 0) {
-                // Game Over - all done
-                isGameRunning = false;
-                setTimeout(showWinScreen, 1000);
+            if (alive.length === 0) {
+                if (completedNoteIds.size === gameData.notes.length) {
+                    isGameRunning = false;
+                    setTimeout(showWinScreen, 1000);
+                }
                 return;
             }
 
-            // Pick a random target from available. If possible, pick a different one than current.
-            let newTargetId;
-            if (targetArray.length > 1) {
-                const others = targetArray.filter(id => id !== currentTargetId);
-                newTargetId = others[Math.floor(Math.random() * others.length)];
-            } else {
-                newTargetId = targetArray[0];
+            const hasCurrentTarget = alive.some(b => b.data.targetId === currentTargetId);
+            if (!hasCurrentTarget || currentTargetId === null) {
+                // Pick a new target that corresponds to at least one balloon currently on screen
+                const randomBalloon = alive[Math.floor(Math.random() * alive.length)];
+                currentTargetId = randomBalloon.data.targetId;
+                
+                const targetData = gameData.targets.find(t => t.id === currentTargetId);
+                targetHud.innerText = targetData.name;
+                targetHud.style.borderColor = targetData.color;
+                targetHud.style.color = targetData.color;
+                targetHud.style.boxShadow = `0 8px 20px rgba(0,0,0,0.8), inset 0 0 15px ${targetData.color}44`;
+
+                targetHud.classList.remove('hud-change-anim');
+                void targetHud.offsetWidth;
+                targetHud.classList.add('hud-change-anim');
             }
-
-            currentTargetId = newTargetId;
-            const targetData = gameData.targets.find(t => t.id === currentTargetId);
-
-            // Update UI
-            targetHud.innerText = targetData.name;
-            targetHud.style.borderColor = targetData.color;
-            targetHud.style.color = targetData.color;
-            targetHud.style.boxShadow = `0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px ${targetData.color}44`;
-
-            // Animation
-            targetHud.classList.remove('hud-change-anim');
-            void targetHud.offsetWidth;
-            targetHud.classList.add('hud-change-anim');
         }
 
         function createBalloonSVG(color) {
+            const uniqueId = `grad-${color.replace('#','')}-${Math.floor(Math.random() * 100000)}`;
             return `
                 <svg class="balloon-svg" viewBox="0 0 60 100">
                     <defs>
-                        <radialGradient id="grad-${color.replace('#','')}" cx="30%" cy="30%" r="50%">
+                        <radialGradient id="${uniqueId}" cx="30%" cy="30%" r="50%">
                             <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
                             <stop offset="20%" stop-color="${color}" />
                             <stop offset="100%" stop-color="#020617" />
                         </radialGradient>
                     </defs>
-                    <!-- Balloon Body -->
-                    <path d="M30,0 C10,0 0,15 0,35 C0,55 20,70 30,75 C40,70 60,55 60,35 C60,15 50,0 30,0 Z" fill="url(#grad-${color.replace('#','')})"/>
-                    <!-- Knot -->
+                    <path d="M30,0 C10,0 0,15 0,35 C0,55 20,70 30,75 C40,70 60,55 60,35 C60,15 50,0 30,0 Z" fill="url(#${uniqueId})"/>
                     <path d="M30,75 L25,82 L35,82 Z" fill="${color}"/>
-                    <!-- String -->
                     <path d="M30,82 Q35,90 30,100" stroke="#94a3b8" fill="none" stroke-width="2"/>
                 </svg>
             `;
@@ -475,23 +438,31 @@
             
             const el = document.createElement('div');
             el.className = 'balloon-wrapper';
+            el.style.pointerEvents = 'auto'; 
             
             el.innerHTML = `
-                ${createBalloonSVG(bColor)}
-                <div class="hanging-note">${noteData.text}</div>
+                <div class="balloon-visuals">
+                    ${createBalloonSVG(bColor)}
+                    <div class="hanging-note">${noteData.text}</div>
+                </div>
             `;
+
+            const playRect = gameArea.getBoundingClientRect();
+            const gameHeight = playRect.height > 0 ? playRect.height : window.innerHeight;
+            const gameWidth = playRect.width > 0 ? playRect.width : window.innerWidth;
+            
+            // Random Y offset so 6 balloons spawned simultaneously don't look like a solid wall
+            const startY = gameHeight + 120 + (Math.random() * 300); 
+            
+            const balloonWidth = 65; 
+            const minX = balloonWidth / 2 + 10;
+            const maxX = gameWidth - (balloonWidth / 2 + 10);
+            const startX = Math.random() * (maxX - minX) + minX;
+
+            el.style.left = `${startX}px`;
+            el.style.transform = `translate(-50%, ${startY}px)`;
             
             gameArea.appendChild(el);
-
-            // Positioning
-            const playRect = gameArea.getBoundingClientRect();
-            // Start below screen
-            const startY = playRect.height + 150; 
-            
-            // Random X, keeping fully inside screen
-            const minX = 130;
-            const maxX = playRect.width - 130;
-            const startX = Math.random() * (maxX - minX) + minX;
 
             const balloonObj = {
                 data: noteData,
@@ -499,31 +470,35 @@
                 color: bColor,
                 x: startX,
                 y: startY,
-                speed: Math.random() * 1.5 + 1.5, // Rise speed
+                // Speeds varied between Medium-Fast (2.0) and Slow (0.5)
+                speed: Math.random() * 1.5 + 0.5, 
                 isDead: false
             };
 
-            // Click Handler
-            el.onmousedown = () => popBalloon(balloonObj);
-            el.ontouchstart = (e) => { e.preventDefault(); popBalloon(balloonObj); };
+            const triggerPop = (e) => {
+                e.preventDefault(); 
+                popBalloon(balloonObj);
+            };
+
+            el.addEventListener('mousedown', triggerPop);
+            el.addEventListener('touchstart', triggerPop, { passive: false });
 
             activeBalloons.push(balloonObj);
         }
 
         function popBalloon(balloon) {
             if (!isGameRunning || balloon.isDead) return;
-            initAudio(); // ensure audio plays
+            initAudio();
             
-            balloon.isDead = true; // prevent double clicks
+            balloon.isDead = true;
 
             const isCorrect = (balloon.data.targetId === currentTargetId);
             const rect = balloon.element.getBoundingClientRect();
             const gameRect = gameArea.getBoundingClientRect();
             const hitX = rect.left + rect.width / 2 - gameRect.left;
-            const hitY = rect.top + 50 - gameRect.top; // approx center of balloon
+            const hitY = rect.top + 45 - gameRect.top; 
 
             if (isCorrect) {
-                // Correct Pop!
                 playSound('pop');
                 score += 10;
                 caughtCount++;
@@ -536,65 +511,65 @@
                 showFloatingText("+10", hitX, hitY, "#10b981");
                 
                 balloon.element.remove();
-
-                // AUTOMATICALLY CHANGE TOPIC!
-                setNewTarget();
-
+                
             } else {
-                // Wrong Pop!
                 playSound('wrong');
                 score -= 5;
                 scoreEl.innerText = score;
                 
                 showFloatingText("-5", hitX, hitY, "#ef4444");
 
-                // Drop animation
                 balloon.element.classList.add('balloon-drop');
                 const domEl = balloon.element;
                 setTimeout(() => domEl.remove(), 800);
 
-                // Return note to queue so it spawns again later
                 pendingQueue.push(balloon.data);
             }
+
+            // Immediately attempt to replace the popped balloon to maintain minimum of 6
+            if (pendingQueue.length > 0) {
+                spawnBalloon();
+            }
+
+            // Immediately verify the target is still valid based on the remaining visible balloons
+            updateTargetFromVisible();
         }
 
         function gameLoop() {
             if (!isGameRunning) return;
 
-            // Spawn Logic: keep ~4 balloons on screen if available
             const now = Date.now();
-            const maxBalloons = Math.min(4, gameData.notes.length - completedNoteIds.size);
             
+            // Maintain Minimum 6 logic
+            const maxBalloons = Math.min(6, gameData.notes.length - completedNoteIds.size);
             let aliveBalloons = activeBalloons.filter(b => !b.isDead).length;
             
-            if (aliveBalloons < maxBalloons && pendingQueue.length > 0) {
-                if (now - lastSpawnTime > 1200) { 
-                    spawnBalloon();
-                    lastSpawnTime = now;
-                }
+            while (aliveBalloons < maxBalloons && pendingQueue.length > 0) {
+                spawnBalloon();
+                aliveBalloons++;
+                updateTargetFromVisible();
             }
 
-            // Movement Logic
             for (let i = activeBalloons.length - 1; i >= 0; i--) {
                 const b = activeBalloons[i];
                 if (b.isDead) {
-                    // It was popped, remove from active tracking
                     activeBalloons.splice(i, 1);
                     continue;
                 }
 
                 b.y -= b.speed;
-                // Add a gentle horizontal sway
-                const sway = Math.sin(now / 1000 + b.x) * 20; 
+                const sway = Math.sin(now / 1500 + b.x) * 15; 
                 b.element.style.transform = `translate(calc(-50% + ${sway}px), ${b.y}px)`;
                 b.element.style.left = `${b.x}px`;
 
-                // If it floats off the top without being clicked
-                if (b.y < -200) {
+                // If fully off-screen top
+                if (b.y < -150) {
                     b.element.remove();
-                    // Put it back in queue to spawn again!
                     pendingQueue.push(b.data);
                     activeBalloons.splice(i, 1);
+                    
+                    if (pendingQueue.length > 0) spawnBalloon();
+                    updateTargetFromVisible();
                 }
             }
 
@@ -603,13 +578,13 @@
 
         // --- VISUAL EFFECTS ---
         function createExplosion(x, y, color) {
-            for (let i = 0; i < 25; i++) {
+            for (let i = 0; i < 20; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.background = color;
-                particle.style.boxShadow = `0 0 10px ${color}`;
+                particle.style.boxShadow = `0 0 8px ${color}`;
                 
-                const size = Math.random() * 8 + 4;
+                const size = Math.random() * 6 + 3;
                 particle.style.width = `${size}px`;
                 particle.style.height = `${size}px`;
                 particle.style.left = `${x}px`;
@@ -618,7 +593,7 @@
                 gameArea.appendChild(particle);
 
                 const angle = Math.random() * Math.PI * 2;
-                const distance = Math.random() * 100 + 20;
+                const distance = Math.random() * 80 + 20;
                 const dx = Math.cos(angle) * distance;
                 const dy = Math.sin(angle) * distance;
 
@@ -626,7 +601,7 @@
                     { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
                     { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0)`, opacity: 0 }
                 ], {
-                    duration: Math.random() * 400 + 300,
+                    duration: Math.random() * 300 + 300,
                     easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
                 });
                 anim.onfinish = () => particle.remove();
@@ -639,7 +614,7 @@
             el.innerText = text;
             el.style.color = color;
             el.style.left = `${x}px`;
-            el.style.top = `${y - 30}px`;
+            el.style.top = `${y - 20}px`;
             gameArea.appendChild(el);
             setTimeout(() => el.remove(), 1000);
         }
@@ -657,7 +632,7 @@
                 const section = document.createElement('div');
                 section.className = 'chapter-section';
                 let html = `<h3 style="color: ${target.color}">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="${target.color}"><circle cx="12" cy="12" r="10"/></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="${target.color}"><circle cx="12" cy="12" r="10"/></svg>
                                 ${target.name}
                             </h3>`;
                 html += `<ul>`;
@@ -678,5 +653,3 @@
     </script>
 </body>
 </html>
-
-

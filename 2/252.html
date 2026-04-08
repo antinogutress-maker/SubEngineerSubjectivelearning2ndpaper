@@ -1,609 +1,488 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Step Ladder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Application of Paints - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@700&display=swap');
-
-        :root {
-            --bg-dark: #0f172a;
-            --bg-panel: #1e293b;
-            --text-main: #f8fafc;
-            --wood-dark: #451a03;
-            --wood-med: #78350f;
-            --wood-light: #b45309;
-            --accent-gold: #fbbf24;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-blue: #0ea5e9;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
         body {
             font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
-            color: var(--text-main);
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column;
-            min-width: 1000px; /* Essential for side-by-side layout on Desktop Site */
-            overflow: hidden;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- DESKTOP SITE WARNING --- */
-        #desktop-hint {
-            background: linear-gradient(90deg, #ea580c, #eab308);
-            color: white; text-align: center; padding: 8px 20px;
-            font-size: 1.1rem; font-weight: 800; display: flex;
-            justify-content: center; align-items: center; gap: 15px;
-            flex-shrink: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        #desktop-hint button {
-            background: rgba(0,0,0,0.4); border: 1px solid white; color: white;
-            padding: 4px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s;
-        }
-        #desktop-hint button:hover { background: white; color: black; }
-
-        /* --- HEADER --- */
-        .header {
-            height: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px; background: rgba(15, 23, 42, 0.95); border-bottom: 2px solid #334155;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6); z-index: 10;
-        }
-        .header h1 {
-            font-size: 2.2rem; font-weight: 900;
-            background: linear-gradient(to right, #fbbf24, #f97316);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        .stats-box { display: flex; gap: 20px; }
-        .stat-badge {
-            background: rgba(2, 6, 23, 0.9); border: 2px solid;
-            padding: 8px 20px; border-radius: 25px;
-            font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 700;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        #attempts-badge { border-color: var(--accent-blue); color: var(--accent-blue); }
-
-        /* --- MAIN GAME AREA --- */
-        .game-area {
-            flex: 1; display: flex; overflow: hidden; position: relative;
-        }
-
-        /* LEFT: The Ladder Construction Zone */
-        .ladder-zone {
-            width: 550px; height: 100%;
-            background: rgba(0, 0, 0, 0.3); border-right: 4px dashed #334155;
-            display: flex; justify-content: center; align-items: center;
-            position: relative; overflow-y: auto; padding: 40px 0;
-        }
-        .ladder-zone::-webkit-scrollbar { width: 8px; }
-        .ladder-zone::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-
-        .ladder-structure {
-            position: relative; width: 480px;
-            display: flex; flex-direction: column; gap: 20px;
-        }
-
-        /* The Vertical Wooden Poles */
-        .pole {
-            position: absolute; top: -50px; bottom: -50px; width: 35px;
-            background: linear-gradient(90deg, var(--wood-dark), var(--wood-light), var(--wood-dark));
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 5px 0 15px rgba(0,0,0,0.6);
-            border-radius: 5px; z-index: 1;
-        }
-        .pole.left { left: 0; }
-        .pole.right { right: 0; }
-
-        /* Drop Slots for Rungs */
-        .ladder-slot {
-            width: 100%; height: 110px; /* Height must match rung */
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 8px; position: relative; z-index: 2;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-        }
-        .ladder-slot.drag-over { background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
         
-        .slot-indicator {
-            position: absolute; left: -50px; top: 50%; transform: translateY(-50%);
-            font-size: 1.5rem; font-weight: 900; color: #475569;
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
         }
-
-        /* RIGHT: The Parts Tray & Controls */
-        .tray-zone {
-            flex: 1; display: flex; flex-direction: column;
-            padding: 30px; background: transparent; position: relative;
-        }
-
-        .tray-header {
-            font-size: 1.8rem; font-weight: 800; color: #f8fafc; margin-bottom: 20px;
-            text-transform: uppercase; border-bottom: 2px solid #334155; padding-bottom: 10px;
-        }
-
-        .parts-pool {
-            flex: 1; display: flex; flex-wrap: wrap; gap: 20px;
-            align-content: flex-start; overflow-y: auto; padding-bottom: 40px;
-        }
-        .parts-pool::-webkit-scrollbar { width: 8px; }
-        .parts-pool::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-
-        /* --- THE RUNGS (Draggable Items) --- */
-        .ladder-rung {
-            width: 480px; height: 110px; flex-shrink: 0;
-            background: linear-gradient(180deg, var(--wood-med), var(--wood-dark));
-            border: 2px solid #290f02; border-radius: 6px;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2);
-            display: flex; align-items: center; justify-content: center;
-            cursor: grab; position: relative; touch-action: none;
-            transition: transform 0.1s, box-shadow 0.1s; z-index: 10;
-        }
-        .ladder-rung:active { cursor: grabbing; }
-        .ladder-rung.dragging {
-            position: fixed; z-index: 9999;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.8); transform: scale(1.02); opacity: 0.95;
-            pointer-events: none; /* Crucial for dropping */
-        }
-
-        /* Metallic Nails on the rung ends */
-        .nail {
-            position: absolute; width: 14px; height: 14px; border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #94a3b8, #334155);
-            box-shadow: inset 1px 1px 2px rgba(255,255,255,0.5), 1px 1px 3px rgba(0,0,0,0.8);
-        }
-        .nail.left { left: 10px; } .nail.right { right: 10px; }
-
-        /* The Paper Note attached to the Wood */
-        .rung-note {
-            width: 380px; height: 85px; background: #fef3c7; border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5); display: flex; flex-direction: column;
-            justify-content: center; padding: 5px 15px; color: #020617;
-            border: 1px solid #d97706; position: relative; overflow: hidden;
-        }
-        .rung-note::before { /* Tape effect */
-            content: ''; position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
-            width: 40px; height: 15px; background: rgba(255,255,255,0.6); box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        .step-title { font-size: 1.2rem; font-weight: 900; color: #b45309; text-transform: uppercase; line-height: 1.2;}
-        .step-desc { font-size: 0.95rem; font-weight: 600; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
-
-        /* --- VALIDATION STATES --- */
-        .ladder-rung.correct {
-            border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); pointer-events: none;
-        }
-        .ladder-rung.correct .rung-note { background: #d1fae5; border-color: #10b981; }
-        .ladder-rung.correct .step-title { color: #047857; }
-
-        .ladder-rung.incorrect {
-            border-color: #ef4444; animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
-        .ladder-rung.incorrect .rung-note { background: #fee2e2; border-color: #ef4444; }
-        .ladder-rung.incorrect .step-title { color: #b91c1c; }
-
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-2px, 0, 0); }
-            20%, 80% { transform: translate3d(4px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-            40%, 60% { transform: translate3d(6px, 0, 0); }
-        }
-
-        /* --- CHECK BUTTON --- */
-        .check-btn-container {
-            margin-top: 20px; display: flex; justify-content: flex-end;
-        }
-        .check-btn {
-            background: linear-gradient(135deg, #0ea5e9, #8b5cf6); color: #fff;
-            border: none; padding: 20px 50px; font-size: 1.6rem; font-weight: 900;
-            border-radius: 40px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.5); text-transform: uppercase;
-        }
-        .check-btn:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(14, 165, 233, 0.7); }
-        .check-btn:active { transform: translateY(0); }
-
-        /* --- END SCREEN --- */
-        .overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center;
-            padding: 60px 40px; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; overflow-y: auto;
-        }
-        .overlay.active { opacity: 1; pointer-events: auto; }
-        .book-summary {
-            width: 100%; max-width: 800px; background: #0f172a; border: 1px solid #334155;
-            border-radius: 15px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); margin-bottom: 40px;
-        }
-        .book-summary h2 { font-size: 3rem; color: #10b981; text-align: center; margin-bottom: 10px; text-transform: uppercase; }
-        .book-summary p.score-report { text-align: center; font-size: 1.4rem; color: #94a3b8; margin-bottom: 40px; }
-        .chapter-section { display: flex; flex-direction: column; gap: 15px; }
-        .step-row { display: flex; align-items: center; background: #1e293b; padding: 15px; border-radius: 10px; border-left: 5px solid #fbbf24; }
-        .step-num { font-size: 1.5rem; font-weight: 900; color: #fbbf24; width: 50px; }
-        .step-content strong { color: #38bdf8; font-size: 1.3rem; display: block; margin-bottom: 5px;}
-        .step-content span { color: #e2e8f0; font-size: 1.1rem; }
         
-        .play-again-btn {
-            background: linear-gradient(135deg, #fbbf24, #f97316); color: #000; border: none; padding: 18px 60px;
-            font-size: 1.5rem; font-weight: 900; border-radius: 40px; cursor: pointer; transition: transform 0.2s;
-            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.4);
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
         }
-        .play-again-btn:hover { transform: scale(1.05); }
 
+        /* Canvas styling - Engineering Grid */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
     </style>
 </head>
-<body>
+<body class="flex flex-col h-screen overflow-hidden">
 
-    <!-- ========================================== -->
-    <!-- 1. MASTER GAME DATA -->
-    <!-- ========================================== -->
-    <script>
-        const MASTER_GAME_DATA = {
-            gameTitle: "Application of Paint (General Solid Surfaces)",
-            // The steps are in the correct sequential order for general surfaces like masonry or metal.
-            steps: [
-                { 
-                    id: 1, 
-                    title: "Surface Preparation", 
-                    note: "The surface is cleaned of dust, grease, and loose scales. For metal, rust is removed; for masonry, efflorescence is brushed off." 
-                },
-                { 
-                    id: 2, 
-                    title: "Priming", 
-                    note: "An initial coat (primer) is applied to seal the surface, prevent suction, and provide a strong bond for subsequent layers." 
-                },
-                { 
-                    id: 3, 
-                    title: "Stopping", 
-                    note: "Small cracks, holes, or surface irregularities are filled with appropriate fillers or putty to create a level plane." 
-                },
-                { 
-                    id: 4, 
-                    title: "Undercoating", 
-                    note: "This coat provides opacity, builds up the film thickness, and ensures a uniform color before the final finish is applied." 
-                },
-                { 
-                    id: 5, 
-                    title: "Finishing", 
-                    note: "The final coat is applied to provide the desired texture, gloss, and a durable protective layer against the environment." 
-                }
-            ]
-       
-        };
-    </script>
-
-    <div id="desktop-hint">
-        <span>📱 Enable <strong>"Desktop Site"</strong> in your mobile browser settings for the proper side-by-side view!</span>
-        <button onclick="document.getElementById('desktop-hint').style.display='none'">Dismiss</button>
-    </div>
-
-    <div class="header">
-        <h1 id="ui-title">Game Title</h1>
-        <div class="stats-box">
-            <div class="stat-badge" id="attempts-badge">Attempts: <span id="attempts">0</span></div>
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-rose-400">
+                Application of Paints
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Standard Exam Sequence</p>
         </div>
-    </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
 
-    <div class="game-area">
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
         
-        <!-- LEFT: Ladder Zone -->
-        <div class="ladder-zone">
-            <div class="ladder-structure" id="ladderStructure">
-                <div class="pole left"></div>
-                <div class="pole right"></div>
-                <!-- Slots injected by JS -->
+        <!-- Stage 1: Surface Preparation -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-slate-500/30 shadow-[0_10px_30px_-10px_rgba(100,116,139,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-prep" class="absolute inset-0 w-full h-full"></canvas>
             </div>
-        </div>
-
-        <!-- RIGHT: Parts Tray -->
-        <div class="tray-zone">
-            <div class="tray-header">Up to Down (Drag & Drop)</div>
-            
-            <div class="parts-pool" id="partsPool">
-                <!-- Rungs injected and scrambled by JS -->
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-slate-500/20 text-slate-300 rounded-lg"><i data-lucide="scan-line" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-slate-300">1. Surface Preparation</h2>
+                </div>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    <strong>Cleaning & Sanding:</strong> The foundation of good painting. The surface must be thoroughly cleaned of dirt, grease, and old loose paint. It is then rubbed down with pumice stone or sandpaper to create a smooth, clean base.
+                </p>
             </div>
+        </article>
 
-            <div class="check-btn-container">
-                <button class="check-btn" id="checkBtn">Check Alignment</button>
+        <!-- Stage 2: Knotting & Stopping -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-filling" class="absolute inset-0 w-full h-full"></canvas>
             </div>
-        </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="hammer" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">2. Knotting & Stopping</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Sealing & Filling:</strong> 'Knotting' seals wood knots to prevent resin from ruining the paint. 'Stopping' (Puttying) uses putty to fill nail holes, cracks, and dents, leveled off with a putty knife.
+                </p>
+            </div>
+        </article>
 
-    </div>
+        <!-- Stage 3: Priming -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-blue-500/30 shadow-[0_10px_30px_-10px_rgba(59,130,246,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-priming" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><i data-lucide="paint-roller" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-blue-400">3. Priming (Primer Coat)</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>The Adhesion Layer:</strong> The very first coat of paint. It penetrates the surface pores, seals them to prevent absorption of the actual paint, and provides a strong grip (adhesion) for subsequent coats.
+                </p>
+            </div>
+        </article>
 
-    <!-- End Game Overlay -->
-    <div class="overlay" id="endScreen">
-        <div class="book-summary">
-            <h2>Process Mastered!</h2>
-            <p class="score-report">Completed in <span id="finalAttempts" style="color:#fbbf24; font-weight:bold;">0</span> attempts.</p>
-            <div class="chapter-section" id="summaryContent"></div>
-        </div>
-        <button class="play-again-btn" onclick="startGame()">Restart Process</button>
-    </div>
+        <!-- Stage 4: Undercoating -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-undercoat" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="layers" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">4. Undercoating</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Building Opacity:</strong> Applied over the primer. Its main job is to build up the thickness, completely hide the surface color/grain beneath, and provide a uniform, flat base for the final finish.
+                </p>
+            </div>
+        </article>
+
+        <!-- Stage 5: Finishing Coat -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-finish" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">5. Finishing Coat</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Protection & Gloss:</strong> The final topcoat. It is applied carefully to leave no brush marks. It provides the final desired color, aesthetic gloss, and robust protection against weather and wear.
+                </p>
+            </div>
+        </article>
+
+    </main>
 
     <script>
-        // --- AUDIO ENGINE ---
-        let audioCtx;
-        function initAudio() {
-            if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-            }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }
+        lucide.createIcons();
 
-        const playSound = (type) => {
-            if (!audioCtx) return;
-            try {
-                if (type === 'grab') {
-                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.5, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-                } else if (type === 'drop') {
-                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                    osc.type = 'square'; osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
-                    gain.gain.setValueAtTime(0.8, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.15);
-                } else if (type === 'correct') {
-                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.5, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-                } else if (type === 'wrong') {
-                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
-                    gain.gain.setValueAtTime(0.8, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-                } else if (type === 'win') {
-                    const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain();
-                    osc1.type = 'sine'; osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc1.frequency.setValueAtTime(659.25, audioCtx.currentTime+0.1); osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime+0.2); osc1.frequency.setValueAtTime(1046.50, audioCtx.currentTime+0.3);
-                    gain1.gain.setValueAtTime(0.5, audioCtx.currentTime); gain1.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
-                    osc1.connect(gain1); gain1.connect(audioCtx.destination); osc1.start(); osc1.stop(audioCtx.currentTime + 0.8);
-                }
-            } catch (e) {}
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            prep: document.getElementById('canvas-prep'),
+            filling: document.getElementById('canvas-filling'),
+            priming: document.getElementById('canvas-priming'),
+            undercoat: document.getElementById('canvas-undercoat'),
+            finish: document.getElementById('canvas-finish')
         };
-        document.body.addEventListener('click', initAudio, { once: true });
-        document.body.addEventListener('touchstart', initAudio, { once: true });
-
-        // --- GAME LOGIC & UI BUILDER ---
-        const gameData = MASTER_GAME_DATA;
-        document.getElementById('ui-title').innerText = gameData.gameTitle;
-        const ladderStructure = document.getElementById('ladderStructure');
-        const partsPool = document.getElementById('partsPool');
-        const checkBtn = document.getElementById('checkBtn');
-        const attemptsEl = document.getElementById('attempts');
-
-        let attempts = 0;
-
-        function startGame() {
-            attempts = 0;
-            attemptsEl.innerText = attempts;
-            document.getElementById('endScreen').classList.remove('active');
-            
-            buildLadder();
-            buildRungs();
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
         }
 
-        function buildLadder() {
-            // Keep poles, remove old slots
-            const poles = ladderStructure.querySelectorAll('.pole');
-            ladderStructure.innerHTML = '';
-            poles.forEach(p => ladderStructure.appendChild(p));
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
 
-            // Build slots Top to Bottom (Step 1 is top, Step N is bottom)
-            gameData.steps.forEach((step, index) => {
-                const slot = document.createElement('div');
-                slot.className = 'ladder-slot';
-                slot.dataset.expectedId = step.id;
-                
-                const indicator = document.createElement('div');
-                indicator.className = 'slot-indicator';
-                indicator.innerText = index + 1; // 1, 2, 3...
-                slot.appendChild(indicator);
-
-                ladderStructure.appendChild(slot);
-            });
+        // --- HELPERS --- //
+        function drawLabel(ctx, text, x, y, color='#fff', bg='rgba(15,23,42,0.8)') {
+            ctx.font = 'bold 11px Inter';
+            const w = ctx.measureText(text).width;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(x - w/2 - 6, y - 10, w + 12, 20, 4); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
         }
 
-        function buildRungs() {
-            partsPool.innerHTML = '';
-            // Scramble the steps for the pool
-            const shuffledSteps = [...gameData.steps].sort(() => Math.random() - 0.5);
-
-            shuffledSteps.forEach(step => {
-                const rung = document.createElement('div');
-                rung.className = 'ladder-rung';
-                rung.dataset.id = step.id;
-
-                rung.innerHTML = `
-                    <div class="nail left"></div>
-                    <div class="rung-note">
-                        <div class="step-title">${step.title}</div>
-                        <div class="step-desc">${step.note}</div>
-                    </div>
-                    <div class="nail right"></div>
-                `;
-
-                // Add Pointer Events for Drag & Drop
-                rung.addEventListener('pointerdown', dragStart);
-
-                partsPool.appendChild(rung);
-            });
-        }
-
-        // --- CUSTOM DRAG & DROP LOGIC ---
-        let activeRung = null;
-        let initialParent = null;
-        let startX, startY;
-        let offsetX, offsetY;
-
-        function dragStart(e) {
-            initAudio();
-            if (e.target.closest('.ladder-rung').classList.contains('correct')) return; // Locked
-            
-            activeRung = e.target.closest('.ladder-rung');
-            initialParent = activeRung.parentElement;
-            
-            // Remove error classes if picking it up again
-            activeRung.classList.remove('incorrect');
-
-            const rect = activeRung.getBoundingClientRect();
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-
-            // Set fixed dimensions so it doesn't shrink when popped out of flexbox
-            activeRung.style.width = `${rect.width}px`;
-            activeRung.style.height = `${rect.height}px`;
-
-            activeRung.classList.add('dragging');
-            document.body.appendChild(activeRung); // Move to body for fixed positioning free of overflow clipping
-            
-            moveRung(e.clientX, e.clientY);
-            playSound('grab');
-
-            document.addEventListener('pointermove', dragMove);
-            document.addEventListener('pointerup', dragEnd);
-        }
-
-        function dragMove(e) {
-            if (!activeRung) return;
-            moveRung(e.clientX, e.clientY);
-
-            // Highlight drop zone
-            activeRung.style.pointerEvents = 'none'; // Temporarily disable to find element below
-            const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-            activeRung.style.pointerEvents = 'auto'; // Re-enable
-
-            document.querySelectorAll('.ladder-slot').forEach(s => s.classList.remove('drag-over'));
-            
-            if (elemBelow) {
-                const slot = elemBelow.closest('.ladder-slot');
-                if (slot) slot.classList.add('drag-over');
+        function drawWoodBase(ctx, cx, cy, w, h) {
+            ctx.fillStyle = '#b45309'; // Dark amber/wood base
+            ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 4); ctx.fill();
+            // Wood grains
+            ctx.strokeStyle = '#92400e'; ctx.lineWidth = 2;
+            for(let i=-w/2+10; i<w/2; i+=20) {
+                ctx.beginPath(); ctx.moveTo(cx + i, cy - h/2); 
+                ctx.bezierCurveTo(cx + i + 10, cy, cx + i - 10, cy, cx + i, cy + h/2);
+                ctx.stroke();
             }
         }
 
-        function moveRung(x, y) {
-            activeRung.style.left = `${x - offsetX}px`;
-            activeRung.style.top = `${y - offsetY}px`;
-        }
+        // --- ANIMATION RENDERERS --- //
 
-        function dragEnd(e) {
-            if (!activeRung) return;
-            playSound('drop');
+        // 1. Surface Preparation (Sanding rough edges)
+        function renderPrep(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
 
-            document.removeEventListener('pointermove', dragMove);
-            document.removeEventListener('pointerup', dragEnd);
-
-            // Find Drop Zone
-            activeRung.style.pointerEvents = 'none';
-            const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+            const woodW = 120;
+            const woodH = 60;
             
-            const targetSlot = elemBelow ? elemBelow.closest('.ladder-slot') : null;
-            const targetPool = elemBelow ? elemBelow.closest('.parts-pool') : null;
+            ctx.save();
+            ctx.translate(cx, cy);
 
-            activeRung.classList.remove('dragging');
-            activeRung.style.left = '';
-            activeRung.style.top = '';
-            activeRung.style.width = ''; // Let css handle width natively inside containers
-            activeRung.style.height = '';
-            activeRung.style.pointerEvents = 'auto';
+            // Wood Block Base
+            ctx.fillStyle = '#b45309'; 
+            ctx.fillRect(-woodW/2, -woodH/2, woodW, woodH);
 
-            document.querySelectorAll('.ladder-slot').forEach(s => s.classList.remove('drag-over'));
+            // Rough top edge logic
+            const roughness = Math.max(0, 1 - (p * 1.5)); // Smoothes out over time
+            ctx.fillStyle = '#b45309';
+            ctx.beginPath();
+            ctx.moveTo(-woodW/2, -woodH/2);
+            for(let x = -woodW/2; x <= woodW/2; x += 10) {
+                // Random spikes that shrink based on roughness multiplier
+                const spike = Math.abs(Math.sin(x * 10)) * 15 * roughness;
+                ctx.lineTo(x, -woodH/2 - spike);
+            }
+            ctx.lineTo(woodW/2, -woodH/2);
+            ctx.fill();
 
-            if (targetSlot) {
-                // Check if slot already has a rung (other than the indicator)
-                const existingRung = targetSlot.querySelector('.ladder-rung');
-                
-                if (existingRung && existingRung !== activeRung) {
-                    // SWAP LOGIC: Move existing rung to the activeRung's old parent
-                    initialParent.appendChild(existingRung);
+            // Sanding Block Action
+            const scrubP = (p * 4) % 1; // Back and forth 4 times
+            const sandX = -woodW/2 + 20 + Math.sin(scrubP * Math.PI * 2) * (woodW - 40);
+            
+            ctx.translate(sandX, -woodH/2 - 5);
+            
+            // Draw sanding block
+            ctx.fillStyle = '#475569'; ctx.fillRect(-15, -15, 30, 10); // Handle
+            ctx.fillStyle = '#fcd34d'; ctx.fillRect(-20, -5, 40, 5); // Sandpaper
+            
+            // Dust particles flying
+            if (roughness > 0) {
+                ctx.fillStyle = '#fcd34d';
+                for(let i=0; i<5; i++) {
+                    ctx.beginPath(); ctx.arc(-10 + Math.random()*20, Math.random()*-20, 1.5, 0, Math.PI*2); ctx.fill();
                 }
-                targetSlot.appendChild(activeRung);
-            } else if (targetPool) {
-                partsPool.appendChild(activeRung);
-            } else {
-                // Dropped in nowhere, return to initial parent
-                initialParent.appendChild(activeRung);
             }
 
-            activeRung = null;
-            initialParent = null;
+            ctx.restore();
+
+            drawLabel(ctx, "SANDPAPER", cx, cy - 60, '#fcd34d', 'transparent');
+            if (roughness < 0.1) drawLabel(ctx, "SMOOTH & CLEAN", cx, cy + 50, '#22c55e');
+            else drawLabel(ctx, "REMOVING ROUGHNESS", cx, cy + 50, '#cbd5e1');
         }
 
-        // --- CHECKING LOGIC ---
-        checkBtn.addEventListener('click', () => {
-            initAudio();
-            const slots = document.querySelectorAll('.ladder-slot');
-            let allFilled = true;
-            let allCorrect = true;
+        // 2. Knotting & Stopping (Putty knife filling a crack)
+        function renderFilling(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
 
-            // Reset states for a fresh check
-            document.querySelectorAll('.ladder-rung').forEach(r => r.classList.remove('incorrect'));
+            drawWoodBase(ctx, cx, cy, 140, 60);
 
-            slots.forEach(slot => {
-                const rung = slot.querySelector('.ladder-rung');
-                const expectedId = slot.dataset.expectedId;
+            // A deep crack / hole in the center
+            ctx.fillStyle = '#0f172a'; // Dark void
+            ctx.beginPath();
+            ctx.moveTo(cx - 15, cy - 30);
+            ctx.lineTo(cx - 5, cy);
+            ctx.lineTo(cx + 10, cy + 15);
+            ctx.lineTo(cx + 25, cy - 30);
+            ctx.fill();
 
-                if (!rung) {
-                    allFilled = false;
-                    allCorrect = false;
-                } else {
-                    if (rung.dataset.id === expectedId) {
-                        rung.classList.add('correct');
-                        // Sound handled cumulatively below
-                    } else {
-                        rung.classList.add('incorrect');
-                        allCorrect = false;
-                    }
-                }
-            });
-
-            attempts++;
-            attemptsEl.innerText = attempts;
-
-            if (!allFilled) {
-                playSound('wrong');
-                alert("Please place all steps on the ladder before checking!");
-                return;
-            }
-
-            if (allCorrect) {
-                playSound('win');
-                setTimeout(showWinScreen, 800);
-            } else {
-                playSound('wrong');
-            }
-        });
-
-        // --- END SCREEN ---
-        function showWinScreen() {
-            document.getElementById('finalAttempts').innerText = attempts;
-            const summaryContent = document.getElementById('summaryContent');
-            summaryContent.innerHTML = '';
+            // Putty filling logic
+            // Knife moves from left to right
+            const knifeX = cx - 60 + (p * 120);
             
-            gameData.steps.forEach((step, index) => {
-                const row = document.createElement('div');
-                row.className = 'step-row';
-                row.innerHTML = `
-                    <div class="step-num">${index + 1}</div>
-                    <div class="step-content">
-                        <strong>${step.title}</strong>
-                        <span>${step.note}</span>
-                    </div>
-                `;
-                summaryContent.appendChild(row);
-            });
+            // Fill the hole with putty (white) behind the knife
+            ctx.fillStyle = '#f8fafc'; // Putty
+            ctx.beginPath();
+            ctx.moveTo(cx - 15, cy - 30);
+            ctx.lineTo(cx - 5, cy);
+            ctx.lineTo(cx + 10, cy + 15);
+            // Cap the fill at the knife's current X position
+            if (knifeX > cx - 15) {
+                const fillEdge = Math.min(knifeX, cx + 25);
+                ctx.lineTo(fillEdge, cy - 30); // Fill flat across top
+            } else {
+                ctx.lineTo(cx - 15, cy - 30);
+            }
+            ctx.fill();
 
-            document.getElementById('endScreen').classList.add('active');
+            // Draw Putty Knife
+            ctx.save();
+            ctx.translate(knifeX, cy - 30);
+            ctx.rotate(Math.PI/6); // Angle it
+            
+            // Blade
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(10, -20); ctx.lineTo(-5, -20); ctx.fill();
+            // Handle
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(-2, -40, 8, 20);
+            
+            ctx.restore();
+
+            drawLabel(ctx, "PUTTY KNIFE", cx, cy - 70, '#94a3b8', 'transparent');
+            if (p > 0.8) drawLabel(ctx, "HOLE STOPPED", cx, cy + 50, '#22c55e');
+            else drawLabel(ctx, "FILLING DEFECTS", cx, cy + 50, '#cbd5e1');
         }
 
-        // Boot Game
-        startGame();
+        // 3. Priming (Brush applying a semi-transparent layer)
+        function renderPriming(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            drawWoodBase(ctx, cx, cy, 140, 60);
+
+            // Brush Sweep
+            const sweepP = Math.min(1, p * 1.5);
+            const brushX = cx - 70 + (sweepP * 140);
+
+            // Primer Coat (Dull, semi-transparent white/grey)
+            ctx.fillStyle = 'rgba(226, 232, 240, 0.7)'; // Thin primer
+            ctx.fillRect(cx - 70, cy - 30, sweepP * 140, 60);
+
+            // Draw Brush
+            ctx.save();
+            ctx.translate(brushX, cy);
+            
+            // Brush Head & Bristles
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(-10, -35, 20, 10);
+            ctx.fillStyle = '#334155'; // Dark bristles
+            ctx.fillRect(-10, -25, 20, 15);
+            ctx.fillStyle = '#e2e8f0'; // Wet primer on bristles
+            ctx.fillRect(-10, -15, 20, 5);
+            
+            // Handle
+            ctx.fillStyle = '#b45309';
+            ctx.beginPath(); ctx.moveTo(-5,-35); ctx.lineTo(5,-35); ctx.lineTo(8,-60); ctx.lineTo(-8,-60); ctx.fill();
+            
+            ctx.restore();
+
+            drawLabel(ctx, "PRIMER COAT", cx, cy - 70, '#e2e8f0', 'transparent');
+            if (p > 0.7) drawLabel(ctx, "SEALS & GIVES ADHESION", cx, cy + 50, '#e2e8f0');
+        }
+
+        // 4. Undercoating (Roller applying thick opaque layer)
+        function renderUndercoat(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Wood base entirely covered by Primer
+            ctx.fillStyle = '#e2e8f0'; 
+            ctx.beginPath(); ctx.roundRect(cx - 70, cy - 30, 140, 60, 4); ctx.fill();
+            
+            // Add some faint grain/putty marks to show primer isn't fully opaque
+            ctx.strokeStyle = 'rgba(0,0,0,0.05)'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(cx-50, cy-20); ctx.lineTo(cx+50, cy+10); ctx.stroke();
+
+            // Roller Sweep
+            const sweepP = Math.min(1, p * 1.5);
+            const rollerX = cx - 70 + (sweepP * 140);
+
+            // Undercoat (Thick, perfectly opaque matte color, e.g., Slate Blue)
+            ctx.fillStyle = '#64748b'; 
+            ctx.fillRect(cx - 70, cy - 30, sweepP * 140, 60);
+
+            // Draw Roller
+            ctx.save();
+            ctx.translate(rollerX, cy);
+            
+            // Roller arm
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(0, -40); ctx.lineTo(20, -40); ctx.lineTo(20, -10); ctx.lineTo(0, -10); ctx.stroke();
+            // Handle
+            ctx.fillStyle = '#ef4444'; ctx.fillRect(17, -70, 6, 30);
+            // Roller pad
+            ctx.fillStyle = '#64748b'; // Loaded with paint
+            ctx.beginPath(); ctx.roundRect(-5, -45, 10, 40, 5); ctx.fill();
+            
+            // Rotation detail
+            ctx.fillStyle = '#475569';
+            const rollSpin = sweepP * 20;
+            ctx.fillRect(-5, -45 + (rollSpin%10), 10, 2);
+            ctx.fillRect(-5, -25 + (rollSpin%10), 10, 2);
+
+            ctx.restore();
+
+            drawLabel(ctx, "UNDERCOAT", cx, cy - 70, '#64748b', 'transparent');
+            if (p > 0.7) drawLabel(ctx, "BUILDS OPACITY", cx, cy + 50, '#94a3b8');
+        }
+
+        // 5. Finishing Coat (Spray/Fine Brush applying glossy top layer)
+        function renderFinish(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Start with Undercoat base
+            ctx.fillStyle = '#64748b'; 
+            ctx.beginPath(); ctx.roundRect(cx - 70, cy - 30, 140, 60, 4); ctx.fill();
+
+            // Finish Spray Sweep
+            const sweepP = Math.min(1, p * 1.2);
+            const sprayX = cx - 70 + (sweepP * 140);
+
+            // Finishing Coat (Vibrant, deep color)
+            ctx.fillStyle = '#0284c7'; // Rich glossy blue
+            ctx.fillRect(cx - 70, cy - 30, sweepP * 140, 60);
+
+            // Draw Spray Gun
+            ctx.save();
+            ctx.translate(sprayX + 20, cy); // Trails slightly ahead
+            
+            ctx.fillStyle = '#cbd5e1'; // Gun body
+            ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(-15, -10); ctx.lineTo(-15, 10); ctx.lineTo(0, 10); ctx.fill();
+            ctx.fillStyle = '#94a3b8'; ctx.fillRect(0, -20, 10, 20); // Cup
+            ctx.fillStyle = '#334155'; ctx.fillRect(0, 10, 5, 15); // Handle
+            
+            // Spray mist
+            if (sweepP < 1) {
+                ctx.fillStyle = '#0284c7';
+                for(let i=0; i<15; i++) {
+                    ctx.beginPath(); ctx.arc(-15 - Math.random()*20, -20 + Math.random()*40, 2, 0, Math.PI*2); ctx.fill();
+                }
+            }
+            ctx.restore();
+
+            // Glossy Shine Effects (Appears after spray passes)
+            if (p > 0.4) {
+                ctx.save();
+                ctx.beginPath(); ctx.roundRect(cx - 70, cy - 30, 140, 60, 4); ctx.clip(); // Keep shine inside paint
+                
+                // Diagonal sheen
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.beginPath(); ctx.moveTo(cx-40, cy-40); ctx.lineTo(cx-10, cy-40); ctx.lineTo(cx-30, cy+40); ctx.lineTo(cx-60, cy+40); ctx.fill();
+                
+                // Sparkle
+                const sparkScale = Math.abs(Math.sin((p - 0.4) * Math.PI * 4));
+                ctx.translate(cx + 20, cy - 10);
+                ctx.scale(sparkScale, sparkScale);
+                ctx.fillStyle = '#fff';
+                ctx.beginPath(); ctx.moveTo(0,-8); ctx.lineTo(2,-2); ctx.lineTo(8,0); ctx.lineTo(2,2); ctx.lineTo(0,8); ctx.lineTo(-2,2); ctx.lineTo(-8,0); ctx.lineTo(-2,-2); ctx.fill();
+                ctx.restore();
+            }
+
+            drawLabel(ctx, "FINISHING COAT", cx, cy - 70, '#0284c7', 'transparent');
+            if (p > 0.8) drawLabel(ctx, "GLOSS & PROTECTION", cx, cy + 50, '#38bdf8');
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 4000; // 4 seconds loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'prep': renderPrep(ctx, w, h, p); break;
+                    case 'filling': renderFilling(ctx, w, h, p); break;
+                    case 'priming': renderPriming(ctx, w, h, p); break;
+                    case 'undercoat': renderUndercoat(ctx, w, h, p); break;
+                    case 'finish': renderFinish(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
 
     </script>
 </body>
 </html>
-
-

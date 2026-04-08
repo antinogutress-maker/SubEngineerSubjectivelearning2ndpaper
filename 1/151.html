@@ -1,659 +1,524 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World-Class Topographical Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Contour Characteristics - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
-
-        :root {
-            --bg-color: #f0f4f8;
-            --text-main: #0f172a;
-            --text-muted: #475569;
-            --accent: #2563eb;
-            --accent-light: #eff6ff;
-            --border: #cbd5e1;
-            
-            /* 3D Mesh Styling */
-            --mesh-light: #ffffff;
-            --mesh-dark: #94a3b8;
-            --wall-left: #cbd5e1;
-            --wall-right: #64748b;
-            --contour-color: #1e293b;
-            --contour-thick: #000000;
-            --water-color: #0284c7;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            overflow: hidden;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Layout */
-        .dashboard {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        /* Left Scrollable Text Panel */
-        .story-panel {
-            width: 400px;
-            height: 100vh;
-            overflow-y: auto;
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
             scroll-snap-type: y mandatory;
-            scroll-behavior: smooth;
-            border-right: 1px solid var(--border);
-            background: #ffffff;
-            scrollbar-width: none;
-            z-index: 10;
-            position: relative;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.03);
-        }
-
-        .story-panel::-webkit-scrollbar { display: none; }
-
-        .step {
-            height: 100vh;
-            scroll-snap-align: start;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 0 40px;
-            opacity: 0.2;
-            transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            transform: translateX(-20px);
-        }
-
-        .step.active {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .badge {
-            background: var(--accent-light);
-            color: var(--accent);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-            width: fit-content;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: 1px solid rgba(37, 99, 235, 0.2);
-        }
-
-        .step h2 {
-            font-size: 2rem;
-            line-height: 1.15;
-            margin-bottom: 16px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .step p {
-            font-size: 1rem;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 24px;
-        }
-
-        /* Right SVG Panel */
-        .visual-panel {
-            flex: 1;
-            height: 100vh;
-            position: relative;
-            background: radial-gradient(circle at center, #ffffff 0%, #e2e8f0 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            perspective: 1000px; /* For Parallax */
-        }
-
-        svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-            overflow: visible;
-        }
-
-        /* SVG Inner Styling */
-        .scene-container {
-            transition: transform 0.1s ease-out; /* Smooth parallax */
-            transform-origin: 500px 400px;
-        }
-
-        .model-group {
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            transform: translateY(40px) scale(0.95);
-        }
-
-        .model-group.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0) scale(1);
-        }
-
-        /* Mesh Shading */
-        .mesh-quad {
-            stroke: rgba(0,0,0,0.02);
-            stroke-width: 0.5;
-            stroke-linejoin: round;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
         }
         
-        .wall-left { fill: var(--wall-left); stroke: #94a3b8; stroke-width: 1; stroke-linejoin: round; }
-        .wall-right { fill: var(--wall-right); stroke: #475569; stroke-width: 1; stroke-linejoin: round; }
-
-        .contour-line {
-            fill: none;
-            stroke: var(--contour-color);
-            stroke-width: 1.2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
         }
 
-        .contour-thick {
-            stroke: var(--contour-thick);
-            stroke-width: 2.2;
+        /* Canvas styling - Topo Map Grid */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(245, 158, 11, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(245, 158, 11, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
-
-        .map-box {
-            fill: #ffffff;
-            stroke: var(--border);
-            stroke-width: 1.5;
-            rx: 6;
-            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.08));
-        }
-
-        .map-contour {
-            fill: none;
-            stroke: var(--contour-color);
-            stroke-width: 0.8;
-            stroke-linejoin: round;
-        }
-        .map-contour-thick {
-            stroke-width: 1.8;
-            stroke: var(--contour-thick);
-        }
-
-        .special-feature {
-            fill: none;
-            stroke-dasharray: 4 4;
-            stroke-width: 2;
-        }
-        .river-line {
-            stroke: var(--water-color);
-            stroke-width: 4;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            fill: none;
-        }
-        .ridge-line {
-            stroke: #dc2626;
-            stroke-width: 2;
-        }
-
-        .ui-text {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            font-weight: 600;
-            fill: var(--text-muted);
-        }
-
-        .ui-text-bold {
-            font-weight: 700;
-            fill: var(--text-main);
-        }
-
-        /* Fixed Navigation */
-        .fixed-nav {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 12px;
-            background: #ffffff;
-            padding: 8px 16px;
-            border-radius: 100px;
-            border: 1px solid var(--border);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
-            z-index: 50;
-        }
-
-        button {
-            background: transparent;
-            color: var(--text-main);
-            border: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 12px;
-            border-radius: 20px;
-            transition: all 0.2s;
-        }
-
-        button:hover:not(:disabled) { background: var(--bg-color); color: var(--accent); }
-        button:disabled { color: #94a3b8; cursor: not-allowed; }
-
     </style>
 </head>
-<body>
+<body class="flex flex-col h-screen overflow-hidden">
 
-    <div class="dashboard">
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-orange-400">
+                Contour Characteristics
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Surveying Visuals</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
         
-        <div class="story-panel" id="scroll-container">
-            <div class="step" data-index="0">
-                <div class="badge">1. Gentle Slope</div>
-                <h2> Scroll Down 👇 <br> <br>Widely Spaced</h2>
-                <p>Contours spaced far apart horizontally denote a <strong>gentle incline</strong>. The terrain rises slowly, requiring a long horizontal distance to climb to the next elevation interval. Notice the wide gaps in the 2D map.</p>
+        <!-- Characteristic 1: Spacing -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-spacing" class="absolute inset-0 w-full h-full"></canvas>
             </div>
-            <div class="step" data-index="1">
-                <div class="badge">2. Steep Slope</div>
-                <h2>Closely Spaced</h2>
-                <p>Tightly packed contours indicate a <strong>steep slope</strong> or cliff. Elevation changes rapidly over a very short horizontal distance. The 2D map shows dense lines clustered together.</p>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="align-justify" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">1. Contour Spacing</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    The horizontal distance between contours indicates the slope.<br>
+                    • <strong>Closely Spaced:</strong> Steep Slope<br>
+                    • <strong>Widely Spaced:</strong> Gentle / Flat Slope<br>
+                    • <strong>Equally Spaced:</strong> Uniform Slope
+                </p>
             </div>
-            <div class="step" data-index="2">
-                <div class="badge">3. Uniform Slope</div>
-                <h2>Equally Spaced</h2>
-                <p>When the horizontal distance between every contour line is identical, the terrain is a <strong>uniform, perfectly flat angled plane</strong>. The rate of incline never changes.</p>
-            </div>
-            <div class="step" data-index="3">
-                <div class="badge">4. Uneven Surface</div>
-                <h2>Irregularly Spaced</h2>
-                <p>Wavy, irregular contour lines with varying distances represent <strong>undulating or rocky terrain</strong>. Natural landscapes mostly consist of these unpredictable bumps and dips.</p>
-            </div>
-            <div class="step" data-index="4">
-                <div class="badge">5. Pond / Depression</div>
-                <h2>Concentric (Decreasing)</h2>
-                <p>Closed concentric loops where elevation values <strong>decrease</strong> inward represent a depression, crater, or pond. The terrain dips downward into a bowl shape.</p>
-            </div>
-            <div class="step" data-index="5">
-                <div class="badge">6. Hill / Peak</div>
-                <h2>Concentric (Increasing)</h2>
-                <p>Closed loops where elevation values <strong>increase</strong> inward represent a hill or mountain. The innermost circle is the peak or summit of the landform.</p>
-            </div>
-            <div class="step" data-index="6">
-                <div class="badge">7. Ridge Line (U-Shape)</div>
-                <h2>Convex to Lower Ground</h2>
-                <p>When contours form a U-shape pointing <em>downward</em> toward lower elevation, they define a <strong>ridge</strong> or spur. It's high ground jutting forward. Water sheds away from the central red ridge axis.</p>
-            </div>
-            <div class="step" data-index="7">
-                <div class="badge">8. Valley (V-Shape)</div>
-                <h2>Convex to Higher Ground</h2>
-                <p>When contours form sharp V-shapes pointing <em>upward</em> toward higher elevation, they define a <strong>valley</strong>. It's a trough carved into the land, where a stream (blue) naturally flows downward.</p>
-            </div>
+        </article>
 
-            <div class="fixed-nav">
-                <button id="btn-prev" disabled>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Prev
-                </button>
-                <div style="width: 1px; background: #cbd5e1; margin: 4px 0;"></div>
-                <button id="btn-next">
-                    Next <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-                </button>
+        <!-- Characteristic 2: Hill vs Depression -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-elevation" class="absolute inset-0 w-full h-full"></canvas>
             </div>
-        </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="mountain" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">2. Hill vs. Depression</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Closed contours represent peaks or holes.<br>
+                    • <strong>Hill/Ridge:</strong> Values <em>increase</em> towards the center.<br>
+                    • <strong>Depression:</strong> Values <em>decrease</em> towards the center (often marked with hachures).
+                </p>
+            </div>
+        </article>
 
-        <div class="visual-panel" id="canvas-container">
-            <svg viewBox="0 0 1000 800" preserveAspectRatio="xMidYMid meet">
-                <defs>
-                    <filter id="block-shadow" x="-20%" y="-20%" width="140%" height="140%">
-                        <feDropShadow dx="0" dy="30" stdDeviation="25" flood-opacity="0.15" flood-color="#0f172a"/>
-                    </filter>
-                </defs>
-                
-                <g id="scene" class="scene-container">
-                    </g>
-            </svg>
-        </div>
+        <!-- Characteristic 3: U vs V Shapes -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-blue-500/30 shadow-[0_10px_30px_-10px_rgba(59,130,246,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-shapes" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><i data-lucide="waves" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-blue-400">3. V-Shape & U-Shape</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    • <strong>V-Shaped (Valley):</strong> The 'V' points upstream towards <em>higher</em> elevations. Streams run through them.<br>
+                    • <strong>U-Shaped (Ridge):</strong> The 'U' points downhill towards <em>lower</em> elevations. Water sheds off them.
+                </p>
+            </div>
+        </article>
 
-    </div>
+        <!-- Characteristic 4: 90 Degree Crossing -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-crossing" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="crosshair" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">4. Perpendicular Intersections</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>90° Crossing:</strong> Contour lines must always cross ridge lines and valley lines (streams) at exactly right angles (90 degrees). They form curves of maximum slope.
+                </p>
+            </div>
+        </article>
+
+        <!-- Characteristic 5: Must Close -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-rose-500/30 shadow-[0_10px_30px_-10px_rgba(244,63,94,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-close" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-rose-500/20 text-rose-400 rounded-lg"><i data-lucide="infinity" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-rose-400">5. Continuous Loops</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Contours Must Close:</strong> A contour line cannot just end abruptly in the middle of a map. It must close upon itself, either <em>within</em> the limits of the map or <em>outside</em> the boundaries of the map.
+                </p>
+            </div>
+        </article>
+
+    </main>
 
     <script>
-        /**
-         * WORLD-CLASS SVG 3D TOPOGRAPHICAL ENGINE
-         * Generates exact textbook-accurate organic 3D isometric meshes and contours.
-         */
+        lucide.createIcons();
 
-        const RES = 40; // High-density grid: 40x40 = 1600 shaded polygons per model
-        const ISO_W = 320; // X spread
-        const ISO_H = 160; // Y spread
-        const Z_SCALE = 180; // Z height extrusion
-        const CX = 520; // Center X
-        const CY = 350; // Center Y
-        const BASE_Z = 0.0; // Bottom thickness of the 3D block
-
-        // 3D Isometric Projection Math
-        function project(u, v, z) {
-            // u, v range [0, 1]. z range [0, 1]
-            const x = CX + (u - v) * ISO_W;
-            const y = CY + (u + v) * ISO_H - z * Z_SCALE;
-            return {x, y};
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            spacing: document.getElementById('canvas-spacing'),
+            elevation: document.getElementById('canvas-elevation'),
+            shapes: document.getElementById('canvas-shapes'),
+            crossing: document.getElementById('canvas-crossing'),
+            close: document.getElementById('canvas-close')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
         }
 
-        // Color Interpolation for Lighting
-        function lerpColor(c1, c2, t) {
-            const hex = (c) => parseInt(c.slice(1), 16);
-            const r = (c) => (c >> 16) & 255, g = (c) => (c >> 8) & 255, b = (c) => c & 255;
-            const h1 = hex(c1), h2 = hex(c2);
-            const rOut = Math.round(r(h1) + (r(h2) - r(h1)) * t);
-            const gOut = Math.round(g(h1) + (g(h2) - g(h1)) * t);
-            const bOut = Math.round(b(h1) + (b(h2) - b(h1)) * t);
-            return `#${(1 << 24 | rOut << 16 | gOut << 8 | bOut).toString(16).slice(1)}`;
-        }
-
-        // Defines the mathematical Z-height for all 8 required textbook landforms
-        const models = [
-            { // 1. Gentle Slope
-                func: (u, v) => 0.25 + 0.5 * (1 - (u + v) / 2),
-                special: null
-            },
-            { // 2. Steep Slope (S-Curve)
-                func: (u, v) => 0.15 + 0.7 * (1 - 1 / (1 + Math.exp(-12 * ((1 - (u+v)/2) - 0.5)))),
-                special: null
-            },
-            { // 3. Uniform Slope
-                func: (u, v) => 0.1 + 0.8 * (1 - (u + v) / 2),
-                special: null
-            },
-            { // 4. Uneven Surface (Perlin-like math)
-                func: (u, v) => 0.1 + 0.7*(1-(u+v)/2) + 0.04*Math.sin(u*15)*Math.cos(v*15) + 0.03*Math.cos(u*25),
-                special: null
-            },
-            { // 5. Pond (Bowl shape)
-                func: (u, v) => {
-                    const r2 = (u-0.5)**2 + (v-0.5)**2;
-                    return 0.8 - 0.6 * Math.exp(-15 * r2);
-                },
-                special: null
-            },
-            { // 6. Hill (Dome shape)
-                func: (u, v) => {
-                    const r2 = (u-0.5)**2 + (v-0.5)**2;
-                    return 0.2 + 0.65 * Math.exp(-15 * r2);
-                },
-                special: null
-            },
-            { // 7. Ridge (U-Shape, convex towards lower ground)
-                func: (u, v) => {
-                    // Base incline + a raised 'tube' along the diagonal (u=v)
-                    return 0.2 + 0.6 * (1 - (u+v)/2) + 0.2 * Math.exp(-15 * (u-v)**2);
-                },
-                special: 'ridge'
-            },
-            { // 8. Valley (V-Shape, convex towards higher ground)
-                func: (u, v) => {
-                    // Base incline + a folded crease (absolute difference)
-                    return 0.1 + 0.6 * (1 - (u+v)/2) + 0.3 * Math.abs(u-v);
-                },
-                special: 'valley'
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
             }
-        ];
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
 
-        const scene = document.getElementById('scene');
-
-        // Engine Core: Generates SVG DOM elements dynamically
-        function buildEngine() {
-            models.forEach((modelData, index) => {
-                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                group.setAttribute("class", `model-group ${index === 0 ? 'active' : ''}`);
-                group.setAttribute("id", `model-${index}`);
-
-                // Shadow Wrapper
-                const shadowG = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                shadowG.setAttribute("filter", "url(#block-shadow)");
-
-                // 1. Generate 3D Data Grid
-                const grid = [];
-                let minZ = 1, maxZ = 0;
-                for (let i = 0; i <= RES; i++) {
-                    grid[i] = [];
-                    for (let j = 0; j <= RES; j++) {
-                        const z = modelData.func(i / RES, j / RES);
-                        grid[i][j] = z;
-                        if (z < minZ) minZ = z;
-                        if (z > maxZ) maxZ = z;
-                    }
-                }
-
-                // Calculate optimal contour levels dynamically for perfect distribution
-                const numContours = 6;
-                const cStep = (maxZ - minZ) / (numContours + 1);
-                const levels = [];
-                for(let k=1; k<=numContours; k++) levels.push(minZ + k * cStep);
-
-                // 2. Draw Left & Right Solid Walls
-                let lwD = `M ${project(0, 1, grid[0][RES]).x},${project(0, 1, grid[0][RES]).y}`;
-                for(let i=0; i<=RES; i++) lwD += ` L ${project(i/RES, 1, grid[i][RES]).x},${project(i/RES, 1, grid[i][RES]).y}`;
-                lwD += ` L ${project(1, 1, BASE_Z).x},${project(1, 1, BASE_Z).y} L ${project(0, 1, BASE_Z).x},${project(0, 1, BASE_Z).y} Z`;
-                
-                const lw = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                lw.setAttribute("class", "wall-left"); lw.setAttribute("d", lwD);
-                shadowG.appendChild(lw);
-
-                let rwD = `M ${project(1, 0, grid[RES][0]).x},${project(1, 0, grid[RES][0]).y}`;
-                for(let j=0; j<=RES; j++) rwD += ` L ${project(1, j/RES, grid[RES][j]).x},${project(1, j/RES, grid[RES][j]).y}`;
-                rwD += ` L ${project(1, 1, BASE_Z).x},${project(1, 1, BASE_Z).y} L ${project(1, 0, BASE_Z).x},${project(1, 0, BASE_Z).y} Z`;
-                
-                const rw = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                rw.setAttribute("class", "wall-right"); rw.setAttribute("d", rwD);
-                shadowG.appendChild(rw);
-                group.appendChild(shadowG);
-
-                // 3. Top Surface Polygon Mesh with Dynamic Lighting
-                // Light from top-left (isometric space implies light vector roughly (-1, -1, 1))
-                const topMesh = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                for (let i = 0; i < RES; i++) {
-                    for (let j = 0; j < RES; j++) {
-                        const u = i/RES, v = j/RES, step = 1/RES;
-                        const z00 = grid[i][j], z10 = grid[i+1][j], z01 = grid[i][j+1], z11 = grid[i+1][j+1];
-                        
-                        // Calculate approximate normal via cross product
-                        const dx = (z10 - z00) / step;
-                        const dy = (z01 - z00) / step;
-                        // Normal vector: (-dx, -dy, 1) normalized
-                        const len = Math.sqrt(dx*dx + dy*dy + 1);
-                        const nx = -dx/len, ny = -dy/len, nz = 1/len;
-                        
-                        // Dot product with light (-0.7, -0.7, 1.0)
-                        const lightDot = Math.max(0, Math.min(1, (nx*-0.5 + ny*-0.5 + nz*1.0) * 0.8));
-                        const color = lerpColor("#94a3b8", "#ffffff", lightDot);
-
-                        const p1 = project(u, v, z00);
-                        const p2 = project(u+step, v, z10);
-                        const p3 = project(u+step, v+step, z11);
-                        const p4 = project(u, v+step, z01);
-
-                        const quad = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-                        quad.setAttribute("points", `${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`);
-                        quad.setAttribute("fill", color);
-                        quad.setAttribute("class", "mesh-quad");
-                        topMesh.appendChild(quad);
-                    }
-                }
-                group.appendChild(topMesh);
-
-                // 4. Marching Squares for Geometrically Perfect Contours
-                const msLines = [];
-                levels.forEach((lvl, lIdx) => {
-                    let d3D = "", d2D = "";
-                    for (let i = 0; i < RES; i++) {
-                        for (let j = 0; j < RES; j++) {
-                            const u = i/RES, v = j/RES, s = 1/RES;
-                            const z00 = grid[i][j], z10 = grid[i+1][j], z01 = grid[i][j+1], z11 = grid[i+1][j+1];
-                            
-                            let pts = [];
-                            if ((z00 <= lvl && z10 > lvl) || (z00 > lvl && z10 <= lvl)) pts.push({x: u + s*(lvl-z00)/(z10-z00), y: v});
-                            if ((z01 <= lvl && z11 > lvl) || (z01 > lvl && z11 <= lvl)) pts.push({x: u + s*(lvl-z01)/(z11-z01), y: v + s});
-                            if ((z00 <= lvl && z01 > lvl) || (z00 > lvl && z01 <= lvl)) pts.push({x: u, y: v + s*(lvl-z00)/(z01-z00)});
-                            if ((z10 <= lvl && z11 > lvl) || (z10 > lvl && z11 <= lvl)) pts.push({x: u + s, y: v + s*(lvl-z10)/(z11-z10)});
-
-                            if (pts.length >= 2) {
-                                // 3D path string
-                                const p1 = project(pts[0].x, pts[0].y, lvl);
-                                const p2 = project(pts[1].x, pts[1].y, lvl);
-                                d3D += `M ${p1.x},${p1.y} L ${p2.x},${p2.y} `;
-                                
-                                // 2D path string (scaled for map box: 200x200 px at Bottom Left)
-                                const mapX = 60; // offset
-                                const mapY = 560; // offset
-                                const mapS = 220; // size
-                                d2D += `M ${mapX + pts[0].x*mapS},${mapY + pts[0].y*mapS} L ${mapX + pts[1].x*mapS},${mapY + pts[1].y*mapS} `;
-                            }
-                        }
-                    }
-                    
-                    // Add 3D Contour
-                    const c3D = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    c3D.setAttribute("class", `contour-line ${(lIdx+1)%3===0 ? 'contour-thick' : ''}`);
-                    c3D.setAttribute("d", d3D);
-                    group.appendChild(c3D);
-
-                    msLines.push({d2D, lIdx, lvl});
-                });
-
-                // 5. Build 2D Mini-Map
-                const mapG = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                const mapBg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                mapBg.setAttribute("class", "map-box");
-                mapBg.setAttribute("x", "60"); mapBg.setAttribute("y", "560");
-                mapBg.setAttribute("width", "220"); mapBg.setAttribute("height", "220");
-                mapG.appendChild(mapBg);
-
-                msLines.forEach(line => {
-                    const c2D = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    c2D.setAttribute("class", `map-contour ${(line.lIdx+1)%3===0 ? 'map-contour-thick' : ''}`);
-                    c2D.setAttribute("d", line.d2D);
-                    mapG.appendChild(c2D);
-                });
-
-                // 2D Map Labels
-                const mapTitle = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                mapTitle.setAttribute("x", "170"); mapTitle.setAttribute("y", "550");
-                mapTitle.setAttribute("text-anchor", "middle");
-                mapTitle.setAttribute("class", "ui-text ui-text-bold");
-                mapTitle.textContent = "2D Contour Map (Top-Down)";
-                mapG.appendChild(mapTitle);
-
-                group.appendChild(mapG);
-
-                // 6. Draw Special Features (River / Ridge Line)
-                if (modelData.special) {
-                    let s3D = "", s2D = "";
-                    for(let k=0; k<RES; k++) {
-                        const u1 = k/RES, v1 = k/RES; // Diagonal
-                        const u2 = (k+1)/RES, v2 = (k+1)/RES;
-                        const p1 = project(u1, v1, grid[k][k]);
-                        const p2 = project(u2, v2, grid[k+1][k+1]);
-                        s3D += `M ${p1.x},${p1.y} L ${p2.x},${p2.y} `;
-                        
-                        const mapX = 60, mapY = 560, mapS = 220;
-                        s2D += `M ${mapX + u1*mapS},${mapY + v1*mapS} L ${mapX + u2*mapS},${mapY + v2*mapS} `;
-                    }
-                    
-                    const p3D = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    p3D.setAttribute("d", s3D);
-                    const p2D = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    p2D.setAttribute("d", s2D);
-
-                    if(modelData.special === 'valley') {
-                        p3D.setAttribute("class", "river-line");
-                        p2D.setAttribute("class", "river-line");
-                    } else {
-                        p3D.setAttribute("class", "special-feature ridge-line");
-                        p2D.setAttribute("class", "special-feature ridge-line");
-                    }
-                    group.appendChild(p3D);
-                    mapG.appendChild(p2D);
-                }
-
-                scene.appendChild(group);
-            });
+        // --- HELPERS --- //
+        function drawLabel(ctx, text, x, y, color='#fff', bg='rgba(15,23,42,0.8)') {
+            ctx.font = 'bold 11px Inter';
+            const w = ctx.measureText(text).width;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(x - w/2 - 4, y - 10, w + 8, 16, 4); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y - 1);
         }
 
-        // Initialize Engine
-        buildEngine();
+        // --- ANIMATION RENDERERS --- //
 
-        // UI & Scroll Interaction Logic
-        let currentIndex = 0;
-        const totalSteps = models.length;
-        const container = document.getElementById('scroll-container');
-        const steps = document.querySelectorAll('.step');
-        const groups = document.querySelectorAll('.model-group');
-        const btnPrev = document.getElementById('btn-prev');
-        const btnNext = document.getElementById('btn-next');
+        // 1. Spacing (Closely vs Widely vs Equally)
+        function renderSpacing(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
 
-        function updateState(index) {
-            if (index < 0 || index >= totalSteps) return;
-            currentIndex = index;
+            // 3 Phases: Steep (0-0.33), Gentle (0.33-0.66), Uniform (0.66-1.0)
+            let mode = 0;
+            if (p > 0.33 && p < 0.66) mode = 1;
+            else if (p >= 0.66) mode = 2;
 
-            steps.forEach(s => s.classList.remove('active'));
-            steps[index].classList.add('active');
+            const modeP = (p % 0.33) / 0.33; // 0 to 1 progress within current mode
 
-            groups.forEach(g => g.classList.remove('active'));
-            groups[index].classList.add('active');
+            let title = "";
+            let color = "";
+            let spacings = [];
+            
+            // Y coordinates for the contours on the map (Top view)
+            if (mode === 0) {
+                title = "CLOSELY SPACED = STEEP";
+                color = "#ef4444"; // Red
+                spacings = [20, 30, 40, 50, 60];
+            } else if (mode === 1) {
+                title = "WIDELY SPACED = GENTLE";
+                color = "#22c55e"; // Green
+                spacings = [20, 60, 100, 140, 180];
+            } else {
+                title = "EQUALLY SPACED = UNIFORM";
+                color = "#38bdf8"; // Blue
+                spacings = [20, 45, 70, 95, 120];
+            }
 
-            btnPrev.disabled = (index === 0);
-            btnNext.disabled = (index === totalSteps - 1);
+            // Draw Top View (Contour lines)
+            ctx.save();
+            ctx.translate(cx - 70, cy - 70); // Map origin
+            
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(-40, 0, 80, 140);
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+            
+            spacings.forEach((sy, i) => {
+                ctx.beginPath(); ctx.moveTo(-35, sy);
+                // Wavy contour line
+                ctx.bezierCurveTo(-15, sy-5, 15, sy+5, 35, sy);
+                ctx.stroke();
+                
+                // Elevation label
+                ctx.fillStyle = '#f59e0b'; ctx.font = '8px Inter'; ctx.fillText(100 + i*10, 40, sy+3);
+            });
+            ctx.fillStyle = '#fff'; ctx.font = '10px Inter'; ctx.textAlign='center'; ctx.fillText("Top View", 0, -10);
+            ctx.restore();
+
+            // Draw Profile View (Cross-section)
+            ctx.save();
+            ctx.translate(cx + 70, cy - 70); // Profile origin
+            
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(-40, 0, 80, 140);
+            ctx.strokeStyle = color; ctx.lineWidth = 3;
+            
+            ctx.beginPath(); ctx.moveTo(-30, 20); // Top
+            
+            // Draw profile matching the contour spacing
+            if (mode === 0) {
+                ctx.lineTo(10, 60); // Steep drop
+                ctx.lineTo(30, 140); 
+            } else if (mode === 1) {
+                ctx.lineTo(-10, 60); 
+                ctx.lineTo(30, 180); // Gentle drop
+            } else {
+                ctx.lineTo(30, 120); // Straight line slope
+            }
+            ctx.stroke();
+            
+            // Animated rolling ball to show speed/slope
+            let ballY = 20 + (modeP * 100); 
+            let ballX = -30;
+            if (mode === 0) {
+                ballX = -30 + (modeP * 40);
+                ballY = 20 + (modeP * 40) * (40/40); // steep
+            } else if (mode === 1) {
+                ballX = -30 + (modeP * 60);
+                ballY = 20 + (modeP * 160) * (40/60); // gentle
+            } else {
+                ballX = -30 + (modeP * 60);
+                ballY = 20 + (modeP * 100);
+            }
+
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(ballX, Math.min(ballY, 135), 4, 0, Math.PI*2); ctx.fill();
+            
+            ctx.fillStyle = '#fff'; ctx.font = '10px Inter'; ctx.textAlign='center'; ctx.fillText("Profile", 0, -10);
+            ctx.restore();
+
+            // Title
+            drawLabel(ctx, title, cx, cy + 85, color);
         }
 
-        // Scroll Observer
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const idx = parseInt(entry.target.getAttribute('data-index'));
-                    updateState(idx);
+        // 2. Hill vs Depression (Values increasing vs decreasing inward)
+        function renderElevation(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 - 20;
+
+            const r1 = 40, r2 = 25, r3 = 10;
+
+            // --- LEFT: HILL ---
+            ctx.save(); ctx.translate(cx - 70, cy);
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(0, 0, r1, 0, Math.PI*2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(0, 0, r2, 0, Math.PI*2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(0, 0, r3, 0, Math.PI*2); ctx.stroke();
+            
+            drawLabel(ctx, "100", 0, r1);
+            drawLabel(ctx, "110", 0, r2);
+            drawLabel(ctx, "120", 0, 0, '#22c55e'); // Increases inward
+            
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Inter'; ctx.textAlign='center'; ctx.fillText("HILL (Ridge)", 0, -55);
+            ctx.restore();
+
+            // --- RIGHT: DEPRESSION ---
+            ctx.save(); ctx.translate(cx + 70, cy);
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+            
+            // Draw Hachures (ticks pointing inward) for depression
+            const drawHachures = (r) => {
+                for(let a=0; a<Math.PI*2; a+=Math.PI/6) {
+                    ctx.beginPath(); ctx.moveTo(Math.cos(a)*r, Math.sin(a)*r);
+                    ctx.lineTo(Math.cos(a)*(r-4), Math.sin(a)*(r-4)); ctx.stroke();
+                }
+            };
+
+            ctx.beginPath(); ctx.arc(0, 0, r1, 0, Math.PI*2); ctx.stroke(); drawHachures(r1);
+            ctx.beginPath(); ctx.arc(0, 0, r2, 0, Math.PI*2); ctx.stroke(); drawHachures(r2);
+            ctx.beginPath(); ctx.arc(0, 0, r3, 0, Math.PI*2); ctx.stroke(); drawHachures(r3);
+
+            drawLabel(ctx, "120", 0, r1);
+            drawLabel(ctx, "110", 0, r2);
+            drawLabel(ctx, "100", 0, 0, '#ef4444'); // Decreases inward
+            
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Inter'; ctx.textAlign='center'; ctx.fillText("DEPRESSION", 0, -55);
+            ctx.restore();
+
+            // --- ANIMATED SCANNER & 3D PROFILE ---
+            const scanY = (cy - 45) + (Math.sin(p * Math.PI * 2) + 1)/2 * 90;
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(cx - 120, scanY); ctx.lineTo(cx + 120, scanY); ctx.stroke();
+
+            // Profiles drawn at bottom based on scan
+            ctx.fillStyle = '#334155'; ctx.fillRect(cx - 120, cy + 60, 240, 40);
+            
+            ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 3; // Hill profile
+            ctx.beginPath(); ctx.moveTo(cx - 110, cy + 90); ctx.quadraticCurveTo(cx - 70, cy + 50, cx - 30, cy + 90); ctx.stroke();
+            
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3; // Depression profile
+            ctx.beginPath(); ctx.moveTo(cx + 30, cy + 70); ctx.quadraticCurveTo(cx + 70, cy + 110, cx + 110, cy + 70); ctx.stroke();
+        }
+
+        // 3. V-Shape (Valley) vs U-Shape (Ridge)
+        function renderShapes(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 - 10;
+
+            // --- LEFT: VALLEY (V points upstream/higher) ---
+            ctx.save(); ctx.translate(cx - 70, cy);
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+            
+            // Draw V contours pointing UP
+            for(let i=0; i<3; i++) {
+                const yOffset = i * 20;
+                ctx.beginPath(); ctx.moveTo(-30, 40 - yOffset); 
+                ctx.lineTo(0, -10 - yOffset); // Apex
+                ctx.lineTo(30, 40 - yOffset); ctx.stroke();
+                drawLabel(ctx, `${100 + i*10}`, 35, 30 - yOffset, '#f59e0b', 'transparent'); // High values at apex
+            }
+
+            // Stream flowing down the center
+            ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(0, -60); ctx.lineTo(0, 50); ctx.stroke();
+            
+            // Water droplet animation flowing DOWN
+            const dropY = -50 + ((p * 2) % 1) * 100;
+            ctx.fillStyle = '#38bdf8'; ctx.beginPath(); ctx.arc(0, dropY, 4, 0, Math.PI*2); ctx.fill();
+            
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Inter'; ctx.textAlign='center'; ctx.fillText("V-SHAPE (Valley)", 0, 75);
+            ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter'; ctx.fillText("Points Upstream (Higher)", 0, 88);
+            ctx.restore();
+
+            // --- RIGHT: RIDGE (U points downhill/lower) ---
+            ctx.save(); ctx.translate(cx + 70, cy);
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+            
+            // Draw U contours pointing DOWN
+            for(let i=0; i<3; i++) {
+                const yOffset = i * 20;
+                ctx.beginPath(); ctx.moveTo(-30, -30 + yOffset); 
+                ctx.quadraticCurveTo(0, 30 + yOffset, 30, -30 + yOffset); // Apex pointing down
+                ctx.stroke();
+                drawLabel(ctx, `${120 - i*10}`, 35, -20 + yOffset, '#f59e0b', 'transparent'); // High values at top, lowering towards apex
+            }
+
+            // Ridge line
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2; ctx.setLineDash([5,5]);
+            ctx.beginPath(); ctx.moveTo(0, -50); ctx.lineTo(0, 60); ctx.stroke(); ctx.setLineDash([]);
+            
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Inter'; ctx.textAlign='center'; ctx.fillText("U-SHAPE (Ridge)", 0, 75);
+            ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter'; ctx.fillText("Points Downhill (Lower)", 0, 88);
+            ctx.restore();
+        }
+
+        // 4. 90 Degree Crossing
+        function renderCrossing(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Draw Stream (Valley Line)
+            ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(cx, cy - 60); ctx.lineTo(cx, cy + 60); ctx.stroke();
+
+            // Draw Contours crossing it
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+            
+            const offsets = [-30, 0, 30];
+            offsets.forEach((y, i) => {
+                ctx.beginPath(); 
+                // V shape bending upstream
+                ctx.moveTo(cx - 60, cy + y + 20);
+                // Crosses exactly horizontally
+                ctx.quadraticCurveTo(cx - 20, cy + y, cx, cy + y);
+                ctx.quadraticCurveTo(cx + 20, cy + y, cx + 60, cy + y + 20);
+                ctx.stroke();
+                
+                // 90 Degree symbol blinking
+                if (p % 1 > 0.2) {
+                    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1.5;
+                    ctx.beginPath(); ctx.moveTo(cx, cy + y - 8); ctx.lineTo(cx - 8, cy + y - 8); ctx.lineTo(cx - 8, cy + y); ctx.stroke();
                 }
             });
-        }, { root: container, threshold: 0.5 });
 
-        steps.forEach(step => observer.observe(step));
+            drawLabel(ctx, "Crosses Valley/Ridge Line", cx, cy - 75, '#fff');
+            drawLabel(ctx, "ALWAYS at 90° Right Angle", cx, cy + 85, '#ef4444');
+        }
 
-        // Button Controls
-        btnNext.addEventListener('click', () => {
-            if (currentIndex < totalSteps - 1) container.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
-        });
-        btnPrev.addEventListener('click', () => {
-            if (currentIndex > 0) container.scrollBy({ top: -window.innerHeight, behavior: 'smooth' });
-        });
+        // 5. Contours Must Close
+        function renderClose(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 - 10;
 
-        // Elite Parallax Effect for 3D realism
-        const canvasContainer = document.getElementById('canvas-container');
-        canvasContainer.addEventListener('mousemove', (e) => {
-            const rect = canvasContainer.getBoundingClientRect();
-            const x = e.clientX - rect.left - rect.width / 2;
-            const y = e.clientY - rect.top - rect.height / 2;
+            // The Map Boundary
+            const mapW = 100;
+            const mapH = 100;
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(cx - mapW/2, cy - mapH/2, mapW, mapH);
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2; ctx.strokeRect(cx - mapW/2, cy - mapH/2, mapW, mapH);
+            ctx.fillStyle = '#cbd5e1'; ctx.font = '10px Inter'; ctx.textAlign='left'; ctx.fillText("MAP LIMIT", cx - mapW/2 + 5, cy - mapH/2 + 15);
+
+            // A complex contour path
+            const path = new Path2D();
+            path.moveTo(cx - 30, cy + 20);
+            path.bezierCurveTo(cx - 60, cy - 20, cx - 20, cy - 80, cx + 20, cy - 40);
+            path.bezierCurveTo(cx + 60, cy, cx + 80, cy + 60, cx + 20, cy + 80);
+            path.bezierCurveTo(cx - 20, cy + 100, cx + 20, cy + 20, cx - 30, cy + 20); // Close
+
+            // Draw full path dashed (showing the unseen part)
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
+            ctx.stroke(path); ctx.setLineDash([]);
+
+            // Draw visible part inside map (using clipping)
+            ctx.save();
+            ctx.beginPath(); ctx.rect(cx - mapW/2, cy - mapH/2, mapW, mapH); ctx.clip();
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3;
+            ctx.stroke(path);
+            ctx.restore();
+
+            // Trace animation point to prove it closes
+            const traceP = (p * 2) % 1; // 0 to 1 loop
+            // To get point on path, we approximate since Path2D doesn't have getPointAtLength.
+            // Using a mathematical loop instead
             
-            // Subtle tilt based on mouse position
-            const rotateX = -(y / rect.height) * 10; // Max 5 deg
-            const rotateY = (x / rect.width) * 10;
-            
-            scene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-        });
+            const t = traceP * Math.PI * 2;
+            // Parametric approximation of a loop crossing map bounds
+            const trX = cx + Math.sin(t) * 60 + Math.cos(t*2) * 10;
+            const trY = cy + Math.cos(t) * 50 - Math.sin(t*2) * 20;
 
-        canvasContainer.addEventListener('mouseleave', () => {
-            scene.style.transform = `rotateX(0deg) rotateY(0deg)`;
-        });
+            ctx.fillStyle = '#22c55e';
+            ctx.beginPath(); ctx.arc(trX, trY, 6, 0, Math.PI*2); ctx.fill();
+            ctx.shadowBlur = 10; ctx.shadowColor = '#22c55e'; ctx.fill(); ctx.shadowBlur = 0;
+
+            drawLabel(ctx, "Continues outside map to close", cx, cy + 85, '#facc15');
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 6000; // 6 seconds loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'spacing': renderSpacing(ctx, w, h, p); break;
+                    case 'elevation': renderElevation(ctx, w, h, p); break;
+                    case 'shapes': renderShapes(ctx, w, h, p); break;
+                    case 'crossing': renderCrossing(ctx, w, h, p); break;
+                    case 'close': renderClose(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
 
     </script>
 </body>
 </html>
+
+
+```

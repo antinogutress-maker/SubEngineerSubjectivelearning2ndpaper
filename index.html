@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,6 +25,9 @@
             align-items: center;
             min-height: 100vh;
             font-size: 16px;
+            /* Anti-Theft: Prevents highlighting text easily */
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         /* Screen Management */
@@ -76,6 +78,38 @@
         .clay-btn.back-btn { margin-top: 20px; color: #888; box-shadow: var(--clay-shadow-in); }
         .clay-btn.whatsapp-btn { background-color: #25D366; color: white; margin-top: 25px; font-size: 1.1em;}
 
+        /* Profile Picture CSS */
+        .profile-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 15px auto;
+            cursor: pointer;
+        }
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: var(--clay-shadow-out);
+            object-fit: cover;
+            border: 3px solid var(--bg-color);
+            background-color: #f1f2f6;
+        }
+        .edit-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--bg-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--clay-shadow-out);
+            font-size: 14px;
+        }
+
         /* Typography & Utilities */
         .warning-text {
             color: #ff4757;
@@ -92,7 +126,7 @@
         }
         
         .full-width-btn {
-            grid-column: 1 / -1; /* Spans across all columns */
+            grid-column: 1 / -1;
             background-color: #f1f2f6;
             border: 2px dashed #a4b0be;
         }
@@ -142,11 +176,38 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        #timer-display {
-            font-size: 0.8em;
-            color: #ff4757;
-            margin-top: 10px;
+        /* Secure HTML Viewer Overlay */
+        #secure-viewer-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-color);
+            z-index: 9999;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        #secure-iframe {
+            width: 100%;
+            height: calc(100vh - 80px);
+            border: none;
+            border-radius: 15px;
+            background: white;
+            box-shadow: var(--clay-shadow-in);
+        }
+        .close-viewer-btn {
+            background-color: #ff4757;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
             font-weight: bold;
+            margin-bottom: 10px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 200px;
         }
 
         /* DESKTOP VIEW SCALING */
@@ -157,17 +218,25 @@
             .clay-btn { padding: 25px 40px; font-size: 1.1em; border-radius: 20px; }
             .clay-input { padding: 20px; font-size: 1.1em; }
             .grid-container { gap: 30px; }
+            .profile-container { width: 130px; height: 130px; }
         }
     </style>
 </head>
 <body>
+
+    <input type="file" id="profileInput" accept="image/*" style="display: none;" onchange="handleProfileUpload(event)">
 
     <div id="screen-setup" class="screen active-screen">
         <div class="clay-card">
             <h2>Welcome to Gen Z Revision</h2>
             <div class="warning-text" id="login-error" style="display: none;"></div>
             
-            <p>Enter details to start your 1-Hour Free Trial.</p>
+            <p>Enter details to start your Free Trial.</p>
+            
+            <div class="profile-container" onclick="document.getElementById('profileInput').click()">
+                <img src="https://via.placeholder.com/150?text=+" class="profile-pic profile-img-display" alt="Upload Pic">
+                <div class="edit-badge"></div>
+            </div>
             
             <input type="tel" id="userPhone" class="clay-input" placeholder="Phone Number (e.g. 98XXXXXXXX)" required>
             <input type="text" id="userName" class="clay-input" placeholder="Full Name" required>
@@ -193,26 +262,27 @@
 
     <div id="screen-home" class="screen">
         <div class="clay-card">
-            <h4 style="color: var(--accent-pink);">Let's Make Reading and Revision More Engaging and Effective 
-            <br><br><br> Gen Z idea</h4>
+            <div class="profile-container" onclick="document.getElementById('profileInput').click()">
+                <img src="https://via.placeholder.com/150?text=+" class="profile-pic profile-img-display" alt="Profile Pic">
+                <div class="edit-badge"></div>
+            </div>
+
+            <h4 style="color: var(--accent-pink); margin-top: 5px;">Let's Make Reading and Revision More Engaging and Effective <br><br> Gen Z idea</h4>
             
             <h3 id="display-name" style="margin: 5px 0;"></h3>
             <p id="display-info" style="font-size: 0.8em; margin: 0; color: #888;"></p>
-            <div id="timer-display">Free Trial Active</div>
 
             <div class="grid-container">
-                <!-- NEW SUBJECT: Full Width -->
-                <button class="clay-btn full-width-btn" onclick="openSubject(0, 'Old Loksewa First Paper Collections')">📚 Old Loksewa First Paper Collections</button>
+                <button class="clay-btn full-width-btn" onclick="openSubject(0, 'Old Loksewa First Paper Collections')"> Old Loksewa First Paper Collections</button>
                 
-                <!-- RED SUBJECTS = ALWAYS FREE -->
                 <button class="clay-btn free-subject" onclick="openSubject(1, 'Surveying')">Surveying</button>
-                <button class="clay-btn" onclick="openSubject(2, 'Construction Materials')">Construction Materials</button>
+                <button class="clay-btn free-subject" onclick="openSubject(2, 'Construction Materials')">Construction Materials</button>
                 <button class="clay-btn" onclick="openSubject(3, 'Mechanics of Structure')">Mechanics of Structure</button>
                 <button class="clay-btn" onclick="openSubject(4, 'Hydraulics')">Hydraulics</button>
                 <button class="clay-btn" onclick="openSubject(5, 'Soil Mechanics')">Soil Mechanics</button>
                 <button class="clay-btn" onclick="openSubject(6, 'Structural Design')">Structural Design</button>
                 <button class="clay-btn" onclick="openSubject(7, 'Building Construction Tech')">Building Construction</button>
-                <button class="clay-btn free-subject" onclick="openSubject(8, 'Water Supply & Sanitation')">Water Supply & Sanitation</button>
+                <button class="clay-btn" onclick="openSubject(8, 'Water Supply & Sanitation')">Water Supply & Sanitation</button>
                 <button class="clay-btn" onclick="openSubject(9, 'Irrigation Engineering')">Irrigation Engineering</button>
                 <button class="clay-btn" onclick="openSubject(10, 'Highway Engineering')">Highway Engineering</button>
                 <button class="clay-btn" onclick="openSubject(11, 'Estimating and Costing')">Estimating & Costing</button>
@@ -224,7 +294,7 @@
     <div id="screen-topics" class="screen">
         <div class="clay-card">
             <h2 id="subtopic-title">Subject Title</h2>
-            <p>Scroll Down 👇 Select a topic to begin</p>
+            <p>Scroll Down  Select a topic to begin</p>
             <div class="list-container" id="subtopic-list"></div>
             <button class="clay-btn back-btn" onclick="switchScreen('screen-home')">Back to Home</button>
         </div>
@@ -234,7 +304,7 @@
         <div class="clay-card">
             <h2 id="magic-title">Topic Title</h2>
             
-            <p id="magic-loading" style="color: #888; font-weight: bold;">🔍 Checking materials & access...</p>
+            <p id="magic-loading" style="color: #888; font-weight: bold;"> Checking materials & access...</p>
             
             <div id="dynamic-buttons-container"></div>
             
@@ -245,34 +315,35 @@
     <div id="payment-modal" class="screen">
         <div class="clay-card">
             <h3>Trial Ended! Unlock Premium</h3>
-            <h2 style="color: #ff4757;"><del>Rs 500</del> ✂️ Rs. 198 Only!</h2>
+            <h2 style="color: #ff4757;"><del>Rs 500</del>  Rs. 198 Only!</h2>
             
             <div class="promo-container">
-                <div class="promo-line">🚀 High Quality Content</div>
-                <div class="promo-line">🧠 Deep Learning & Memorization</div>
-                <div class="promo-line">🎮 Gamified Interactive Quizzes</div>
-                <div class="promo-line">🎧 Crisp Audio Explanations</div>
+                <div class="promo-line"> High Quality Content</div>
+                <div class="promo-line"> Deep Learning & Memorization</div>
+                <div class="promo-line"> Gamified Interactive Quizzes</div>
+                <div class="promo-line"> Crisp Audio Explanations</div>
             </div>
 
             <img src="esewa-qr.png" alt="QR CODE" style="width: 250px; height: 250px; background: #ddd; margin: 15px auto; border-radius: 10px; display: block; object-fit: contain;">
             
             <div style="max-width: 400px; margin: 0 auto;">
                 <a href="https://wa.me/qr/4KGVE6QVMCTON1" target="_blank" style="text-decoration: none;">
-                    <button class="clay-btn whatsapp-btn">📲 Send Screenshot via WhatsApp</button>
+                    <button class="clay-btn whatsapp-btn"> Send Screenshot via WhatsApp</button>
                 </a>
                 <p style="font-size: 0.8em; color: #888; margin-top: 15px;">Admin will instantly unlock your account after receiving the screenshot.</p>
                 
-                <!-- Refresh Button allows user to check again after admin writes 'Sent' -->
-                <button class="clay-btn" style="margin-top: 10px;" onclick="openMagicalScreen(currentTopicIdOriginal, currentTopicNameOriginal)">🔄 I Paid, Check Again</button>
+                <button class="clay-btn" style="margin-top: 10px;" onclick="openMagicalScreen(currentTopicIdOriginal, currentTopicNameOriginal)"> I Paid, Check Again</button>
                 <button class="clay-btn back-btn" onclick="switchScreen('screen-topics')">Cancel</button>
             </div>
         </div>
     </div>
 
+    <div id="secure-viewer-overlay">
+        <button class="close-viewer-btn" onclick="closeSecureViewer()"> Close Interactive Learning</button>
+        <iframe id="secure-iframe"></iframe>
+    </div>
+
     <script>
-        // ==========================================
-        // REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT URL!
-        // ==========================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwumcQXonlFGzlOifQr6q1ciNrZN3Him8z4M5ws4Qopj8pJn_oB2TkDHJYjPA18XvxORg/exec"; 
 
         let currentSubjectId = null;
@@ -286,13 +357,12 @@
                 { id: "0.1.1", name: "Set 1 - 2075 Questions" }, 
                 { id: "0.1.2", name: "Set 2 - 2076 Questions" },
                 { id: "0.1.3", name: "Set 3 - 2077 Questions" }
-                // Add more manually here later
             ],
             1: [
                 { id: "1.1.1", name: "Classifications" }, { id: "1.1.2", name: "Principle of surveying" }, { id: "1.1.3", name: "Selection of suitable method" }, { id: "1.1.4", name: "plans and maps" }, { id: "1.1.5", name: "Scale" }, { id: "1.2.1", name: "Methods of levelling" }, { id: "1.2.2", name: "Levelling instruments and accessories" }, { id: "1.2.3", name: "Principles of levelling" }, { id: "1.3.1", name: "Equipments required in plane tabling" }, { id: "1.3.2", name: "Methods of palne tabling" }, { id: "1.3.3", name: " three point problems" }, { id: "1.4.1", name: "Basic difference between different theodolites" }, { id: "1.4.2", name: "Temporary adjustments of theodolites" }, { id: "1.4.3", name: "Fundamental lines and desired relations" }, { id: "1.4.4", name: "Tacheometry: stadia method" }, { id: "1.4.6", name: "Checks in closed traverse" }, { id: "1.5.1", name: "Characteristics of contour lines" }, { id: "1.5.2", name: "Method of locating contours" }, { id: "1.5.3", name: "Contour plotting" }, { id: "1.6.1", name: " Setting Out" }
             ],
             2: [
-                { id: "2.1.1", name: "General Principles of Constructing Stone Masonary" }, { id: "2.2.1", name: "Cements Ingredients, properties and Storage and Admixture" }, { id: "2.2.2", name: "Manufacture Dry Process" }, { id: "2.2.3", name: "Cement Tests" },  { id: "2.3.1", name: "Brick  manufacture" }, { id: "2.4.1", name: "laying, bonds " }, { id: "2.4.2", name: "Preparation techniques of Paint" }, { id: "2.4.3", name: "Types of bitumens" }, { id: "2.4.4", name: "Ingredients of Paints" },{ id: "2.5.1", name: "Selection of Bitumen vs Paint" }, { id: "2.5.2", name: "Application of Paints" }
+                { id: "2.1.1", name: "General Principles of Constructing Stone Masonary" }, { id: "2.2.1", name: "Cements Ingredients, properties and Storage and Admixture" }, { id: "2.2.2", name: "Manufacture Dry Process" }, { id: "2.2.3", name: "Cement Tests" },  { id: "2.3.1", name: "Brick  manufacture" }, { id: "2.4.1", name: "laying, bonds " }, { id: "2.4.2", name: "Preparation techniques of Paint" }, { id: "2.4.3", name: "Types of bitumens" }, { id: "2.5.1", name: "Selection of Bitumen vs Paint" }, { id: "2.5.2", name: "Application of Paints" }
             ],
             3: [
                 { id: "3.1.1", name: "Internal effects of loading" }, { id: "3.1.2", name: "Stress Strain Relationship in Real Case" }, { id: "3.2.1", name: "Shear force and bending moment" }, { id: "3.2.2", name: " Shear and bending moment diagrams" }, { id: "3.3.1", name: " Assumptions of Simple Strut theory " }, { id: "3.3.2", name: " Flexural Equation "} 
@@ -327,10 +397,31 @@
             ]
         };
 
+        // PROFILE PICTURE UPLOAD LOGIC
+        function handleProfileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Data = e.target.result;
+                    localStorage.setItem('userProfilePic', base64Data);
+                    applyProfilePic(base64Data);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applyProfilePic(src) {
+            if(src) {
+                document.querySelectorAll('.profile-img-display').forEach(img => {
+                    img.src = src;
+                });
+            }
+        }
+
         function switchScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById(screenId).classList.add('active-screen');
-            if(screenId === 'screen-home') { checkTimerUI(); }
         }
 
         async function handleLogin() {
@@ -365,11 +456,10 @@
                     errorDiv.style.display = 'block';
                     btn.innerText = "START FREE TRIAL";
                 } else if (result.status === "success") {
-                    // Save to browser
                     localStorage.setItem("userPhone", phone);
                     localStorage.setItem("userName", name);
                     localStorage.setItem("userQual", qual);
-                    localStorage.setItem("trialStart", Date.now().toString()); // Start Timer!
+                    localStorage.setItem("trialStart", Date.now().toString()); // Timer runs hidden!
                     loadProfile();
                     switchScreen('screen-home');
                 } else {
@@ -385,27 +475,8 @@
         function loadProfile() {
             document.getElementById('display-name').innerText = "Hi, " + localStorage.getItem("userName");
             document.getElementById('display-info').innerText = localStorage.getItem("userQual") + " | " + localStorage.getItem("userPhone");
-            checkTimerUI();
-        }
-
-        function checkTimerUI() {
-            const trialStart = parseInt(localStorage.getItem('trialStart') || '0');
-            const oneHour = 60 * 60 * 1000;
-            const now = Date.now();
-            const timeElapsed = now - trialStart;
-            const display = document.getElementById('timer-display');
-
-            if(localStorage.getItem('paidAccessValid') === 'true') {
-                display.innerText = "💎 Premium Active";
-                display.style.color = "#1dd1a1";
-            } else if (timeElapsed < oneHour) {
-                let minsLeft = Math.floor((oneHour - timeElapsed) / 60000);
-                display.innerText = `⏳ Free Trial Active: ${minsLeft} minutes left`;
-                display.style.color = "#1dd1a1";
-            } else {
-                display.innerText = "❌ Free Trial Ended. Only Red Subjects Available.";
-                display.style.color = "#ff4757";
-            }
+            const savedPic = localStorage.getItem('userProfilePic');
+            if (savedPic) applyProfilePic(savedPic);
         }
 
         function openSubject(subjectId, subjectName) {
@@ -426,7 +497,6 @@
         }
 
         async function openMagicalScreen(topicId, topicName) {
-            // Save state so we can refresh this screen after payment
             currentTopicIdOriginal = topicId;
             currentTopicNameOriginal = topicName;
             
@@ -437,13 +507,12 @@
             const loadingText = document.getElementById('magic-loading');
             
             btnContainer.innerHTML = '';
-            loadingText.innerText = "🔍 Checking available materials...";
+            loadingText.innerText = " Checking materials & access...";
             loadingText.style.display = 'block';
             switchScreen('screen-magic'); 
 
             const basePath = `${currentSubjectId}/${currentTopicCode}`;
 
-            // Check for the 4 dynamic files (including "Rapid Learning" A.html)
             const checks = await Promise.all([
                 checkFileExists(`${basePath}.html`),
                 checkFileExists(`${basePath}.png`),
@@ -454,20 +523,19 @@
             let buttonsFound = 0;
 
             if (checks[0]) {
-                btnContainer.innerHTML += `<button class="clay-btn magic-btn-interactive" onclick="validateAccessAndLaunch('html')">🎮 Interactive Learning</button>`;
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-interactive" onclick="validateAccessAndLaunch('html')"> Interactive Learning</button>`;
                 buttonsFound++;
             }
             if (checks[1]) {
-                btnContainer.innerHTML += `<button class="clay-btn magic-btn-visual" onclick="validateAccessAndLaunch('png')">🖼️ Visual Learning</button>`;
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-visual" onclick="validateAccessAndLaunch('png')"> Visual Learning</button>`;
                 buttonsFound++;
             }
             if (checks[2]) {
-                btnContainer.innerHTML += `<button class="clay-btn magic-btn-audio" onclick="validateAccessAndLaunch('m4a')">🎧 Audio Learning</button>`;
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-audio" onclick="validateAccessAndLaunch('m4a')"> Audio Learning</button>`;
                 buttonsFound++;
             }
-            // Rapid Learning Button Check
             if (checks[3]) {
-                btnContainer.innerHTML += `<button class="clay-btn magic-btn-rapid" onclick="validateAccessAndLaunch('A.html')">⚡ Rapid Learning</button>`;
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-rapid" onclick="validateAccessAndLaunch('A.html')"> Rapid Learning</button>`;
                 buttonsFound++;
             }
 
@@ -475,12 +543,12 @@
                 btnContainer.innerHTML = `<p style="color: #ff4757; font-weight: bold;">Materials uploading soon...</p>`;
             }
             
-            // Wait slightly before checking access lock visually
             await handleAccessLockCheck(btnContainer, loadingText);
         }
 
         async function handleAccessLockCheck(btnContainer, loadingText) {
-            const isAlwaysFree = [1, 8, 12].includes(currentSubjectId);
+            // Updated FREE Subjects: 1 (Surveying), 2 (Construction Materials), 12 (Construction Management)
+            const isAlwaysFree = [1, 2, 12].includes(currentSubjectId);
             if (isAlwaysFree || localStorage.getItem("paidAccessValid") === "true") {
                 loadingText.style.display = 'none';
                 return;
@@ -491,13 +559,12 @@
             const now = Date.now();
 
             if ((now - trialStart) < oneHour) {
-                loadingText.style.display = 'none'; // Trial is active
+                loadingText.style.display = 'none'; 
                 return;
             }
 
-            // Trial is over. Let's ping the server to see if admin unlocked them.
             btnContainer.style.display = 'none';
-            loadingText.innerText = "🔒 Checking Premium Access on Server...";
+            loadingText.innerText = " Checking Premium Access on Server...";
             
             try {
                 const phone = localStorage.getItem('userPhone');
@@ -510,10 +577,10 @@
                     btnContainer.style.display = 'block';
                 } else {
                     switchScreen('payment-modal');
-                    btnContainer.style.display = 'block'; // Reset for later
+                    btnContainer.style.display = 'block'; 
                 }
             } catch(e) {
-                loadingText.innerText = "⚠️ Network Error. Cannot verify premium access.";
+                loadingText.innerText = " Network Error. Cannot verify premium access.";
                 setTimeout(() => switchScreen('screen-topics'), 2000);
             }
         }
@@ -527,16 +594,42 @@
             }
         }
 
-        function validateAccessAndLaunch(fileExtension) {
-            // Because the button is only visible if the access check passed in openMagicalScreen,
-            // we can safely just launch the file here.
+        // ==========================================
+        // SECURE FILE LAUNCHER (HTML INJECTION)
+        // ==========================================
+        async function validateAccessAndLaunch(fileExtension) {
             let filePath = "";
             if (fileExtension === 'A.html') {
                 filePath = `${currentSubjectId}/${currentTopicCode}A.html`;
             } else {
                 filePath = `${currentSubjectId}/${currentTopicCode}.${fileExtension.toLowerCase()}`;
             }
-            window.open(filePath, '_blank'); 
+
+            // HTML PROTECTION: Opens in iframe overlay to block URL downloads
+            if (fileExtension.includes('html')) {
+                const viewer = document.getElementById('secure-viewer-overlay');
+                const iframe = document.getElementById('secure-iframe');
+                viewer.style.display = 'block';
+                iframe.srcdoc = "<h2 style='text-align:center; font-family:sans-serif; color:#888; padding-top:20%;'>Loading Secure Content...</h2>";
+                
+                try {
+                    const response = await fetch(filePath);
+                    if(!response.ok) throw new Error("File Missing");
+                    const htmlContent = await response.text();
+                    iframe.srcdoc = htmlContent;
+                } catch (e) {
+                    iframe.srcdoc = "<h2 style='text-align:center; color:red; padding-top:20%;'>Failed to load material.</h2>";
+                }
+            } 
+            // MEDIA: Opens normally, allowing users to save if they choose
+            else {
+                window.open(filePath, '_blank'); 
+            }
+        }
+
+        function closeSecureViewer() {
+            document.getElementById('secure-viewer-overlay').style.display = 'none';
+            document.getElementById('secure-iframe').srcdoc = '';
         }
 
         window.onload = () => {
@@ -548,4 +641,3 @@
     </script>
 </body>
 </html>
-

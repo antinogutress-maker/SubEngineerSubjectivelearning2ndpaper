@@ -1,0 +1,580 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pre-Tender Prep - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-rose-400">
+                Pre-Tender Preparation
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Deep Visual Memorization</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Point 1: Project Formulation -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-formulation" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="search" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">1. Project Formulation</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Feasibility & Necessity:</strong> The very first step. A thorough study is conducted to check if the project is technically feasible, economically viable, and actually necessary for the public/client.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 2: Detail Design & Quantity -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-blue-500/30 shadow-[0_10px_30px_-10px_rgba(59,130,246,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-design" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><i data-lucide="pen-tool" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-blue-400">2. Design & Quantity</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Blueprints & BOQ:</strong> Engineers create detailed working drawings. From these drawings, the exact quantities of materials (cement, steel, bricks) and labor required are calculated.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 3: Cost Estimation -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-cost" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="calculator" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">3. Cost Estimation</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Applying Rates:</strong> The calculated quantities are multiplied by the approved schedule of rates (District Rates) to determine the total anticipated cost of the project.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 4: Approval of Estimate -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-approval" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">4. Approval of Estimate</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Technical Sanction:</strong> The detailed cost estimate and designs are submitted to the competent authority for review and final approval (T/S) before any financial commitments are made.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 5: Budget Resource Planning -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-orange-500/30 shadow-[0_10px_30px_-10px_rgba(249,115,22,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-budget" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-orange-500/20 text-orange-400 rounded-lg"><i data-lucide="pie-chart" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-orange-400">5. Budget Resource Planning</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Phasing the Funds:</strong> Arranging and securing the budget for different stages of construction (e.g., 20% for Foundation, 40% for Superstructure) so cash flow doesn't halt progress.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 6: Tender Document Preparation -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-teal-500/30 shadow-[0_10px_30px_-10px_rgba(20,184,166,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-doc" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-teal-500/20 text-teal-400 rounded-lg"><i data-lucide="files" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-teal-400">6. Tender Doc Preparation</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>The Rulebook:</strong> Compiling the Notice Inviting Tender (NIT), Instructions to Bidders, BOQ, General Conditions (GCC), Special Conditions (SCC), and Drawings into one comprehensive legal package.
+                </p>
+            </div>
+        </article>
+
+        <!-- Point 7: Invitation of Bids -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-rose-500/30 shadow-[0_10px_30px_-10px_rgba(244,63,94,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-invite" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-rose-500/20 text-rose-400 rounded-lg"><i data-lucide="megaphone" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-rose-400">7. Invitation of Bids</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Going Public:</strong> Publishing the Tender Notice in national dailies or e-procurement portals. Calling capable contractors to submit their sealed competitive bids.
+                </p>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            formulation: document.getElementById('canvas-formulation'),
+            design: document.getElementById('canvas-design'),
+            cost: document.getElementById('canvas-cost'),
+            approval: document.getElementById('canvas-approval'),
+            budget: document.getElementById('canvas-budget'),
+            doc: document.getElementById('canvas-doc'),
+            invite: document.getElementById('canvas-invite')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Formulation (Map being scanned by a magnifying glass, then a green check)
+        function renderFormulation(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Draw Map/Terrain
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath(); ctx.roundRect(cx - 70, cy - 50, 140, 100, 8); ctx.fill();
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(cx - 70, cy); ctx.lineTo(cx + 70, cy - 20); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx - 30, cy - 50); ctx.lineTo(cx + 10, cy + 50); ctx.stroke();
+            
+            // Location pin
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath(); ctx.arc(cx + 20, cy - 10, 6, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(cx + 14, cy - 10); ctx.lineTo(cx + 26, cy - 10); ctx.lineTo(cx + 20, cy + 5); ctx.fill();
+
+            // Magnifying Glass sweeping
+            if (p < 0.7) {
+                const scanP = p / 0.7; // 0 to 1
+                const magX = cx - 40 + Math.sin(scanP * Math.PI * 2) * 50;
+                const magY = cy - 20 + Math.cos(scanP * Math.PI * 2) * 20;
+
+                ctx.save();
+                ctx.translate(magX, magY);
+                // Glass
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.3)';
+                ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 4; ctx.stroke();
+                // Handle
+                ctx.fillStyle = '#64748b';
+                ctx.fillRect(14, 14, 25, 8);
+                ctx.restore();
+            } else {
+                // Feasible Checkmark
+                const checkP = Math.min(1, (p - 0.7) * 5);
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.scale(checkP, checkP);
+                ctx.fillStyle = '#22c55e';
+                ctx.beginPath(); ctx.roundRect(-50, -15, 100, 30, 15); ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center'; ctx.textBaseline='middle';
+                ctx.fillText("FEASIBLE ✓", 0, 0);
+                ctx.restore();
+            }
+        }
+
+        // 2. Design & Qty (Blueprint drawing itself, then BOQ list populating)
+        function renderDesign(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Blueprint Paper (Left)
+            ctx.fillStyle = '#0284c7';
+            ctx.beginPath(); ctx.roundRect(cx - 90, cy - 60, 80, 120, 4); ctx.fill();
+            
+            // Drawing the house
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+            if (p > 0.1) { ctx.beginPath(); ctx.moveTo(cx - 70, cy + 20); ctx.lineTo(cx - 30, cy + 20); ctx.stroke(); } // Base
+            if (p > 0.2) { ctx.beginPath(); ctx.strokeRect(cx - 65, cy - 20, 30, 40); } // Walls
+            if (p > 0.3) { ctx.beginPath(); ctx.moveTo(cx - 75, cy - 20); ctx.lineTo(cx - 50, cy - 40); ctx.lineTo(cx - 25, cy - 20); ctx.stroke(); } // Roof
+
+            // BOQ List (Right)
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath(); ctx.roundRect(cx + 10, cy - 60, 80, 120, 4); ctx.fill();
+            
+            ctx.fillStyle = '#0f172a'; ctx.font = 'bold 10px Inter'; ctx.textAlign='center';
+            ctx.fillText("QNTY (BOQ)", cx + 50, cy - 40);
+
+            ctx.font = '9px Inter'; ctx.textAlign='left';
+            if (p > 0.5) { ctx.fillStyle='#ef4444'; ctx.fillText("■ Bricks: 50K", cx + 15, cy - 10); }
+            if (p > 0.6) { ctx.fillStyle='#94a3b8'; ctx.fillText("■ Cement: 2K", cx + 15, cy + 10); }
+            if (p > 0.7) { ctx.fillStyle='#3b82f6'; ctx.fillText("■ Steel: 5T", cx + 15, cy + 30); }
+        }
+
+        // 3. Cost Estimation (Calculator crunching, Receipt growing)
+        function renderCost(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Calculator
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath(); ctx.roundRect(cx - 70, cy - 40, 60, 80, 6); ctx.fill();
+            ctx.fillStyle = '#a7f3d0'; // screen
+            ctx.fillRect(cx - 65, cy - 35, 50, 15);
+            ctx.fillStyle = '#334155'; // buttons
+            for(let i=0; i<3; i++) {
+                for(let j=0; j<3; j++) {
+                    ctx.fillRect(cx - 62 + (i*17), cy - 12 + (j*15), 12, 10);
+                }
+            }
+
+            // Receipt sliding up
+            const receiptMaxH = 90;
+            const receiptH = Math.min(1, p * 1.5) * receiptMaxH;
+            
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(cx + 10, cy + 40 - receiptH, 60, receiptH);
+            
+            // Receipt contents
+            if (p > 0.3) {
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillRect(cx + 15, cy + 40 - receiptH + 10, 40, 4);
+                ctx.fillRect(cx + 15, cy + 40 - receiptH + 20, 50, 4);
+            }
+            if (p > 0.6) {
+                ctx.fillStyle = '#10b981'; // Green total
+                ctx.fillRect(cx + 15, cy + 40 - receiptH + 40, 50, 2);
+                ctx.font = 'bold 12px JetBrains Mono'; ctx.textAlign='center';
+                ctx.fillText("$ Total", cx + 40, cy + 40 - receiptH + 60);
+            }
+        }
+
+        // 4. Approval of Estimate (Document getting signed and stamped)
+        function renderApproval(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Estimate Document
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath(); ctx.roundRect(cx - 45, cy - 60, 90, 120, 4); ctx.fill();
+            
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(cx - 30, cy - 40, 60, 4);
+            ctx.fillRect(cx - 30, cy - 30, 40, 4);
+            ctx.fillStyle = '#10b981';
+            ctx.fillRect(cx - 30, cy - 10, 60, 6); // The total
+
+            // Pen signing
+            if (p > 0.2 && p < 0.6) {
+                const signP = (p - 0.2) / 0.4;
+                const penX = cx - 20 + (signP * 40);
+                const penY = cy + 20 + Math.sin(signP * Math.PI * 4) * 5;
+                
+                // Draw ink
+                ctx.strokeStyle = '#1e3a8a'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(cx - 20, cy + 20); ctx.lineTo(penX, penY); ctx.stroke();
+                
+                // Draw Pen
+                ctx.save(); ctx.translate(penX, penY); ctx.rotate(-Math.PI/4);
+                ctx.fillStyle = '#334155'; ctx.fillRect(0, -30, 6, 30);
+                ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(6,0); ctx.lineTo(3,8); ctx.fill();
+                ctx.restore();
+            } else if (p >= 0.6) {
+                // Signature remains
+                ctx.strokeStyle = '#1e3a8a'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(cx - 20, cy + 20); ctx.lineTo(cx + 20, cy + 20); ctx.stroke();
+            }
+
+            // T/S Stamp
+            if (p > 0.7) {
+                const stampP = Math.min(1, (p - 0.7) * 5);
+                ctx.save();
+                ctx.translate(cx, cy - 10);
+                if(stampP < 1) ctx.scale(1.5 - stampP*0.5, 1.5 - stampP*0.5);
+                ctx.rotate(-0.1);
+                
+                ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 3;
+                ctx.strokeRect(-40, -15, 80, 30);
+                ctx.fillStyle = '#a855f7'; ctx.font = 'bold 12px Inter'; ctx.textAlign='center'; ctx.textBaseline='middle';
+                ctx.fillText("T/S APPROVED", 0, 0);
+                ctx.restore();
+            }
+        }
+
+        // 5. Budget Resource Planning (Phasing funds into buckets)
+        function renderBudget(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 30;
+
+            const stages = [
+                { x: cx - 50, color: '#f59e0b', label: 'PH 1', maxH: 40, delay: 0.1 },
+                { x: cx, color: '#3b82f6', label: 'PH 2', maxH: 70, delay: 0.4 },
+                { x: cx + 50, color: '#10b981', label: 'PH 3', maxH: 50, delay: 0.7 }
+            ];
+
+            // Draw base line
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(cx - 80, cy); ctx.lineTo(cx + 80, cy); ctx.stroke();
+
+            stages.forEach(st => {
+                // Background bucket
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(st.x - 15, cy - 80, 30, 80);
+                
+                ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter'; ctx.textAlign='center';
+                ctx.fillText(st.label, st.x, cy + 15);
+
+                // Fill logic
+                let fillH = 0;
+                if (p > st.delay) {
+                    const fillP = Math.min(1, (p - st.delay) / 0.2);
+                    fillH = st.maxH * fillP;
+
+                    // Coins dropping
+                    if (fillP < 1) {
+                        ctx.fillStyle = '#facc15';
+                        ctx.beginPath(); ctx.arc(st.x, cy - 90 + (fillP * 90), 5, 0, Math.PI*2); ctx.fill();
+                    }
+                }
+
+                // Filled bar
+                ctx.fillStyle = st.color;
+                ctx.fillRect(st.x - 15, cy - fillH, 30, fillH);
+            });
+        }
+
+        // 6. Tender Doc Prep (Loose papers flying together into a bound book)
+        function renderDoc(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            const docs = [
+                { label: "GCC", color: '#3b82f6', startX: cx - 100, startY: cy - 40 },
+                { label: "BOQ", color: '#10b981', startX: cx, startY: cy - 80 },
+                { label: "DWG", color: '#f59e0b', startX: cx + 100, startY: cy - 40 }
+            ];
+
+            if (p < 0.6) {
+                // Documents flying to center
+                const flyP = p / 0.6; // 0 to 1
+                // Easing
+                const ease = 1 - Math.pow(1 - flyP, 3);
+
+                docs.forEach((doc, i) => {
+                    const curX = doc.startX + (cx - doc.startX) * ease;
+                    const curY = doc.startY + (cy - doc.startY) * ease;
+                    
+                    ctx.save();
+                    ctx.translate(curX, curY);
+                    // Stack offset slightly when reaching center
+                    if(flyP > 0.9) {
+                        ctx.translate(i*2 - 2, i*2 - 2);
+                    }
+                    
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.beginPath(); ctx.roundRect(-25, -35, 50, 70, 2); ctx.fill();
+                    ctx.fillStyle = doc.color;
+                    ctx.fillRect(-25, -35, 50, 10);
+                    ctx.fillStyle = '#0f172a'; ctx.font = 'bold 12px Inter'; ctx.textAlign='center';
+                    ctx.fillText(doc.label, 0, 5);
+                    ctx.restore();
+                });
+            } else {
+                // Bound Book appears
+                const pop = Math.min(1, (p - 0.6) * 5);
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.scale(pop, pop);
+
+                // Book Cover
+                ctx.fillStyle = '#14b8a6'; // Teal cover
+                ctx.beginPath(); ctx.roundRect(-35, -45, 70, 90, 4); ctx.fill();
+                
+                // Binder rings
+                ctx.fillStyle = '#cbd5e1';
+                for(let i=-35; i<=35; i+=10) {
+                    ctx.beginPath(); ctx.roundRect(-40, i, 10, 4, 2); ctx.fill();
+                }
+
+                // Title
+                ctx.fillStyle = '#fff'; ctx.font = '900 12px Inter'; ctx.textAlign='center';
+                ctx.fillText("TENDER", 0, -5);
+                ctx.fillText("DOC", 0, 10);
+
+                ctx.restore();
+            }
+        }
+
+        // 7. Invitation of Bids (Megaphone broadcasting, Bids flying IN)
+        function renderInvite(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Megaphone
+            ctx.save();
+            ctx.translate(cx - 30, cy);
+            
+            // Sound waves pulsing
+            const waveP = (p * 4) % 1;
+            ctx.strokeStyle = 'rgba(244, 63, 94, 0.5)'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(20, 0, 20 + waveP*40, -Math.PI/4, Math.PI/4); ctx.stroke();
+            ctx.beginPath(); ctx.arc(20, 0, 10 + waveP*20, -Math.PI/4, Math.PI/4); ctx.stroke();
+
+            // Megaphone body
+            ctx.fillStyle = '#f43f5e';
+            ctx.beginPath(); ctx.moveTo(-10, -5); ctx.lineTo(20, -20); ctx.lineTo(20, 20); ctx.lineTo(-10, 5); ctx.fill();
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(-20, -8, 10, 16);
+            ctx.fillRect(-5, 5, 5, 15); // Handle
+            ctx.restore();
+
+            // Bids (Envelopes) flying IN from the right
+            const bids = [
+                { startX: cx + 120, startY: cy - 40, delay: 0.2 },
+                { startX: cx + 140, startY: cy + 30, delay: 0.4 },
+                { startX: cx + 100, startY: cy, delay: 0.6 }
+            ];
+
+            // Target Tender Box
+            ctx.fillStyle = '#334155';
+            ctx.beginPath(); ctx.roundRect(cx - 40, cy + 20, 40, 30, 2); ctx.fill();
+            ctx.fillStyle = '#facc15'; ctx.fillRect(cx - 30, cy + 20, 20, 3); // slot
+
+            bids.forEach(bid => {
+                if (p > bid.delay) {
+                    const flyP = Math.min(1, (p - bid.delay) / 0.3); // 0 to 1
+                    
+                    if (flyP < 1) {
+                        const curX = bid.startX + (cx - 20 - bid.startX) * flyP;
+                        const curY = bid.startY + (cy + 10 - bid.startY) * flyP;
+                        
+                        ctx.save();
+                        ctx.translate(curX, curY);
+                        // Envelope
+                        ctx.fillStyle = '#f8fafc'; ctx.fillRect(-10, -7, 20, 14);
+                        ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
+                        ctx.beginPath(); ctx.moveTo(-10,-7); ctx.lineTo(0,0); ctx.lineTo(10,-7); ctx.stroke();
+                        ctx.fillStyle = '#f43f5e'; ctx.beginPath(); ctx.arc(0,0, 3, 0, Math.PI*2); ctx.fill(); // seal
+                        ctx.restore();
+                    }
+                }
+            });
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 4000; // 4 seconds loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'formulation': renderFormulation(ctx, w, h, p); break;
+                    case 'design': renderDesign(ctx, w, h, p); break;
+                    case 'cost': renderCost(ctx, w, h, p); break;
+                    case 'approval': renderApproval(ctx, w, h, p); break;
+                    case 'budget': renderBudget(ctx, w, h, p); break;
+                    case 'doc': renderDoc(ctx, w, h, p); break;
+                    case 'invite': renderInvite(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
+
+
+```

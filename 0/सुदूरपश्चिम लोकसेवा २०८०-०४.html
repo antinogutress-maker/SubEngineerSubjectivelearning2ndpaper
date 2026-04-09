@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        .correct { background: rgba(0, 255, 136, 0.2) !important; border-color: #00FF88 !important; color: white !important; }
+        .correct .option-marker { background: #00FF88; color: black; }
+        .wrong { background: rgba(255, 51, 102, 0.2) !important; border-color: #FF3366 !important; color: white !important; }
+        .wrong .option-marker { background: #FF3366; color: white; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = [
+  
+  {
+    "id": 1,
+    "q": "As per NBC 208 : 2003, minimum water supply requirement per head per day (per bed) for hospitals (including laundry) for less than 100 bed hospital is ............",
+    "o": [
+      "340 liter",
+      "440 liter",
+      "540 liter",
+      "640 liter"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 2,
+    "q": "The back staff reading on a BM of RL 100.00 m is 1.750 m. If the foresight reading on a point is 0.500, the reduced level of the point is ............",
+    "o": [
+      "97.750",
+      "101.250",
+      "98.750",
+      "102.250"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 3,
+    "q": "Which of the following doesn't involve the method of traversing?",
+    "o": [
+      "plane table survey",
+      "tacheometric survey",
+      "chain survey",
+      "theodolite survey"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 4,
+    "q": "Levelling across a river is done by ............",
+    "o": [
+      "fly levelling",
+      "reciprocal levelling",
+      "trigonometrical levelling",
+      "cross levelling"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 5,
+    "q": "The principal constituents of paint which possesses binding properties is known as ............",
+    "o": [
+      "vehicle",
+      "pigment",
+      "base",
+      "thinner"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 6,
+    "q": "If fineness module of sand is 2.5, it is graded as ............",
+    "o": [
+      "very fine sand",
+      "fine sand",
+      "medium sand",
+      "coarse sand"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 7,
+    "q": "Eccentrically loaded column have to be designed for combined axial force and ............",
+    "o": [
+      "shear force",
+      "bending moment",
+      "torsion",
+      "creep"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 8,
+    "q": "If ϕ is the diameter of reinforcement bar of grade Fe 415, then for M 20 grade of concrete development length is approximately equal to ............",
+    "o": [
+      "37 ϕ",
+      "47 ϕ",
+      "57 ϕ",
+      "67 ϕ"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 9,
+    "q": "The RCC section so proportioned that the stress in steel reaches its permissible value earlier than concrete is known as ............",
+    "o": [
+      "under reinforced section",
+      "over reinforced section",
+      "balanced section",
+      "none of the above"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 10,
+    "q": "By over-reinforcing a beam, the moment of resistance can be increased not more than ............",
+    "o": [
+      "10%",
+      "15%",
+      "20%",
+      "25%"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 11,
+    "q": "Working stress design assumes ............",
+    "o": [
+      "elastic stress-strain relation",
+      "linear stress-strain relation",
+      "elastic and linear stress-strain relation",
+      "none of these"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 12,
+    "q": "The brick laid with its breadth parallel to the face of a wall is known as ............",
+    "o": [
+      "header",
+      "stretcher",
+      "closer",
+      "none of the above"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 13,
+    "q": "Which of the following material is semi-rigid DPC material?",
+    "o": [
+      "plastic sheeting",
+      "concrete",
+      "asphalt",
+      "stone"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 14,
+    "q": "In which bond, brick is laid with its length in the direction of a wall?",
+    "o": [
+      "Header bond",
+      "Flemish bond",
+      "English bond",
+      "Stretcher bond"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 15,
+    "q": "The process of making the background rough before plastering is ............",
+    "o": [
+      "dubbing",
+      "hacking",
+      "blistering",
+      "peeling"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 16,
+    "q": "In cold climate, living spaces are preferred in ............",
+    "o": [
+      "north direction",
+      "west direction",
+      "east direction",
+      "south direction"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 17,
+    "q": "The window which is provided on a sloping roof of a building, is called ............",
+    "o": [
+      "lantern window",
+      "rash window",
+      "dormer window",
+      "louvered window"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 18,
+    "q": "Which is the most important advanced technique of earthquake resistant design and construction?",
+    "o": [
+      "flexible steel form",
+      "reinforced concrete",
+      "base isolation",
+      "combination of steel and RCC"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 19,
+    "q": "Proper ............ is required to control dust and other impurities in the air and proper air circulation.",
+    "o": [
+      "circulation",
+      "cooling",
+      "ventilation",
+      "back yard"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 20,
+    "q": "Total floor area inclusive of all the floors is known as ............",
+    "o": [
+      "groundage",
+      "plot area",
+      "floor area",
+      "built up area"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 21,
+    "q": "Architects use model for ............",
+    "o": [
+      "project visualization between the architect and client",
+      "property valuation",
+      "real construction",
+      "construction management"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 22,
+    "q": "What is the primary purpose of an architectural model?",
+    "o": [
+      "to create a full size replica of the building",
+      "to help communicate design concepts to clients and stakeholders",
+      "to provide a template for construction",
+      "to serve as a historical for construction"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 23,
+    "q": "\"H\" grade pencils are usually used for ............",
+    "o": [
+      "schematic drawings",
+      "presentation drawings",
+      "working drawings",
+      "preliminary drawings"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 24,
+    "q": "The equilibrium of elements in any graphical design is called ............",
+    "o": [
+      "background",
+      "rhythm",
+      "balance",
+      "contrast"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 25,
+    "q": "............ is a structure made up of a series of intersecting straight or curved lines used to structure content.",
+    "o": [
+      "grid",
+      "line",
+      "layout",
+      "design"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 26,
+    "q": "B₂ size drawing board, recommended by Indian Standard Institution (ISI) is ............",
+    "o": [
+      "1000 × 1500",
+      "700 × 1000",
+      "500 × 700",
+      "350 × 50"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 27,
+    "q": "Which is the institution responsible for the documentation of sheet-roll of servants ............",
+    "o": [
+      "ministry of federal affairs and general administration",
+      "ministry of home",
+      "civil personnel records",
+      "ministry of finance"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 28,
+    "q": "निजामति सेवानियमावली, २०५० अनुसार नयाँ नियुक्ति हुने कर्मचारीले नियुक्ति भएको कति समय भित्र अनिवार्य रुपमा वैयक्तिक विवरण फारम (सिटरोल) भरी सक्नु पर्दछ ?",
+    "o": [
+      "१ वर्ष भित्र",
+      "१ महिना भित्र",
+      "२ हप्ता भित्र",
+      "७ दिन भित्र"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 29,
+    "q": "स्थानीय सरकार सञ्चालन ऐन, २०७४ को दफा ३८ अनुसार भवननिर्माण गर्न अनुमतिपाएको व्यक्तिवा सरकारी कार्यालयले कतिवर्ष भित्रत्यस्तो भवननिर्माण गरिसक्नु पर्ने हुन्छ ?",
+    "o": [
+      "२ वर्ष",
+      "३ वर्ष",
+      "४ वर्ष",
+      "५ वर्ष"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 30,
+    "q": "सर्वसाधारणलाई सेवाप्रदान गर्ने वाजनसम्पर्क कायम गर्ने प्रत्येक मन्त्रालयवाकार्यालय वा स्थानीयतहले सबै देख्ने ठाउँमा प्रदान गरिने सेवा, त्यसको प्रकृति, सेवाग्राहीले सेवाप्राप्त गर्न पुरा गर्नुपर्ने कार्यविधि, सेवाप्रदन गर्न लाग्ने समयवधि, सेवाप्रदन गर्ने पदाधिकारी, निजको कार्यकक्षको विवरण, सेवाप्राप्त गर्न लाग्ने दस्तुर लगायतकाविवरण उल्ल्खे गरि कार्यालयमा राख्नु पर्दछ । सो विवरणलाई के भनिन्छ ?",
+    "o": [
+      "सार्वजनिक सूचना",
+      "कार्य विवरण",
+      "नागरिक वडापत्र",
+      "सार्वजनिक सुनुवाइ"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 31,
+    "q": "The representative fraction (RF) for a scale of 1 cm = 500 m is ............",
+    "o": [
+      "1/500",
+      "1/500000",
+      "1/50000",
+      "1/5000"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 32,
+    "q": "A plan is conventionally cut at the ............",
+    "o": [
+      "roof level",
+      "floor level",
+      "plinth level",
+      "window sill level"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 33,
+    "q": "The drawing that reflects as constructed condition of the project work is called ............",
+    "o": [
+      "as-contract drawing",
+      "shop drawing",
+      "structure drawing",
+      "as-built drawing"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 34,
+    "q": "What is the system to locate a point by its distance and angle of the co-ordinate systems?",
+    "o": [
+      "Cartesian co-ordinate",
+      "Polar co-ordinate",
+      "Relative co-ordinate",
+      "Absolute co-ordinate"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 35,
+    "q": "The set of technical drawings used during the construction of building or any other civil structures are called ............",
+    "o": [
+      "conceptual drawing",
+      "structural drawing",
+      "municipal drawing",
+      "working drawing"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 36,
+    "q": "The unit of measurement for electric wiring or electrification, light, fan, plug points is ............",
+    "o": [
+      "point",
+      "meter",
+      "number",
+      "lump sum"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 37,
+    "q": "In Nepal, VAT is added in estimate is ............",
+    "o": [
+      "5%",
+      "10%",
+      "13%",
+      "all of the above"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 38,
+    "q": "For the construction project of government of Nepal, following overhead is added for the rate analysis of any construction items",
+    "o": [
+      "5%",
+      "10%",
+      "15%",
+      "4%"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 39,
+    "q": "The rates of materials used for government projects are approved by ............",
+    "o": [
+      "Local municipality",
+      "Pradesh government",
+      "CDO office",
+      "Ministry of finance"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 40,
+    "q": "When life of structure is over at the end of its utility period, the dismantled materials as steel, bricks, timber etc. has certain value which is known as ............",
+    "o": [
+      "scrap value",
+      "salvage value",
+      "market value",
+      "all of the above"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 41,
+    "q": "The ratio of the maximum allowed build up area on ground level to the area of the piece of land upon which it is built ............",
+    "o": [
+      "Floor Area Ratio (FAR)",
+      "Ground Coverage Ratio (GCR)",
+      "Carpet Area Ratio (CAR)",
+      "Built up Area Ratio (BAR)"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 42,
+    "q": "महा लेखा नियन्त्रक कार्यालयबाट सरकारी लेखा प्रणालीमा प्रयोग गरिने Software कुन हो ?",
+    "o": [
+      "LMBIS",
+      "CGAS+",
+      "PAMS",
+      "all of the above"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 43,
+    "q": "A dummy activity ............",
+    "o": [
+      "has no tail event but only a head event",
+      "has only head event but not tail event",
+      "does not require any resources or any time",
+      "has no bearing on the network and can appear anywhere"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 44,
+    "q": "The estimated time required to perform an activity is known as ............",
+    "o": [
+      "event",
+      "dummy",
+      "duration",
+      "float"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 45,
+    "q": "Gantt chart is drawn for ............",
+    "o": [
+      "time versus activity",
+      "activity versus activity",
+      "resources versus progress",
+      "progress versus time"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 46,
+    "q": "A sewer which gets its flow from a number of transverse sewers, is known as ............",
+    "o": [
+      "interceptor",
+      "sub main sewer",
+      "head sewer",
+      "branch sewer"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 47,
+    "q": "What is the minimum amount of water required in a fully plumbed domestic home as per WHO guidelines in Nepal per head per day?",
+    "o": [
+      "50 liters",
+      "65 liters",
+      "85 liters",
+      "135 liters"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 48,
+    "q": "Which type of wiring gives more mechanical and fire protection?",
+    "o": [
+      "Casing capping wiring",
+      "Batten wiring",
+      "Conduit wiring",
+      "Cleat wiring"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 49,
+    "q": "P.V.C. pipes can withstand pressure head of water up to ............",
+    "o": [
+      "25 m",
+      "50 m",
+      "75 m",
+      "100 m"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 50,
+    "q": "Per capita demand of water is calculated in ............",
+    "o": [
+      "liter per capita per day",
+      "liter per capita per week",
+      "liter per capita per month",
+      "liter per capita per year"
+    ],
+    "a": 0,
+    "e": ""
+  }
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // Shuffle questions and options
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => ({ t: txt, c: i === q.a }));
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.6'; });
+        btn.style.opacity = '1';
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            btn.classList.add('wrong');
+            all.forEach((b, i) => { if(q.shuffledOpts[i].c) b.classList.add('correct'); });
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>

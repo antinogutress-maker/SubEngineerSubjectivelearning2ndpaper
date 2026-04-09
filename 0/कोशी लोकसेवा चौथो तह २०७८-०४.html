@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        .correct { background: rgba(0, 255, 136, 0.2) !important; border-color: #00FF88 !important; color: white !important; }
+        .correct .option-marker { background: #00FF88; color: black; }
+        .wrong { background: rgba(255, 51, 102, 0.2) !important; border-color: #FF3366 !important; color: white !important; }
+        .wrong .option-marker { background: #FF3366; color: white; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = [
+  
+  {
+    "id": 1,
+    "q": "Surveys based on instrument use can be classified into",
+    "o": [
+      "compass survey",
+      "plane table survey",
+      "theodolite survey",
+      "all of the above"
+    ],
+    "a": 3
+  },
+  {
+    "id": 2,
+    "q": "The horizontal angle between the true meridian and magnetic bearing at a place in a compass survey is called",
+    "o": [
+      "local attraction",
+      "declination",
+      "true bearing",
+      "all of the above"
+    ],
+    "a": 1
+  },
+  {
+    "id": 3,
+    "q": "What does the abbreviation GPS stand for?",
+    "o": [
+      "Global positioning system",
+      "Global point selection",
+      "Geographical position system",
+      "Geographical point software"
+    ],
+    "a": 0
+  },
+  {
+    "id": 4,
+    "q": "Sandstone is ....",
+    "o": [
+      "sedimentary rock",
+      "metamorphic rock",
+      "igneous rock",
+      "volcanic rock"
+    ],
+    "a": 0
+  },
+  {
+    "id": 5,
+    "q": "OPC cement means.....",
+    "o": [
+      "optimum portland cement",
+      "ordinary portland cement",
+      "one-time portland cement",
+      "none of the above"
+    ],
+    "a": 1
+  },
+  {
+    "id": 6,
+    "q": "For a good building stone, its specific gravity should be......",
+    "o": [
+      "> 2.7",
+      "< 2.7",
+      "> 4",
+      "< 4"
+    ],
+    "a": 0
+  },
+  {
+    "id": 7,
+    "q": "Seasoning of timber is done to",
+    "o": [
+      "make it water proof",
+      "paint its surface",
+      "increase its temperature",
+      "remove water"
+    ],
+    "a": 3
+  },
+  {
+    "id": 8,
+    "q": "Inner part of a timber log surrounding the pitch is called..",
+    "o": [
+      "sapwood",
+      "cambium layer",
+      "heart wood",
+      "none of the above"
+    ],
+    "a": 2
+  },
+  {
+    "id": 9,
+    "q": "Which of the following is an alloy of copper?",
+    "o": [
+      "Vitallium",
+      "Brass",
+      "Invar",
+      "Solder"
+    ],
+    "a": 1
+  },
+  {
+    "id": 10,
+    "q": "Lime mortar is generally made with",
+    "o": [
+      "quick lime",
+      "fat lime",
+      "hydraulic lime",
+      "plain lime"
+    ],
+    "a": 2
+  },
+  {
+    "id": 11,
+    "q": "Marble is more susceptible to ..............",
+    "o": [
+      "alkaline",
+      "water",
+      "acids",
+      "all of the above"
+    ],
+    "a": 2
+  },
+  {
+    "id": 12,
+    "q": "The building should be ..... in countries line Nepal.",
+    "o": [
+      "earthquake proof",
+      "earthquake resistance",
+      "13 richter resistance",
+      "8 richter scale proof"
+    ],
+    "a": 1
+  },
+  {
+    "id": 13,
+    "q": "The slump test is done to measure............... of concrete.",
+    "o": [
+      "workability",
+      "bearing capacity",
+      "shear",
+      "compression"
+    ],
+    "a": 0
+  },
+  {
+    "id": 14,
+    "q": "The temporary work erected to support a number of platforms at different levels for the convenience of the workers, is known as ........",
+    "o": [
+      "shoring",
+      "underpinning",
+      "scaffolding",
+      "formworks"
+    ],
+    "a": 2
+  },
+  {
+    "id": 15,
+    "q": "Admixture in cement concrete are used for",
+    "o": [
+      "water reduction in the mix",
+      "set acceleration",
+      "strength enhancement",
+      "all of the above"
+    ],
+    "a": 3
+  },
+  {
+    "id": 16,
+    "q": "The vertical members fixed between steps and hand rail, are known .....",
+    "o": [
+      "balusters",
+      "strings",
+      "newel posts",
+      "soffits"
+    ],
+    "a": 0
+  },
+  {
+    "id": 17,
+    "q": "A horizontal bar chart that shows project tasks against a calendar is called ......",
+    "o": [
+      "milestone",
+      "goal",
+      "gantt chart",
+      "PERT chart"
+    ],
+    "a": 2
+  },
+  {
+    "id": 18,
+    "q": "The type of pointing in which upper side of mortar joints is kept about 12 mm inside the face of the masonry and bottom is kept flushed with face of wall is ....",
+    "o": [
+      "truck pointing",
+      "recessed pointing",
+      "struck pointing",
+      "grooved pointing"
+    ],
+    "a": 2
+  },
+  {
+    "id": 19,
+    "q": "The first step in flooring is",
+    "o": [
+      "topping",
+      "RCC layer",
+      "sand filling",
+      "base coat"
+    ],
+    "a": 3
+  },
+  {
+    "id": 20,
+    "q": "A standard rule of thumb is that sewer pipes leading away from a toilet are................ inches in diameter.",
+    "o": [
+      "1.5",
+      "2",
+      "3",
+      "4"
+    ],
+    "a": 3
+  },
+  {
+    "id": 21,
+    "q": "The diameter of opening of overhead water storage circular tank in a building shall be not less than ....",
+    "o": [
+      "300 mm",
+      "450 mm",
+      "600 mm",
+      "750 mm"
+    ],
+    "a": 2
+  },
+  {
+    "id": 22,
+    "q": "The earthing is an important component of electric system that ....",
+    "o": [
+      "prevents damage to electric appliances",
+      "prevents electric shocks",
+      "prevents risk of fire",
+      "all of the above"
+    ],
+    "a": 3
+  },
+  {
+    "id": 23,
+    "q": "Per capita demand of water is calculated in liters",
+    "o": [
+      "per person per day",
+      "per person per month",
+      "per person per year",
+      "none of the above"
+    ],
+    "a": 0
+  },
+  {
+    "id": 24,
+    "q": "The road pavement structure layers is/are as",
+    "o": [
+      "subgrade",
+      "base course",
+      "surface course or wearing course",
+      "all of the above"
+    ],
+    "a": 3
+  },
+  {
+    "id": 25,
+    "q": "The methods of irrigations is/are ...",
+    "o": [
+      "surface irrigation",
+      "sprinkler irrigation",
+      "drip irrigation",
+      "all of the above"
+    ],
+    "a": 3
+  },
+  {
+    "id": 26,
+    "q": "In Nepal, bridge is classified as a minor bridge if it's span length is ....",
+    "o": [
+      "≤ 6 m",
+      "≤ 10 m",
+      "< 20 m",
+      "≤ 50 m"
+    ],
+    "a": 3
+  },
+  {
+    "id": 27,
+    "q": "What type of irrigation method is also called as trickle irrigation?",
+    "o": [
+      "Sprinkler irrigation method",
+      "Furrow irrigation method",
+      "Drip irrigation method",
+      "Check flooding"
+    ],
+    "a": 2
+  },
+  {
+    "id": 28,
+    "q": "The process of passing water through beds of granular materials is called...............",
+    "o": [
+      "screening",
+      "sedimentation",
+      "filtration",
+      "none of the above"
+    ],
+    "a": 2
+  },
+  {
+    "id": 29,
+    "q": "For the self-cleaning of side drain, the minimum gradient required is ...",
+    "o": [
+      "one percent",
+      "one and half percent",
+      "half percent",
+      "two percent"
+    ],
+    "a": 2
+  },
+  {
+    "id": 30,
+    "q": "Which is the factor affecting the selection of water source for drinking water?",
+    "o": [
+      "Quantity of water",
+      "Quality of water",
+      "Location of water source",
+      "All of the above"
+    ],
+    "a": 3
+  },
+  {
+    "id": 31,
+    "q": "Water supply system includes ...",
+    "o": [
+      "construction of dams",
+      "entire arrangement from source to distribution",
+      "construction of canals",
+      "digging a well for water"
+    ],
+    "a": 1
+  },
+  {
+    "id": 32,
+    "q": "Which type of canal is best suitable to avoid cross drainage in canal alignment?",
+    "o": [
+      "Ridge canal",
+      "Contour canal",
+      "Side slope canal",
+      "None of the above"
+    ],
+    "a": 0
+  },
+  {
+    "id": 33,
+    "q": "The local government operation act 2074 BS came into effect since ...",
+    "o": [
+      "September 2017",
+      "October 2017",
+      "November 2017",
+      "December 2017"
+    ],
+    "a": 1
+  },
+  {
+    "id": 34,
+    "q": "As per article 38 (1) of local government operation act, 2074, a person or a government entity has to complete the construction of a building within ...... from the date of permission to construct.",
+    "o": [
+      "1 year",
+      "2 years",
+      "3 years",
+      "4 years"
+    ],
+    "a": 1
+  },
+  {
+    "id": 35,
+    "q": "According to the constitution of Nepal, the list of local level power have been provisioned in ....",
+    "o": [
+      "schedule-6",
+      "schedule-8",
+      "schedule-7",
+      "schedule-9"
+    ],
+    "a": 1
+  },
+  {
+    "id": 36,
+    "q": "To ensure that everyone understands what the symbols represent it is customary to include a........... on the drawing sheet",
+    "o": [
+      "list",
+      "part number",
+      "legend",
+      "layer"
+    ],
+    "a": 2
+  },
+  {
+    "id": 37,
+    "q": "How many base unit are in the international system of units?",
+    "o": [
+      "3",
+      "4",
+      "5",
+      "7"
+    ],
+    "a": 3
+  },
+  {
+    "id": 38,
+    "q": "Axonometric drawing are those drawing ....",
+    "o": [
+      "in which the object is drawn in three dimensions",
+      "which are used extensively in artistic drawing",
+      "which has complete description of its shape",
+      "all of the above"
+    ],
+    "a": 0
+  },
+  {
+    "id": 39,
+    "q": "Which type of line is part of dimension in drawing?",
+    "o": [
+      "Extension lines",
+      "Break lines",
+      "Phantom lines",
+      "Cutting plane lines"
+    ],
+    "a": 0
+  },
+  {
+    "id": 40,
+    "q": "The arts of writing the various sizes or measurements on the finished drawing of an object is known as..................",
+    "o": [
+      "measuring",
+      "lettering",
+      "scaling",
+      "dimensioning"
+    ],
+    "a": 3
+  },
+  {
+    "id": 41,
+    "q": "Which of the following pencil leads is the hardest?",
+    "o": [
+      "B",
+      "H",
+      "4B",
+      "4H"
+    ],
+    "a": 3
+  },
+  {
+    "id": 42,
+    "q": "The brick work is not measured in cum in case of ....",
+    "o": [
+      "one or more than one brick wall",
+      "brick work in arches",
+      "reinforced brick work",
+      "half brick wall"
+    ],
+    "a": 3
+  },
+  {
+    "id": 43,
+    "q": "How many bags of cement are there in 1 metric ton?",
+    "o": [
+      "5 bags",
+      "20 bags",
+      "50 bags",
+      "100 bags"
+    ],
+    "a": 1
+  },
+  {
+    "id": 44,
+    "q": "The most reliable estimate for a building is ............... estimate.",
+    "o": [
+      "plinth area",
+      "cube rate",
+      "preliminary",
+      "detailed"
+    ],
+    "a": 3
+  },
+  {
+    "id": 45,
+    "q": "The standard width of a CGI sheet is ...",
+    "o": [
+      "32\"",
+      "36\"",
+      "40\"",
+      "45\""
+    ],
+    "a": 0
+  },
+  {
+    "id": 46,
+    "q": "While estimating of a works, the allowable contingency is ....",
+    "o": [
+      "5 percent",
+      "4 percent",
+      "3 percent",
+      "2 percent"
+    ],
+    "a": 1
+  },
+  {
+    "id": 47,
+    "q": "In case of discrepancy between rate in words and figures...",
+    "o": [
+      "rate in words is determining",
+      "rate in figures is determining",
+      "both 'a' and 'b'",
+      "none of the above"
+    ],
+    "a": 0
+  },
+  {
+    "id": 48,
+    "q": "In levelling operation",
+    "o": [
+      "when the instrument is being shifted, the staff must not be moved",
+      "when the staff is being carried forward, the instrument must remain stationary",
+      "both 'a' and 'b'",
+      "none of the above"
+    ],
+    "a": 2
+  },
+  {
+    "id": 49,
+    "q": "Leveling deals with measurements in a .................",
+    "o": [
+      "horizontal plane",
+      "inclined plane",
+      "vertical plane",
+      "both vertical and horizontal plane"
+    ],
+    "a": 2
+  },
+  {
+    "id": 50,
+    "q": "Chain surveying uses the principle of",
+    "o": [
+      "traversing",
+      "chaining",
+      "ranging",
+      "triangulation"
+    ],
+    "a": 3
+  }
+
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // Shuffle questions and options
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => ({ t: txt, c: i === q.a }));
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.6'; });
+        btn.style.opacity = '1';
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            btn.classList.add('wrong');
+            all.forEach((b, i) => { if(q.shuffledOpts[i].c) b.classList.add('correct'); });
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>

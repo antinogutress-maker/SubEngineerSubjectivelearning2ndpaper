@@ -1,0 +1,574 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pipe vs Open Channel Flow - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling - Engineering Grid */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-indigo-400">
+                Pipe vs Channel Flow
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Fluid Mechanics / Hydraulics</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Difference 1: Driving Force -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-rose-500/30 shadow-[0_10px_30px_-10px_rgba(244,63,94,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-force" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-rose-500/20 text-rose-400 rounded-lg"><i data-lucide="gauge" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-rose-400">1. Driving Force</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Pressure vs. Gravity:</strong> Pipe flow is strictly driven by a <em>pressure difference</em> (like a pump pushing water). Open channel flow is driven entirely by the component of <em>gravity</em> acting along the slope of the bed.
+                </p>
+            </div>
+        </article>
+
+        <!-- Difference 2: Free Surface -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-cyan-500/30 shadow-[0_10px_30px_-10px_rgba(6,182,212,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-surface" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-cyan-500/20 text-cyan-400 rounded-lg"><i data-lucide="cloud" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-cyan-400">2. Free Surface (Atmosphere)</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Enclosed vs. Exposed:</strong> A pipe flows 100% full under pressure with <em>no free surface</em>. An open channel has a free surface that is directly exposed to <em>atmospheric pressure</em>.
+                </p>
+            </div>
+        </article>
+
+        <!-- Difference 3: Hydraulic Grade Line (HGL) -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-hgl" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">3. Hydraulic Grade Line (HGL)</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Above vs. On the Surface:</strong> In pipe flow, the HGL (Pressure Head + Elevation) generally lies <em>above</em> the pipe. In open channel flow, the HGL <em>coincides exactly</em> with the free water surface.
+                </p>
+            </div>
+        </article>
+
+        <!-- Difference 4: Pressure Distribution -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-pressure" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="minimize-2" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">4. Pressure Distribution</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Radial vs. Hydrostatic:</strong> Pipe flow has intense radial pressure pushing outwards on the pipe walls. Open channel flow has a <em>hydrostatic</em> pressure distribution (zero gauge pressure at the top, max at the bed).
+                </p>
+            </div>
+        </article>
+
+        <!-- Difference 5: Velocity Profile -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-velocity" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="fast-forward" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">5. Velocity Profile</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Center vs. Sub-Surface:</strong> Due to wall friction, max velocity in a pipe is exactly at the <em>center</em>. In a channel, air resistance at the top pushes the max velocity slightly <em>below</em> the free surface.
+                </p>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            force: document.getElementById('canvas-force'),
+            surface: document.getElementById('canvas-surface'),
+            hgl: document.getElementById('canvas-hgl'),
+            pressure: document.getElementById('canvas-pressure'),
+            velocity: document.getElementById('canvas-velocity')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- SHARED DRAWING UTILS --- //
+        function drawSplitScreen(ctx, w, h) {
+            // Draw divider line
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Labels
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 12px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText("PIPE FLOW", w/4, 20);
+            ctx.fillText("OPEN CHANNEL", (w/4)*3, 20);
+        }
+
+        function drawWaterParticles(ctx, cx, cy, width, p, isPipe=false, angle=0) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(angle);
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            for(let i=0; i<8; i++) {
+                // Particles moving right
+                const px = -width/2 + ((p + i/8) % 1) * width;
+                const py = isPipe ? (Math.sin(px*0.1)*5) : (10 + Math.cos(px*0.1)*5);
+                ctx.beginPath(); ctx.arc(px, py, 1.5, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Driving Force (Pump/Pressure vs Gravity)
+        function renderForce(ctx, w, h, p) {
+            drawSplitScreen(ctx, w, h);
+            
+            // --- LEFT: PIPE (Pressure) ---
+            const px = w/4;
+            const py = h/2;
+            
+            // Pipe Body
+            ctx.fillStyle = '#3b82f6'; ctx.fillRect(px - 60, py - 15, 120, 30); // Water
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(px - 60, py - 15); ctx.lineTo(px + 60, py - 15); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(px - 60, py + 15); ctx.lineTo(px + 60, py + 15); ctx.stroke();
+
+            // Piston (Pump Pressure)
+            const pistonX = px - 60 + ((p * 2) % 1) * 30; // Pumping action
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(pistonX - 10, py - 14, 10, 28);
+            ctx.fillRect(pistonX - 30, py - 2, 20, 4);
+
+            drawWaterParticles(ctx, px, py, 120, p, true);
+
+            ctx.fillStyle = '#ef4444'; ctx.font = 'bold 10px Inter'; ctx.fillText("Pressure P1 > P2", px, py + 40);
+
+
+            // --- RIGHT: CHANNEL (Gravity) ---
+            const cx = (w/4)*3;
+            const cy = h/2;
+            const angle = Math.PI / 12; // Sloped down
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(angle);
+            
+            // Channel Bed
+            ctx.fillStyle = '#475569'; ctx.fillRect(-60, 15, 120, 10);
+            // Water
+            ctx.fillStyle = '#0ea5e9'; ctx.fillRect(-60, -5, 120, 20);
+            
+            // Gravity vector
+            ctx.rotate(-angle); // un-rotate for text/arrows
+            ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(0, 15); ctx.stroke(); // W
+            ctx.beginPath(); ctx.moveTo(-5, 10); ctx.lineTo(0, 15); ctx.lineTo(5, 10); ctx.stroke();
+            ctx.fillStyle = '#10b981'; ctx.fillText("Gravity (W)", -25, -5);
+
+            ctx.restore();
+            
+            drawWaterParticles(ctx, cx, cy, 120, p, false, angle);
+            
+            ctx.fillStyle = '#10b981'; ctx.font = 'bold 10px Inter'; ctx.fillText("Slope Bed", cx, cy + 40);
+        }
+
+        // 2. Free Surface (Atmosphere)
+        function renderSurface(ctx, w, h, p) {
+            drawSplitScreen(ctx, w, h);
+            
+            const px = w/4;
+            const cx = (w/4)*3;
+            const cy = h/2 + 10;
+            const r = 35;
+
+            // --- LEFT: PIPE CROSS SECTION ---
+            ctx.beginPath(); ctx.arc(px, cy, r, 0, Math.PI*2);
+            ctx.fillStyle = '#3b82f6'; ctx.fill(); // 100% full
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 4; ctx.stroke();
+            
+            ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 10px Inter';
+            ctx.fillText("Flows 100% Full", px, cy - 50);
+            ctx.fillText("No Air Space", px, cy + 50);
+
+
+            // --- RIGHT: CHANNEL CROSS SECTION ---
+            // Trapezoidal channel
+            ctx.fillStyle = '#475569';
+            ctx.beginPath(); ctx.moveTo(cx - r - 10, cy - 10); 
+            ctx.lineTo(cx - r, cy + r); ctx.lineTo(cx + r, cy + r); 
+            ctx.lineTo(cx + r + 10, cy - 10);
+            ctx.lineTo(cx + r + 20, cy - 10); ctx.lineTo(cx + r + 10, cy + r + 10);
+            ctx.lineTo(cx - r - 10, cy + r + 10); ctx.lineTo(cx - r - 20, cy - 10); ctx.fill();
+
+            // Water partially full
+            ctx.fillStyle = '#0ea5e9';
+            const waveY = cy + 5 + Math.sin(p * Math.PI * 4) * 2; // Wavy surface
+            ctx.beginPath(); ctx.moveTo(cx - r + 5, waveY);
+            ctx.lineTo(cx - r + 8, cy + r); ctx.lineTo(cx + r - 8, cy + r);
+            ctx.lineTo(cx + r - 5, waveY); ctx.fill();
+
+            // Atmosphere arrows pushing down
+            ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 1.5;
+            for(let i=-20; i<=20; i+=20) {
+                const arrowY = waveY - 5 + Math.sin(p * Math.PI * 8) * 2; // bobbing
+                ctx.beginPath(); ctx.moveTo(cx + i, arrowY - 15); ctx.lineTo(cx + i, arrowY); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx + i - 3, arrowY - 3); ctx.lineTo(cx + i, arrowY); ctx.lineTo(cx + i + 3, arrowY - 3); ctx.stroke();
+            }
+
+            ctx.fillStyle = '#22d3ee'; ctx.font = 'bold 10px Inter';
+            ctx.fillText("P = P(atm)", cx, cy - 35);
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillText("Free Surface", cx, cy + 55);
+        }
+
+        // 3. Hydraulic Grade Line (HGL)
+        function renderHGL(ctx, w, h, p) {
+            drawSplitScreen(ctx, w, h);
+            
+            const px = w/4;
+            const cx = (w/4)*3;
+            const py = h/2 + 20;
+
+            // --- LEFT: PIPE HGL (Above) ---
+            ctx.fillStyle = '#3b82f6'; ctx.fillRect(px - 50, py - 10, 100, 20); // Pipe water
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(px - 50, py - 10); ctx.lineTo(px + 50, py - 10); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(px - 50, py + 10); ctx.lineTo(px + 50, py + 10); ctx.stroke();
+
+            // Piezometer tubes
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(px - 25, py - 50, 6, 40); // Tube 1 water
+            ctx.fillRect(px + 15, py - 40, 6, 30); // Tube 2 water (sloping down)
+            
+            // Glass tubes
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+            ctx.strokeRect(px - 25, py - 60, 6, 50);
+            ctx.strokeRect(px + 15, py - 60, 6, 50);
+
+            // Draw HGL Line
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2; ctx.setLineDash([4, 2]);
+            ctx.beginPath(); ctx.moveTo(px - 40, py - 50); ctx.lineTo(px + 40, py - 40); ctx.stroke(); ctx.setLineDash([]);
+            
+            // Labels
+            ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 10px Inter';
+            ctx.fillText("HGL (Above Pipe)", px, py - 65);
+
+
+            // --- RIGHT: CHANNEL HGL (On Surface) ---
+            const angle = Math.PI / 16;
+            ctx.save();
+            ctx.translate(cx, py - 10);
+            ctx.rotate(angle);
+            
+            // Bed
+            ctx.fillStyle = '#475569'; ctx.fillRect(-50, 20, 100, 8);
+            // Water
+            ctx.fillStyle = '#0ea5e9'; ctx.fillRect(-50, 0, 100, 20);
+            
+            // Wavy top surface
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+            ctx.beginPath();
+            for(let x=-50; x<=50; x+=5) {
+                const waveY = Math.sin(x*0.2 - p*10)*2;
+                if(x===-50) ctx.moveTo(x, waveY); else ctx.lineTo(x, waveY);
+            }
+            ctx.stroke();
+
+            // Draw HGL EXACTLY on the water surface
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2; ctx.setLineDash([4, 2]);
+            ctx.beginPath(); ctx.moveTo(-50, -5); ctx.lineTo(50, -5); ctx.stroke(); ctx.setLineDash([]);
+
+            ctx.restore();
+
+            ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 10px Inter';
+            ctx.fillText("HGL = Water Surface", cx, py - 50);
+        }
+
+        // 4. Pressure Distribution
+        function renderPressure(ctx, w, h, p) {
+            drawSplitScreen(ctx, w, h);
+            
+            const px = w/4;
+            const cx = (w/4)*3;
+            const cy = h/2 + 10;
+            const r = 30;
+
+            // --- LEFT: PIPE (Radial High Pressure) ---
+            ctx.fillStyle = '#3b82f6'; ctx.beginPath(); ctx.arc(px, cy, r, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 4; ctx.stroke();
+
+            // Radial outward arrows
+            const pulse = (Math.sin(p * Math.PI * 4) + 1)/2; // 0 to 1
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2;
+            for(let a=0; a<Math.PI*2; a+=Math.PI/4) {
+                const rStart = 10;
+                const rEnd = 20 + (pulse * 10);
+                const aX1 = px + Math.cos(a)*rStart; const aY1 = cy + Math.sin(a)*rStart;
+                const aX2 = px + Math.cos(a)*rEnd;   const aY2 = cy + Math.sin(a)*rEnd;
+                
+                ctx.beginPath(); ctx.moveTo(aX1, aY1); ctx.lineTo(aX2, aY2); ctx.stroke();
+                // arrow head
+                ctx.beginPath(); ctx.moveTo(aX2, aY2); 
+                ctx.lineTo(px + Math.cos(a-0.2)*(rEnd-4), cy + Math.sin(a-0.2)*(rEnd-4));
+                ctx.lineTo(px + Math.cos(a+0.2)*(rEnd-4), cy + Math.sin(a+0.2)*(rEnd-4));
+                ctx.fillStyle = '#ef4444'; ctx.fill();
+            }
+            
+            ctx.fillStyle = '#ef4444'; ctx.font = 'bold 10px Inter';
+            ctx.fillText("Radial Pressure (High)", px, cy - 45);
+
+
+            // --- RIGHT: CHANNEL (Hydrostatic Triangle) ---
+            // Side view of channel water column
+            const cWidth = 40;
+            const cHeight = 60;
+            ctx.fillStyle = '#0ea5e9'; ctx.fillRect(cx - cWidth/2, cy - cHeight/2, cWidth, cHeight);
+            ctx.strokeStyle = '#fff'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(cx-cWidth/2, cy-cHeight/2); ctx.lineTo(cx+cWidth/2, cy-cHeight/2); ctx.stroke();
+            
+            // Hydrostatic Triangle (Zero at top, max at bottom)
+            ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cx + cWidth/2 + 5, cy - cHeight/2); // Top zero
+            ctx.lineTo(cx + cWidth/2 + 35, cy + cHeight/2); // Bottom max
+            ctx.lineTo(cx + cWidth/2 + 5, cy + cHeight/2); // Connect back
+            ctx.lineTo(cx + cWidth/2 + 5, cy - cHeight/2); // Close triangle
+            ctx.stroke();
+
+            // Animated pressure vectors pushing right
+            ctx.fillStyle = '#10b981';
+            const numVectors = 5;
+            for(let i=1; i<=numVectors; i++) {
+                const yPos = (cy - cHeight/2) + (i/numVectors)*cHeight - 5;
+                const vLen = (i/numVectors) * 30 * pulse; // Max length matches triangle
+                
+                ctx.beginPath(); ctx.moveTo(cx + cWidth/2 + 5, yPos); ctx.lineTo(cx + cWidth/2 + 5 + vLen, yPos); ctx.stroke();
+                // Arrow
+                if (vLen > 2) {
+                    ctx.beginPath(); ctx.moveTo(cx + cWidth/2 + 5 + vLen, yPos);
+                    ctx.lineTo(cx + cWidth/2 + 5 + vLen - 3, yPos - 3);
+                    ctx.lineTo(cx + cWidth/2 + 5 + vLen - 3, yPos + 3);
+                    ctx.fill();
+                }
+            }
+
+            ctx.fillStyle = '#10b981'; ctx.font = 'bold 10px Inter';
+            ctx.fillText("Hydrostatic (Triangle)", cx, cy - 45);
+        }
+
+        // 5. Velocity Profile
+        function renderVelocity(ctx, w, h, p) {
+            drawSplitScreen(ctx, w, h);
+            
+            const px = w/4;
+            const cx = (w/4)*3;
+            const cy = h/2;
+            const halfH = 25; // height of cross sections
+
+            // Animation for arrows growing
+            const animP = Math.min(1, (p % 1) * 1.5); // Grows and holds
+
+            // --- LEFT: PIPE VELOCITY (Parabola, Max at center) ---
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(px - 40, cy - halfH, 80, halfH*2);
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(px - 40, cy - halfH); ctx.lineTo(px + 40, cy - halfH); ctx.stroke(); // top wall
+            ctx.beginPath(); ctx.moveTo(px - 40, cy + halfH); ctx.lineTo(px + 40, cy + halfH); ctx.stroke(); // bot wall
+
+            ctx.strokeStyle = '#facc15'; ctx.lineWidth = 1.5; ctx.fillStyle = '#facc15';
+            
+            // Draw Parabola curve and arrows
+            ctx.beginPath();
+            for(let y=-halfH; y<=halfH; y+=5) {
+                // Parabola equation: max at y=0
+                const vMax = 40;
+                const vLen = vMax * (1 - Math.pow(y/halfH, 2)) * animP;
+                
+                // Vector arrow
+                const startX = px - 20;
+                const endX = startX + vLen;
+                
+                ctx.moveTo(startX, cy + y); ctx.lineTo(endX, cy + y);
+                // Head
+                if (vLen > 2) {
+                    ctx.moveTo(endX, cy + y); ctx.lineTo(endX-3, cy+y-2); ctx.lineTo(endX-3, cy+y+2);
+                }
+            }
+            ctx.stroke();
+            
+            ctx.fillStyle = '#facc15'; ctx.font = 'bold 10px Inter';
+            ctx.fillText("Max Vel at Center", px, cy - 40);
+
+
+            // --- RIGHT: CHANNEL VELOCITY (Max slightly below surface) ---
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(cx - 40, cy - halfH, 80, halfH*2);
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(cx - 40, cy + halfH); ctx.lineTo(cx + 40, cy + halfH); ctx.stroke(); // Bed only
+
+            ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+            ctx.beginPath(); ctx.moveTo(cx - 40, cy - halfH); ctx.lineTo(cx + 40, cy - halfH); ctx.stroke(); ctx.setLineDash([]); // Surface line
+
+            ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 1.5; ctx.fillStyle = '#a855f7';
+            
+            // Draw profile curve and arrows
+            ctx.beginPath();
+            for(let y=-halfH; y<=halfH; y+=5) {
+                // Profile equation: max slightly below surface (e.g. y = -halfH + 10)
+                const yDip = -halfH + 10; 
+                const vMax = 40;
+                // Asymmetric curve
+                let vLen = 0;
+                if (y <= yDip) {
+                    // Top part (surface drag)
+                    vLen = vMax * (1 - Math.pow((y - yDip)/10, 2)) * animP;
+                } else {
+                    // Bottom part (bed friction)
+                    vLen = vMax * (1 - Math.pow((y - yDip)/(halfH*2 - 10), 2)) * animP;
+                }
+                
+                const startX = cx - 20;
+                const endX = startX + Math.max(0, vLen);
+                
+                ctx.moveTo(startX, cy + y); ctx.lineTo(endX, cy + y);
+                if (vLen > 2) {
+                    ctx.moveTo(endX, cy + y); ctx.lineTo(endX-3, cy+y-2); ctx.lineTo(endX-3, cy+y+2);
+                }
+            }
+            ctx.stroke();
+
+            // Air drag arrows at top
+            ctx.fillStyle = '#fff'; ctx.font = '8px Inter';
+            ctx.fillText("← Air Drag", cx + 20, cy - halfH - 5);
+
+            ctx.fillStyle = '#a855f7'; ctx.font = 'bold 10px Inter';
+            ctx.fillText("Max Vel Below Surface", cx, cy + 45);
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 4000; // 4 seconds loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'force': renderForce(ctx, w, h, p); break;
+                    case 'surface': renderSurface(ctx, w, h, p); break;
+                    case 'hgl': renderHGL(ctx, w, h, p); break;
+                    case 'pressure': renderPressure(ctx, w, h, p); break;
+                    case 'velocity': renderVelocity(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
+
+```

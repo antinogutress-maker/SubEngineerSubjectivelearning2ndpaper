@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        .correct { background: rgba(0, 255, 136, 0.2) !important; border-color: #00FF88 !important; color: white !important; }
+        .correct .option-marker { background: #00FF88; color: black; }
+        .wrong { background: rgba(255, 51, 102, 0.2) !important; border-color: #FF3366 !important; color: white !important; }
+        .wrong .option-marker { background: #FF3366; color: white; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = [
+  
+  {
+    "id": 1,
+    "q": "For cantilever with uniformly distributed load w/m length maximum, bending moment will be at the fixed end will be equal to ...............",
+    "o": [
+      "wl/2",
+      "wl/4",
+      "wl^2/2",
+      "wl^2/4"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 2,
+    "q": "Shear stress of an ideal fluid is ...............",
+    "o": [
+      "more than zero",
+      "less than zero",
+      "equal to zero",
+      "equal to one"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 3,
+    "q": "Reynolds's number in pipe flow is defined as the ratio of ...............",
+    "o": [
+      "inertia force to gravity force",
+      "viscous force to gravity force",
+      "inertia force to viscous force",
+      "viscous force to pressure force"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 4,
+    "q": "The ratio of the weight of given volume of solids at a given temperature to the weight of an equal volume of distilled water at that temperature is known as ...............",
+    "o": [
+      "void ratio",
+      "porosity",
+      "specific gravity",
+      "water content"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 5,
+    "q": "For a standard compaction test the mass of hammer and the drop of hammer are as follows ...............",
+    "o": [
+      "2.6 kg and 450 mm",
+      "2.6 kg and 310 mm",
+      "4.89 kg and 310 mm",
+      "4.89 kg and 450 mm"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 6,
+    "q": "The amount of reinforcement for main bars in a slab is based upon ...............",
+    "o": [
+      "minimum bending moment",
+      "maximum bending moment",
+      "maximum shear force",
+      "minimum shear force"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 7,
+    "q": "The steel generally used in R.C.C. work is ...............",
+    "o": [
+      "stainless steel",
+      "high tension steel",
+      "mild steel",
+      "high carbon steel"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 8,
+    "q": "In scaffolding erection, if single row of standards are placed at distance of about 1.20 m on the ground from the wall, such scaffolding is known as ...............",
+    "o": [
+      "mason's scaffolding",
+      "bricklayer's scaffolding",
+      "shoring",
+      "needle scaffolding"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 9,
+    "q": "What is the major disadvantage of timber building?",
+    "o": [
+      "Difficult in construction",
+      "Fire hazard",
+      "Energy inefficient",
+      "Very cold in winter and very warm in summer"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 10,
+    "q": "The largest available source of fresh water is ...............",
+    "o": [
+      "rain water",
+      "surface water",
+      "ground water",
+      "none of the above"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 11,
+    "q": "Which of the following is the correct expression for hydraulic grade line?",
+    "o": [
+      "Hydraulic grade line = Total energy line + Velocity head",
+      "Hydraulic grade line = Total energy line + Piezometric head",
+      "Hydraulic grade line = Total energy line + Potential head",
+      "Hydraulic grade line = Total energy line - Velocity head"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 12,
+    "q": "Irrigation canals are generally aligned along ...............",
+    "o": [
+      "ridge line",
+      "contour line",
+      "valley line",
+      "straight line"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 13,
+    "q": "Embankment type structures, constructed transverse to the river flow, extending from the bank into the river in order to protect the bank by deflecting the current away from the bank is called ...............",
+    "o": [
+      "spurs",
+      "marginal embankments",
+      "levees",
+      "guide banks"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 14,
+    "q": "As per Nepal road standard-2070, which types of road are designated by letter 'H' followed by a two-digit number?",
+    "o": [
+      "Urban roads",
+      "Class IV road",
+      "National highways",
+      "Expressway"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 15,
+    "q": "Which types of rollers are most suitable for compacting clayey soil or soil containing mixture of sand and clay such a way that soil is compacted top to bottom by kneading?",
+    "o": [
+      "pneumatic rollers",
+      "vibratory compactors",
+      "jetting and pounding",
+      "sheep's foot rollers"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 16,
+    "q": "The damp proof (D.P.C.) is measured in ...............",
+    "o": [
+      "cubic meters",
+      "square meters",
+      "meters",
+      "numbers"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 17,
+    "q": "The value of the dismantled material less than cost of dismantling is called as ...............",
+    "o": [
+      "scrap value",
+      "salvage value",
+      "ratable value",
+      "book value"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 18,
+    "q": "The time by which activity completion time can be delayed without affecting the start of succeeding activities is known as ...............",
+    "o": [
+      "duration",
+      "total float",
+      "free float",
+      "interfering float"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 19,
+    "q": "Which of the following is not a scope of construction supervision?",
+    "o": [
+      "Progress of the works",
+      "Quality of the works",
+      "Measurement of the works",
+      "Preparation of tender documents"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 20,
+    "q": "Nepal obtained the membership of International Civil Aviation Organization (ICAO) in ...............",
+    "o": [
+      "1950",
+      "1960",
+      "1970",
+      "1980"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 21,
+    "q": "नेपालमा पहिलो स्तरका नदी कुन क्षेत्रबाट उत्पत्ति भई प्रवाहित हुन्छन्?",
+    "o": [
+      "तिब्बत",
+      "कैलाश मानसरोवर",
+      "हिमालय",
+      "महाभारत पर्वत"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 22,
+    "q": "नेपालको इतिहासमा कोतपर्वको नामले चिनिएको घटना कहिले भएको थियो?",
+    "o": [
+      "वि.स. १९०२ असोज २ गते",
+      "वि.स. १९०२ असोज ३ गते",
+      "वि.स. १९०३ असोज २ गते",
+      "वि.स. १९०३ असोज ३ गते"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 23,
+    "q": "गण्डकी प्रदेशको दोस्रो पञ्चवर्षीय योजना (आ.व. २०८१/८२ - २०८५/८६) को अवधारणापत्र अनुसार दोस्रो योजनाको सोच के रहेको छ?",
+    "o": [
+      "आत्मनिर्भर र समृद्ध प्रदेश: सम्मानित प्रदेशवासी",
+      "समृद्ध प्रदेश: सुखी नागरिक",
+      "उत्पादन र उत्पादकत्वमा वृद्धि: पर्यटन प्रवर्द्धनबाट प्रदेशको समृद्धि",
+      "ऊर्जा, जलविद्युत र पर्यटन: युवा शक्ति प्रदेशको धन"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 24,
+    "q": "विश्व जैविक विविधता दिवस हरेक वर्ष कहिले मनाइन्छ?",
+    "o": [
+      "मे-२२",
+      "जुन-५",
+      "सेप्टेम्बर-११",
+      "डिसेम्बर-१४"
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 25,
+    "q": "नेपालमा कहिलेदेखि इन्टरनेटको शुरुवात भएको हो?",
+    "o": [
+      "सन १९९२",
+      "सन १९९४",
+      "सन १९९८",
+      "सन २००२"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 26,
+    "q": "Bacteria बाट हुने रोगहरुमा तलको कुन पर्दैन?",
+    "o": [
+      "हैजा",
+      "ठेउला",
+      "क्षयरोग",
+      "निमोनिया"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 27,
+    "q": "संयुक्त राष्ट्र संघको आदर्श वाक्य के रहेको छ?",
+    "o": [
+      "It's your world.",
+      "It's our world.",
+      "Our common future.",
+      "Our bright future."
+    ],
+    "a": 0,
+    "e": ""
+  },
+  {
+    "id": 28,
+    "q": "फ्रान्सेली समाचार पत्रिका “फ्रान्स फुटबल” द्वारा प्रदान गरिएको बालोन डी ओर २०२३ पुरस्कार कसलाई प्रदान गरिएको थियो?",
+    "o": [
+      "केलियन एमबाप्पे",
+      "क्रिस्टियानो रोनाल्डो",
+      "स्टेफेन गेरेल्ड",
+      "लियोनेल मेस्सी"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 29,
+    "q": "निर्णय गर्दा ध्यान दिनुपर्ने कुराहरु अध्ययन गरी सही विकल्प छान्नुहोस् ।",
+    "o": [
+      "समस्या के हो भनी पहिचान गर्ने",
+      "समस्या पहिचान गरेपछि सोको विश्लेषण गर्ने",
+      "समस्या समाधान गर्ने के के विकल्पहरु छन, सोको खोजी गर्ने",
+      "खोजिएका विकल्पहरुको राम्रो तथा नराम्रो पक्षहरुमा विश्लेषण गर्ने"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 30,
+    "q": "गण्डकी प्रदेशको प्रदेश निजामती सेवामा तलका मध्ये कुन सेवा पर्दैन?",
+    "o": [
+      "प्रदेश कानून सेवा",
+      "प्रदेश विविध सेवा",
+      "प्रदेश वन सेवा",
+      "प्रदेश शिक्षा सेवा"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 31,
+    "q": "गण्डकी प्रदेशको आ.व. २०८०/८१ को बजेटको उद्देश्यहरुमध्ये तलको कुन हो?",
+    "o": [
+      "प्राकृतिक प्रकोप न्यूनीकरण र सोको रोकथाम मार्फत जीउधनको सुरक्षा प्रत्याभूत गर्ने",
+      "लगानीमैत्री वातावरण निर्माण गरी निजी क्षेत्रको मनोबल उच्च पार्ने",
+      "उपलब्ध स्रोत र साधनको सन्तुलित, समन्यायिक वितरणको माध्यमबाट समानुपातिक विकास हासिल गर्ने",
+      "गण्डकी प्रदेशलाई पर्यटकीय हबको रुपमा विकास गरी अर्थतन्त्रलाई चलायमान बनाउने"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 32,
+    "q": "देहायका मध्ये कुन निकायको पदको पदपूर्तिका लागि लिइने लिखित परीक्षामा लोकसेवा आयोगको संलग्नता रहने गर्दैन?",
+    "o": [
+      "नेपाल प्रहरी",
+      "नेपाल सरकारको स्वामित्वमा रहेका प्राधिकरण",
+      "सरकारी विश्वविद्यालय",
+      "सरकारी बैंक"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 33,
+    "q": "“जाग जाग वीरे नेपाली जाग, गाउँ गाउँ वस्तीबाट जाग” कुन संविधानिक आयोगको मूल गीत रहेको छ?",
+    "o": [
+      "राष्ट्रिय मानव अधिकार आयोग",
+      "अख्तियार दुरुपयोग अनुसन्धान आयोग",
+      "निर्वाचन आयोग",
+      "महालेखा परीक्षक"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 34,
+    "q": "देहायका मध्ये कुन MS Word मा font style मापर्दैन?",
+    "o": [
+      "Bold",
+      "Superscript",
+      "Italics",
+      "Normal"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 35,
+    "q": "स्थानीय सेवा (गठन तथा सञ्चालन) ऐन, २०७९ बमोजिम अधिकृत स्तर एघारौं तहको कार्यविवरण कसले स्वीकृत गर्ने व्यवस्था छ?",
+    "o": [
+      "प्रमुख प्रशासनिक अधिकृतले",
+      "प्रमुख सचिवले",
+      "कार्यपालिकाले",
+      "मुख्यमन्त्री तथा मन्त्रीपरिषद्को कार्यालयले"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 36,
+    "q": "When a curve consists of two arcs with different radii lies on the opposite sides of common tangent and centres lie on the opposite sides is known as",
+    "o": [
+      "Simple circular curve",
+      "Compound curve",
+      "Transition curve",
+      "Reverse curve"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 37,
+    "q": "Closed contours of decreasing values towards their center, represents ...............",
+    "o": [
+      "hill",
+      "depression",
+      "saddle or pass",
+      "river bed"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 38,
+    "q": "Setting out a simple curve by two theodolites method eliminates ...............",
+    "o": [
+      "linear measurement",
+      "angular measurement",
+      "linear and angular measurement",
+      "none of the above"
+    ],
+    "a": 1,
+    "e": ""
+  },
+  {
+    "id": 39,
+    "q": "Slate is ...............",
+    "o": [
+      "igneous rock",
+      "sedimentary rock",
+      "metamorphic rock",
+      "none of the above"
+    ],
+    "a": 2,
+    "e": ""
+  },
+  {
+    "id": 40,
+    "q": "Pigment volume concentration number (PVCN) of 75 indicate which types of paints?",
+    "o": [
+      "Prime coat on metal",
+      "Semi-gloss paint",
+      "Prime coat on wood",
+      "Faint paint"
+    ],
+    "a": 3,
+    "e": ""
+  },
+  {
+    "id": 41,
+    "q": "Moment inertia of circular section is ...............",
+    "o": [
+      "π d^3 / 16",
+      "π d^3 / 32",
+      "π d^4 / 32",
+      "π d^4 / 64"
+    ],
+    "a": 3,
+    "e": ""
+  }
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // Shuffle questions and options
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => ({ t: txt, c: i === q.a }));
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.6'; });
+        btn.style.opacity = '1';
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            btn.classList.add('wrong');
+            all.forEach((b, i) => { if(q.shuffledOpts[i].c) b.classList.add('correct'); });
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>

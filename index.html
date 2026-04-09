@@ -1,9 +1,19 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loksewa Civil Prep - Gamified</title>
+    
+    <!-- ANTI-DOWNLOAD SCRIPT: Destroys the page if downloaded and run locally -->
+    <script>
+        if (window.location.protocol === 'file:' || window.location.protocol === 'c:') {
+            document.documentElement.innerHTML = '<body style="background-color:#1e1e1e; display:flex; justify-content:center; align-items:center; height:100vh; margin:0;"><h1 style="color:#ff4757; font-family:sans-serif; text-align:center;">⚠️ ERROR 403<br><br>Corrupted / Pirated File Detected.<br>Please use the official web app.</h1></body>';
+            throw new Error("Unauthorized local execution detected.");
+        }
+    </script>
+
     <style>
         /* CLAYMORPHISM & BASE CSS */
         :root {
@@ -78,7 +88,7 @@
         .clay-btn.back-btn { margin-top: 20px; color: #888; box-shadow: var(--clay-shadow-in); }
         .clay-btn.whatsapp-btn { background-color: #25D366; color: white; margin-top: 25px; font-size: 1.1em;}
 
-        /* Profile Picture CSS */
+        /* Profile Picture CSS with GREEN Border */
         .profile-container {
             position: relative;
             width: 100px;
@@ -92,13 +102,14 @@
             border-radius: 50%;
             box-shadow: var(--clay-shadow-out);
             object-fit: cover;
-            border: 3px solid var(--bg-color);
+            border: 4px solid #2ecc71; /* The requested green circular boundary */
             background-color: #f1f2f6;
+            box-sizing: border-box;
         }
         .edit-badge {
             position: absolute;
             bottom: 0;
-            right: 0;
+            right: -5px;
             background: var(--bg-color);
             border-radius: 50%;
             width: 30px;
@@ -154,28 +165,6 @@
         .magic-btn-audio { color: #1dd1a1; }
         .magic-btn-rapid { color: #9b59b6; background-color: #f8e9ff;}
 
-        /* Payment Animations */
-        .promo-container {
-            margin: 20px 0;
-            text-align: center;
-        }
-        .promo-line {
-            opacity: 0;
-            font-size: 1.1em;
-            font-weight: bold;
-            margin: 8px 0;
-            animation: slideUpFade 0.8s forwards;
-        }
-        .promo-line:nth-child(1) { color: #ff6b6b; animation-delay: 0.2s; }
-        .promo-line:nth-child(2) { color: #48dbfb; animation-delay: 0.7s; }
-        .promo-line:nth-child(3) { color: #1dd1a1; animation-delay: 1.2s; }
-        .promo-line:nth-child(4) { color: #ff9f43; animation-delay: 1.7s; }
-
-        @keyframes slideUpFade {
-            0% { opacity: 0; transform: translateY(15px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
         /* Secure HTML Viewer Overlay */
         #secure-viewer-overlay {
             display: none;
@@ -208,6 +197,7 @@
             cursor: pointer;
             width: 100%;
             max-width: 200px;
+            box-shadow: var(--clay-shadow-out);
         }
 
         /* DESKTOP VIEW SCALING */
@@ -224,6 +214,7 @@
 </head>
 <body>
 
+    <!-- Hidden File Input for Profile Upload -->
     <input type="file" id="profileInput" accept="image/*" style="display: none;" onchange="handleProfileUpload(event)">
 
     <div id="screen-setup" class="screen active-screen">
@@ -231,11 +222,12 @@
             <h2>Welcome to Gen Z Revision</h2>
             <div class="warning-text" id="login-error" style="display: none;"></div>
             
-            <p>Enter details to start your Free Trial.</p>
+            <p>Enter details to create your account.</p>
             
+            <!-- Circular Profile Upload -->
             <div class="profile-container" onclick="document.getElementById('profileInput').click()">
                 <img src="https://via.placeholder.com/150?text=+" class="profile-pic profile-img-display" alt="Upload Pic">
-                <div class="edit-badge"></div>
+                <div class="edit-badge">📷</div>
             </div>
             
             <input type="tel" id="userPhone" class="clay-input" placeholder="Phone Number (e.g. 98XXXXXXXX)" required>
@@ -256,15 +248,16 @@
 
             <input type="number" id="age" class="clay-input" placeholder="Age (15-45)" min="15" max="45" required>
             
-            <button id="login-btn" class="clay-btn" onclick="handleLogin()">START FREE TRIAL</button>
+            <button id="login-btn" class="clay-btn" onclick="handleLogin()">START LEARNING</button>
         </div>
     </div>
 
     <div id="screen-home" class="screen">
         <div class="clay-card">
+            <!-- Circular Profile Display -->
             <div class="profile-container" onclick="document.getElementById('profileInput').click()">
                 <img src="https://via.placeholder.com/150?text=+" class="profile-pic profile-img-display" alt="Profile Pic">
-                <div class="edit-badge"></div>
+                <div class="edit-badge">✏️</div>
             </div>
 
             <h4 style="color: var(--accent-pink); margin-top: 5px;">Let's Make Reading and Revision More Engaging and Effective <br><br> Gen Z idea</h4>
@@ -273,8 +266,10 @@
             <p id="display-info" style="font-size: 0.8em; margin: 0; color: #888;"></p>
 
             <div class="grid-container">
-                <button class="clay-btn full-width-btn" onclick="openSubject(0, 'Old Loksewa First Paper Collections')"> Old Loksewa First Paper Collections</button>
+                <!-- NEW SUBJECT: Full Width -->
+                <button class="clay-btn full-width-btn" onclick="openSubject(0, 'Old Loksewa First Paper Collections')">📚 Old Loksewa First Paper Collections</button>
                 
+                <!-- RED SUBJECTS = 3 FREE SUBJECTS ONLY -->
                 <button class="clay-btn free-subject" onclick="openSubject(1, 'Surveying')">Surveying</button>
                 <button class="clay-btn free-subject" onclick="openSubject(2, 'Construction Materials')">Construction Materials</button>
                 <button class="clay-btn" onclick="openSubject(3, 'Mechanics of Structure')">Mechanics of Structure</button>
@@ -294,7 +289,7 @@
     <div id="screen-topics" class="screen">
         <div class="clay-card">
             <h2 id="subtopic-title">Subject Title</h2>
-            <p>Scroll Down  Select a topic to begin</p>
+            <p>Scroll Down 👇 Select a topic to begin</p>
             <div class="list-container" id="subtopic-list"></div>
             <button class="clay-btn back-btn" onclick="switchScreen('screen-home')">Back to Home</button>
         </div>
@@ -304,7 +299,7 @@
         <div class="clay-card">
             <h2 id="magic-title">Topic Title</h2>
             
-            <p id="magic-loading" style="color: #888; font-weight: bold;"> Checking materials & access...</p>
+            <p id="magic-loading" style="color: #888; font-weight: bold;">🔍 Checking materials...</p>
             
             <div id="dynamic-buttons-container"></div>
             
@@ -314,36 +309,40 @@
 
     <div id="payment-modal" class="screen">
         <div class="clay-card">
-            <h3>Trial Ended! Unlock Premium</h3>
-            <h2 style="color: #ff4757;"><del>Rs 500</del>  Rs. 198 Only!</h2>
+            <h3>Subject Locked! Unlock Premium</h3>
+            <h2 style="color: #ff4757;"><del>Rs 500</del> ✂️ Rs. 198 Only!</h2>
             
-            <div class="promo-container">
-                <div class="promo-line"> High Quality Content</div>
-                <div class="promo-line"> Deep Learning & Memorization</div>
-                <div class="promo-line"> Gamified Interactive Quizzes</div>
-                <div class="promo-line"> Crisp Audio Explanations</div>
+            <div style="margin: 20px 0;">
+                <p style="color:#2ecc71; font-weight:bold; margin: 5px 0;">🚀 High Quality Content</p>
+                <p style="color:#ff6b6b; font-weight:bold; margin: 5px 0;">🧠 Deep Learning & Memorization</p>
+                <p style="color:#48dbfb; font-weight:bold; margin: 5px 0;">🎮 Gamified Interactive Quizzes</p>
+                <p style="color:#ff9f43; font-weight:bold; margin: 5px 0;">🎧 Crisp Audio Explanations</p>
             </div>
 
             <img src="esewa-qr.png" alt="QR CODE" style="width: 250px; height: 250px; background: #ddd; margin: 15px auto; border-radius: 10px; display: block; object-fit: contain;">
             
             <div style="max-width: 400px; margin: 0 auto;">
                 <a href="https://wa.me/qr/4KGVE6QVMCTON1" target="_blank" style="text-decoration: none;">
-                    <button class="clay-btn whatsapp-btn"> Send Screenshot via WhatsApp</button>
+                    <button class="clay-btn whatsapp-btn">📲 Send Screenshot via WhatsApp</button>
                 </a>
                 <p style="font-size: 0.8em; color: #888; margin-top: 15px;">Admin will instantly unlock your account after receiving the screenshot.</p>
                 
-                <button class="clay-btn" style="margin-top: 10px;" onclick="openMagicalScreen(currentTopicIdOriginal, currentTopicNameOriginal)"> I Paid, Check Again</button>
+                <button class="clay-btn" style="margin-top: 10px;" onclick="openMagicalScreen(currentTopicIdOriginal, currentTopicNameOriginal)">🔄 I Paid, Check Again</button>
                 <button class="clay-btn back-btn" onclick="switchScreen('screen-topics')">Cancel</button>
             </div>
         </div>
     </div>
 
+    <!-- Secure HTML Viewer Overlay (Blocks direct downloads) -->
     <div id="secure-viewer-overlay">
-        <button class="close-viewer-btn" onclick="closeSecureViewer()"> Close Interactive Learning</button>
+        <button class="close-viewer-btn" onclick="closeSecureViewer()">✖ Close Interactive Learning</button>
         <iframe id="secure-iframe"></iframe>
     </div>
 
     <script>
+        // ==========================================
+        // REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT URL!
+        // ==========================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwumcQXonlFGzlOifQr6q1ciNrZN3Him8z4M5ws4Qopj8pJn_oB2TkDHJYjPA18XvxORg/exec"; 
 
         let currentSubjectId = null;
@@ -454,21 +453,20 @@
                 if (result.status === "exists") {
                     errorDiv.innerHTML = result.message + " <br><br> <a href='https://wa.me/qr/4KGVE6QVMCTON1' target='_blank' style='color:#1e90ff'>Click here to message Admin</a>";
                     errorDiv.style.display = 'block';
-                    btn.innerText = "START FREE TRIAL";
+                    btn.innerText = "START LEARNING";
                 } else if (result.status === "success") {
                     localStorage.setItem("userPhone", phone);
                     localStorage.setItem("userName", name);
                     localStorage.setItem("userQual", qual);
-                    localStorage.setItem("trialStart", Date.now().toString()); // Timer runs hidden!
                     loadProfile();
                     switchScreen('screen-home');
                 } else {
                     alert("System error. Check connection.");
-                    btn.innerText = "START FREE TRIAL";
+                    btn.innerText = "START LEARNING";
                 }
             } catch (e) {
                 alert("Failed to connect to server. Check your network.");
-                btn.innerText = "START FREE TRIAL";
+                btn.innerText = "START LEARNING";
             }
         }
 
@@ -507,7 +505,7 @@
             const loadingText = document.getElementById('magic-loading');
             
             btnContainer.innerHTML = '';
-            loadingText.innerText = " Checking materials & access...";
+            loadingText.innerText = "🔍 Checking materials...";
             loadingText.style.display = 'block';
             switchScreen('screen-magic'); 
 
@@ -523,19 +521,19 @@
             let buttonsFound = 0;
 
             if (checks[0]) {
-                btnContainer.innerHTML += `<button class="clay-btn magic-btn-interactive" onclick="validateAccessAndLaunch('html')"> Interactive Learning</button>`;
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-interactive" onclick="validateAccessAndLaunch('html')">🎮 Interactive Learning</button>`;
                 buttonsFound++;
             }
             if (checks[1]) {
-                btnContainer.innerHTML += `<button class="clay-btn magic-btn-visual" onclick="validateAccessAndLaunch('png')"> Visual Learning</button>`;
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-visual" onclick="validateAccessAndLaunch('png')">🖼️ Visual Learning</button>`;
                 buttonsFound++;
             }
             if (checks[2]) {
-                btnContainer.innerHTML += `<button class="clay-btn magic-btn-audio" onclick="validateAccessAndLaunch('m4a')"> Audio Learning</button>`;
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-audio" onclick="validateAccessAndLaunch('m4a')">🎧 Audio Learning</button>`;
                 buttonsFound++;
             }
             if (checks[3]) {
-                btnContainer.innerHTML += `<button class="clay-btn magic-btn-rapid" onclick="validateAccessAndLaunch('A.html')"> Rapid Learning</button>`;
+                btnContainer.innerHTML += `<button class="clay-btn magic-btn-rapid" onclick="validateAccessAndLaunch('A.html')">⚡ Rapid Learning</button>`;
                 buttonsFound++;
             }
 
@@ -549,22 +547,16 @@
         async function handleAccessLockCheck(btnContainer, loadingText) {
             // Updated FREE Subjects: 1 (Surveying), 2 (Construction Materials), 12 (Construction Management)
             const isAlwaysFree = [1, 2, 12].includes(currentSubjectId);
+            
+            // 1st Check: Is it Free or locally saved as Paid? (DOES NOT ASK SCRIPT)
             if (isAlwaysFree || localStorage.getItem("paidAccessValid") === "true") {
                 loadingText.style.display = 'none';
                 return;
             }
 
-            const trialStart = parseInt(localStorage.getItem('trialStart') || '0');
-            const oneHour = 60 * 60 * 1000;
-            const now = Date.now();
-
-            if ((now - trialStart) < oneHour) {
-                loadingText.style.display = 'none'; 
-                return;
-            }
-
+            // 2nd Check: Key not found locally. We must ask the App Script.
             btnContainer.style.display = 'none';
-            loadingText.innerText = " Checking Premium Access on Server...";
+            loadingText.innerText = "🔒 Checking Premium Access...";
             
             try {
                 const phone = localStorage.getItem('userPhone');
@@ -572,6 +564,7 @@
                 const data = await response.json();
                 
                 if(data.status === 'premium') {
+                    // Save to local browser so it never asks the script again!
                     localStorage.setItem("paidAccessValid", "true");
                     loadingText.style.display = 'none';
                     btnContainer.style.display = 'block';
@@ -580,7 +573,7 @@
                     btnContainer.style.display = 'block'; 
                 }
             } catch(e) {
-                loadingText.innerText = " Network Error. Cannot verify premium access.";
+                loadingText.innerText = "⚠️ Network Error. Cannot verify premium access.";
                 setTimeout(() => switchScreen('screen-topics'), 2000);
             }
         }
@@ -632,6 +625,7 @@
             document.getElementById('secure-iframe').srcdoc = '';
         }
 
+        // INITIALIZATION: Checks Local Storage First to bypass Login Screen
         window.onload = () => {
             if(localStorage.getItem("userPhone") && localStorage.getItem("userName")) { 
                 loadProfile(); 
@@ -641,3 +635,5 @@
     </script>
 </body>
 </html>
+
+

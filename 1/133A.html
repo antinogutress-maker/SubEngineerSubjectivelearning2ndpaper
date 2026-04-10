@@ -1,0 +1,453 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Three-Point Problem - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 20vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling - Topo Grid / Ground */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(244, 63, 94, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(244, 63, 94, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-fuchsia-400">
+                Three-Point Problem
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Plane Tabling Solutions</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Context / Intro -->
+        <div class="px-2 pb-2">
+            <p class="text-xs text-slate-400 leading-relaxed border-l-2 border-rose-500 pl-3">
+                <strong>The Problem:</strong> Locating the exact position of the plane table station (<span class="text-rose-400 font-bold">p</span>) on the drawing paper by sighting three well-defined, already plotted points (<span class="text-cyan-400 font-bold">a, b, c</span>) whose corresponding ground points (<span class="text-white font-bold">A, B, C</span>) are visible.
+            </p>
+        </div>
+
+        <!-- Method 1: Tracing Paper -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-cyan-500/30 shadow-[0_10px_30px_-10px_rgba(6,182,212,0.2)]">
+            <div class="h-[280px] relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-tracing" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-3 border-b border-slate-800 pb-3">
+                    <div class="p-2 bg-cyan-500/20 text-cyan-400 rounded-lg"><i data-lucide="layers" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-cyan-400">1. Mechanical (Tracing Paper)</h2>
+                </div>
+                <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+                    <ul class="list-decimal list-outside ml-4 space-y-2 marker:text-cyan-500 marker:font-bold">
+                        <li>Place a translucent tracing paper over the board.</li>
+                        <li>Assume a point <strong>p'</strong> on it and draw rays to ground points A, B, C.</li>
+                        <li>Unfasten the tracing paper and slide/rotate it over the drawing until the three drawn rays pass <em>exactly</em> through the plotted points <strong>a, b, c</strong> on the main sheet.</li>
+                        <li>Prick the center point through to the drawing paper to get the true <strong>p</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- Method 2: Graphical Method -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-[280px] relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-graphical" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-3 border-b border-slate-800 pb-3">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="pen-tool" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">2. Graphical (Bessel's Method)</h2>
+                </div>
+                <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+                    <p class="text-xs text-amber-500 font-bold uppercase tracking-wide">Constructing the Inscribed Quadrilateral:</p>
+                    <ul class="list-decimal list-outside ml-4 space-y-2 marker:text-amber-500 marker:font-bold">
+                        <li>Orient the table along line <strong>ab</strong> and sight point C. Draw a ray from <strong>a</strong>.</li>
+                        <li>Orient along <strong>ba</strong> and sight point C. Draw a ray from <strong>b</strong>.</li>
+                        <li>The intersection of these two rays gives point <strong>d</strong>.</li>
+                        <li>Draw a line connecting <strong>c</strong> to <strong>d</strong>. The true station <strong>p</strong> lies somewhere on this line.</li>
+                        <li>Sight A (or B) to draw a final resection ray, intersecting <strong>cd</strong> at the exact location <strong>p</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- Method 3: Trial and Error -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-rose-500/30 shadow-[0_10px_30px_-10px_rgba(244,63,94,0.2)]">
+            <div class="h-[280px] relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-lehman" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-3 border-b border-slate-800 pb-3">
+                    <div class="p-2 bg-rose-500/20 text-rose-400 rounded-lg"><i data-lucide="triangle-alert" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-rose-400">3. Trial & Error (Lehman's)</h2>
+                </div>
+                <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+                    <p class="text-xs text-rose-500 font-bold uppercase tracking-wide">Solving the Triangle of Error:</p>
+                    <ul class="list-decimal list-outside ml-4 space-y-2 marker:text-rose-500 marker:font-bold">
+                        <li>Orient the table by eye/compass and draw resection rays from A, B, and C through a, b, and c.</li>
+                        <li>If orientation is imperfect, the rays won't meet at a point, but will form a small <strong>Triangle of Error</strong>.</li>
+                        <li>Using Lehman's Rules (looking left/right, proportional distances), estimate a new point <strong>p1</strong>.</li>
+                        <li>Rotate the board slightly to align <strong>p1</strong> with a target. Redraw the rays.</li>
+                        <li>Repeat until the triangle vanishes into a single point <strong>p</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            tracing: document.getElementById('canvas-tracing'),
+            graphical: document.getElementById('canvas-graphical'),
+            lehman: document.getElementById('canvas-lehman')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- SHARED DRAWING UTILS --- //
+        
+        function drawPoint(ctx, x, y, label, color='#22d3ee') {
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 12px JetBrains Mono'; ctx.textAlign = 'center';
+            ctx.fillText(label, x - 10, y - 5);
+        }
+
+        function drawLabel(ctx, text, x, y, color='#fff', bg='rgba(15,23,42,0.8)') {
+            ctx.font = 'bold 10px Inter';
+            const w = ctx.measureText(text).width;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(x - w/2 - 6, y - 10, w + 12, 20, 4); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+        }
+
+        // Standard positions for the 3 plotted points on the paper
+        function getPlottedPoints(cx, cy) {
+            return {
+                a: { x: cx - 45, y: cy - 20 },
+                b: { x: cx + 45, y: cy - 20 },
+                c: { x: cx, y: cy - 70 },
+                trueP: { x: cx + 5, y: cy + 40 }
+            };
+        }
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Tracing Paper Method
+        function renderTracing(ctx, w, h, p) {
+            const {cx, cy} = {cx: w/2, cy: h/2};
+            const pts = getPlottedPoints(cx, cy);
+
+            // Base Drawing Paper
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(cx - 80, cy - 100, 160, 180);
+            
+            // Draw Plotted Points a, b, c
+            drawPoint(ctx, pts.a.x, pts.a.y, "a", '#38bdf8');
+            drawPoint(ctx, pts.b.x, pts.b.y, "b", '#38bdf8');
+            drawPoint(ctx, pts.c.x, pts.c.y, "c", '#38bdf8');
+
+            // Tracing Paper Animation Math
+            // Starts misaligned and rotated, gently slides into perfect alignment over the cycle.
+            // Using sine waves to create a smooth "searching" and then "snapping" effect.
+            
+            const alignProgress = Math.min(1, Math.max(0, (p - 0.2) / 0.6)); // 0.2 to 0.8 is the move
+            // Easing function for snap
+            const ease = 1 - Math.pow(1 - alignProgress, 3);
+            
+            // Misalignment offsets
+            const startOffsetX = -40;
+            const startOffsetY = 30;
+            const startRot = Math.PI / 8; // ~22 degrees
+
+            const currentOffsetX = startOffsetX * (1 - ease);
+            const currentOffsetY = startOffsetY * (1 - ease);
+            const currentRot = startRot * (1 - ease);
+
+            ctx.save();
+            // Move to true P to apply rotation, then apply current offsets
+            ctx.translate(pts.trueP.x + currentOffsetX, pts.trueP.y + currentOffsetY);
+            ctx.rotate(currentRot);
+            ctx.translate(-pts.trueP.x, -pts.trueP.y);
+
+            // Draw Tracing Paper (Translucent)
+            ctx.fillStyle = 'rgba(248, 250, 252, 0.2)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)'; ctx.lineWidth = 1;
+            ctx.fillRect(cx - 70, cy - 90, 140, 160);
+            ctx.strokeRect(cx - 70, cy - 90, 140, 160);
+
+            // Draw the rays drawn on the tracing paper
+            // These rays originate exactly from trueP and pass exactly through a,b,c 
+            // when the paper is perfectly aligned.
+            ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2;
+            
+            const drawRay = (target) => {
+                ctx.beginPath(); ctx.moveTo(pts.trueP.x, pts.trueP.y);
+                // Extend the ray infinitely
+                const dx = target.x - pts.trueP.x; const dy = target.y - pts.trueP.y;
+                ctx.lineTo(pts.trueP.x + dx*3, pts.trueP.y + dy*3); ctx.stroke();
+            };
+
+            drawRay(pts.a); drawRay(pts.b); drawRay(pts.c);
+
+            // The assumed point p' on tracing paper
+            drawPoint(ctx, pts.trueP.x, pts.trueP.y, "p'", '#facc15');
+
+            ctx.restore();
+
+            // Status labels
+            if (p < 0.2) {
+                drawLabel(ctx, "Draw rays on Tracing Paper", cx, cy + 95, '#facc15');
+            } else if (p < 0.8) {
+                drawLabel(ctx, "Slide over main drawing...", cx, cy + 95, '#cbd5e1');
+            } else {
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath(); ctx.arc(pts.trueP.x, pts.trueP.y, 6, 0, Math.PI*2); ctx.fill();
+                drawLabel(ctx, "RAYS MATCH! Prick point 'p'", cx, cy + 95, '#4ade80');
+            }
+        }
+
+        // 2. Graphical (Bessel's Method)
+        function renderGraphical(ctx, w, h, p) {
+            const {cx, cy} = {cx: w/2, cy: h/2};
+            const pts = getPlottedPoints(cx, cy);
+            
+            // Phantom intersection point 'd' for Bessel's construction
+            // Typically constructed by angles. We'll hardcode a visually pleasing point 'd'
+            const d = { x: cx - 20, y: cy + 10 };
+
+            // Base Drawing Paper
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(cx - 80, cy - 100, 160, 180);
+            drawPoint(ctx, pts.a.x, pts.a.y, "a", '#38bdf8');
+            drawPoint(ctx, pts.b.x, pts.b.y, "b", '#38bdf8');
+            drawPoint(ctx, pts.c.x, pts.c.y, "c", '#38bdf8');
+
+            // Phases
+            // 0.0 - 0.2: Draw ab line
+            // 0.2 - 0.4: Ray from a, Ray from b -> forms d
+            // 0.4 - 0.6: Draw line cd
+            // 0.6 - 0.8: Ray from a intersects cd at p
+            // 0.8 - 1.0: Highlight P
+
+            // 1. Line ab
+            if (p > 0.05) {
+                ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+                ctx.beginPath(); ctx.moveTo(pts.a.x, pts.a.y); ctx.lineTo(pts.b.x, pts.b.y); ctx.stroke(); ctx.setLineDash([]);
+            }
+
+            // 2. Construction Rays -> point d
+            if (p > 0.2) {
+                const rayP = Math.min(1, (p - 0.2) / 0.15);
+                ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.5;
+                
+                // Ray from a
+                ctx.beginPath(); ctx.moveTo(pts.a.x, pts.a.y);
+                ctx.lineTo(pts.a.x + (d.x - pts.a.x)*rayP, pts.a.y + (d.y - pts.a.y)*rayP); ctx.stroke();
+                
+                // Ray from b
+                ctx.beginPath(); ctx.moveTo(pts.b.x, pts.b.y);
+                ctx.lineTo(pts.b.x + (d.x - pts.b.x)*rayP, pts.b.y + (d.y - pts.b.y)*rayP); ctx.stroke();
+
+                if (rayP === 1) {
+                    drawPoint(ctx, d.x, d.y, "d", '#fbbf24');
+                    drawLabel(ctx, "Orient & Intersect at d", cx, cy + 95, '#fbbf24');
+                }
+            }
+
+            // 3. Line cd
+            if (p > 0.4) {
+                const lineP = Math.min(1, (p - 0.4) / 0.15);
+                ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(pts.c.x, pts.c.y);
+                // Extend past d
+                const extX = d.x + (d.x - pts.c.x)*0.5;
+                const extY = d.y + (d.y - pts.c.y)*0.5;
+                ctx.lineTo(pts.c.x + (extX - pts.c.x)*lineP, pts.c.y + (extY - pts.c.y)*lineP); ctx.stroke();
+            }
+
+            // 4. Final Resection Ray from a -> p
+            if (p > 0.6) {
+                const rayP = Math.min(1, (p - 0.6) / 0.15);
+                ctx.strokeStyle = '#34d399'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(pts.a.x, pts.a.y);
+                ctx.lineTo(pts.a.x + (pts.trueP.x - pts.a.x)*rayP, pts.a.y + (pts.trueP.y - pts.a.y)*rayP); ctx.stroke();
+            }
+
+            // 5. Point P
+            if (p > 0.75) {
+                drawPoint(ctx, pts.trueP.x, pts.trueP.y, "p", '#4ade80');
+                // Flash glow
+                if (Math.floor(p * 20) % 2 === 0) {
+                    ctx.fillStyle = 'rgba(52, 211, 153, 0.3)';
+                    ctx.beginPath(); ctx.arc(pts.trueP.x, pts.trueP.y, 8, 0, Math.PI*2); ctx.fill();
+                }
+                drawLabel(ctx, "EXACT LOCATION FOUND", cx, cy + 95, '#4ade80');
+            }
+        }
+
+        // 3. Trial and Error (Lehman's Method)
+        function renderLehman(ctx, w, h, p) {
+            const {cx, cy} = {cx: w/2, cy: h/2};
+            const pts = getPlottedPoints(cx, cy);
+
+            // Base Drawing Paper
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(cx - 80, cy - 100, 160, 180);
+            drawPoint(ctx, pts.a.x, pts.a.y, "a", '#38bdf8');
+            drawPoint(ctx, pts.b.x, pts.b.y, "b", '#38bdf8');
+            drawPoint(ctx, pts.c.x, pts.c.y, "c", '#38bdf8');
+
+            // Phases:
+            // 1. Bad orientation -> Large Triangle of error
+            // 2. Adjust -> Small Triangle of error
+            // 3. Perfect -> Single point intersection
+
+            let phase = 0;
+            if (p > 0.33 && p < 0.66) phase = 1;
+            else if (p >= 0.66) phase = 2;
+
+            // Define the center points of the triangles for each phase
+            const estimatedP = [
+                { x: cx - 15, y: cy + 20 }, // Bad estimate
+                { x: cx - 2, y: cy + 32 },  // Closer
+                pts.trueP                   // Perfect
+            ];
+
+            // Define how "spread out" the rays are (creating the triangle)
+            const errorSpread = [15, 5, 0];
+            
+            const currE = estimatedP[phase];
+            const spread = errorSpread[phase];
+
+            ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 1.5;
+            
+            const drawErrRay = (source, target, offsetAngle) => {
+                ctx.beginPath(); ctx.moveTo(source.x, source.y);
+                // The ray goes from the source, past the target with an angular error
+                const dist = 100;
+                const angle = Math.atan2(target.y - source.y, target.x - source.x) + offsetAngle;
+                ctx.lineTo(source.x + Math.cos(angle)*dist, source.y + Math.sin(angle)*dist);
+                ctx.stroke();
+            };
+
+            // Draw the 3 rays forming the triangle
+            // The angular error is simulated by tweaking the target angle
+            const errAng = spread / 100; // rough rads
+            
+            if (p % 0.33 > 0.05) { // Small delay before drawing rays each phase
+                drawErrRay(pts.a, currE, errAng);
+                drawErrRay(pts.b, currE, -errAng);
+                drawErrRay(pts.c, currE, errAng*0.5);
+
+                if (phase === 0) {
+                    drawLabel(ctx, "1. Large Triangle of Error", cx, cy + 95, '#f43f5e');
+                } else if (phase === 1) {
+                    drawLabel(ctx, "2. Table Rotated (Smaller Error)", cx, cy + 95, '#fbbf24');
+                } else if (phase === 2) {
+                    drawPoint(ctx, currE.x, currE.y, "p", '#4ade80');
+                    drawLabel(ctx, "3. Perfect Orientation!", cx, cy + 95, '#4ade80');
+                }
+            }
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 9000; // 9 seconds total (3s per phase for Lehman)
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'tracing': renderTracing(ctx, w, h, p); break;
+                    case 'graphical': renderGraphical(ctx, w, h, p); break;
+                    case 'lehman': renderLehman(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>

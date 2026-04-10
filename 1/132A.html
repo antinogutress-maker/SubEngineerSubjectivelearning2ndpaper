@@ -1,0 +1,528 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plane Tabling Methods - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling - Topo Grid / Ground */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
+                Plane Tabling Methods
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Surveying Visuals</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Method 1: Radiation -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-[260px] relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-radiation" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-4">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="sun" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">1. Radiation</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>One Station Setup:</strong> The table is set up at a single station. Rays are drawn from this center to various details (trees, corners). Distances are measured physically and plotted to scale on the paper.
+                    <br><span class="text-xs text-emerald-500 font-bold block mt-1">✓ Best for Small, Open Areas where all points are accessible.</span>
+                </p>
+            </div>
+        </article>
+
+        <!-- Method 2: Intersection -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-[260px] relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-intersection" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-4">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="crosshair" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">2. Intersection</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Two Station Setup:</strong> The table is set up at station A, a ray is drawn to the target. Then moved to station B (the baseline), and another ray is drawn. The target is plotted exactly where the two rays intersect on paper.
+                    <br><span class="text-xs text-amber-500 font-bold block mt-1">✓ Best for Inaccessible Points (Rivers, Mountains, Enemy Territory).</span>
+                </p>
+            </div>
+        </article>
+
+        <!-- Method 3: Traversing -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-blue-500/30 shadow-[0_10px_30px_-10px_rgba(59,130,246,0.2)]">
+            <div class="h-[260px] relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-traversing" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-4">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><i data-lucide="git-commit" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-blue-400">3. Traversing</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Moving Along a Path:</strong> The table is moved from station to station (A to B to C). At each station, a <em>backsight</em> is taken to orient the table, and a <em>foresight</em> is taken to the next station.
+                    <br><span class="text-xs text-blue-500 font-bold block mt-1">✓ Best for Route Surveys (Roads, Rivers) and connecting stations.</span>
+                </p>
+            </div>
+        </article>
+
+        <!-- Method 4: Resection -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-[260px] relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-resection" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-4">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="map-pin" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">4. Resection</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Finding Your Own Location:</strong> Used when the instrument station is <em>unknown</em>. The surveyor sights 2 or 3 <em>known</em>, already plotted points (A, B, C). Drawing rays backwards from these points intersects at your exact location (p) on the map.
+                    <br><span class="text-xs text-purple-500 font-bold block mt-1">✓ Best for Locating the Instrument Station (Three-Point Problem).</span>
+                </p>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            radiation: document.getElementById('canvas-radiation'),
+            intersection: document.getElementById('canvas-intersection'),
+            traversing: document.getElementById('canvas-traversing'),
+            resection: document.getElementById('canvas-resection')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- SHARED DRAWING UTILS --- //
+        function drawLabel(ctx, text, x, y, color='#fff', bg='rgba(15,23,42,0.8)') {
+            ctx.font = 'bold 10px Inter';
+            const w = ctx.measureText(text).width;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(x - w/2 - 6, y - 10, w + 12, 20, 4); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+        }
+
+        function drawTarget(ctx, x, y, label, color) {
+            // Target object (e.g. tree/building corner)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.beginPath(); ctx.arc(x, y, 12, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#fff'; ctx.lineWidth=1; ctx.stroke();
+            
+            ctx.fillStyle = color;
+            ctx.font = 'bold 12px JetBrains Mono'; ctx.textAlign = 'center';
+            ctx.fillText(label, x, y - 15);
+        }
+
+        function drawPlaneTable(ctx, x, y, rotation=0, scale=1) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rotation);
+            ctx.scale(scale, scale);
+            
+            // Tripod legs (abstract top down)
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 3;
+            for(let i=0; i<3; i++) {
+                ctx.beginPath(); ctx.moveTo(0,0); 
+                ctx.lineTo(Math.cos(i*Math.PI*2/3)*25, Math.sin(i*Math.PI*2/3)*25); ctx.stroke();
+            }
+
+            // Drawing Board (Paper)
+            ctx.fillStyle = '#f8fafc';
+            ctx.shadowBlur = 10; ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(-20, -15, 40, 30);
+            ctx.shadowBlur = 0;
+            
+            ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
+            ctx.strokeRect(-18, -13, 36, 26); // Margin
+
+            // Center pin 'p'
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath(); ctx.arc(0, 0, 2, 0, Math.PI*2); ctx.fill();
+
+            ctx.restore();
+        }
+        
+        function drawPeg(ctx, x, y, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+        }
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Radiation (Shooting rays from one central point)
+        function renderRadiation(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+            
+            // Targets
+            const targets = [
+                {x: cx - 80, y: cy - 60, l: "A"},
+                {x: cx + 80, y: cy - 40, l: "B"},
+                {x: cx + 40, y: cy + 70, l: "C"},
+                {x: cx - 60, y: cy + 50, l: "D"}
+            ];
+
+            targets.forEach(t => drawTarget(ctx, t.x, t.y, t.l, '#34d399'));
+
+            // Plane Table in center
+            drawPlaneTable(ctx, cx, cy, 0, 1.2);
+            ctx.fillStyle = '#10b981'; ctx.font='10px Inter'; ctx.fillText("Station 'p'", cx, cy + 30);
+
+            // Animation sequence: Draw rays one by one
+            const numTargets = targets.length;
+            const currentTargetIdx = Math.floor(p * numTargets);
+            const rayP = (p * numTargets) % 1; // 0 to 1 for current ray
+
+            targets.forEach((t, i) => {
+                if (i < currentTargetIdx) {
+                    // Fully drawn rays & scaled lines on paper
+                    ctx.strokeStyle = 'rgba(16, 185, 129, 0.3)'; ctx.lineWidth = 1.5; ctx.setLineDash([4,4]);
+                    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(t.x, t.y); ctx.stroke(); ctx.setLineDash([]);
+                    
+                    // Line on paper (scaled down)
+                    ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(cx, cy); 
+                    ctx.lineTo(cx + (t.x-cx)*0.2, cy + (t.y-cy)*0.2); ctx.stroke();
+                    ctx.fillStyle = '#10b981'; ctx.font='8px Inter'; ctx.fillText(t.l.toLowerCase(), cx + (t.x-cx)*0.25, cy + (t.y-cy)*0.25);
+
+                } else if (i === currentTargetIdx) {
+                    // Ray currently being drawn
+                    ctx.strokeStyle = '#34d399'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+                    ctx.beginPath(); ctx.moveTo(cx, cy); 
+                    const currX = cx + (t.x - cx) * rayP;
+                    const currY = cy + (t.y - cy) * rayP;
+                    ctx.lineTo(currX, currY); ctx.stroke(); ctx.setLineDash([]);
+                    
+                    // Tape measure label
+                    drawLabel(ctx, "Measuring...", currX, currY - 10, '#fcd34d', 'transparent');
+
+                    // Line drawing on paper simultaneously
+                    ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(cx, cy); 
+                    ctx.lineTo(cx + (t.x-cx)*0.2*rayP, cy + (t.y-cy)*0.2*rayP); ctx.stroke();
+                }
+            });
+
+            if (p > 0.95) drawLabel(ctx, "ALL POINTS RADIATED", cx, cy - 40, '#4ade80');
+        }
+
+        // 2. Intersection (Baseline A-B, shooting inaccessible point C)
+        function renderIntersection(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+            
+            const Ax = cx - 70; const Ay = cy + 60;
+            const Bx = cx + 70; const By = cy + 60;
+            const Cx = cx + 20; const Cy = cy - 60; // Inaccessible Mountain
+
+            // Draw Base Line A-B
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(Ax, Ay); ctx.lineTo(Bx, By); ctx.stroke();
+            drawLabel(ctx, "Baseline", cx, cy + 60, '#cbd5e1', 'transparent');
+
+            // Draw Inaccessible Target C
+            drawTarget(ctx, Cx, Cy, "Mountain C", '#f59e0b');
+
+            // Animation Phases
+            // 0.0 - 0.4: Table at A, sight C
+            // 0.4 - 0.5: Table moves to B
+            // 0.5 - 0.9: Table at B, sight C
+            // 0.9 - 1.0: Intersection fixed
+
+            if (p < 0.4) {
+                // Table at A
+                drawPlaneTable(ctx, Ax, Ay, 0, 1.2);
+                drawLabel(ctx, "Station A", Ax, Ay + 30, '#fbbf24', 'transparent');
+
+                const rayP = Math.min(1, p / 0.3);
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+                ctx.beginPath(); ctx.moveTo(Ax, Ay); 
+                ctx.lineTo(Ax + (Cx-Ax)*rayP, Ay + (Cy-Ay)*rayP); ctx.stroke(); ctx.setLineDash([]);
+                
+                // Ray on paper
+                ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(Ax, Ay); ctx.lineTo(Ax + (Cx-Ax)*0.2*rayP, Ay + (Cy-Ay)*0.2*rayP); ctx.stroke();
+                
+            } else if (p < 0.5) {
+                // Moving table A -> B
+                const moveP = (p - 0.4) / 0.1;
+                const currX = Ax + (Bx - Ax) * moveP;
+                const currY = Ay + (By - Ay) * moveP;
+                
+                // Show ghostly table moving
+                ctx.globalAlpha = 0.5;
+                drawPlaneTable(ctx, currX, currY, 0, 1.2);
+                ctx.globalAlpha = 1.0;
+
+                // Keep the ray drawn from A on the global map for reference
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.2)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+                ctx.beginPath(); ctx.moveTo(Ax, Ay); ctx.lineTo(Cx, Cy); ctx.stroke(); ctx.setLineDash([]);
+
+            } else {
+                // Table at B
+                drawPlaneTable(ctx, Bx, By, 0, 1.2);
+                drawLabel(ctx, "Station B", Bx, By + 30, '#fbbf24', 'transparent');
+
+                // Old ray from A remains
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)'; ctx.lineWidth = 1.5; ctx.setLineDash([4,4]);
+                ctx.beginPath(); ctx.moveTo(Ax, Ay); ctx.lineTo(Cx, Cy); ctx.stroke(); ctx.setLineDash([]);
+
+                const rayP = Math.min(1, (p - 0.5) / 0.3);
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+                ctx.beginPath(); ctx.moveTo(Bx, By); 
+                ctx.lineTo(Bx + (Cx-Bx)*rayP, By + (Cy-By)*rayP); ctx.stroke(); ctx.setLineDash([]);
+                
+                // Ray on paper (Requires transferring paper layout from A, but simplified for visual)
+                // We show the intersection happening visually on the main map
+                
+                if (p > 0.8) {
+                    // Intersection marked!
+                    ctx.fillStyle = '#ef4444';
+                    ctx.beginPath(); ctx.arc(Cx, Cy, 6, 0, Math.PI*2); ctx.fill();
+                    drawLabel(ctx, "LOCATION FIXED!", Cx + 40, Cy, '#ef4444');
+                }
+            }
+        }
+
+        // 3. Traversing (Moving A -> B -> C -> D)
+        function renderTraversing(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Route Stations
+            const stations = [
+                {x: cx - 100, y: cy + 40, l: "A"},
+                {x: cx - 30, y: cy - 40, l: "B"},
+                {x: cx + 40, y: cy + 20, l: "C"},
+                {x: cx + 110, y: cy - 20, l: "D"}
+            ];
+
+            stations.forEach(s => drawPeg(ctx, s.x, s.y, '#3b82f6'));
+            stations.forEach(s => drawLabel(ctx, s.l, s.x, s.y - 15, '#93c5fd', 'transparent'));
+
+            // Animation logic: 3 legs (A-B, B-C, C-D)
+            const numLegs = 3;
+            const legP = p * numLegs;
+            const currentLeg = Math.floor(legP);
+            const progress = legP % 1; // 0 to 1 for current leg
+
+            // Draw completed legs
+            ctx.strokeStyle = 'rgba(59, 130, 246, 0.5)'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            for(let i=0; i<=currentLeg && i < stations.length; i++) {
+                if(i===0) ctx.moveTo(stations[i].x, stations[i].y);
+                else ctx.lineTo(stations[i].x, stations[i].y);
+            }
+            ctx.stroke();
+
+            // Draw active leg logic
+            if (currentLeg < numLegs) {
+                const st = stations[currentLeg];
+                const next = stations[currentLeg+1];
+
+                // Table is at current station
+                drawPlaneTable(ctx, st.x, st.y, 0, 1.2);
+
+                if (progress < 0.3 && currentLeg > 0) {
+                    // Backsight to previous
+                    const prev = stations[currentLeg-1];
+                    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.setLineDash([2,2]);
+                    ctx.beginPath(); ctx.moveTo(st.x, st.y); ctx.lineTo(prev.x, prev.y); ctx.stroke(); ctx.setLineDash([]);
+                    drawLabel(ctx, "BACKSIGHT (Orient)", st.x, st.y + 25, '#ef4444');
+                } else {
+                    // Foresight to next
+                    const sightP = Math.min(1, (progress - 0.3) / 0.5); // 0 to 1
+                    if (sightP > 0) {
+                        ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+                        ctx.beginPath(); ctx.moveTo(st.x, st.y);
+                        ctx.lineTo(st.x + (next.x-st.x)*sightP, st.y + (next.y-st.y)*sightP); ctx.stroke(); ctx.setLineDash([]);
+                        
+                        // Line on paper
+                        ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2;
+                        ctx.beginPath(); ctx.moveTo(st.x, st.y);
+                        ctx.lineTo(st.x + (next.x-st.x)*0.2*sightP, st.y + (next.y-st.y)*0.2*sightP); ctx.stroke();
+
+                        if (sightP < 1) drawLabel(ctx, "FORESIGHT", st.x, st.y + 25, '#60a5fa');
+                        else drawLabel(ctx, "Move Table ➔", (st.x+next.x)/2, (st.y+next.y)/2 - 10, '#f8fafc');
+                    }
+                }
+            } else {
+                // Completed
+                drawPlaneTable(ctx, stations[3].x, stations[3].y, 0, 1.2);
+                drawLabel(ctx, "TRAVERSE CLOSED", cx, cy + 70, '#3b82f6');
+            }
+        }
+
+        // 4. Resection (Unknown station, backwards rays from known points)
+        function renderResection(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // 3 Known Objects Far Away
+            const knowns = [
+                {x: cx - 80, y: cy - 70, l: "Peak A"},
+                {x: cx, y: cy - 90, l: "Tower B"},
+                {x: cx + 80, y: cy - 50, l: "Tree C"}
+            ];
+
+            knowns.forEach(k => drawTarget(ctx, k.x, k.y, k.l, '#a855f7'));
+
+            // Unknown Instrument Station P (The table)
+            const Px = cx; 
+            const Py = cy + 40;
+            
+            drawPlaneTable(ctx, Px, Py, 0, 1.4);
+            
+            // The already plotted points on the paper (a, b, c) scaled down
+            const scale = 0.2;
+            const paperA = {x: Px + (knowns[0].x - Px)*scale, y: Py + (knowns[0].y - Py)*scale};
+            const paperB = {x: Px + (knowns[1].x - Px)*scale, y: Py + (knowns[1].y - Py)*scale};
+            const paperC = {x: Px + (knowns[2].x - Px)*scale, y: Py + (knowns[2].y - Py)*scale};
+
+            ctx.fillStyle = '#c084fc';
+            ctx.beginPath(); ctx.arc(paperA.x, paperA.y, 2, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(paperB.x, paperB.y, 2, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(paperC.x, paperC.y, 2, 0, Math.PI*2); ctx.fill();
+            ctx.font = '8px Inter'; ctx.fillText('a', paperA.x-5, paperA.y); ctx.fillText('b', paperB.x-5, paperB.y); ctx.fillText('c', paperC.x+5, paperC.y);
+
+            // Animation: Rays drawn BACKWARDS from real points, through paper points, converging at P
+            const rayP = Math.min(1, p * 1.5);
+
+            ctx.strokeStyle = 'rgba(168, 85, 247, 0.6)'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+            
+            knowns.forEach(k => {
+                ctx.beginPath();
+                ctx.moveTo(k.x, k.y);
+                const currX = k.x + (Px - k.x) * rayP;
+                const currY = k.y + (Py - k.y) * rayP;
+                ctx.lineTo(currX, currY);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            if (rayP === 1) {
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath(); ctx.arc(Px, Py, 4, 0, Math.PI*2); ctx.fill(); // Flash intersection
+                
+                // Blinking Text
+                if (Math.floor(p * 10) % 2 === 0) {
+                    drawLabel(ctx, "STATION 'p' LOCATED!", Px, Py + 35, '#ef4444');
+                }
+            } else {
+                drawLabel(ctx, "UNKNOWN STATION", Px, Py + 35, '#94a3b8');
+            }
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 6000; // 6 seconds per loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'radiation': renderRadiation(ctx, w, h, p); break;
+                    case 'intersection': renderIntersection(ctx, w, h, p); break;
+                    case 'traversing': renderTraversing(ctx, w, h, p); break;
+                    case 'resection': renderResection(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
+

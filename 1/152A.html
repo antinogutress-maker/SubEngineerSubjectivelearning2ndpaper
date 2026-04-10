@@ -1,0 +1,468 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Methods of Contouring - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling - Topo Grid */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-500">
+                Contouring Methods
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Surveying Visuals</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Method 1: Direct Method -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-direct" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="target" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">1. Direct Method</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Actually Traced on Ground:</strong> The instrument (Level) stays fixed while the staff man moves up/down the slope until the exact required staff reading is found.
+                    <br><span class="text-xs text-emerald-500 font-bold block mt-1">✓ Highly Accurate | ✓ For Small Works | ❌ Very Slow</span>
+                </p>
+            </div>
+        </article>
+
+        <!-- Method 2: Indirect - Cross Sections -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-cross" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="split-square-horizontal" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">2. Method of Cross-Sections</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>For Route Surveys:</strong> Best for roads, railways, and canals. A longitudinal base line is run, and cross-sections are taken perpendicular to it at regular intervals. Spot levels are taken along these cross-lines.
+                    <br><span class="text-xs text-amber-500 font-bold block mt-1">✓ Best for Long, Narrow Strips | ✓ Interpolated Contours</span>
+                </p>
+            </div>
+        </article>
+
+        <!-- Method 3: Indirect - Squares -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-blue-500/30 shadow-[0_10px_30px_-10px_rgba(59,130,246,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-squares" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><i data-lucide="grid-3x3" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-blue-400">3. Method of Squares</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Grid Method:</strong> The area is divided into a grid of squares. Elevations are observed exactly at the corners (nodes) of the squares. Contours are then drawn by interpolating between the corner values.
+                    <br><span class="text-xs text-blue-500 font-bold block mt-1">✓ Best for Flat / Gently Sloping Ground | ✓ Easy to Plot</span>
+                </p>
+            </div>
+        </article>
+
+        <!-- Method 4: Indirect - Tacheometric -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-tacheometric" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="radar" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">4. Tacheometric Method</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>Radial Method:</strong> An optical transit (Tacheometer) is set up centrally. Radial lines are observed at specific angles, and spot levels/distances are calculated optically without physical taping.
+                    <br><span class="text-xs text-purple-500 font-bold block mt-1">✓ Best for Hilly / Rough / Inaccessible Terrain</span>
+                </p>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            direct: document.getElementById('canvas-direct'),
+            cross: document.getElementById('canvas-cross'),
+            squares: document.getElementById('canvas-squares'),
+            tacheometric: document.getElementById('canvas-tacheometric')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- SHARED DRAWING UTILS --- //
+        function drawLabel(ctx, text, x, y, color='#fff', bg='rgba(15,23,42,0.8)') {
+            ctx.font = 'bold 10px Inter';
+            const w = ctx.measureText(text).width;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(x - w/2 - 6, y - 10, w + 12, 20, 4); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+        }
+
+        function drawInstrument(ctx, x, y, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.moveTo(x, y-10); ctx.lineTo(x-8, y+10); ctx.lineTo(x+8, y+10); ctx.fill(); // Tripod
+            ctx.fillRect(x-6, y-14, 12, 6); // Scope
+        }
+
+        function drawPeg(ctx, x, y, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+        }
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Direct Method (Staff physically moving to find exact contour line)
+        function renderDirect(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+            
+            // Draw central instrument
+            drawInstrument(ctx, cx, cy, '#10b981');
+            drawLabel(ctx, "LEVEL MACHINE", cx, cy - 25, '#10b981', 'transparent');
+
+            // The target contour path (invisible to the surveyor initially)
+            const targetR = 50;
+            
+            // Animation logic: Staff man walks radially out. When he hits targetR, a peg is dropped.
+            // He does this at 4 different angles.
+            const angles = [0, Math.PI/2, Math.PI, Math.PI*1.5];
+            const phase = Math.floor(p * 5); // 0, 1, 2, 3, 4(connect)
+            
+            ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+
+            for (let i = 0; i < 4; i++) {
+                if (phase > i) {
+                    // Past phase: Peg is dropped
+                    const px = cx + Math.cos(angles[i]) * targetR;
+                    const py = cy + Math.sin(angles[i]) * targetR;
+                    drawPeg(ctx, px, py, '#10b981');
+                    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke(); // Sight line
+                } else if (phase === i) {
+                    // Current phase: Staff man moving
+                    const moveP = (p * 5) % 1; // 0 to 1
+                    // Walks past the target, then steps back to exactly hit targetR
+                    const currentR = targetR * 1.5 * Math.sin(moveP * Math.PI); 
+                    
+                    const px = cx + Math.cos(angles[i]) * currentR;
+                    const py = cy + Math.sin(angles[i]) * currentR;
+                    
+                    // Sight line searching
+                    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
+                    
+                    // Staff man
+                    ctx.fillStyle = '#f8fafc'; ctx.fillRect(px-2, py-10, 4, 20); // Staff
+                    ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI*2); ctx.fill(); // Person
+                    
+                    if (Math.abs(currentR - targetR) < 2) {
+                        drawLabel(ctx, "FOUND 100m!", px, py - 20, '#10b981');
+                    } else {
+                        drawLabel(ctx, "SEARCHING...", px, py - 20, '#94a3b8');
+                    }
+                }
+            }
+            ctx.setLineDash([]);
+
+            // Phase 4: Connect the physically found points
+            if (phase === 4) {
+                ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2.5;
+                ctx.beginPath(); ctx.arc(cx, cy, targetR, 0, Math.PI*2); ctx.stroke();
+                drawLabel(ctx, "CONTOUR TRACED ON GROUND", cx, cy + 75, '#10b981');
+            }
+        }
+
+        // 2. Method of Cross Sections (Route Survey)
+        function renderCrossSections(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Draw Longitudinal Line (Centerline of Road/Canal)
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(20, cy); ctx.lineTo(w-20, cy); ctx.stroke();
+            
+            // Draw Cross Section Lines
+            ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+            const crossX = [40, w/2, w-40];
+            crossX.forEach(x => {
+                ctx.beginPath(); ctx.moveTo(x, cy - 60); ctx.lineTo(x, cy + 60); ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // Spot levels taken on the cross sections
+            const spots = [
+                {x: 40, y: cy-40, val: 99}, {x: 40, y: cy, val: 100}, {x: 40, y: cy+40, val: 101},
+                {x: w/2, y: cy-40, val: 98}, {x: w/2, y: cy, val: 100}, {x: w/2, y: cy+40, val: 102},
+                {x: w-40, y: cy-40, val: 97}, {x: w-40, y: cy, val: 99}, {x: w-40, y: cy+40, val: 100}
+            ];
+
+            const drawP = Math.min(1, p * 2); // 0 to 0.5 spots appear
+            
+            if (drawP > 0) {
+                spots.forEach((spot, i) => {
+                    if (drawP > i/spots.length) {
+                        drawPeg(ctx, spot.x, spot.y, '#f59e0b');
+                        ctx.fillStyle = '#fcd34d'; ctx.font = '8px Inter'; ctx.textAlign='center';
+                        ctx.fillText(spot.val, spot.x + 12, spot.y - 4);
+                    }
+                });
+            }
+
+            // Interpolate and Draw Contours crossing the route
+            if (p > 0.5) {
+                const contourP = Math.min(1, (p - 0.5) * 2);
+                ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2;
+                
+                // Contour 100m
+                ctx.beginPath(); ctx.moveTo(40, cy);
+                ctx.quadraticCurveTo(w/2, cy, w-40, cy+40);
+                if(contourP===1) ctx.stroke();
+
+                // Contour 99m
+                ctx.beginPath(); ctx.moveTo(40, cy-40);
+                ctx.quadraticCurveTo(w/2, cy-20, w-40, cy);
+                if(contourP===1) ctx.stroke();
+
+                drawLabel(ctx, "INTERPOLATED CONTOURS", cx, cy + 75, '#fbbf24');
+            }
+            drawLabel(ctx, "ROUTE CENTERLINE", cx, cy - 75, '#cbd5e1', 'transparent');
+        }
+
+        // 3. Method of Squares (Grid Method)
+        function renderSquares(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+            const size = 80;
+            const startX = cx - size;
+            const startY = cy - size/2;
+
+            // Draw Grid
+            ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)'; ctx.lineWidth = 1;
+            for(let i=0; i<=2; i++) {
+                ctx.beginPath(); ctx.moveTo(startX, startY + i*size/2); ctx.lineTo(startX + size*2, startY + i*size/2); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(startX + i*size, startY); ctx.lineTo(startX + i*size, startY + size); ctx.stroke();
+            }
+
+            // Nodes & Elevations (Simulating gentle slope)
+            const gridNodes = [
+                {x: startX, y: startY, v: 98}, {x: startX+size, y: startY, v: 99}, {x: startX+size*2, y: startY, v: 100},
+                {x: startX, y: startY+size/2, v: 99}, {x: startX+size, y: startY+size/2, v: 100}, {x: startX+size*2, y: startY+size/2, v: 101},
+                {x: startX, y: startY+size, v: 100}, {x: startX+size, y: startY+size, v: 101}, {x: startX+size*2, y: startY+size, v: 102}
+            ];
+
+            const gridP = Math.min(1, p * 2);
+            if (gridP > 0) {
+                gridNodes.forEach((node, i) => {
+                    if (gridP > i/gridNodes.length) {
+                        drawPeg(ctx, node.x, node.y, '#3b82f6');
+                        ctx.fillStyle = '#93c5fd'; ctx.font = '8px Inter'; ctx.textAlign='center';
+                        ctx.fillText(node.v, node.x - 12, node.y - 4);
+                    }
+                });
+            }
+
+            // Interpolated Contours winding through grid
+            if (p > 0.5) {
+                const contourP = Math.min(1, (p - 0.5) * 2);
+                ctx.strokeStyle = '#60a5fa'; ctx.lineWidth = 2;
+                
+                // Contour 100
+                ctx.beginPath(); 
+                ctx.moveTo(startX+size*2, startY); // 100
+                ctx.quadraticCurveTo(startX+size, startY+size/2, startX, startY+size); // 100
+                if(contourP===1) ctx.stroke();
+                if(contourP===1) ctx.fillText("100m", startX-10, startY+size+10);
+
+                // Contour 99
+                ctx.beginPath(); 
+                ctx.moveTo(startX+size, startY); // 99
+                ctx.quadraticCurveTo(startX+size/2, startY+size/4, startX, startY+size/2); // 99
+                if(contourP===1) ctx.stroke();
+                if(contourP===1) ctx.fillText("99m", startX-10, startY+size/2+10);
+
+                drawLabel(ctx, "GRID CORNER ELEVATIONS", cx, cy - 65, '#93c5fd');
+            }
+        }
+
+        // 4. Tacheometric Method (Radial Rays)
+        function renderTacheometric(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            drawInstrument(ctx, cx, cy, '#a855f7');
+            drawLabel(ctx, "TACHEOMETER", cx, cy - 25, '#c084fc', 'transparent');
+
+            // Draw Radial Lines (Radar sweep style)
+            const sweepAng = p * Math.PI * 2;
+            
+            ctx.save();
+            ctx.translate(cx, cy);
+            
+            // Faint background radials
+            ctx.strokeStyle = 'rgba(168, 85, 247, 0.2)'; ctx.lineWidth = 1; ctx.setLineDash([2,2]);
+            for(let a=0; a<Math.PI*2; a+=Math.PI/4) {
+                ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*80, Math.sin(a)*80); ctx.stroke();
+            }
+            ctx.setLineDash([]);
+
+            // Sweeping scanning line
+            ctx.strokeStyle = '#c084fc'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(sweepAng)*80, Math.sin(sweepAng)*80); ctx.stroke();
+            
+            // Highlight wedge
+            ctx.fillStyle = 'rgba(168, 85, 247, 0.1)';
+            ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0, 0, 80, sweepAng - 0.5, sweepAng); ctx.fill();
+
+            // Plotted Points along radials (simulating rough terrain)
+            const radPoints = [
+                {a: 0, r: 40}, {a: Math.PI/4, r: 60}, {a: Math.PI/2, r: 50}, {a: Math.PI*0.75, r: 70},
+                {a: Math.PI, r: 30}, {a: Math.PI*1.25, r: 50}, {a: Math.PI*1.5, r: 60}, {a: Math.PI*1.75, r: 40}
+            ];
+
+            ctx.strokeStyle = '#d8b4fe'; ctx.lineWidth = 2;
+            
+            // Connect points that have been swept past
+            ctx.beginPath();
+            let firstPt = true;
+            radPoints.forEach((pt, i) => {
+                if (sweepAng > pt.a) {
+                    const px = Math.cos(pt.a) * pt.r;
+                    const py = Math.sin(pt.a) * pt.r;
+                    
+                    // Draw point
+                    ctx.fillStyle = '#d8b4fe';
+                    ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI*2); ctx.fill();
+                    
+                    // Connect contour line
+                    if (firstPt) { ctx.moveTo(px, py); firstPt = false; }
+                    else { ctx.lineTo(px, py); }
+                }
+            });
+            // If sweep completes, close the loop
+            if (sweepAng > Math.PI*1.9) {
+                const px0 = Math.cos(radPoints[0].a) * radPoints[0].r;
+                const py0 = Math.sin(radPoints[0].a) * radPoints[0].r;
+                ctx.lineTo(px0, py0);
+            }
+            ctx.stroke();
+
+            ctx.restore();
+
+            if (p > 0.8) {
+                drawLabel(ctx, "RADIAL OPTICAL SURVEY", cx, cy + 75, '#d8b4fe');
+            }
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 5000; // 5 seconds per loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'direct': renderDirect(ctx, w, h, p); break;
+                    case 'cross': renderCrossSections(ctx, w, h, p); break;
+                    case 'squares': renderSquares(ctx, w, h, p); break;
+                    case 'tacheometric': renderTacheometric(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
+

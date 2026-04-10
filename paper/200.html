@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civil Subjective Question Bank</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Poppins:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        .font-sans { font-family: 'Poppins', sans-serif; }
+        .font-serif { font-family: 'Noto Serif', serif; }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Inline Icons (Replacing Lucide-React for zero-dependency) ---
+        const IconGraduationCap = ({ className, size }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        );
+        const IconChevronLeft = ({ className, size }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"/></svg>
+        );
+        const IconPrinter = ({ className, size }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>
+        );
+        const IconShare2 = ({ className, size }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        );
+
+        const App = () => {
+            const [selectedSubject, setSelectedSubject] = useState(null);
+            const [isTransitioning, setIsTransitioning] = useState(false);
+
+            const subjectsData = [
+                {
+                    id: 1,
+                    name: "Surveying",
+                    questions: [
+                        { q: "1. What do you mean by well-conditioned triangle? Explain the suitability and unsuitability of chain surveying.", m: "(2+3=5)" },
+                        { q: "2. Define Base line, proof lines and Tie lines in chain surveying. And write its purpose.", m: "(5)" },
+                        { q: "3. Define compass survey. Distinguish between prismatic compass and surveyor compass.", m: "(1+4=5)" },
+                        { q: "4. What do you mean by surveying? Write down the characteristics of contour line.", m: "(1+4=5)" },
+                        { q: "5. Define the following terms: a) Contour interval b) Horizontal equivalent c) Contour line d) Contour gradient e) Index contour", m: "(5x1=5)" },
+                        { q: "6. Explain the principle of surveying with sketch?", m: "(5)" },
+                        { q: "7. Define topography surveying? Different between plane and geodetic surveying?", m: "(5)" },
+                        { q: "8. Classify the surveying based on the instrument used?", m: "(5)" },
+                        { q: "9. \"Surveying is important in construction filed\" justify this statement.", m: "(5)" },
+                        { q: "10. What do u man by plane table surveying? Why plane table survey is not used in wet climate? Is this accurate or not as compared to compass survey?", m: "(2+2+1=5)" },
+                        { q: "11. Write down the advantage and disadvantage of plane table surveying.", m: "(2.5+2.5=5)" },
+                        { q: "12. Explain the fundamental line of telescope in short.", m: "(5)" },
+                        { q: "13. Define the terms \"levelling\". Explain the methods of levelling.", m: "(2+8=10)" },
+                        { q: "14. What do you mean by chain surveying? Difference between single line field book and double line filed book.", m: "(1+4=5)" },
+                        { q: "15. Define the following terms: a) True meridian b) Magnetic meridian c) Azimuth d) Magnetic declination e) Bearing f) Magnetic Bearing g) True Baring", m: "(5x1=5)" },
+                        { q: "16. What do u mean by Dip? Difference between prismatic and surveyor compass.", m: "(1+4=5)" },
+                        { q: "17. What is the balance of traverse? How do u balance the traverse?", m: "(2+3=5)" },
+                        { q: "18. Define orientation. What are the methods of plane tabling?", m: "(2+8=10)" },
+                        { q: "19. What do you mean by curve? Explain the different types of curve.", m: "(1+4=5)" },
+                        { q: "20. Explain the elements of curve with neat sketch.", m: "(10)" },
+                        { q: "21. Explain about setting out of building.", m: "(5)" }
+                    ]
+                },
+                {
+                    id: 2,
+                    name: "Construction Materials",
+                    questions: [
+                        { q: "1. What are the process of taking out stone from rock?", m: "(5)" },
+                        { q: "2. Why construction materials are important in civil engineering filed.", m: "(5)" },
+                        { q: "3. Define igneous rock. Explain the geological classification of rock.", m: "(1+4=5)" },
+                        { q: "4. Classify the stone on the basic of physical and chemical composition along with examples.", m: "(5)" },
+                        { q: "5. What do you mean by quarrying? Write down the process of quarrying.", m: "(2+8=10)" },
+                        { q: "6. Define the following terms? a) Quarry sap b) Dressing c) Volcanic rock d) Plutonic rock e) Specific gravity", m: "(5)" },
+                        { q: "7. What are the main constituents of cement? Explain.", m: "(5)" },
+                        { q: "8. Explain the chemical composition (cement clinkers ) of cement.", m: "(5)" },
+                        { q: "9. \"Why OPC cement is widely used in construction industry\". Justify this statement.", m: "(5)" },
+                        { q: "10. List out the different types of cement. Explain 3 types out of you listed.", m: "(2+3=5)" },
+                        { q: "11. Difference between dry process and wet process.", m: "(5)" },
+                        { q: "12. Write down the specification of storage and transport of cement bags?", m: "(5)" },
+                        { q: "13. What do you mean by admixtures? Explain it purpose.", m: "(5)" },
+                        { q: "14. List out the types of admixtures? And explain only 3 out of you listed.", m: "(2+3=5)" },
+                        { q: "15. What are the process of preparing brick earth? Explain in short.", m: "(5)" },
+                        { q: "16. What are the main ingredients of good brick earth? Explain.", m: "(5)" },
+                        { q: "17. Define bond and explain the type of bonds.", m: "(1+4=5)" },
+                        { q: "18. Define paint. List out the ingredients of paint and explain the preparing process of paint.", m: "(1+2+2=5)" },
+                        { q: "19. What are the types of paint? Explain only 3 out of you listed.", m: "(2+3=5)" },
+                        { q: "20. Difference between varnish and bitumen? Write down the use of bitumen.", m: "(2+3=5)" }
+                    ]
+                },
+                {
+                    id: 3,
+                    name: "Mechanics of Structure",
+                    questions: [
+                        { q: "1. Define stress and strain. Explain the types of stress and strain in short.", m: "(1+4=5)" },
+                        { q: "2. Define the following terms. a) Rigid Body b) Deformable body c) Poisson's ratio d) Elasticity e) Plasticity", m: "(5x1=5)" },
+                        { q: "3. What are the properties of materials? Explain in short", m: "(5)" },
+                        { q: "4. State hooks law. Show that the Relationship between three elastic module (E, G & K) and poison's ratio (μ).", m: "(2+3=5)" },
+                        { q: "5. Define Resilience, proof resilience and modulus of resilience. Draw and explain stress-strain diagram for mild steel.", m: "(3+7=10)" },
+                        { q: "6. Draw the stress strain curve for ductile materials and explain the salient points on it.", m: "(2+3=5)" },
+                        { q: "7. What do you mean by slenderness ratio? Write down the assumption of flexure bending equations.", m: "(2+3=5)" },
+                        { q: "8. Define load. What are the types of load explain with sketch?", m: "(1+4=5)" },
+                        { q: "9. What do you mean by Radius of gyration? Explain the types of support with figure.", m: "(2+3=5)" },
+                        { q: "10. Define beam as a structural components of any civil engineering structures. List out types of beam. Explain any four types of beam you have listed.", m: "(2+1+2=5)" },
+                        { q: "11. Define Load, Axial force, Shear force, and bending moment. Show that the relationship between Load, shear force and Bending moment.", m: "(4+6=10)" },
+                        { q: "12. What do you mean by point of contra-flexure? Difference between long column and short column.", m: "(2+3=5)" }
+                    ]
+                },
+                {
+                    id: 4,
+                    name: "Hydraulic",
+                    questions: [
+                        { q: "1. What do you mean by specific gravity ? explain the Newton's law of viscosity.", m: "(2+3=5)" },
+                        { q: "2. State Pascal's law . Show that the relationship between absolute, gauge and atmospheric pressure.", m: "(1+4=5)" },
+                        { q: "3. Define the following properties of fluids a) Density b) Specific weight c) Specific volume d) Viscosity e) Kinematic viscosity", m: "(5x1=5)" },
+                        { q: "4. What do you mean by viscosity? Different between Newtonian fluid and non- Newtonian fluid.", m: "(2+3=5)" },
+                        { q: "5. Define kinetic energy and potential energy. Show that the relationship between datum head, potential energy and velocity head.", m: "(1.5+1.5+2=5)" },
+                        { q: "6. What do you mean by head loss? How do you calculate the head loss in an open channel flow explain with formula.", m: "(1+4=5)" },
+                        { q: "7. Define cavitation and capillarity. What are the factors affecting of capillarity?", m: "(0.5+2+2.5=5)" },
+                        { q: "8. Define dynamic viscosity. Why falling drop of rain water becomes sphere ? Explain", m: "(1+4=5)" },
+                        { q: "9. Define the following types of flow. a) Uniform and non-uniform flow b) Steady and un-steady flow c) Laminar and turbulent flow d) Compressible and non- compressible flow e) Rotational and irrotational flow", m: "(5x2=10)" },
+                        { q: "10. Different between Hydro-Kinematics & Hydro-Dynamics. What are the energy of flowing fluid in an open channel flow?", m: "(1.5+3.5=5)" },
+                        { q: "11. What are the function of weir ? Show that the difference between weir and notch.", m: "(2+3=5)" },
+                        { q: "12. State and write the equations of Bernoulli's theorem. What are the main difference between weir and barrage?", m: "(3+2=5)" },
+                        { q: "13. What do you mean by critical depth. Explain the characteristics of open channel flow.", m: "(1+4=5)" },
+                        { q: "14. Define Reynold's number. Differentiate between open channel flow and pipe flow.", m: "(1+4=5)" },
+                        { q: "15. Point out the difference between real fluids and ideal fluids.", m: "(5)" },
+                        { q: "16. Elaborate surface tension and capillarity.", m: "(5)" },
+                        { q: "17. Derive an expression for capillary rise or fall.", m: "(5)" },
+                        { q: "18. What is viscosity? Elaborate Newton's law of viscosity.", m: "(5)" }
+                    ]
+                },
+                {
+                    id: 5,
+                    name: "Soil Mechanics",
+                    questions: [
+                        { q: "1. Define soil. Explain the different types of soil.", m: "[10]" },
+                        { q: "2. Explain about three phase system of soil.", m: "[5]" },
+                        { q: "3. Derive an expression for porosity and void ratio.", m: "[5]" },
+                        { q: "4. Define density index. Explain about different types of water in soil.", m: "[10]" },
+                        { q: "5. Illustrate about effective stress. Explain About Terzaghi principle of effective stress.", m: "[15]" },
+                        { q: "6. Define permeability. Explain about factor affecting permeability.", m: "[1+4]" },
+                        { q: "7. Describe about different method for determination of permeability coefficient.", m: "[10]" },
+                        { q: "8. Define Optimum moisture content. List out the factoring affecting the compaction.", m: "[1+4]" },
+                        { q: "9. Derive an expression for dry density and moisture content.", m: "[5]" },
+                        { q: "10. Explain about Mohr's-coulomb failure theory of soil.", m: "[5]" },
+                        { q: "11. Define earth pressure. Explain about active, passive and pressure at rest.", m: "[10]" },
+                        { q: "12. What is the effect of water table in bearing capacity.", m: "[5]" },
+                        { q: "13. Explain about Negative skin friction. And also explain terzaghis general bearing capacity.", m: "[10]" },
+                        { q: "14. Explain about improving the bearing capacity of soil.", m: "[5]" }
+                    ]
+                },
+                {
+                    id: 6,
+                    name: "Structure Design (R.C.C)",
+                    questions: [
+                        { q: "1. Define RCC. Explain About Singly and Doubly reinforced sections with examples.", m: "[1+4]" },
+                        { q: "2. Describe about balanced, under reinforced section and over reinforced RCC Sections.", m: "[5]" },
+                        { q: "3. Write down the design consideration of doubly reinforced beam. Explain about condition for providing doubly reinforced beam.", m: "[2+3]" },
+                        { q: "4. Explain about the shear failure of RC Sections.", m: "[5]" },
+                        { q: "5. Define bond stress, development length. Explain the different types of shear reinforcement and their design criteria.", m: "[2+3]" },
+                        { q: "6. Find the moment of resistance of a RCC beam 250mm wide and 500mm effective depth if it is reinforced with 3-16 mm dia. Bars. The permissible stresses for concrete and steel are given as 7 MPa and 230 MPa.", m: "[10]" },
+                        { q: "7. Define compression member. Write down the different types of Column.", m: "[1+9]" },
+                        { q: "8. A column has cross sectional area 300 x 300 mm and is reinforced with 4- 25mm. Determine the permissible load if effectively held in position at both ends, but restrained against rotation having a) A length of 3m b) A length of 5 m. Use M25 concrete and Fe415 steel", m: "[10]" },
+                        { q: "9. Explain about the moment resisting bars in slab with their design considerations.", m: "[5]" },
+                        { q: "10. Write down the design steps of simple one way slab with necessary codal provisions.", m: "[5]" }
+                    ]
+                },
+                {
+                    id: 7,
+                    name: "Building Construction",
+                    questions: [
+                        { q: "1. Define building. What are the types of building?", m: "[1+4]" },
+                        { q: "2. What are the elements of building .Explain?", m: "[5]" },
+                        { q: "3. What are the basic requirements of building?", m: "[5]" },
+                        { q: "4. Define sub - soil exploration. Write down its objective?", m: "[1+4]" },
+                        { q: "5. Explain briefly the stages in the site investigation?", m: "[5]" },
+                        { q: "6. Define foundation sand write down its types?", m: "[1+4]" },
+                        { q: "7. What are the essential requirement of Good foundation?", m: "[5]" },
+                        { q: "8. Define Timbering of trench and what are the method of Timbering in short?", m: "[1+4]" },
+                        { q: "9. Write down the basic types of walls and their function in details?", m: "[2+3]" },
+                        { q: "10. Explain about the different types of bonds on brick wall with sketches?", m: "[5]" },
+                        { q: "11. Define stone masonry. Write down the classification of stone masonry?", m: "[1+4]" },
+                        { q: "12. Explain dump proofing and causes and effect of damping?", m: "[1+2+2]" },
+                        { q: "13. Explain the properties of Aggregate?", m: "[5]" },
+                        { q: "14. Explain work ability of concrete and what are the factor affecting of workability of concrete?", m: "[1+4]" },
+                        { q: "15. What are the factor affecting the strength of concrete?", m: "[5]" }
+                    ]
+                },
+                {
+                    id: 8,
+                    name: "Water Supply & Sanitation",
+                    questions: [
+                        { q: "1. What do you mean by potable and Wholesome water? Write down the objective of water supply system.", m: "(2+3=5)" },
+                        { q: "2. What are the different sources of water. Explain", m: "(5)" },
+                        { q: "3. What are the factor affecting selection of water source? Explain.", m: "(5)" },
+                        { q: "4. What is infiltration gallery with a neat sketch?", m: "(5)" },
+                        { q: "5. Write differences between shallow well and deep well.", m: "(5)" },
+                        { q: "6. With the help of neat sketch describe various type of spring.", m: "(5)" },
+                        { q: "7. Define per capita demand of water. Describe various type of water demand that should be considered in the urban water supply system.", m: "(2+8=10)" },
+                        { q: "8. What are the major governing factor the selection of design period in water supply scheme?", m: "(5)" },
+                        { q: "9. How can you determine the storage capacity of tank. Explain.", m: "(5)" },
+                        { q: "10. What are the requirement's of good pipe material?", m: "(5)" },
+                        { q: "11. Describe the various material used in water supply pipes. Compare their advantage and disadvantage.", m: "(5)" },
+                        { q: "12. Explain the various formula commonly used for determination of head loss due to friction in pipe.", m: "(5)" },
+                        { q: "13. What are the different types of sewerage system? Explain", m: "(5)" },
+                        { q: "14. Write down the difference between separated and combined system of sewerage.", m: "(5)" },
+                        { q: "15. What are the factor affecting quantity of sanitary sewage?", m: "(5)" },
+                        { q: "16. Differentiate DWF and WWF. Briefly describe various sources of sanitary sewage.", m: "(4+6=10)" },
+                        { q: "17. What is self cleansing velocity and non scouring velocity?", m: "(2.5+2.5=5)" },
+                        { q: "18. Why sewer do not allow to run full? Why circular section of sewer is designed mostly?", m: "(2+3=5)" },
+                        { q: "19. What is on-site sanitation? Write about pit latrine.", m: "(2+8=10)" },
+                        { q: "20. Write down the basic design criteria of septic tank.", m: "(5)" }
+                    ]
+                },
+                {
+                    id: 9,
+                    name: "Irrigation Engineering",
+                    questions: [
+                        { q: "1. Define Irrigation. Why irrigation is important in context of Nepal?", m: "(1+4=5)" },
+                        { q: "2. Describe briefly the methods of irrigation.", m: "(10)" },
+                        { q: "3. What are the advantages of Sprinkler and drip irrigation over other methods of irrigation?", m: "(5)" },
+                        { q: "4. Define duty and delta. Show the relation between base period and delta.", m: "(1+4=5)" },
+                        { q: "5. Briefly describe components of canal cross section with sketches.", m: "(10)" },
+                        { q: "6. What are the advantages of lined canal over unlined canal?", m: "(5)" },
+                        { q: "7. What do you mean by diversion headworks? Differentiate between weir and barrage.", m: "(5)" },
+                        { q: "8. Describe different types of cross drainage structures.", m: "(2+3=5)" },
+                        { q: "9. What is river training? What are the objectives of river training?", m: "(5)" },
+                        { q: "10. What are different methods of river training?", m: "(2+3=5)" },
+                        { q: "11. What is a spillway? Why spillway is required in irrigation projects?", m: "(5)" },
+                        { q: "12. Describe different types of spillways.", m: "(1+4=5)" },
+                        { q: "13. The culturable command area of an irrigation project is 5000 hectares and the intensity of irrigation of rice is 80 %. If base period of rice is 120 days and delta is 120 cm, find the duty of water and discharge required to irrigate the rice fields.", m: "(5)" },
+                        { q: "14. A trapezoidal section is proposed with base width of 5 m and depth of 1.5 m. The longitudinal slope of the proposed canal is 1 in 1000 and manning's rugosity coefficient of the canal cross section is 0.023. If side slope of the canal is fixed at 1 H: 0.5 V, determine the velocity and discharge in the canal.", m: "(10)" }
+                    ]
+                },
+                {
+                    id: 10,
+                    name: "Highway Engineering",
+                    sections: [
+                        {
+                            sectionName: "Short Question",
+                            questions: [
+                                { q: "1. Explain about history of Road making?", m: "[5]" },
+                                { q: "2. Explain about the classification of road as per NRs -2070.", m: "[5]" },
+                                { q: "3. Define Gradient. What are the types of Gradient.", m: "[1+4]" },
+                                { q: "4. Derive an expression about the summit curve", m: "[5]" },
+                                { q: "5. Why Road transportation is considered the most feasible in our country?", m: "[5]" },
+                                { q: "6. What is highway alignment? What are the requirements of an ideal highway alignment.", m: "[1+4]" },
+                                { q: "7. Explain preliminary survey for highway location in brief.", m: "[5]" },
+                                { q: "8. Explain cross drainage structures, Explain it types with neat sketches", m: "[2+3]" },
+                                { q: "9. What is road pavement? What are the main types of road pavement? Define briefly.", m: "[1+2+2]" },
+                                { q: "10. What are the different types of maintenance explain briefly?", m: "[5]" },
+                                { q: "11. Write down the name of different elements of highway cross section.", m: "[5]" },
+                                { q: "12. What is trail bridge. Explain it's type and components of suspension bridge.", m: "[1+4]" },
+                                { q: "13. What are the characteristics of ideal bridge?", m: "[5]" },
+                                { q: "14. Deference between flexible and rigid pavements.", m: "[5]" },
+                                { q: "15. What are the requirements of highway drainage system.", m: "[5]" },
+                                { q: "16. Explain Engineering for highway alignment?", m: "[5]" }
+                            ]
+                        },
+                        {
+                            sectionName: "Long Question",
+                            questions: [
+                                { q: "1. What are the factor affecting Geometric design of Highway? Discuss in brief.", m: "[10]" },
+                                { q: "2. Describe different modes of transportation which modes of transportation is suitable for Nepal. Explain why?", m: "[10]" },
+                                { q: "3. Briefly discuss the historical development of road construction in Nepal.", m: "[10]" },
+                                { q: "4. Write Short notes on a. Camber and its types b. Super elevation c. Types of bridges d. Shoulder e. Road side drain", m: "[10]" },
+                                { q: "5. Numerical: For a two - lane new national highway having design speed of 60kmph the radius of curve is 600 m in plain terrain. The rate of introduction of super - elevation is 1 in 80. The extra width provided on road section is 0.5 m. Design the length of transition curve and find out the required shift. Assume the pavement is related about inner edge.", m: "[10]" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 11,
+                    name: "Estimating & Costing",
+                    questions: [
+                        { q: "1. What is estimate? Write down the purpose of estimate.", m: "(5)" },
+                        { q: "2. Discuss about the different types of estimate.", m: "(5)" },
+                        { q: "3. What are the purposes of valuation. Write down about rental and development method of valuation.", m: "(4+6=10)" },
+                        { q: "4. Describe briefly any two valuation method of a property.", m: "(5)" },
+                        { q: "5. What are the factor affecting the unit rate?", m: "(5)" },
+                        { q: "6. What are the factors to be consider in preparation of Rate analysis of any construction work on the basis of prevailing norms?", m: "(5)" },
+                        { q: "7. What do you understand by rate analysis? Write it's important.", m: "(5)" },
+                        { q: "8. Describe purpose and method of Valuation in engineering works.", m: "(10)" },
+                        { q: "9. What is specification? Write down the Purposes of specification.", m: "(5)" }
+                    ]
+                },
+                {
+                    id: 12,
+                    name: "Construction Management",
+                    questions: [
+                        { q: "1. Define organization. What are the basic needs for organization?", m: "(1+4)" },
+                        { q: "2. What are the roles and responsibilities of civil sub-engineer?", m: "(5)" },
+                        { q: "3. Explain the relation between client, contractor and engineer.", m: "(5)" },
+                        { q: "4. Define site management and explain how it is done.", m: "(1+4)" },
+                        { q: "5. Explain the measures to improve labor efficiency.", m: "(5)" },
+                        { q: "6. Define accident and explain how accident can be prevented in site.", m: "(1+4)" },
+                        { q: "7. Define contract and explain its types.", m: "(1+4)" },
+                        { q: "8. Define tender and explain about the tender notice.", m: "(1+4)" },
+                        { q: "9. Define earnest money. Also explain about the preparations need to be done before inviting tender.", m: "(4+1)" },
+                        { q: "10. Explain about the conditions of contracts and also define an agreement.", m: "(1+4)" },
+                        { q: "11. List out all the approval/sanctions to be done in the construction project and also explain about the administrative and technical sanctions.", m: "(1+4)" },
+                        { q: "12. Define muster roll explain about the schedule with its types.", m: "(5)" },
+                        { q: "13. Discuss on various stages of the construction with necessary diagram.", m: "(5)" },
+                        { q: "14. Write down the definition of bar chart and explain its advantages and disadvantages.", m: "(5)" }
+                    ]
+                }
+            ];
+
+            const handleSubjectSelect = (subj) => {
+                setIsTransitioning(true);
+                setTimeout(() => {
+                    setSelectedSubject(subj);
+                    setIsTransitioning(false);
+                    window.scrollTo(0, 0);
+                }, 300);
+            };
+
+            const getQuestionColor = (idx) => {
+                const colors = ['text-blue-800', 'text-rose-800', 'text-amber-800', 'text-emerald-800'];
+                return colors[Math.floor(idx / 5) % 4]; // Changes color every 5 questions
+            };
+
+            const renderQuestionList = (questionsList, startIndex = 0) => (
+                <div className="space-y-8 relative z-10">
+                    {questionsList.map((q, i) => (
+                        <div key={i} className="flex justify-between items-start gap-6 group">
+                            <p className={`text-lg md:text-xl font-bold leading-relaxed ${getQuestionColor(i + startIndex)} flex-grow`}>
+                                {q.q}
+                            </p>
+                            <span className="text-slate-400 font-black italic whitespace-nowrap pt-1 text-lg group-hover:text-indigo-500 transition-colors">
+                                {q.m}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans">
+                    {!selectedSubject ? (
+                        <div className={`max-w-6xl mx-auto transition-all duration-500 ${isTransitioning ? 'opacity-0 scale-95 blur-sm' : 'opacity-100'}`}>
+                            <header className="text-center mb-14">
+                                <div className="flex justify-center mb-4">
+                                    <IconGraduationCap size={70} className="text-indigo-600" />
+                                </div>
+                                <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight uppercase">Subjective Question Bank</h1>
+                                <p className="text-slate-500 mt-2 text-lg font-medium">Fully Digitized Library for Civil Engineering</p>
+                            </header>
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                {subjectsData.map((s) => (
+                                    <div
+                                        key={s.id}
+                                        onClick={() => handleSubjectSelect(s)}
+                                        className="bg-white rounded-2xl aspect-square flex flex-col items-center justify-center p-6 text-center cursor-pointer shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all group border-b-[8px] border-slate-200 hover:border-indigo-600"
+                                    >
+                                        <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-2xl font-black text-slate-400 mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
+                                            {s.id}
+                                        </div>
+                                        <h3 className="font-black text-slate-800 text-[1.1rem] leading-tight group-hover:text-indigo-700">
+                                            {s.name}
+                                        </h3>
+                                        <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-indigo-500 font-bold text-xs tracking-widest">
+                                            VIEW PAPER
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={`max-w-4xl mx-auto transition-all duration-500 ${isTransitioning ? 'opacity-0 translate-y-8' : 'opacity-100 translate-y-0'}`}>
+                            <button
+                                onClick={() => setSelectedSubject(null)}
+                                className="mb-8 flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl font-black shadow-lg hover:bg-indigo-600 transition-all active:scale-95"
+                            >
+                                <IconChevronLeft size={20} /> BACK TO INDEX
+                            </button>
+
+                            <div className="bg-white p-10 md:p-20 shadow-2xl rounded-sm border-t-[16px] border-indigo-700 font-serif leading-relaxed text-black relative">
+                                
+                                <div className="absolute top-0 right-0 p-10 text-slate-100 text-[10rem] leading-none font-black select-none pointer-events-none -z-0">
+                                    {selectedSubject.id}
+                                </div>
+
+                                <header className="text-center mb-16 relative z-10 border-b-4 border-slate-100 pb-10">
+                                    <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight mb-4 leading-tight">
+                                        {selectedSubject.name}
+                                    </h2>
+                                    <div className="flex justify-center items-center gap-6">
+                                        <div className="h-[2px] w-16 bg-slate-300"></div>
+                                        <span className="text-slate-400 font-bold uppercase tracking-widest text-sm">Subjective Model Questions</span>
+                                        <div className="h-[2px] w-16 bg-slate-300"></div>
+                                    </div>
+                                </header>
+
+                                {selectedSubject.sections ? (
+                                    <div className="relative z-10">
+                                        {selectedSubject.sections.map((section, secIdx) => (
+                                            <div key={secIdx} className="mb-16">
+                                                <div className="bg-slate-200 text-center py-2 mb-8 border border-slate-400">
+                                                    <h3 className="text-xl font-bold uppercase tracking-widest">{section.sectionName}</h3>
+                                                </div>
+                                                {renderQuestionList(section.questions, secIdx * 100)}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    renderQuestionList(selectedSubject.questions)
+                                )}
+                                
+                                <footer className="mt-20 pt-10 border-t-2 border-slate-100 flex justify-between items-center text-slate-300">
+                                    <div className="flex flex-col">
+                                        <span className="font-black text-2xl tracking-tighter">LOKSEWA CIVIL</span>
+                                        <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Knowledge Bank Digitized</span>
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <IconPrinter size={22} className="cursor-pointer hover:text-indigo-500 transition-colors" />
+                                        <IconShare2 size={22} className="cursor-pointer hover:text-indigo-500 transition-colors" />
+                                    </div>
+                                </footer>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

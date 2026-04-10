@@ -1,0 +1,454 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ground Water Sources - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling - Geo Grid */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(14, 165, 233, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .highlight-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-500">
+                Groundwater Sources
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Hydrology & Geology</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Source 1: Depression Spring -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-sky-500/30 shadow-[0_10px_30px_-10px_rgba(14,165,233,0.2)]">
+            <div class="h-56 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-depression" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-sky-500/20 text-sky-400 rounded-lg"><i data-lucide="droplet" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-sky-400">1. Depression Spring</h2>
+                </div>
+                <div class="space-y-2 text-sm text-slate-300 leading-relaxed">
+                    <p><strong>A type of Gravity Spring.</strong> Formed when the physical ground surface sharply dips or drops <em>below</em> the local water table of an unconfined aquifer.</p>
+                    <p class="text-xs text-sky-200/70 border-l-2 border-sky-500/50 pl-2">
+                        Water simply oozes out into the valley because the topography intersects the saturated zone. Often forms natural lakes or streams.
+                    </p>
+                </div>
+            </div>
+        </article>
+
+        <!-- Source 2: Contact Spring -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-56 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-contact" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="layers" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">2. Contact Spring</h2>
+                </div>
+                <div class="space-y-2 text-sm text-slate-300 leading-relaxed">
+                    <p><strong>A type of Gravity Spring.</strong> Formed when a highly permeable layer (like sand/gravel) sits directly on top of an impermeable layer (like solid rock or clay).</p>
+                    <p class="text-xs text-amber-200/70 border-l-2 border-amber-500/50 pl-2">
+                        Water percolates downward, hits the bedrock block, travels horizontally along the contact line, and emerges at a hillside cut.
+                    </p>
+                </div>
+            </div>
+        </article>
+
+        <!-- Source 3: Artesian Spring -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-56 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-artesian" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="arrow-up-circle" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">3. Artesian Spring</h2>
+                </div>
+                <div class="space-y-2 text-sm text-slate-300 leading-relaxed">
+                    <p><strong>Pressure-Driven:</strong> Water is trapped in a <em>confined aquifer</em> sandwiched between two impermeable layers. The recharge zone is at a much higher elevation.</p>
+                    <p class="text-xs text-purple-200/70 border-l-2 border-purple-500/50 pl-2">
+                        Because the piezometric (pressure) head is above ground level, if a natural fissure/fault cracks the top layer, water shoots up like a fountain.
+                    </p>
+                </div>
+            </div>
+        </article>
+
+        <!-- Source 4: Shallow vs Deep Wells -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-56 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-wells" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="cylinder" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">4. Shallow vs. Deep Wells</h2>
+                </div>
+                <div class="space-y-2 text-sm text-slate-300 leading-relaxed">
+                    <p><strong>Defined by the Aquifer tapped, NOT physical depth.</strong></p>
+                    <ul class="list-disc pl-5 text-xs space-y-1 mt-2 text-emerald-100/80">
+                        <li><strong>Shallow Well:</strong> Taps the top <em>unconfined</em> aquifer (above the first impervious layer MOTTUM). Yield varies, dries up easily.</li>
+                        <li><strong>Deep Well:</strong> Drilled through the impervious layer into a <em>confined</em> aquifer. High, constant yield due to pressure and vast catchment area.</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            depression: document.getElementById('canvas-depression'),
+            contact: document.getElementById('canvas-contact'),
+            artesian: document.getElementById('canvas-artesian'),
+            wells: document.getElementById('canvas-wells')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- SHARED DRAWING UTILS --- //
+        function drawLabel(ctx, text, x, y, color='#fff', bg='rgba(15,23,42,0.8)') {
+            ctx.font = 'bold 10px Inter';
+            const w = ctx.measureText(text).width;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(x - w/2 - 6, y - 10, w + 12, 20, 4); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+        }
+
+        function drawWaterDrops(ctx, pathFunc, t, count, color='#38bdf8') {
+            ctx.fillStyle = color;
+            for(let i=0; i<count; i++) {
+                const p = (t + i/count) % 1;
+                const {x, y} = pathFunc(p);
+                ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Depression Spring (Ground dips below water table)
+        function renderDepression(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Water Table (Dashed Line)
+            const wtY = cy;
+            ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+            ctx.beginPath(); ctx.moveTo(0, wtY); ctx.lineTo(w, wtY); ctx.stroke(); ctx.setLineDash([]);
+            drawLabel(ctx, "WATER TABLE", cx + 70, wtY - 15, '#38bdf8', 'transparent');
+
+            // Ground Profile (Dips below WT in the center)
+            ctx.fillStyle = '#78716c'; // Soil
+            ctx.beginPath(); 
+            ctx.moveTo(0, h); ctx.lineTo(0, cy - 40); 
+            ctx.quadraticCurveTo(cx - 40, cy - 40, cx - 20, cy + 20); // Left dip
+            ctx.quadraticCurveTo(cx, cy + 30, cx + 20, cy + 20);      // Valley bottom (Below WT)
+            ctx.quadraticCurveTo(cx + 40, cy - 40, w, cy - 40);       // Right rise
+            ctx.lineTo(w, h); 
+            ctx.fill();
+
+            // Saturated Zone (Below WT and below ground)
+            ctx.globalCompositeOperation = 'source-atop';
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.3)';
+            ctx.fillRect(0, wtY, w, h);
+            ctx.globalCompositeOperation = 'source-over';
+
+            // Water flowing out of the depression
+            // Path: from sides, down into the valley, then pooling
+            const pathLeft = (t) => {
+                return { x: (cx-40) + t*30, y: (cy-10) + t*30 };
+            };
+            const pathRight = (t) => {
+                return { x: (cx+40) - t*30, y: (cy-10) + t*30 };
+            };
+
+            drawWaterDrops(ctx, pathLeft, p, 5);
+            drawWaterDrops(ctx, pathRight, p, 5);
+
+            // Pooled water / Spring
+            ctx.fillStyle = '#0ea5e9';
+            ctx.beginPath();
+            ctx.moveTo(cx - 15, wtY);
+            ctx.quadraticCurveTo(cx, cy + 30, cx + 15, wtY);
+            ctx.fill();
+            
+            // Ripples
+            ctx.strokeStyle = '#fff'; ctx.lineWidth=1;
+            const rippleR = (p * 15) % 15;
+            ctx.beginPath(); ctx.ellipse(cx, wtY, rippleR, rippleR*0.3, 0, 0, Math.PI*2); ctx.stroke();
+
+            drawLabel(ctx, "DEPRESSION SPRING", cx, cy + 45, '#0ea5e9');
+        }
+
+        // 2. Contact Spring (Permeable over Impermeable)
+        function renderContact(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 20;
+
+            // Pervious Layer (Top, Sloped)
+            ctx.fillStyle = '#d97706'; // Sandy brown
+            ctx.beginPath(); ctx.moveTo(0, cy - 80); ctx.lineTo(cx + 60, cy - 80);
+            ctx.lineTo(cx + 60, cy - 10); ctx.lineTo(0, cy - 10); ctx.fill();
+
+            // Impervious Layer (Bottom)
+            ctx.fillStyle = '#475569'; // Solid rock grey
+            ctx.beginPath(); ctx.moveTo(0, cy - 10); ctx.lineTo(cx + 60, cy - 10);
+            ctx.lineTo(cx + 60, h); ctx.lineTo(0, h); ctx.fill();
+
+            // Hillside cut
+            ctx.fillStyle = '#0f172a'; // Background cutout
+            ctx.beginPath(); ctx.moveTo(cx + 60, cy - 80); ctx.lineTo(w, cy - 80);
+            ctx.lineTo(w, h); ctx.lineTo(cx + 60, h); ctx.fill();
+
+            // Saturated zone in pervious layer above the contact
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.4)';
+            ctx.fillRect(0, cy - 30, cx + 60, 20);
+
+            // Water Flow Animation
+            // Path 1: Vertical percolation
+            const pathPerc = (t) => ({ x: 60, y: (cy-80) + t*50 });
+            drawWaterDrops(ctx, pathPerc, p, 3);
+            
+            // Path 2: Horizontal flow along contact line
+            const pathHoriz = (t) => ({ x: 60 + t*(cx), y: cy - 15 });
+            drawWaterDrops(ctx, pathHoriz, p, 6);
+
+            // Path 3: Falling off the cliff (Spring)
+            const pathFall = (t) => ({ x: cx + 65 + Math.sin(t*10)*2, y: cy - 10 + t*50 });
+            drawWaterDrops(ctx, pathFall, p, 5);
+
+            drawLabel(ctx, "PERMEABLE (Sand)", cx - 40, cy - 50, '#fcd34d', 'transparent');
+            drawLabel(ctx, "IMPERMEABLE (Rock)", cx - 40, cy + 20, '#cbd5e1', 'transparent');
+            
+            // Highlight Contact line
+            ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+            ctx.beginPath(); ctx.moveTo(0, cy - 10); ctx.lineTo(cx + 60, cy - 10); ctx.stroke(); ctx.setLineDash([]);
+            
+            drawLabel(ctx, "CONTACT SPRING", cx + 70, cy - 20, '#38bdf8');
+        }
+
+        // 3. Artesian Spring (Confined Aquifer under pressure)
+        function renderArtesian(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Geometry of the Syncline / Basin
+            // Top Impervious
+            ctx.fillStyle = '#475569';
+            ctx.beginPath(); ctx.moveTo(0, cy - 50); ctx.quadraticCurveTo(cx, cy + 30, w, cy - 50);
+            ctx.lineTo(w, 0); ctx.lineTo(0, 0); ctx.fill();
+
+            // Middle Confined Aquifer
+            ctx.fillStyle = '#0ea5e9'; // Filled with water
+            ctx.beginPath(); ctx.moveTo(0, cy - 10); ctx.quadraticCurveTo(cx, cy + 70, w, cy - 10);
+            ctx.lineTo(w, cy - 50); ctx.quadraticCurveTo(cx, cy + 30, 0, cy - 50); ctx.fill();
+
+            // Bottom Impervious
+            ctx.fillStyle = '#334155';
+            ctx.beginPath(); ctx.moveTo(0, cy - 10); ctx.quadraticCurveTo(cx, cy + 70, w, cy - 10);
+            ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.fill();
+
+            // Piezometric Surface (HGL) Line (Pressure head)
+            const hglY = cy - 60;
+            ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+            ctx.beginPath(); ctx.moveTo(0, hglY); ctx.lineTo(w, hglY); ctx.stroke(); ctx.setLineDash([]);
+            drawLabel(ctx, "PIEZOMETRIC SURFACE (HGL)", cx, hglY - 10, '#f43f5e', 'transparent');
+
+            // Fissure/Crack in Top Impervious Layer
+            const faultX = cx - 20;
+            ctx.fillStyle = '#0ea5e9';
+            ctx.beginPath(); ctx.moveTo(faultX - 5, cy + 40); ctx.lineTo(faultX + 5, cy + 40);
+            ctx.lineTo(faultX + 2, cy - 10); ctx.lineTo(faultX - 2, cy - 10); ctx.fill();
+
+            // Fountain Animation (Shooting up to HGL)
+            const shootY = hglY + 10; // Shoots almost to HGL
+            const fountainPath = (t) => {
+                // Parabolic trajectory up and down
+                const up = t < 0.5;
+                const localT = up ? t*2 : (t-0.5)*2;
+                
+                let yPos = (cy - 10) - ((cy - 10) - shootY) * (up ? Math.sin(localT*Math.PI/2) : Math.cos(localT*Math.PI/2));
+                let xPos = faultX + (up ? (Math.random()*4-2) : (localT*20 * (Math.random()>0.5?1:-1))); // spread on way down
+                
+                return { x: xPos, y: yPos };
+            };
+
+            drawWaterDrops(ctx, fountainPath, p, 15, '#38bdf8');
+
+            drawLabel(ctx, "IMPERVIOUS", cx + 70, cy, '#cbd5e1', 'transparent');
+            drawLabel(ctx, "CONFINED AQUIFER", cx + 70, cy + 30, '#0ea5e9', 'transparent');
+            drawLabel(ctx, "ARTESIAN SPRING", cx - 40, cy - 25, '#c084fc');
+        }
+
+        // 4. Shallow vs Deep Wells
+        function renderWells(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Ground Layers
+            // 1. Unconfined Aquifer (Top)
+            ctx.fillStyle = '#a8a29e'; ctx.fillRect(0, cy - 80, w, 60);
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.4)'; ctx.fillRect(0, cy - 60, w, 40); // Water table at cy-60
+            ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+            ctx.beginPath(); ctx.moveTo(0, cy - 60); ctx.lineTo(w, cy - 60); ctx.stroke(); ctx.setLineDash([]);
+            
+            // 2. Impervious Layer (Mottum)
+            ctx.fillStyle = '#475569'; ctx.fillRect(0, cy - 20, w, 30);
+            
+            // 3. Confined Aquifer (Bottom)
+            ctx.fillStyle = '#7dd3fc'; ctx.fillRect(0, cy + 10, w, 50);
+
+            // Shallow Well (Left)
+            const swX = cx - 60;
+            ctx.fillStyle = '#cbd5e1'; ctx.fillRect(swX - 15, cy - 100, 30, 70); // Brick well
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(swX - 10, cy - 100, 20, 70); // Inside
+            
+            // Drawdown Curve (Cone of depression)
+            ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(swX - 40, cy - 60); ctx.quadraticCurveTo(swX - 10, cy - 60, swX - 10, cy - 40); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(swX + 40, cy - 60); ctx.quadraticCurveTo(swX + 10, cy - 60, swX + 10, cy - 40); ctx.stroke();
+            
+            ctx.fillStyle = '#0ea5e9'; ctx.fillRect(swX - 10, cy - 40, 20, 10); // Water in well drops due to pumping
+
+            // Deep Well (Right)
+            const dwX = cx + 60;
+            ctx.fillStyle = '#cbd5e1'; ctx.fillRect(dwX - 8, cy - 100, 16, 120); // Pipe casing
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(dwX - 4, cy - 100, 8, 120); // Inside
+            ctx.fillStyle = '#0ea5e9'; // Screen at bottom
+            ctx.fillRect(dwX - 4, cy + 10, 8, 20); 
+
+            // Water rises above unconfined level due to pressure
+            const riseY = cy - 70;
+            ctx.fillStyle = '#0ea5e9'; ctx.fillRect(dwX - 4, riseY, 8, cy + 10 - riseY);
+
+            // Pumping animations
+            const pumpPathSW = (t) => ({ x: swX, y: (cy-40) - t*60 });
+            const pumpPathDW = (t) => ({ x: dwX, y: riseY - t*30 });
+            drawWaterDrops(ctx, pumpPathSW, p, 3);
+            drawWaterDrops(ctx, pumpPathDW, p, 3);
+
+            // Labels
+            drawLabel(ctx, "SHALLOW WELL", swX, cy + 20, '#34d399');
+            drawLabel(ctx, "DEEP WELL", dwX, cy + 45, '#34d399');
+            
+            ctx.fillStyle = '#0ea5e9'; ctx.font = '8px Inter';
+            ctx.fillText("Unconfined Aquifer", cx, cy - 65);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillText("Impervious Stratum (Mottum)", cx, cy - 5);
+            ctx.fillStyle = '#0284c7';
+            ctx.fillText("Confined Aquifer", cx, cy + 25);
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 4000; // 4 seconds per loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'depression': renderDepression(ctx, w, h, p); break;
+                    case 'contact': renderContact(ctx, w, h, p); break;
+                    case 'artesian': renderArtesian(ctx, w, h, p); break;
+                    case 'wells': renderWells(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>

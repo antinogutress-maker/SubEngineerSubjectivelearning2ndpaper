@@ -1,0 +1,520 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loksewa Civil Engineering Exam Portal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Noto+Serif:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #e2e8f0;
+            --paper-bg: #ffffff;
+            --primary-accent: #3b82f6;
+            /* Question Text Colors */
+            --color-1: #1d4ed8; /* Blue */
+            --color-2: #be123c; /* Pink/Red */
+            --color-3: #c2410c; /* Orange */
+            --color-4: #047857; /* Green */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            color: #1e293b;
+        }
+
+        /* --- Dashboard Grid --- */
+        #dashboard {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 50px;
+            color: #0f172a;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            perspective: 1500px;
+        }
+
+        .exam-card {
+            background: white;
+            border-radius: 20px;
+            aspect-ratio: 1 / 1; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #cbd5e1;
+        }
+
+        .exam-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-color: var(--primary-accent);
+        }
+
+        .exam-card span {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        /* --- Transitions --- */
+        .flipping {
+            animation: flipEffect 0.7s forwards;
+        }
+
+        @keyframes flipEffect {
+            0% { transform: rotateY(0deg) scale(1); opacity: 1; }
+            100% { transform: rotateY(180deg) scale(1.5); opacity: 0; }
+        }
+
+        /* --- Paper View --- */
+        #exam-view {
+            display: none;
+            max-width: 900px;
+            margin: 30px auto;
+            background: var(--paper-bg);
+            padding: 70px 90px;
+            box-shadow: 0 0 60px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        #exam-view.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .nav-controls {
+            position: sticky;
+            top: 20px;
+            margin-bottom: 30px;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Paper Specific Styles */
+        .paper-content {
+            font-family: 'Noto Serif', serif;
+            color: #000;
+            line-height: 1.5;
+        }
+
+        .paper-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .paper-header h1 {
+            font-size: 2.2rem;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .header-meta {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-top: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .paper-sub-title {
+            text-align: center;
+            font-weight: 700;
+            margin: 20px 0;
+            font-size: 1.2rem;
+        }
+
+        .instruction {
+            display: block;
+            text-align: center;
+            text-decoration: underline;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .section-box {
+            text-align: center;
+            background: #eee;
+            border: 1px solid #000;
+            padding: 6px;
+            font-weight: 700;
+            margin: 40px 0 20px 0;
+            font-size: 1.1rem;
+        }
+
+        .category-meta {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 15px;
+            padding-bottom: 4px;
+            font-size: 1.05rem;
+        }
+
+        .q-list { list-style: none; padding: 0; margin-bottom: 35px; }
+        .q-item { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.15rem; }
+        .q-text { width: 85%; }
+        .q-marks { width: 15%; text-align: right; font-weight: 700; }
+
+        /* Text Colors */
+        .color-1 .q-text, .color-1 .q-marks { color: var(--color-1); }
+        .color-2 .q-text, .color-2 .q-marks { color: var(--color-2); }
+        .color-3 .q-text, .color-3 .q-marks { color: var(--color-3); }
+        .color-4 .q-text, .color-4 .q-marks { color: var(--color-4); }
+
+        @media (max-width: 800px) {
+            .grid-container { grid-template-columns: repeat(2, 1fr); }
+            #exam-view { padding: 40px 25px; margin: 10px; }
+            .paper-header h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="dashboard">
+        <h1 class="main-title">Digital Exam Portal</h1>
+        <div class="grid-container" id="grid"></div>
+    </div>
+
+    <div id="exam-view">
+        <div class="nav-controls">
+            <button class="back-btn" onclick="closePaper()">← Return to Dashboard</button>
+        </div>
+        <div class="paper-content" id="paper-body"></div>
+    </div>
+
+    <script>
+        const exams = [
+            {
+                id: 1, name: "Exam 1",
+                sections: [
+                    { title: "Section-A (50 marks)", category: "Short Question", label: "(6 x 5 = 30)", color: "color-1", questions: [
+                        ["1. Define surveying. Classify the survey based on the nature of field.", "(1+4=5)"],
+                        ["2. Why construction materials are important in civil engineering field?", "(5)"],
+                        ["3. Define stress and strain. Explain types of stress/strain in short.", "(1+2+2=5)"],
+                        ["4. Define: density, specific volume, surface tension, viscosity, kinematic viscosity.", "(2.5+2.5=5)"],
+                        ["5. What do you mean by compaction? Differentiate with consolidation.", "(1+4=5)"],
+                        ["6. Write down the assumption of flexure bending equations?", "(2+3=5)"]
+                    ]},
+                    { title: "", category: "Long Question", label: "(2 x 10 = 20)", color: "color-2", questions: [
+                        ["7. Define under, over and balanced section in beam? Explain design of two way slab.", "(3+7=10)"],
+                        ["8. What are the harmful ingredients of brick earth? Explain Terzaghi's principle.", "(4+6=10)"]
+                    ]},
+                    { title: "Section-B (50 marks)", category: "Short Question", label: "(6 x 5 = 30)", color: "color-3", questions: [
+                        ["9. Function of partitions wall? Purpose of soil investigation.", "(2+3=5)"],
+                        ["10. Define wholesome water. List out objectives of water-supply system.", "(1+4=5)"],
+                        ["11. What is Irrigation? Factors affecting canal alignment.", "(2+3=5)"],
+                        ["12. Define: a) Super elevation, b) Camber, c) Extra-widening, d) Horizontal curve.", "(5)"],
+                        ["13. What is estimate? Write down its purpose and types.", "(1+2+2=5)"],
+                        ["14. Responsibility of civil sub-engineer at construction site.", "(5)"]
+                    ]},
+                    { title: "", category: "Long Question", label: "(2 x 10 = 20)", color: "color-4", questions: [
+                        ["15. Elements of cross section of highway with sketch. Rigid vs flexible pavements.", "(7+3=10)"],
+                        ["16. Types of airport maintenance. Owner, contractor and engineer relationship.", "(4+6=10)"]
+                    ]}
+                ]
+            },
+            {
+                id: 2, name: "Exam 2",
+                sections: [
+                    { title: "Section-A (50 marks)", category: "Short Question", label: "(6 x 5 = 30)", color: "color-1", questions: [
+                        ["1. Define topography surveying. Explain the principle of surveying.", "(1+4=5)"],
+                        ["2. Differentiate between stone and brick. Characteristics of good building stone.", "(2+3=5)"],
+                        ["3. What is poison's ratio? Stress-strain diagram for ductile materials.", "(1+4=5)"],
+                        ["4. Define viscosity. Explain Newton's law of viscosity.", "(2+3=5)"],
+                        ["5. Define permeability? Factors affecting permeability of soil.", "(2+3=5)"],
+                        ["6. Define crippling load. Explain shear failure in R.C section.", "(1+4=5)"]
+                    ]},
+                    { title: "", category: "Long Question", label: "(2 x 10 = 20)", color: "color-2", questions: [
+                        ["7. Why double reinforced section is used in beam? Single vs Double reinforced.", "(2+3+5=10)"],
+                        ["8. Useful ingredients of brick earth? Manufacturing process of cement.", "(3+7=10)"]
+                    ]},
+                    { title: "Section-B (50 marks)", category: "Short Question", label: "(6 x 5 = 30)", color: "color-3", questions: [
+                        ["9. What is foundation? Causes of failure of foundation.", "(1+4=5)"],
+                        ["10. Sources of water? Criteria for selection of best source.", "(2+3=5)"],
+                        ["11. Define water logging area. Cause and effect of water logging.", "(1+2+2=5)"],
+                        ["12. What is pavement? Differentiate between Rigid and flexible pavement.", "(1+4=5)"],
+                        ["13. Why estimate cost is not equal to actual cost? Preliminary vs Detailed.", "(2+3=5)"],
+                        ["14. What is tender notice? Components of tender documents.", "(1.5+3.5=5)"]
+                    ]},
+                    { title: "", category: "Long Question", label: "(2 x 10 = 20)", color: "color-4", questions: [
+                        ["15. Design a septic tank for 8 number of users, assumed necessary data.", "(7+3=10)"],
+                        ["16. What is temporary construction? Explain types of contracts in details.", "(3+7=10)"]
+                    ]}
+                ]
+            },
+            { id: 3, name: "Exam 3", copyFrom: 1 }, // Note: Using Set 2 copy for 3 as they were identical in images
+            {
+                id: 4, name: "Exam 4",
+                sections: [
+                    { title: "Section-A (50 marks)", category: "Short Question", label: "(6 x 5 = 30)", color: "color-1", questions: [
+                        ["1. What is Dip? Difference between prismatic and surveyor compass.", "(1+4=5)"],
+                        ["2. Why first class bricks used in facing works? Classify bricks.", "(2+3=5)"],
+                        ["3. Define beam as structural component. List types. Explain four types.", "(2+1+2=5)"],
+                        ["4. What is Reynolds Number? Describe laminar and turbulent flow.", "(2+3=5)"],
+                        ["5. Purpose of retaining wall? Explain types of Retaining wall.", "(2+3=5)"],
+                        ["6. Design consideration of doubly reinforced beam. Providing condition.", "(3+2=5)"]
+                    ]},
+                    { title: "", category: "Long Question", label: "(2 x 10 = 20)", color: "color-2", questions: [
+                        ["7. Find moment of resistance of RCC beam 250x500mm with 3-16mm bars.", "(10)"],
+                        ["8. What is bond? Explain types of bond in brick masonry with sketch.", "(2+8=10)"]
+                    ]},
+                    { title: "Section-B (50 marks)", category: "Short Question", label: "(6 x 5 = 30)", color: "color-3", questions: [
+                        ["9. Explain workability of concrete and factors affecting workability.", "(1+4=5)"],
+                        ["10. Explain various formula for head loss due to friction in pipe.", "(5)"],
+                        ["11. Advantages of Sprinkler and drip irrigation over other methods.", "(2.5+2.5=5)"],
+                        ["12. Why Road transportation is most feasible in our country?", "(5)"],
+                        ["13. Factors in preparation of Rate analysis of construction.", "(1+4=5)"],
+                        ["14. Find duty and discharge for 5000ha project with 80% intensity.", "(5)"]
+                    ]},
+                    { title: "", category: "Long Question", label: "(2 x 10 = 20)", color: "color-4", questions: [
+                        ["15. Purposes of valuation? Rental and development method.", "(4+6=10)"],
+                        ["16. Factors affecting Geometric design of Highway? Discuss in brief.", "(10)"]
+                    ]}
+                ]
+            },
+            {
+                id: 5, name: "Exam 5",
+                sections: [
+                    { title: "Section-A", category: "Short Question", label: "(12 x 5 = 60)", color: "color-1", questions: [
+                        ["1. Surveying is important in construction field. Explain this statement.", "(5)"],
+                        ["2. Main ingredients of good brick earth? Explain it.", "(5)"],
+                        ["3. List out types of supports. Explain with examples.", "(5)"],
+                        ["4. Various formula for determination of head loss in pipe.", "(5)"],
+                        ["5. Terzaghi principle of effective stress and application.", "(5)"],
+                        ["6. Define development length. Importance of main/distribution bars.", "(2+3=5)"],
+                        ["7. Causes of foundation failure? Underpinning methods.", "(2+3=5)"],
+                        ["8. Prepare the Bill of Quantities (BOQ) of building construction works.", "(5)"],
+                        ["9. Water Cement ratio in concrete? Strength factors.", "(1+4=5)"],
+                        ["10. Define extra-widening? Highway drainage requirements.", "(1.5+3.5=5)"],
+                        ["11. Elements of tender document? Client/Contractor relationship.", "(2+3=5)"],
+                        ["12. Purpose of river training works? Methods with sketch.", "(1+4=5)"]
+                    ]},
+                    { title: "Section-B", category: "Long Question", label: "(10 x 4 = 40)", color: "color-4", questions: [
+                        ["13. Design process and codal provision for RCC beam and column.", "(10)"],
+                        ["14. Historical development of road construction in Nepal.", "(10)"],
+                        ["15. Define: Void ratio, Porosity, Degree of saturation, Air content, Water content.", "(5x2=10)"],
+                        ["16. Importance and methods of estimate and valuation.", "(5+5=10)"]
+                    ]}
+                ]
+            },
+            {
+                id: 6, name: "Exam 6",
+                sections: [
+                    { title: "Section-A", category: "Short Question", label: "(12 x 5 = 60)", color: "color-1", questions: [
+                        ["1. Define contour and contour interval. Application of contours line.", "(2+3=5)"],
+                        ["2. Bouge's compound in cement? Effects of C3S and C2S.", "(2+3=5)"],
+                        ["3. Types of load? Draw BMD/SFD for point load at center.", "(3+2=5)"],
+                        ["4. Differentiate between pipe flow and open channel flow.", "(5)"],
+                        ["5. Methods for water content? Oven dry method procedure.", "(2+3=5)"],
+                        ["6. Define double reinforced section. Shear failure of RCC Beam.", "(1+4=5)"],
+                        ["7. Explain different types of bond in masonry wall with sketches.", "(5)"],
+                        ["8. Factors for rate analysis on basic of prevailing norms.", "(5)"],
+                        ["9. What is valuation? Purpose of valuation.", "(2+3=5)"],
+                        ["10. What is ADT? Classification of road as per NRS-2070.", "(0.5+4.5=5)"],
+                        ["11. Describe briefly the history of civil aviation of Nepal.", "(5)"],
+                        ["12. Per capita water demand? Types of water demand.", "(1+4=5)"]
+                    ]},
+                    { title: "Section-B", category: "Long Question", label: "(10 x 4 = 40)", color: "color-4", questions: [
+                        ["13. Design a column for axial load 1100KN, length 5m, M15, Fe250.", "(10)"],
+                        ["14. Components and objective of water supply system. Gravity criteria.", "(5+5=10)"],
+                        ["15. Define: Chain survey, Compass survey, Plane table, Leveling, Total station, Theodolite, Traverse, Index contour, Dry density, Thixotropy.", "(10x1=10)"],
+                        ["16. What is diversion head work? Components of Diversion head work.", "(10)"]
+                    ]}
+                ]
+            },
+            {
+                id: 7, name: "Exam 7",
+                sections: [
+                    { title: "Section-A", category: "Short Question", label: "(50 Marks)", color: "color-1", questions: [
+                        ["1. What is traverse survey? Mention purpose of traverse.", "(5)"],
+                        ["2. What is admixture? Explain its purpose and uses.", "(5)"],
+                        ["3. Assumptions theory of simple bending. Explain: stress, strain, Hooke's law.", "(2+3=5)"],
+                        ["4. Singly vs Doubly reinforced concrete beam. Reasons for providing doubly.", "(5)"],
+                        ["5. If water is flowing through a weir, factors affecting quantity of flow?", "(5)"],
+                        ["6. What is OMC? Relation between dry density and moisture content.", "(5)"],
+                        ["7. Define contouring. Explain ten characteristics of contour maps.", "(10)"],
+                        ["8. Working stress vs Limit state philosophy for design of RCC structure. Nominal vs Design mix.", "(5+5=10)"]
+                    ]},
+                    { title: "Section-B", category: "Short Question", label: "(50 Marks)", color: "color-3", questions: [
+                        ["9. How is strength of concrete determined? Explain procedure in detail.", "(5)"],
+                        ["10. Different methods of irrigation used in Nepal.", "(5)"],
+                        ["11. Prepare analysis of rate for 1:1.5:3 RCC work per 10 m3.", "(5)"],
+                        ["12. Minimum info in notice of invitation for bids. Shallow vs Deep well.", "(5)"],
+                        ["13. Use of shallow and deep well for water supply in terai.", "(5)"],
+                        ["14. History of civil aviation in Nepal. List international airports.", "(5)"],
+                        ["15. Why road condition in Nepal is poor to fair? Reasons and maintenance.", "(10)"],
+                        ["16. Sources of water supply in Nepal. WHO standard. Treatment processes.", "(10)"]
+                    ]}
+                ]
+            },
+            {
+                id: 8, name: "Exam 8",
+                sections: [
+                    { title: "Section-A", category: "Short Question", label: "(50 Marks)", color: "color-1", questions: [
+                        ["1. Define surveying? Explain principle of surveying.", "(5)"],
+                        ["2. Constitution of brick earth? Harmful ingredients.", "(5)"],
+                        ["3. SF and BM for cantilever beam with 10KN/M UDL, span 4m.", "(5)"],
+                        ["4. Hydro-kinematics vs Hydro-dynamics. Energy in flowing fluids.", "(5)"],
+                        ["5. Describe the classification of soil briefly.", "(5)"],
+                        ["6. Differentiate between damp proofing and water proofing.", "(5)"],
+                        ["7. Codal provisions for RCC column. Short vs Long column.", "(5+5=10)"],
+                        ["8. Define contour? Characteristics and plotting of contour line.", "(10)"]
+                    ]},
+                    { title: "Section-B", category: "Short Question", label: "(50 Marks)", color: "color-3", questions: [
+                        ["9. What is negative skin friction? Causes and reduction.", "(5)"],
+                        ["10. Advantage and disadvantage of HDPE pipe.", "(2.5+2.5=5)"],
+                        ["11. Define bridge. What are the types of bridge.", "(5)"],
+                        ["12. Rate analysis of PCC works at 100m3 of M15 ratio.", "(5)"],
+                        ["13. Purpose of bid security? Forfeited and return conditions.", "(5)"],
+                        ["14. Development of airport in Nepal impact on tourism and trade.", "(5)"],
+                        ["15. Methods of applying water in an irrigation of field.", "(10)"],
+                        ["16. Components of gravity water supply system in hilly area.", "(10)"]
+                    ]}
+                ]
+            },
+            {
+                id: 9, name: "Exam 9",
+                sections: [
+                    { title: "Section-A", category: "Short Question", label: "(50 Marks)", color: "color-1", questions: [
+                        ["1. Principles of surveying? Use of contour map in engineering study.", "(5)"],
+                        ["2. Specifications of construction materials. Why needed? Highlights.", "(5)"],
+                        ["3. Stress-strain diagram for ductile material and salient points.", "(5)"],
+                        ["4. Pascal's law. Formula for frictional loss in pressurized pipe.", "(5)"],
+                        ["5. OMC and dry density. Methods for determination of water content.", "(5)"],
+                        ["6. One way slab vs Two way slab. Assumptions of flexural bending.", "(5)"],
+                        ["7. Slenderness ratio? Proof sigma/Y = M/I = E/R with notations.", "(10)"],
+                        ["8. What is shear reinforcement? Provision in beam. Share failure.", "(10)"]
+                    ]},
+                    { title: "Section-B", category: "Short Question", label: "(50 Marks)", color: "color-3", questions: [
+                        ["9. Major causes of dampness? List with short explain methods.", "(5)"],
+                        ["10. Functions of Septic tank? Draw schematic diagram.", "(5)"],
+                        ["11. Irrigation is necessity for agricultural production. Justify.", "(5)"],
+                        ["12. Nepal road standard classifications. Classification as per 2070.", "(5)"],
+                        ["13. Purpose of technical specifications of a contract.", "(5)"],
+                        ["14. Write short notes: a) Taxiway, b) Heliport, c) Landing area, d) Field length.", "(5)"],
+                        ["15. Function of foundation? Describe each types of foundation.", "(10)"],
+                        ["16. Process of estimating quantity of sanitary sewage.", "(10)"]
+                    ]}
+                ]
+            }
+        ];
+
+        const grid = document.getElementById('grid');
+        const dashboard = document.getElementById('dashboard');
+        const examView = document.getElementById('exam-view');
+        const paperBody = document.getElementById('paper-body');
+
+        // Render Dashboard
+        exams.forEach((ex, idx) => {
+            const card = document.createElement('div');
+            card.className = 'exam-card';
+            card.innerHTML = `<span>Set ${ex.id}</span>`;
+            card.onclick = () => openPaper(idx, card);
+            grid.appendChild(card);
+        });
+
+        function openPaper(idx, card) {
+            let data = exams[idx];
+            // Handle copies (Set 3 is Set 2)
+            if (data.copyFrom) data = exams[data.copyFrom];
+
+            card.classList.add('flipping');
+            setTimeout(() => {
+                dashboard.style.display = 'none';
+                renderPaper(data);
+                examView.style.display = 'block';
+                window.scrollTo(0, 0);
+                setTimeout(() => examView.classList.add('visible'), 50);
+                card.classList.remove('flipping');
+            }, 600);
+        }
+
+        function closePaper() {
+            examView.classList.remove('visible');
+            setTimeout(() => {
+                examView.style.display = 'none';
+                dashboard.style.display = 'block';
+            }, 500);
+        }
+
+        function renderPaper(exam) {
+            let html = `
+                <div class="paper-header">
+                    <h1>लोक सेवा आयोग</h1>
+                    नेपाल इन्जिनियरिङ्ग सेवा, सिभिल समूह अन्तर्गत जनरल/हाइवे/स्यानिटरी/इरिगेशन/हाइड्रोपावर/<br>
+                    हाइड्रोलोजी/एयरपोर्ट उपसमूह, राजपत्र अनङ्कित प्रथम श्रेणी (प्राविधिक) पदको<br>
+                    प्रतियोगात्मक लिखित परीक्षा
+                </div>
+                <div class="header-meta">
+                    <span>समय: २ घण्टा १५ मिनेट</span>
+                    <span>पूर्णाङ्क: १००</span>
+                </div>
+                <div class="paper-sub-title">
+                    पत्र: द्वितीय<br>
+                    विषय: सेवा सम्बन्धित कार्य-ज्ञान
+                </div>
+                <span class="instruction">निम्न प्रश्नहरुको उत्तर Section अनुसार छुट्टाछुट्टै उत्तरपुस्तिकामा लेख्नुपर्नेछ ।</span>
+            `;
+
+            exam.sections.forEach(sec => {
+                html += `
+                    ${sec.title ? `<div class="section-box">${sec.title}</div>` : ''}
+                    <div class="${sec.color}">
+                        <div class="category-meta">
+                            <span>${sec.category}</span>
+                            <span>${sec.label}</span>
+                        </div>
+                        <ul class="q-list">
+                            ${sec.questions.map(q => `
+                                <li class="q-item">
+                                    <div class="q-text">${q[0]}</div>
+                                    <div class="q-marks">${q[1]}</div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+
+            paperBody.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
+

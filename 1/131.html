@@ -1,216 +1,160 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Master Bird Archery</title>
+    <title>Premium Educational Shooter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@700&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800;900&display=swap');
+        
         :root {
-            --bg-sky-top: #0f172a;
-            --bg-sky-bottom: #1e293b;
-            --text-main: #f8fafc;
-            --accent-gold: #fbbf24;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-blue: #0ea5e9;
+            --ui-glow: rgba(255, 255, 255, 0.1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-bottom) 100%);
-            color: var(--text-main);
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            touch-action: manipulation; /* Prevents double-tap zooming */
+        body, html { 
+            margin: 0; padding: 0; overflow: hidden; font-family: 'Outfit', sans-serif; 
+            background: #000; touch-action: none; user-select: none; 
+            /* Prevents the browser from auto-inflating fonts and buttons in Desktop Mode */
+            -webkit-text-size-adjust: none; 
+            text-size-adjust: none;
         }
-
-        /* --- CLOUDS BACKGROUND --- */
-        .clouds {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background-image: 
-                radial-gradient(circle at 15% 30%, rgba(255,255,255,0.03) 0%, transparent 20%),
-                radial-gradient(circle at 85% 15%, rgba(255,255,255,0.02) 0%, transparent 25%),
-                radial-gradient(circle at 50% 60%, rgba(255,255,255,0.015) 0%, transparent 35%);
-            z-index: 0; pointer-events: none;
-        }
-
-        /* --- HEADER (NOW CONTAINS TARGET HUD) --- */
-        .header {
-            flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 15px 10px; background: rgba(15, 23, 42, 0.8); border-bottom: 2px solid #334155;
-            position: relative; z-index: 10; backdrop-filter: blur(5px); gap: 15px;
-        }
+        #game-canvas { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
         
-        .active-topic-board {
-            background: #020617; padding: 10px 15px;
-            border-radius: 8px; border: 3px solid #38bdf8;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(56, 189, 248, 0.3);
-            text-align: center; width: 95%; max-width: 400px;
-        }
-        .topic-label {
-            font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; margin-bottom: 4px;
-        }
-        .topic-text {
-            font-size: 1.3rem; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        /* Premium UI Layer */
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+        
+        .glass-panel {
+            background: rgba(10, 15, 30, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
-        .stats-box { display: flex; width: 100%; justify-content: space-around; gap: 10px; }
-        .stat-badge {
-            background: rgba(2, 6, 23, 0.8); border: 2px solid;
-            padding: 4px 12px; border-radius: 20px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 5px;
+        /* Dynamic Crosshair */
+        .crosshair-container {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 30px; height: 30px; pointer-events: none;
+            display: flex; justify-content: center; align-items: center;
         }
-        #score-badge { border-color: var(--accent-gold); color: var(--accent-gold); }
-        #birds-badge { border-color: var(--accent-blue); color: var(--accent-blue); }
-
-        /* --- GAME AREA --- */
-        .game-area {
-            flex: 1; position: relative; z-index: 5;
+        .crosshair-dot { width: 4px; height: 4px; background: white; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.8); transition: all 0.1s; }
+        .crosshair-ring { 
+            position: absolute; width: 100%; height: 100%; 
+            border: 2px solid rgba(255,255,255,0.4); border-radius: 50%; 
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
+        .shooting .crosshair-ring { transform: scale(1.5); opacity: 0; }
+        .hit-correct .crosshair-dot { background: #10b981; box-shadow: 0 0 10px #10b981; transform: scale(2); }
+        .hit-wrong .crosshair-dot { background: #ef4444; box-shadow: 0 0 10px #ef4444; transform: scale(2); }
 
-        /* --- PLAYER / BOW STATION (NOW AT BOTTOM ONLY) --- */
-        .player-station {
-            position: absolute;
-            bottom: 20px; left: 50%;
-            transform: translateX(-50%);
+        /* HUD */
+        .hud-top { position: absolute; top: 30px; left: 30px; right: 30px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .stat-box { 
+            padding: 12px 25px; border-radius: 12px; color: white; 
+            font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
             display: flex; flex-direction: column; align-items: center;
-            z-index: 50; pointer-events: none; width: 100%;
         }
-
-        .bow-wrapper {
-            width: 140px; height: 140px; 
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
-        }
-
-        #bowGraphics {
-            width: 100%; height: 100%; overflow: visible;
-            transform-origin: center center;
-            transition: transform 0.05s linear; 
-            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.8));
-        }
-
-        /* --- REALISTIC BIRDS & DYNAMIC TEXT BOARD --- */
-        .bird-container {
-            position: absolute;
-            display: flex; 
-            align-items: center; 
-            cursor: crosshair; z-index: 20;
-            padding-right: 10px; 
-        }
-        .bird-container:active .bird-svg { filter: brightness(1.2) drop-shadow(0 5px 10px rgba(255,255,255,0.2)); }
-
-        .bird-svg {
-            width: 80px; height: 80px; 
-            overflow: visible;
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.6));
-            z-index: 3; flex-shrink: 0;
-            margin-right: -10px; 
-        }
+        .stat-value { font-size: 2rem; font-weight: 900; line-height: 1; margin-top: 5px; }
         
-        .wing-front { animation: flapFront 0.35s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); }
-        .wing-back { animation: flapBack 0.35s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); }
+        /* Weapon Selector */
+        .weapon-tray {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 15px; pointer-events: auto; max-width: 95vw; overflow-x: auto; padding: 15px;
+            border-radius: 20px;
+        }
+        .weapon-btn {
+            background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(255,255,255,0.1); 
+            color: #94a3b8; padding: 12px 24px; border-radius: 12px; font-weight: 800; cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap;
+            display: flex; align-items: center; gap: 10px; font-size: 1.1rem;
+        }
+        .weapon-btn:hover { transform: translateY(-5px); background: rgba(30, 41, 59, 0.8); }
+        .weapon-btn.active { 
+            background: rgba(15, 23, 42, 0.9); transform: scale(1.05) translateY(-5px); color: white;
+            box-shadow: 0 10px 25px -5px var(--glow-color); border-color: var(--glow-color);
+        }
+        .key-hint { background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; }
+
+        /* Mobile Controls */
+        #mobile-fire-btn {
+            display: none; position: absolute; right: 6vmin; bottom: 35vmin; /* Increased bottom from 15vmin to move it higher */
+            /* Use clamp to lock the size proportionally, protecting it from Desktop Mode inflation */
+            width: clamp(70px, 15vmin, 90px); 
+            height: clamp(70px, 15vmin, 90px);
+            background: rgba(255, 50, 50, 0.8); /* Made the red much brighter and less transparent */
+            border: 3px solid #ff3333; /* Brighter, slightly thicker border */
+            box-shadow: 0 0 20px rgba(255, 50, 50, 0.6); /* Added a neon glow effect to make it pop */
+            border-radius: 50%;
+            color: white; font-weight: 900; font-size: 1.2rem; align-items: center; justify-content: center; 
+            pointer-events: auto; backdrop-filter: blur(5px); transition: all 0.1s;
+        }
+        #mobile-fire-btn:active { background: rgba(255, 0, 0, 1); transform: scale(0.9); box-shadow: 0 0 30px rgba(255, 0, 0, 0.9); }
+        #mobile-look-zone { display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 75vh; pointer-events: auto; }
+        @media (pointer: coarse) {
+            #mobile-fire-btn { display: flex; }
+            #mobile-look-zone { display: block; }
+            .desktop-hint { display: none; }
+        }
+
+        /* Damage Screen Effect */
+        #damage-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+            background: radial-gradient(circle, transparent 30%, rgba(255,0,0,0.8) 100%);
+            opacity: 0; transition: opacity 0.15s ease-out; z-index: 5; mix-blend-mode: overlay;
+        }
+        .flash-red { opacity: 1 !important; }
+
+        /* Screens */
+        .overlay-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; pointer-events: auto;
+            overflow-y: auto; padding: 40px 20px; transition: opacity 0.4s;
+        }
+        .overlay-screen.hidden { opacity: 0; pointer-events: none; }
         
-        @keyframes flapFront { 0% { transform: rotate(-55deg) scaleY(0.6); } 100% { transform: rotate(25deg) scaleY(1); } }
-        @keyframes flapBack { 0% { transform: rotate(55deg) scaleY(0.6); } 100% { transform: rotate(-25deg) scaleY(1); } }
-
-        .tail-string {
-            width: 25px; height: 2px; background: rgba(255,255,255,0.6);
-            z-index: 2; border-top: 2px dashed #0f172a; flex-shrink: 0;
+        .content-card { 
+            background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 24px; padding: 50px; max-width: 800px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+            margin-bottom: 30px; position: relative; overflow: hidden;
         }
-        
-        .note-card {
-            background: #fbbf24; color: #020617;
-            padding: 10px 12px; 
-            border-radius: 0px; /* STRICTLY RECTANGULAR SHAPE */
-            border: 2px solid #b45309; box-shadow: 0 6px 10px rgba(0,0,0,0.6);
-            font-size: 0.85rem; font-weight: 800; line-height: 1.35;
-            width: max-content;
-            max-width: 160px; /* Prevents it from going offscreen on small phones */
-            height: auto; /* Fits the complete text */
-            text-align: center; z-index: 1;
-            white-space: normal; 
-            word-wrap: break-word;
-            transform-origin: center left;
-            animation: flutter 1s infinite alternate ease-in-out;
-        }
-        @keyframes flutter { 0% { transform: rotate(-3deg); } 100% { transform: rotate(3deg); } }
-
-        /* Escape animation */
-        .bird-escape { animation: escapeFast 1s ease-in forwards; pointer-events: none; }
-        @keyframes escapeFast { 
-            0% { transform: translateY(0) rotate(0deg); } 
-            100% { transform: translateY(-400px) translateX(-200px) rotate(25deg); opacity: 0; } 
+        .content-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
         }
 
-        /* --- PROJECTILES & PARTICLES --- */
-        .flying-arrow {
-            position: absolute; z-index: 40; pointer-events: none;
-            display: flex; align-items: center; justify-content: center;
-            transform-origin: center center;
+        .play-btn { 
+            background: white; color: black; border: none; padding: 18px 60px; 
+            font-size: 1.5rem; font-weight: 900; border-radius: 50px; cursor: pointer; 
+            transition: all 0.3s; text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
         }
+        .play-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,255,255,0.6); }
 
-        .feather {
-            position: absolute; z-index: 30; pointer-events: none;
-            width: 10px; height: 25px; border-radius: 50% 50% 0 50%;
-        }
+        /* Summary lists */
+        .concept-group { margin-bottom: 30px; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 16px; }
+        .concept-name { font-size: 1.5rem; font-weight: 900; margin-bottom: 15px; display: flex; align-items: center; gap: 12px; }
+        .concept-notes { list-style-type: none; padding-left: 10px; }
+        .concept-notes li { font-size: 1.2rem; color: #cbd5e1; margin-bottom: 12px; padding-left: 30px; position: relative; line-height: 1.4;}
+        .concept-notes li::before { content: "❖"; position: absolute; left: 0; color: inherit; opacity: 0.5;}
 
-        .float-text {
-            position: absolute; font-weight: 900; font-size: 1.8rem;
-            pointer-events: none; z-index: 300; text-shadow: 0 3px 8px rgba(0,0,0,1);
-            animation: floatUp 1s ease-out forwards;
+        .floating-text { 
+            position: absolute; font-weight: 900; font-size: 2.5rem; pointer-events: none; z-index: 20; 
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8); transform: translate(-50%, -50%); animation: floatUp 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
         }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -60px) scale(1.3); }
+        @keyframes floatUp { 
+            0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); } 
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -150px) scale(1); } 
         }
-
-        /* --- END SCREEN --- */
-        .overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center;
-            padding: 40px 20px; z-index: 500; opacity: 0; pointer-events: none;
-            transition: opacity 0.5s ease; overflow-y: auto;
-        }
-        .overlay.active { opacity: 1; pointer-events: auto; }
-        
-        .book-summary {
-            width: 100%; max-width: 500px; background: #0f172a; border: 1px solid #334155;
-            border-radius: 12px; padding: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.8); margin-bottom: 20px;
-        }
-        .book-summary h2 {
-            font-size: 1.8rem; color: #fbbf24; text-align: center; margin-bottom: 10px;
-            text-transform: uppercase; border-bottom: 2px solid #334155; padding-bottom: 15px;
-        }
-        .book-summary p.score-report { text-align: center; font-size: 1.1rem; color: #94a3b8; margin-bottom: 20px; font-family: 'JetBrains Mono'; }
-        .chapter-section { margin-bottom: 20px; }
-        .chapter-section h3 { font-size: 1.3rem; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        .chapter-section ul { list-style-type: none; padding-left: 15px; }
-        .chapter-section li { font-size: 1rem; color: #e2e8f0; margin-bottom: 8px; position: relative; line-height: 1.4; }
-        .chapter-section li::before { content: "➔"; position: absolute; left: -20px; color: #10b981; font-weight: bold; }
-        button.play-btn {
-            background: linear-gradient(135deg, #0ea5e9, #10b981); color: #000; border: none; padding: 15px 50px;
-            font-size: 1.3rem; font-weight: 900; border-radius: 30px; cursor: pointer; transition: transform 0.2s;
-            box-shadow: 0 8px 15px rgba(14, 165, 233, 0.4); flex-shrink: 0; margin-bottom: 20px;
-        }
-        button.play-btn:active { transform: scale(0.95); }
-
     </style>
 </head>
 <body>
 
     <script>
-        const MASTER_GAME_DATA = {
+        // MASTER GAME DATA
+        const GAME_DATA = {
             gameTitle: "Equipments Required in Plane Tabling",
             targets: [
                 { id: 1, name: "Plane Table", color: "#38bdf8" },
@@ -238,465 +182,881 @@
         };
     </script>
 
-    <div class="clouds"></div>
-
-    <div class="header">
-        <div class="active-topic-board" id="topicBoard">
-            <div class="topic-label">Hunt the bird with note matching:</div>
-            <div class="topic-text" id="targetHud">Loading...</div>
-        </div>
-        <div class="stats-box">
-            <div class="stat-badge" id="score-badge">⭐ <span id="score">0</span></div>
-            <div class="stat-badge" id="birds-badge">Hunted: <span id="notesCaught">0</span> / <span id="notesTotal">0</span></div>
-        </div>
-    </div>
-
-    <div class="game-area" id="gameArea">
-        
-        <div class="player-station">
-            <div class="bow-wrapper">
-                <svg id="bowGraphics" viewBox="0 0 200 200">
-                    <defs>
-                        <linearGradient id="wood" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#451a03" />
-                            <stop offset="50%" stop-color="#92400e" />
-                            <stop offset="100%" stop-color="#451a03" />
-                        </linearGradient>
-                        <filter id="bowGlow"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000" flood-opacity="0.6"/></filter>
-                    </defs>
-                    
-                    <path id="bowString" d="M 20,100 L 100,180 L 180,100" fill="none" stroke="#e2e8f0" stroke-width="4"/>
-                    <path d="M 20,100 Q 100,-20 180,100" fill="none" stroke="url(#wood)" stroke-width="20" stroke-linecap="round" filter="url(#bowGlow)"/>
-                    <path d="M 20,100 Q 100,-20 180,100" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="6" stroke-linecap="round"/>
-                    
-                    <path d="M 85,38 Q 100,28 115,38" fill="none" stroke="#020617" stroke-width="24" stroke-linecap="round"/>
-                    <path d="M 85,38 Q 100,28 115,38" fill="none" stroke="#334155" stroke-width="20" stroke-linecap="round" stroke-dasharray="4 2"/>
-                    
-                    <g id="loadedArrow">
-                        <line x1="100" y1="180" x2="100" y2="40" stroke="#f8fafc" stroke-width="6" />
-                        <polygon points="100,28 90,48 110,48" fill="#ef4444" />
-                        <polygon points="100,180 88,162 100,168" fill="#0ea5e9" />
-                        <polygon points="100,180 112,162 100,168" fill="#0ea5e9" />
-                    </g>
-                </svg>
+    <div id="ui-layer">
+        <div class="hud-top">
+            <div class="glass-panel stat-box">
+                <span class="text-slate-400 text-sm">Target Points</span>
+                <span class="stat-value text-white" id="score-display">0</span>
+            </div>
+            <div class="glass-panel stat-box" style="border-bottom: 3px solid #818cf8;">
+                <span class="text-slate-400 text-sm" id="title-display">Title</span>
+                <span class="stat-value text-indigo-300">MODULE</span>
+            </div>
+            <div class="glass-panel stat-box">
+                <span class="text-slate-400 text-sm">Targets Left</span>
+                <span class="stat-value text-white" id="boards-left">0</span>
             </div>
         </div>
-    </div>
 
-    <div class="overlay" id="endScreen">
-        <div class="book-summary">
-            <h2>Chapter Mastered</h2>
-            <p class="score-report">Final Score: <span id="finalScore" style="color:#fbbf24; font-weight:bold;">0</span></p>
-            <div id="summaryContent"></div>
+        <div class="crosshair-container" id="crosshair">
+            <div class="crosshair-ring"></div>
+            <div class="crosshair-dot"></div>
         </div>
-        <button class="play-btn" onclick="startGame()">Retake Test</button>
+        
+        <div id="damage-overlay"></div>
+        <div id="mobile-look-zone"></div>
+        <button id="mobile-fire-btn">FIRE</button>
+
+        <div class="glass-panel weapon-tray" id="weapon-tray"></div>
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-sm font-bold desktop-hint pointer-events-none tracking-widest uppercase">
+            Scroll Wheel or Keys [1-4] to select logic
+        </div>
     </div>
 
-    <script>
-        // --- AUDIO ENGINE ---
-        let audioCtx;
-        function initAudio() {
-            if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-            }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }
+    <div class="overlay-screen" id="start-screen">
+        <div class="content-card text-center">
+            <h1 class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 mb-4 tracking-tight" id="start-title">Title</h1>
+            <p class="text-xl text-slate-400 mb-10 font-medium tracking-wide uppercase">Interactive Learning Environment</p>
+            
+            <div class="text-left text-lg text-slate-300 mb-10 space-y-6 max-w-xl mx-auto">
+                <p class="flex items-start gap-4"><span class="text-3xl">🔫</span> <span>Equip a <b>Target Logic</b> and shoot the matching definition.</span></p>
+            </div>
+            
+            <p class="text-indigo-300 font-bold mb-8 desktop-hint animate-pulse">Click anywhere to lock mouse and look around.</p>
+            <button class="play-btn" id="start-btn">INITIALIZE</button>
+        </div>
+    </div>
 
-        const playSound = (type) => {
-            if (!audioCtx) return;
-            try {
-                if (type === 'shoot') {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.15);
-                    gain.gain.setValueAtTime(1, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.15);
-                } else if (type === 'hit') {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.2);
-                    gain.gain.setValueAtTime(1, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-                } else if (type === 'wrong') {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
-                    gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-                }
-            } catch (e) {}
+    <div class="overlay-screen hidden" id="end-screen">
+        <div class="content-card">
+            <h2 class="text-4xl font-black text-white text-center mb-2 uppercase tracking-widest">Module Mastered</h2>
+            <p class="text-center text-xl mb-10 text-slate-400">Final Assessment Score: <span class="text-emerald-400 font-black text-3xl ml-2" id="final-score">0</span></p>
+            <div id="summary-content" class="max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar"></div>
+        </div>
+        <button class="play-btn" id="restart-btn">RETAKE MODULE</button>
+    </div>
+
+    <div id="game-canvas"></div>
+
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+        // --- Premium Procedural Audio Engine ---
+        const AudioSys = {
+            ctx: null,
+            init: function() {
+                if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if(this.ctx.state === 'suspended') this.ctx.resume();
+            },
+            playShoot: function() {
+                if(!this.ctx) return;
+                const t = this.ctx.currentTime;
+                // Punchy Synth Laser
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, t);
+                osc.frequency.exponentialRampToValueAtTime(40, t + 0.15);
+                gain.gain.setValueAtTime(0.4, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(t); osc.stop(t + 0.15);
+            },
+            playCorrect: function() {
+                if(!this.ctx) return;
+                const t = this.ctx.currentTime;
+                // Satisfying pop + magic chord
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, t); // C5
+                osc.frequency.setValueAtTime(659.25, t + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, t + 0.2); // G5
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.4, t + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(t); osc.stop(t + 0.5);
+            },
+            playRicochet: function() {
+                if(!this.ctx) return;
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(1200, t);
+                osc.frequency.exponentialRampToValueAtTime(100, t + 0.3);
+                gain.gain.setValueAtTime(0.5, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(t); osc.stop(t + 0.3);
+            },
+            playHitPlayer: function() {
+                if(!this.ctx) return;
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, t);
+                osc.frequency.exponentialRampToValueAtTime(30, t + 0.4);
+                gain.gain.setValueAtTime(0.8, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(t); osc.stop(t + 0.4);
+            }
         };
 
-        document.body.addEventListener('click', initAudio, { once: true });
-        document.body.addEventListener('touchstart', initAudio, { once: true });
-
-        // --- GAME LOGIC ---
-        const gameData = MASTER_GAME_DATA;
-        document.getElementById('notesTotal').innerText = gameData.notes.length;
-
-        const gameArea = document.getElementById('gameArea');
-        const scoreEl = document.getElementById('score');
-        const caughtEl = document.getElementById('notesCaught');
-        const targetHud = document.getElementById('targetHud');
-        const topicBoard = document.getElementById('topicBoard');
-        const bowGraphics = document.getElementById('bowGraphics');
-        const loadedArrow = document.getElementById('loadedArrow');
-        const bowString = document.getElementById('bowString');
-
+        // --- Game State ---
+        let scene, camera, renderer;
+        let isPlaying = false;
         let score = 0;
-        let caughtCount = 0;
-        let currentTargetId = null;
-        let animationFrameId;
+        let boardsRemaining = GAME_DATA.notes.length;
+        let currentEquippedTarget = GAME_DATA.targets[0];
         
-        let pendingQueue = []; 
-        let activeBirds = []; 
-        let completedNoteIds = new Set(); 
-        let lastSpawnTime = 0;
-        let isGameRunning = false;
+        let balloonGroups = [];
+        let bullets = [];
+        let particles = [];
+        const BULLET_SPEED = 50.0;
+        const CIRCLE_RADIUS = 28.0; // Perfect distance
 
-        const birdColors = [
-            { body: "#0ea5e9", wing: "#0284c7" },
-            { body: "#ef4444", wing: "#b91c1c" },
-            { body: "#10b981", wing: "#047857" },
-            { body: "#f59e0b", wing: "#b45309" },
-            { body: "#8b5cf6", wing: "#6d28d9" }
-        ];
+        // Player / Gun
+        const pitchObject = new THREE.Group();
+        const yawObject = new THREE.Group();
+        let gunGroup, barrelTip, gunVisuals;
+        
+        // Sway variables
+        let mouseX = 0; let mouseY = 0;
+        let targetGunRotX = 0; let targetGunRotY = 0;
+        let recoilActive = 0;
+
+        // --- Initialization ---
+        document.getElementById('title-display').innerText = GAME_DATA.gameTitle;
+        document.getElementById('start-title').innerText = GAME_DATA.gameTitle;
+
+        function buildWeaponTray() {
+            const tray = document.getElementById('weapon-tray');
+            tray.innerHTML = '';
+            GAME_DATA.targets.forEach((target, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'weapon-btn';
+                btn.id = `weapon-btn-${target.id}`;
+                btn.style.setProperty('--glow-color', target.color);
+                btn.innerHTML = `<span class="key-hint">${index + 1}</span> <span style="color:${target.color}">●</span> <span>${target.name}</span>`;
+                btn.onclick = (e) => { e.stopPropagation(); equipWeapon(target); };
+                tray.appendChild(btn);
+            });
+            equipWeapon(GAME_DATA.targets[0]);
+        }
+
+        function equipWeapon(target) {
+            currentEquippedTarget = target;
+            document.querySelectorAll('.weapon-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`weapon-btn-${target.id}`);
+            if(activeBtn) activeBtn.classList.add('active');
+            
+            // Update Gun Neon Material
+            if(gunGroup && gunGroup.userData.neonMats) {
+                gunGroup.userData.neonMats.forEach(mat => {
+                    mat.color.set(target.color);
+                    mat.emissive.set(target.color);
+                });
+            }
+        }
+
+        window.addEventListener('wheel', (e) => {
+            if(!isPlaying) return;
+            const currentIndex = GAME_DATA.targets.findIndex(t => t.id === currentEquippedTarget.id);
+            let nextIndex = e.deltaY > 0 ? currentIndex + 1 : currentIndex - 1;
+            if(nextIndex >= GAME_DATA.targets.length) nextIndex = 0;
+            if(nextIndex < 0) nextIndex = GAME_DATA.targets.length - 1;
+            equipWeapon(GAME_DATA.targets[nextIndex]);
+        });
+        window.addEventListener('keydown', (e) => {
+            if(!isPlaying) return;
+            const num = parseInt(e.key);
+            if(num > 0 && num <= GAME_DATA.targets.length) equipWeapon(GAME_DATA.targets[num - 1]);
+        });
+
+        // --- Three.js Setup ---
+        function initThreeJS() {
+            const container = document.getElementById('game-canvas');
+            scene = new THREE.Scene();
+            
+            // Cinematic Tone Mapping
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.1;
+            container.appendChild(renderer.domElement);
+
+            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 300);
+            
+            createSkybox();
+
+            // Premium Lighting
+            scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+            const hemiLight = new THREE.HemisphereLight(0xffbbaa, 0x080820, 0.6); // Sunset to dark ground
+            scene.add(hemiLight);
+            const dirLight = new THREE.DirectionalLight(0xffeedd, 1.0);
+            dirLight.position.set(20, 30, 20);
+            scene.add(dirLight);
+
+            // Subtle Floor grid to ground the player
+            const gridHelper = new THREE.GridHelper(100, 50, 0x334155, 0x0f172a);
+            gridHelper.position.y = -8;
+            scene.add(gridHelper);
+
+            // Player Setup
+            yawObject.position.y = 0;
+            pitchObject.add(camera);
+            yawObject.add(pitchObject);
+            scene.add(yawObject);
+
+            buildPremiumGun();
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function createSkybox() {
+            // Procedural Sunset/Dusk Gradient Sky
+            const vertexShader = `
+                varying vec3 vWorldPosition;
+                void main() {
+                    vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+                    vWorldPosition = worldPosition.xyz;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                }
+            `;
+            const fragmentShader = `
+                uniform vec3 topColor;
+                uniform vec3 bottomColor;
+                varying vec3 vWorldPosition;
+                void main() {
+                    float h = normalize( vWorldPosition ).y;
+                    gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), 0.6 ), 0.0 ) ), 1.0 );
+                }
+            `;
+            const uniforms = {
+                topColor: { value: new THREE.Color(0x1e1b4b) }, // Deep purple
+                bottomColor: { value: new THREE.Color(0xfca5a5) } // Soft sunset pink
+            };
+            const skyGeo = new THREE.SphereGeometry(200, 32, 15);
+            const skyMat = new THREE.ShaderMaterial({
+                vertexShader: vertexShader, fragmentShader: fragmentShader, uniforms: uniforms, side: THREE.BackSide
+            });
+            scene.add(new THREE.Mesh(skyGeo, skyMat));
+        }
+
+        function buildPremiumGun() {
+            gunGroup = new THREE.Group();
+            gunVisuals = new THREE.Group();
+            
+            // Positioned to make the ENTIRE gun (stock, grip, barrel) completely visible
+            gunGroup.position.set(0.35, -0.25, -1.4); 
+            gunVisuals.rotation.y = 0.15; // Angled slightly to show the side profile
+            
+            gunGroup.add(gunVisuals);
+            pitchObject.add(gunGroup);
+
+            // Materials
+            const darkMetal = new THREE.MeshStandardMaterial({ color: 0x111827, metalness: 0.7, roughness: 0.3 });
+            const greyMetal = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.5, roughness: 0.5 });
+            const neonMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1.5 });
+            
+            gunGroup.userData.neonMats = [neonMat];
+
+            // 1. Main Receiver
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.25, 0.9), darkMetal);
+            gunVisuals.add(body);
+
+            // 2. Barrel
+            const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.7, 16), greyMetal);
+            barrel.rotateX(Math.PI / 2);
+            barrel.position.set(0, 0.05, -0.7);
+            gunVisuals.add(barrel);
+            
+            // Muzzle Brake
+            const brake = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.15, 16), darkMetal);
+            brake.rotateX(Math.PI / 2);
+            brake.position.set(0, 0.05, -1.05);
+            gunVisuals.add(brake);
+
+            // 3. Scope
+            const scopeMount = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.08, 0.15), greyMetal);
+            scopeMount.position.set(0, 0.16, -0.1);
+            gunVisuals.add(scopeMount);
+            
+            const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.35, 16), darkMetal);
+            scope.rotateX(Math.PI / 2);
+            scope.position.set(0, 0.22, -0.1);
+            gunVisuals.add(scope);
+
+            // 4. Grip & Stock (Now fully visible)
+            const grip = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.25, 0.15), darkMetal);
+            grip.position.set(0, -0.2, 0.15);
+            grip.rotation.x = Math.PI / 8;
+            gunVisuals.add(grip);
+            
+            const stock = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.5), greyMetal);
+            stock.position.set(0, -0.05, 0.6);
+            gunVisuals.add(stock);
+
+            // 5. Glowing Neon Rails (Visual Ammo Indicator)
+            const rail1 = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.6), neonMat);
+            rail1.position.set(0.095, 0.05, -0.2);
+            gunVisuals.add(rail1);
+            
+            const rail2 = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.6), neonMat);
+            rail2.position.set(-0.095, 0.05, -0.2);
+            gunVisuals.add(rail2);
+
+            // Tracking Tip
+            barrelTip = new THREE.Object3D();
+            barrelTip.position.set(0, 0.05, -1.1);
+            gunVisuals.add(barrelTip);
+        }
+
+        // --- Balloon & Board Generation ---
+        const TEXT_COLORS = ['#f8fafc', '#fef08a', '#a7f3d0', '#bfdbfe', '#fbcfe8', '#fed7aa'];
+        const BALLOON_COLORS = [0xf43f5e, 0x3b82f6, 0x10b981, 0xf59e0b, 0x8b5cf6, 0xec4899];
+
+        function createPremiumBoardTexture(text) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Glass/Metal Board Background
+            ctx.fillStyle = '#0f172a'; // Deep slate
+            ctx.beginPath(); ctx.roundRect(10, 10, 1004, 492, 40); ctx.fill();
+            
+            // Premium Border Gradient
+            const gradient = ctx.createLinearGradient(0, 0, 1024, 512);
+            gradient.addColorStop(0, '#334155'); gradient.addColorStop(1, '#1e293b');
+            ctx.strokeStyle = gradient; ctx.lineWidth = 15; ctx.stroke();
+            
+            // Inner shadow/glow
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.roundRect(25, 25, 974, 462, 25); ctx.stroke();
+
+            // Random Text Color
+            const tColor = TEXT_COLORS[Math.floor(Math.random() * TEXT_COLORS.length)];
+            ctx.fillStyle = tColor;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            
+            // DYNAMIC AUTO-FITTING TEXT LOGIC
+            let fontSize = 90; // Starting maximum font size
+            let lines = [];
+            const maxWidth = 880;  // Safe width area inside board
+            const maxHeight = 400; // Safe height area inside board
+            let lineHeight = fontSize * 1.2;
+            const words = text.split(' ');
+
+            // Loop to shrink font size until the text fully fits inside the board
+            while (fontSize > 20) {
+                ctx.font = `bold ${fontSize}px Outfit, sans-serif`;
+                lineHeight = fontSize * 1.2;
+                lines = [];
+                let line = '';
+
+                for(let n = 0; n < words.length; n++) {
+                    const testLine = line + words[n] + ' ';
+                    if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                        lines.push(line.trim());
+                        line = words[n] + ' ';
+                    } else {
+                        line = testLine;
+                    }
+                }
+                lines.push(line.trim());
+
+                // Check if the total vertical height of all wrapped lines fits inside the board
+                if (lines.length * lineHeight <= maxHeight) {
+                    break; // It fits perfectly!
+                }
+                
+                // If it doesn't fit, shrink the font size and try wrapping again
+                fontSize -= 4; 
+            }
+
+            // Draw the text exactly centered vertically
+            const totalTextHeight = lines.length * lineHeight;
+            // The middle of our 512px canvas is 256. Start Y calculates the center point perfectly.
+            const startY = 256 - (totalTextHeight / 2) + (lineHeight / 2);
+
+            ctx.shadowColor = 'rgba(0,0,0,0.8)';
+            ctx.shadowBlur = 15; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 4;
+            
+            lines.forEach((l, i) => {
+                ctx.fillText(l, 512, startY + (i * lineHeight));
+            });
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            return texture;
+        }
+
+        // --- UPDATED LOGIC: Spawns balloons in 2 circles ---
+        function spawnBalloonsAndBoards() {
+            balloonGroups.forEach(g => scene.remove(g));
+            balloonGroups = [];
+            
+            const shuffledNotes = [...GAME_DATA.notes].sort(() => Math.random() - 0.5);
+            const total = shuffledNotes.length;
+            const halfTotal = Math.ceil(total / 2); // Divide into two groups
+            
+            const boardGeo = new THREE.PlaneGeometry(16, 8); // Scaled for readability
+
+            shuffledNotes.forEach((note, index) => {
+                // Determine which circle this note belongs to
+                const isOuterCircle = index >= halfTotal;
+                const circleIndex = isOuterCircle ? index - halfTotal : index;
+                const circleCount = isOuterCircle ? (total - halfTotal) : halfTotal;
+                
+                const angleStep = (Math.PI * 2) / circleCount;
+                const angle = circleIndex * angleStep;
+                
+                // Outer circle is farther away and significantly higher
+                const currentRadius = isOuterCircle ? (CIRCLE_RADIUS * 1.6) : CIRCLE_RADIUS;
+                const heightOffset = isOuterCircle ? 12 : 0; 
+
+                // 1. Create Container (Handles positioning & facing camera)
+                const container = new THREE.Group();
+                container.position.x = Math.cos(angle) * currentRadius;
+                container.position.z = Math.sin(angle) * currentRadius;
+                
+                // Suspended height calculation
+                container.position.y = (Math.random() - 0.5) * 2 + 2 + heightOffset; 
+                
+                // Make container face center
+                container.lookAt(0, container.position.y, 0);
+
+                // 2. Assemble Objects directly into Container (Stationary)
+                const bColor = BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
+                
+                // Board (At container origin for perfect aiming height)
+                const texture = createPremiumBoardTexture(note.text);
+                const mat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+                const boardMesh = new THREE.Mesh(boardGeo, mat);
+                boardMesh.position.y = 0; 
+                boardMesh.userData = { isBoard: true, noteId: note.id, targetId: note.targetId, parentGroup: container };
+                container.add(boardMesh);
+
+                // String (Going UP from the board to the balloon)
+                const stringLength = 6;
+                const stringGeo = new THREE.CylinderGeometry(0.02, 0.02, stringLength);
+                const stringMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const stringMesh = new THREE.Mesh(stringGeo, stringMat);
+                stringMesh.position.y = 4 + (stringLength / 2); // 4 is half the board's height
+                container.add(stringMesh);
+
+                // Balloon Tie
+                const balloonMat = new THREE.MeshStandardMaterial({ 
+                    color: bColor, roughness: 0.1, metalness: 0.2, clearcoat: 1.0 
+                });
+                const tieGeo = new THREE.ConeGeometry(0.3, 0.5, 8);
+                const tie = new THREE.Mesh(tieGeo, balloonMat);
+                tie.position.y = 4 + stringLength;
+                tie.rotation.x = Math.PI;
+                container.add(tie);
+
+                // Balloon Mesh
+                const balloonGeo = new THREE.SphereGeometry(2, 32, 32);
+                const balloon = new THREE.Mesh(balloonGeo, balloonMat);
+                balloon.position.y = 4 + stringLength + 2.1; 
+                container.add(balloon);
+
+                // Setup Data
+                container.userData = {
+                    boardMesh: boardMesh
+                };
+
+                scene.add(container);
+                balloonGroups.push(container);
+            });
+
+            boardsRemaining = balloonGroups.length;
+            updateHUD();
+        }
+
+        // --- Controls (PointerLock & Mobile) ---
+        let isPointerLocked = false;
+        
+        document.body.addEventListener('click', () => {
+            if(!isPlaying || isPointerLocked || window.matchMedia("(pointer: coarse)").matches) return;
+            document.body.requestPointerLock();
+        });
+
+        document.addEventListener('pointerlockchange', () => { isPointerLocked = document.pointerLockElement === document.body; });
+
+        document.addEventListener('mousemove', (event) => {
+            if (isPointerLocked && isPlaying) {
+                const movX = event.movementX * 0.002;
+                const movY = event.movementY * 0.002;
+                
+                yawObject.rotation.y -= movX;
+                pitchObject.rotation.x -= movY;
+                pitchObject.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitchObject.rotation.x));
+                
+                // Feed sway variables
+                mouseX = movX * 10; 
+                mouseY = movY * 10;
+            }
+        });
+
+        // Mobile Controls
+        const lookZone = document.getElementById('mobile-look-zone');
+        let lastTouch = null;
+        
+        lookZone.addEventListener('touchstart', (e) => {
+            if(!isPlaying) return;
+            lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }, {passive: false});
+
+        lookZone.addEventListener('touchmove', (e) => {
+            if(!isPlaying || !lastTouch) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - lastTouch.x;
+            const deltaY = touch.clientY - lastTouch.y;
+            
+            // DYNAMIC SENSITIVITY FIX
+            // Calculates a factor based on actual screen size vs standard mobile width
+            // This normalizes the swipe distance even if Desktop Mode is turned on
+            const resolutionFactor = 400 / window.innerWidth;
+            const finalSensitivity = 0.005 * resolutionFactor;
+            
+            yawObject.rotation.y -= deltaX * finalSensitivity;
+            pitchObject.rotation.x -= deltaY * finalSensitivity;
+            pitchObject.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitchObject.rotation.x));
+            
+            // Feed sway for mobile too, applying the same resolution fix
+            mouseX = deltaX * (0.02 * resolutionFactor);
+            mouseY = deltaY * (0.02 * resolutionFactor);
+
+            lastTouch = { x: touch.clientX, y: touch.clientY };
+        }, {passive: false});
+
+        lookZone.addEventListener('touchend', () => { lastTouch = null; mouseX = 0; mouseY = 0; });
+
+        // --- Shooting & Visual Effects ---
+        const raycaster = new THREE.Raycaster();
+        const bulletGeo = new THREE.SphereGeometry(0.4, 16, 16);
+
+        function triggerCrosshairAnim() {
+            const ch = document.getElementById('crosshair');
+            ch.classList.add('shooting');
+            setTimeout(() => ch.classList.remove('shooting'), 150);
+        }
+
+        function triggerHitmarker(isCorrect) {
+            const ch = document.getElementById('crosshair');
+            const cls = isCorrect ? 'hit-correct' : 'hit-wrong';
+            ch.classList.add(cls);
+            setTimeout(() => ch.classList.remove(cls), 300);
+        }
+
+        function shoot() {
+            if(!isPlaying) return;
+            AudioSys.init(); AudioSys.playShoot();
+            triggerCrosshairAnim();
+
+            // Heavy Recoil Kick
+            recoilActive = 1.0;
+            gunVisuals.position.z = 0.2; 
+            gunVisuals.rotation.x = 0.1;
+
+            // Muzzle Flash Light
+            const flash = new THREE.PointLight(currentEquippedTarget.color, 5, 20);
+            barrelTip.getWorldPosition(flash.position);
+            scene.add(flash);
+            setTimeout(() => scene.remove(flash), 50); // Quick flash
+
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            
+            // Extract just the board meshes for intersection
+            const boardMeshes = balloonGroups.map(g => g.userData.boardMesh);
+            const intersects = raycaster.intersectObjects(boardMeshes, false);
+
+            const startPos = new THREE.Vector3();
+            barrelTip.getWorldPosition(startPos);
+            let targetPos = new THREE.Vector3();
+            let hitBoard = null;
+
+            if (intersects.length > 0) {
+                hitBoard = intersects[0].object;
+                targetPos.copy(intersects[0].point);
+            } else {
+                raycaster.ray.at(150, targetPos); // Shoot far into sky
+            }
+
+            // Spawn Projectile
+            const bulletMat = new THREE.MeshBasicMaterial({ color: currentEquippedTarget.color });
+            const mesh = new THREE.Mesh(bulletGeo, bulletMat);
+            mesh.position.copy(startPos);
+            
+            // Add trail/glow
+            const glowMat = new THREE.MeshBasicMaterial({ color: currentEquippedTarget.color, transparent: true, opacity: 0.5 });
+            const glow = new THREE.Mesh(new THREE.SphereGeometry(0.8, 8, 8), glowMat);
+            mesh.add(glow);
+            scene.add(mesh);
+
+            const dir = new THREE.Vector3().subVectors(targetPos, startPos).normalize();
+            
+            bullets.push({
+                mesh: mesh,
+                velocity: dir.multiplyScalar(BULLET_SPEED),
+                targetPos: targetPos,
+                board: hitBoard,
+                state: 'outward',
+                conceptData: currentEquippedTarget
+            });
+        }
+
+        document.addEventListener('mousedown', (e) => { if (isPlaying && isPointerLocked && e.button === 0) shoot(); });
+        document.getElementById('mobile-fire-btn').addEventListener('touchstart', (e) => { e.preventDefault(); shoot(); });
+
+        function createPremiumExplosion(pos, isCorrect) {
+            const count = isCorrect ? 60 : 30;
+            const color = isCorrect ? currentEquippedTarget.color : '#ef4444';
+            const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color(color) });
+            const geo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+
+            for(let i=0; i<count; i++) {
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.copy(pos);
+                // Spherical burst
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                const speed = Math.random() * 25 + 5;
+                
+                mesh.userData.velocity = new THREE.Vector3(
+                    Math.sin(phi) * Math.cos(theta),
+                    Math.sin(phi) * Math.sin(theta) + (isCorrect ? 0.5 : 0), // Slight upward bias
+                    Math.cos(phi)
+                ).multiplyScalar(speed);
+                
+                mesh.userData.life = 1.0;
+                scene.add(mesh);
+                particles.push(mesh);
+            }
+        }
+
+        function showFloatingText2D(text, color) {
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.innerText = text; el.style.color = color;
+            document.getElementById('ui-layer').appendChild(el);
+            setTimeout(() => el.remove(), 1500);
+        }
+
+        function handleBulletHitBoard(bullet, index) {
+            const board = bullet.board;
+            const parentContainer = board.userData.parentGroup;
+            
+            if(!parentContainer || !balloonGroups.includes(parentContainer)) {
+                scene.remove(bullet.mesh); bullets.splice(index, 1); return;
+            }
+
+            const isMatch = (bullet.conceptData.id === board.userData.targetId);
+
+            if (isMatch) {
+                AudioSys.playCorrect();
+                triggerHitmarker(true);
+                
+                // Explode at board position
+                const boardWorldPos = new THREE.Vector3();
+                board.getWorldPosition(boardWorldPos);
+                createPremiumExplosion(boardWorldPos, true);
+                
+                scene.remove(parentContainer);
+                balloonGroups = balloonGroups.filter(g => g !== parentContainer);
+                boardsRemaining = balloonGroups.length;
+                
+                scene.remove(bullet.mesh);
+                bullets.splice(index, 1);
+
+                score += 10;
+                showFloatingText2D("PRECISION STRIKE +10", "#34d399");
+                updateHUD();
+
+                if (boardsRemaining === 0) setTimeout(endGame, 1500);
+
+            } else {
+                AudioSys.playRicochet();
+                triggerHitmarker(false);
+                
+                const hitPos = new THREE.Vector3();
+                bullet.mesh.getWorldPosition(hitPos);
+                createPremiumExplosion(hitPos, false);
+                
+                // Transform bullet to angry red return state
+                bullet.mesh.material.color.setHex(0xef4444);
+                bullet.mesh.children[0].material.color.setHex(0xef4444);
+                bullet.state = 'returning';
+                
+                const camWorld = new THREE.Vector3();
+                camera.getWorldPosition(camWorld);
+                const returnDir = new THREE.Vector3().subVectors(camWorld, bullet.mesh.position).normalize();
+                bullet.velocity = returnDir.multiplyScalar(BULLET_SPEED * 1.8); // Fast return
+            }
+        }
+
+        function handleBulletHitPlayer(bullet, index) {
+            AudioSys.playHitPlayer();
+            
+            const overlay = document.getElementById('damage-overlay');
+            overlay.classList.add('flash-red');
+            setTimeout(() => overlay.classList.remove('flash-red'), 200);
+
+            scene.remove(bullet.mesh);
+            bullets.splice(index, 1);
+
+            score -= 5;
+            showFloatingText2D("SYSTEM DAMAGE -5", "#ef4444");
+            updateHUD();
+        }
+
+        // --- Main Animation Loop ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            if (isPlaying) {
+                // 1. Procedural Weapon Sway & Recoil Recovery
+                // Recover recoil
+                if(recoilActive > 0) {
+                    recoilActive -= delta * 5;
+                    if(recoilActive < 0) recoilActive = 0;
+                }
+                
+                // Interpolate gun position back to origin smoothly
+                gunVisuals.position.z += (0 - gunVisuals.position.z) * 10 * delta;
+                gunVisuals.rotation.x += (0 - gunVisuals.rotation.x) * 10 * delta;
+
+                // Sway logic based on mouse movement
+                targetGunRotY = -mouseX * 0.5;
+                targetGunRotX = -mouseY * 0.5;
+                
+                // Add natural breathing bob
+                const bobX = Math.cos(time * 2) * 0.01;
+                const bobY = Math.sin(time * 4) * 0.01;
+
+                gunGroup.rotation.y += (targetGunRotY - gunGroup.rotation.y) * 5 * delta;
+                gunGroup.rotation.x += (targetGunRotX - gunGroup.rotation.x) * 5 * delta;
+                gunGroup.position.x = 0.35 + bobX;
+                gunGroup.position.y = -0.25 + bobY;
+
+                // Decay mouse velocity for sway
+                mouseX *= 0.9; mouseY *= 0.9;
+
+                // 2. Boards are completely stationary (Balloon sway removed)
+
+                // 3. Update Bullets
+                for (let i = bullets.length - 1; i >= 0; i--) {
+                    const b = bullets[i];
+                    b.mesh.position.addScaledVector(b.velocity, delta);
+
+                    if (b.state === 'outward') {
+                        const distToTarget = b.mesh.position.distanceTo(b.targetPos);
+                        if (distToTarget < 1.5 || (b.velocity.dot(new THREE.Vector3().subVectors(b.targetPos, b.mesh.position)) < 0)) {
+                            if (b.board) handleBulletHitBoard(b, i);
+                            else { scene.remove(b.mesh); bullets.splice(i, 1); }
+                        }
+                    } else if (b.state === 'returning') {
+                        const camWorld = new THREE.Vector3();
+                        camera.getWorldPosition(camWorld);
+                        if (b.mesh.position.distanceTo(camWorld) < 2.5) {
+                            handleBulletHitPlayer(b, i);
+                        }
+                    }
+                }
+
+                // 4. Update Particles
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.userData.life -= delta * 1.2;
+                    if (p.userData.life <= 0) {
+                        scene.remove(p); particles.splice(i, 1);
+                    } else {
+                        p.position.addScaledVector(p.userData.velocity, delta);
+                        p.scale.setScalar(p.userData.life);
+                        p.userData.velocity.y -= 25 * delta; // Gravity pull down
+                    }
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // --- Game Flow Control ---
+        function updateHUD() {
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('boards-left').innerText = boardsRemaining;
+        }
 
         function startGame() {
+            AudioSys.init();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.add('hidden');
+            
             score = 0;
-            caughtCount = 0;
-            scoreEl.innerText = score;
-            caughtEl.innerText = caughtCount;
-            completedNoteIds.clear();
+            spawnBalloonsAndBoards();
+            buildWeaponTray();
             
-            activeBirds.forEach(b => b.element.remove());
-            activeBirds = [];
-            pendingQueue = [...gameData.notes].sort(() => Math.random() - 0.5);
-            
-            document.getElementById('endScreen').classList.remove('active');
-            
-            setNewTarget();
-            isGameRunning = true;
-            lastSpawnTime = Date.now();
-            cancelAnimationFrame(animationFrameId);
-            gameLoop();
+            yawObject.rotation.y = 0; pitchObject.rotation.x = 0;
+            isPlaying = true; clock.start();
         }
 
-        function setNewTarget() {
-            const availableTargets = new Set();
-            gameData.notes.forEach(note => {
-                if (!completedNoteIds.has(note.id)) availableTargets.add(note.targetId);
-            });
+        function endGame() {
+            isPlaying = false;
+            if(document.pointerLockElement) document.exitPointerLock();
 
-            const targetArray = Array.from(availableTargets);
-            if (targetArray.length === 0) {
-                isGameRunning = false;
-                setTimeout(showWinScreen, 1000);
-                return;
-            }
-
-            let newTargetId;
-            if (targetArray.length > 1) {
-                const others = targetArray.filter(id => id !== currentTargetId);
-                newTargetId = others[Math.floor(Math.random() * others.length)];
-            } else {
-                newTargetId = targetArray[0];
-            }
-
-            currentTargetId = newTargetId;
-            const targetData = gameData.targets.find(t => t.id === currentTargetId);
-
-            targetHud.innerText = targetData.name;
-            topicBoard.style.borderColor = targetData.color;
-            targetHud.style.color = targetData.color;
-        }
-
-        // --- HIGHLY REALISTIC BIRD SVG ---
-        function createBirdSVG(c) {
-            // Apply unique IDs so gradients don't conflict, fixing color consistency
-            const uId = Math.floor(Math.random() * 1000000);
-            return `
-                <svg class="bird-svg" viewBox="0 0 120 120">
-                    <defs>
-                        <radialGradient id="grad-${uId}" cx="30%" cy="30%" r="70%">
-                            <stop offset="0%" stop-color="${c.body}" />
-                            <stop offset="100%" stop-color="#020617" />
-                        </radialGradient>
-                    </defs>
-                    
-                    <path d="M 85,52 C 105,45 115,40 115,48 C 115,55 105,58 85,58 Z" fill="${c.wing}" />
-                    <path d="M 85,56 C 105,55 112,62 110,68 C 105,72 95,65 82,60 Z" fill="${c.wing}" filter="brightness(0.8)" />
-                    
-                    <g class="wing-back" style="transform-origin: 50px 48px;">
-                        <path d="M 55,48 C 65,15 35,5 15,10 C 35,25 45,35 50,48 Z" fill="${c.wing}" />
-                        <path d="M 52,48 C 60,20 40,15 25,20 C 35,30 42,38 48,48 Z" fill="${c.body}" opacity="0.6" />
-                    </g>
-
-                    <path d="M 35,40 C 20,40 10,48 10,52 C 10,58 20,68 45,68 C 70,68 85,62 90,56 C 85,48 60,40 35,40 Z" fill="url(#grad-${uId})" />
-                    
-                    <path d="M 40,42 C 30,35 15,38 12,48 C 12,55 25,58 35,55 Z" fill="${c.body}" />
-                    
-                    <path d="M 13,46 C 2,46 0,50 5,52 C 10,52 13,50 13,46 Z" fill="#fbbf24" />
-                    <circle cx="20" cy="46" r="2.5" fill="#000" />
-                    <circle cx="19.5" cy="45.5" r="0.8" fill="#fff" />
-
-                    <g class="wing-front" style="transform-origin: 45px 58px;">
-                        <path d="M 45,58 C 55,95 20,110 5,90 C 25,80 35,70 40,58 Z" fill="${c.wing}" />
-                        <path d="M 42,58 C 48,85 25,95 15,85 C 28,75 35,65 38,58 Z" fill="${c.body}" filter="brightness(1.2)" />
-                    </g>
-                </svg>
-            `;
-        }
-
-        function spawnBird() {
-            if (pendingQueue.length === 0) return;
-            const noteData = pendingQueue.shift();
-            const colors = birdColors[Math.floor(Math.random() * birdColors.length)];
+            document.getElementById('final-score').innerText = score;
             
-            const el = document.createElement('div');
-            el.className = 'bird-container';
-            
-            el.innerHTML = `
-                ${createBirdSVG(colors)}
-                <div class="tail-string"></div>
-                <div class="note-card">${noteData.text}</div>
-            `;
-            gameArea.appendChild(el);
+            const summaryContainer = document.getElementById('summary-content');
+            summaryContainer.innerHTML = '';
 
-            const playRect = gameArea.getBoundingClientRect();
-            const startX = playRect.width + 10; 
-            // Spawn inside the game area, avoiding the bow station at the bottom
-            const startY = Math.random() * (playRect.height * 0.45) + 20; 
+            GAME_DATA.targets.forEach(target => {
+                const associatedNotes = GAME_DATA.notes.filter(n => n.targetId === target.id);
+                if(associatedNotes.length === 0) return;
 
-            const birdObj = {
-                data: noteData,
-                element: el,
-                color: colors.body,
-                x: startX,
-                y: startY,
-                speed: Math.random() * 0.6 + 0.4, 
-                isDead: false
-            };
-
-            const triggerHit = (e) => {
-                e.preventDefault();
-                let clientX = e.clientX || (e.touches && e.touches[0].clientX);
-                let clientY = e.clientY || (e.touches && e.touches[0].clientY);
-                shootAtBird(birdObj, clientX, clientY);
-            }
-
-            el.addEventListener('mousedown', triggerHit);
-            el.addEventListener('touchstart', triggerHit, { passive: false });
-
-            activeBirds.push(birdObj);
-        }
-
-        function createFlyingArrow() {
-            return `
-                <svg width="45" height="15" viewBox="0 0 60 20" style="overflow:visible;">
-                    <line x1="0" y1="10" x2="50" y2="10" stroke="#f8fafc" stroke-width="5" />
-                    <polygon points="50,4 64,10 50,16" fill="#ef4444" />
-                    <polygon points="0,10 -10,0 12,10" fill="#0ea5e9" />
-                    <polygon points="0,10 -10,20 12,10" fill="#0ea5e9" />
-                </svg>
-            `;
-        }
-
-        function shootAtBird(bird, targetX, targetY) {
-            if (!isGameRunning || bird.isDead) return;
-            initAudio();
-            playSound('shoot');
-
-            const bowRect = bowGraphics.getBoundingClientRect();
-            const bowX = bowRect.left + bowRect.width / 2;
-            const bowY = bowRect.top + bowRect.height / 2;
-
-            const aimAngle = Math.atan2(targetY - bowY, targetX - bowX) * (180 / Math.PI);
-            bowGraphics.style.transform = `rotate(${aimAngle + 90}deg)`;
-
-            loadedArrow.style.display = 'none';
-            bowString.setAttribute('d', 'M 20,100 L 100,100 L 180,100'); 
-
-            const flyingArrow = document.createElement('div');
-            flyingArrow.className = 'flying-arrow';
-            flyingArrow.innerHTML = createFlyingArrow();
-            document.body.appendChild(flyingArrow);
-
-            flyingArrow.style.left = `${bowX}px`;
-            flyingArrow.style.top = `${bowY}px`;
-            flyingArrow.style.transform = `translate(-50%, -50%) rotate(${aimAngle}deg)`;
-
-            const deltaX = targetX - bowX;
-            const deltaY = targetY - bowY;
-            const dist = Math.hypot(deltaX, deltaY);
-            const flightTime = dist * 0.8; 
-
-            const anim = flyingArrow.animate([
-                { transform: `translate(-50%, -50%) rotate(${aimAngle}deg)` },
-                { transform: `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px)) rotate(${aimAngle}deg)` }
-            ], { duration: flightTime, easing: 'linear' });
-
-            anim.onfinish = () => {
-                flyingArrow.remove();
-                loadedArrow.style.display = 'block';
-                bowString.setAttribute('d', 'M 20,100 L 100,180 L 180,100'); 
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'concept-group';
                 
-                evaluateHit(bird, targetX, targetY);
-            };
-        }
-
-        function evaluateHit(bird, hitX, hitY) {
-            if (bird.isDead) return; 
-            
-            const isCorrect = (bird.data.targetId === currentTargetId);
-            bird.isDead = true;
-
-            if (isCorrect) {
-                playSound('hit');
-                score += 10;
-                caughtCount++;
-                completedNoteIds.add(bird.data.id);
-                
-                scoreEl.innerText = score;
-                caughtEl.innerText = caughtCount;
-                
-                createFeatherExplosion(hitX, hitY, bird.color);
-                showFloatingText("+10", hitX, hitY, "#10b981");
-                
-                bird.element.remove();
-                setNewTarget();
-            } else {
-                playSound('wrong');
-                score -= 5;
-                scoreEl.innerText = score;
-                showFloatingText("-5", hitX, hitY, "#ef4444");
-
-                bird.element.classList.add('bird-escape');
-                const el = bird.element;
-                setTimeout(() => el.remove(), 1000);
-
-                pendingQueue.push(bird.data);
-            }
-        }
-
-        function gameLoop() {
-            if (!isGameRunning) return;
-
-            const now = Date.now();
-            const maxBirds = Math.min(3, gameData.notes.length - completedNoteIds.size);
-            let aliveBirds = activeBirds.filter(b => !b.isDead).length;
-            
-            if (aliveBirds < maxBirds && pendingQueue.length > 0) {
-                if (now - lastSpawnTime > 2500) { 
-                    spawnBird();
-                    lastSpawnTime = now;
-                }
-            }
-
-            for (let i = activeBirds.length - 1; i >= 0; i--) {
-                const b = activeBirds[i];
-                if (b.isDead) {
-                    activeBirds.splice(i, 1);
-                    continue;
-                }
-
-                b.x -= b.speed;
-                const bob = Math.sin(now / 350 + b.y) * 10; 
-                b.element.style.transform = `translateY(${bob}px)`;
-                b.element.style.left = `${b.x}px`;
-                b.element.style.top = `${b.y}px`;
-
-                // If fully offscreen
-                if (b.x < -350) {
-                    b.element.remove();
-                    pendingQueue.push(b.data);
-                    activeBirds.splice(i, 1);
-                }
-            }
-
-            animationFrameId = requestAnimationFrame(gameLoop);
-        }
-
-        // --- VISUAL EFFECTS ---
-        function createFeatherExplosion(x, y, color) {
-            for (let i = 0; i < 20; i++) {
-                const feather = document.createElement('div');
-                feather.className = 'feather';
-                feather.style.background = color;
-                feather.style.borderTop = "1px solid rgba(255,255,255,0.5)";
-                
-                gameArea.appendChild(feather);
-
-                const angle = Math.random() * Math.PI * 2;
-                const distance = Math.random() * 80 + 30;
-                const dx = Math.cos(angle) * distance;
-                const dy = Math.sin(angle) * distance + 30; 
-                const rot = Math.random() * 360;
-
-                const anim = feather.animate([
-                    { left: `${x}px`, top: `${y}px`, transform: `scale(1) rotate(0deg)`, opacity: 1 },
-                    { left: `${x + dx}px`, top: `${y + dy}px`, transform: `scale(0.5) rotate(${rot}deg)`, opacity: 0 }
-                ], { duration: Math.random() * 500 + 400, easing: 'ease-out' });
-                
-                anim.onfinish = () => feather.remove();
-            }
-        }
-
-        function showFloatingText(text, x, y, color) {
-            const el = document.createElement('div');
-            el.className = 'float-text';
-            el.innerText = text;
-            el.style.color = color;
-            el.style.left = `${x}px`;
-            el.style.top = `${y - 30}px`;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 1000);
-        }
-
-        // --- END SCREEN ---
-        function showWinScreen() {
-            document.getElementById('finalScore').innerText = score;
-            const summaryContent = document.getElementById('summaryContent');
-            summaryContent.innerHTML = '';
-            
-            gameData.targets.forEach(target => {
-                const targetNotes = gameData.notes.filter(n => n.targetId === target.id);
-                if(targetNotes.length === 0) return;
-
-                const section = document.createElement('div');
-                section.className = 'chapter-section';
-                let html = `<h3 style="color: ${target.color}">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="${target.color}"><circle cx="12" cy="12" r="10"/></svg>
+                let html = `<div class="concept-name" style="color: ${target.color};">
+                                <span style="font-size:1.8rem; line-height: 1;">■</span>
                                 ${target.name}
-                            </h3><ul>`;
-                targetNotes.forEach(note => { html += `<li>${note.text}</li>`; });
+                            </div>
+                            <ul class="concept-notes">`;
+                
+                associatedNotes.forEach(note => { html += `<li>${note.text}</li>`; });
                 html += `</ul>`;
-                section.innerHTML = html;
-                summaryContent.appendChild(section);
+                
+                groupDiv.innerHTML = html;
+                summaryContainer.appendChild(groupDiv);
             });
 
-            document.getElementById('endScreen').classList.add('active');
+            document.getElementById('end-screen').classList.remove('hidden');
         }
 
-        // Boot Game
-        startGame();
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('restart-btn').addEventListener('click', startGame);
+
+        initThreeJS();
+        animate();
+        setTimeout(startGame, 2000); // Auto-starts the game after 2 seconds
+        setTimeout(startGame, 2000); // Auto-starts the game after 2 seconds
 
     </script>
 </body>
 </html>
-
-
 

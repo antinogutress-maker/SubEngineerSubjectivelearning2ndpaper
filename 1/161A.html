@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>House Layout Setting Out - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 20vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling - Topo Grid / Ground */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(34, 197, 94, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 197, 94, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
+                House Layout Process
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Top-View Site Simulation</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Simulation 1: Full House 3-4-5 Method -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-cyan-500/30 shadow-[0_10px_30px_-10px_rgba(6,182,212,0.2)]">
+            <div class="h-[280px] relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-pythagoras" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-3 border-b border-slate-800 pb-3">
+                    <div class="p-2 bg-cyan-500/20 text-cyan-400 rounded-lg"><i data-lucide="ruler-square" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-cyan-400">1. Full Outline (3-4-5 Method)</h2>
+                </div>
+                <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+                    <p class="text-xs text-cyan-500 font-bold uppercase tracking-wide">Goal: Establish a perfectly square house footprint on the ground.</p>
+                    <ul class="list-decimal list-outside ml-4 space-y-2 marker:text-cyan-500 marker:font-bold">
+                        <li><strong>The Baseline:</strong> Fix the front building line by driving pegs at corners <span class="text-cyan-300 font-bold">A</span> and <span class="text-cyan-300 font-bold">B</span>.</li>
+                        <li><strong>Squaring Corner A:</strong> Measure 3m along the baseline. Strike a 4m arc upward from A, and a 5m arc diagonally from the 3m mark. The intersection creates a perfect 90° angle for the side wall to peg <span class="text-cyan-300 font-bold">D</span>.</li>
+                        <li><strong>Squaring Corner B:</strong> Repeat the 3-4-5 process at corner B to establish a perfectly perpendicular right-side wall leading to peg <span class="text-cyan-300 font-bold">C</span>.</li>
+                        <li><strong>Closing & Checking:</strong> Connect D to C to finish the rectangle. Finally, measure both diagonals (A-C and B-D). If the diagonals are exactly equal, the house layout is a perfect rectangle.</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- Simulation 2: Full House Centre Line Method -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-[280px] relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-centre" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-3 border-b border-slate-800 pb-3">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="grid-3x3" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">2. Centre Line Marking</h2>
+                </div>
+                <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+                    <p class="text-xs text-emerald-500 font-bold uppercase tracking-wide">Goal: Transfer the plan to the ground for excavation without losing corner references.</p>
+                    <ul class="list-decimal list-outside ml-4 space-y-2 marker:text-emerald-500 marker:font-bold">
+                        <li><strong>Profile Boards (Hurdles):</strong> Erect wooden profile boards 1.5m to 2m <em>outside</em> the actual building footprint. This ensures the reference points aren't destroyed when digging begins.</li>
+                        <li><strong>Stretching Strings:</strong> Drive nails into the profile boards and stretch nylon strings tightly across the site. These strings represent the exact centerlines of all external and internal walls.</li>
+                        <li><strong>Plumb Bob Drop:</strong> Hang a plumb bob from the intersections of the strings to transfer the exact center points down to the uneven ground surface.</li>
+                        <li><strong>Lime Marking:</strong> Using the center points, measure half the trench width on either side. Mark the thick excavation trench outlines on the ground using highly visible white lime powder.</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            pythagoras: document.getElementById('canvas-pythagoras'),
+            centre: document.getElementById('canvas-centre')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- SHARED DRAWING UTILS --- //
+        function drawPeg(ctx, x, y, label, color) {
+            ctx.fillStyle = '#0f172a'; // shadow/hole
+            ctx.beginPath(); ctx.arc(x, y+2, 5, 0, Math.PI*2); ctx.fill();
+            
+            ctx.fillStyle = color; // Peg top
+            ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#fff'; ctx.lineWidth=1; ctx.stroke();
+            
+            if (label) {
+                ctx.fillStyle = color;
+                ctx.font = 'bold 12px JetBrains Mono';
+                ctx.textAlign = 'center';
+                ctx.fillText(label, x - 12, y - 8);
+            }
+        }
+
+        function drawLabel(ctx, text, x, y, color='#fff', bg='rgba(15,23,42,0.8)') {
+            ctx.font = 'bold 10px Inter';
+            const w = ctx.measureText(text).width;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(x - w/2 - 6, y - 10, w + 12, 20, 4); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+        }
+
+        function draw345(ctx, originX, originY, directionX, directionY, scale, phaseProgress, isLeft) {
+            // Draw the 3-4-5 construction process
+            const p3 = Math.min(1, phaseProgress / 0.33);
+            const p4 = Math.min(1, Math.max(0, phaseProgress - 0.33) / 0.33);
+            const p5 = Math.min(1, Math.max(0, phaseProgress - 0.66) / 0.33);
+
+            // 3m point
+            const mark3X = originX + directionX * (3 * scale);
+            const mark3Y = originY + directionY * (3 * scale);
+
+            if (p3 > 0) {
+                ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(originX, originY); 
+                ctx.lineTo(originX + (mark3X - originX)*p3, originY + (mark3Y - originY)*p3); ctx.stroke();
+                
+                ctx.fillStyle = '#facc15';
+                ctx.beginPath(); ctx.arc(mark3X, mark3Y, 3, 0, Math.PI*2); ctx.fill();
+                if(p3 === 1) {
+                    ctx.font = '9px Inter'; ctx.fillText("3m", originX + directionX*1.5*scale, originY + directionY*1.5*scale + 10);
+                }
+            }
+
+            // 4m arc (upwards)
+            const upDirY = -1; // always drawing upward in this view
+            const arcRadius = 4 * scale;
+            
+            if (p4 > 0) {
+                ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.5; ctx.setLineDash([3,3]);
+                ctx.beginPath();
+                const startAngle = isLeft ? -Math.PI : 0;
+                const endAngle = isLeft ? -Math.PI/2 : -Math.PI/2;
+                // Just sweep a small arc near the target
+                ctx.arc(originX, originY, arcRadius, -Math.PI/2 - 0.3, -Math.PI/2 - 0.3 + (0.6 * p4));
+                ctx.stroke(); ctx.setLineDash([]);
+                
+                if (p4 < 1) { // tape measure
+                    const currAng = -Math.PI/2 - 0.3 + (0.6 * p4);
+                    ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)'; ctx.beginPath();
+                    ctx.moveTo(originX, originY); ctx.lineTo(originX + Math.cos(currAng)*arcRadius, originY + Math.sin(currAng)*arcRadius); ctx.stroke();
+                }
+            }
+
+            // 5m arc (from 3m mark)
+            if (p5 > 0) {
+                ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 1.5; ctx.setLineDash([3,3]);
+                const dist5 = 5 * scale;
+                // Target intersection point is at (originX, originY - 4*scale)
+                const targetX = originX; const targetY = originY - 4*scale;
+                const angToTarget = Math.atan2(targetY - mark3Y, targetX - mark3X);
+                
+                ctx.beginPath();
+                ctx.arc(mark3X, mark3Y, dist5, angToTarget - 0.3, angToTarget - 0.3 + (0.6 * p5));
+                ctx.stroke(); ctx.setLineDash([]);
+                
+                if (p5 < 1) { // tape measure
+                    const currAng = angToTarget - 0.3 + (0.6 * p5);
+                    ctx.strokeStyle = 'rgba(244, 63, 94, 0.4)'; ctx.beginPath();
+                    ctx.moveTo(mark3X, mark3Y); ctx.lineTo(mark3X + Math.cos(currAng)*dist5, mark3Y + Math.sin(currAng)*dist5); ctx.stroke();
+                }
+
+                if (p5 > 0.8) { // 90 degree mark
+                    ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2;
+                    const dirXMod = isLeft ? 1 : -1;
+                    ctx.beginPath(); ctx.moveTo(originX, originY - 10); ctx.lineTo(originX + 10*dirXMod, originY - 10); ctx.lineTo(originX + 10*dirXMod, originY); ctx.stroke();
+                }
+            }
+        }
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Full House 3-4-5 Method
+        function renderPythagoras(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+            
+            // House dimensions
+            const houseW = 120;
+            const houseH = 100;
+            
+            const Ax = cx - houseW/2; const Ay = cy + houseH/2; // Bottom Left
+            const Bx = cx + houseW/2; const By = cy + houseH/2; // Bottom Right
+            const Dx = cx - houseW/2; const Dy = cy - houseH/2; // Top Left
+            const Cx = cx + houseW/2; const Cy = cy - houseH/2; // Top Right
+
+            const scale345 = 12; // 3 units = 36px
+
+            // Timing Phases (100% total)
+            // 0.00-0.15: Baseline A-B
+            // 0.15-0.35: 3-4-5 at Corner A
+            // 0.35-0.50: Draw Wall A-D
+            // 0.50-0.70: 3-4-5 at Corner B
+            // 0.70-0.85: Draw Wall B-C & Close C-D
+            // 0.85-1.00: Check Diagonals AC & BD
+
+            // 1. Baseline A-B
+            if (p > 0) {
+                const bP = Math.min(1, p / 0.15);
+                ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(Ax, Ay); ctx.lineTo(Ax + (Bx-Ax)*bP, Ay); ctx.stroke();
+            }
+
+            // 2. Square Corner A
+            if (p > 0.15) {
+                const phaseP = Math.min(1, (p - 0.15) / 0.20);
+                draw345(ctx, Ax, Ay, 1, 0, scale345, phaseP, true);
+            }
+
+            // 3. Wall A-D
+            if (p > 0.35) {
+                const wP = Math.min(1, (p - 0.35) / 0.15);
+                ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2.5;
+                ctx.beginPath(); ctx.moveTo(Ax, Ay); ctx.lineTo(Ax, Ay - (Ay-Dy)*wP); ctx.stroke();
+                if(wP > 0.8) drawPeg(ctx, Dx, Dy, "D", '#22d3ee');
+            }
+
+            // 4. Square Corner B
+            if (p > 0.50) {
+                const phaseP = Math.min(1, (p - 0.50) / 0.20);
+                draw345(ctx, Bx, By, -1, 0, scale345, phaseP, false); // Leftward baseline for B
+            }
+
+            // 5. Wall B-C and C-D Closure
+            if (p > 0.70) {
+                const wP = Math.min(1, (p - 0.70) / 0.15);
+                ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2.5;
+                // Right Wall
+                ctx.beginPath(); ctx.moveTo(Bx, By); ctx.lineTo(Bx, By - (By-Cy)*wP); ctx.stroke();
+                // Top Wall (Closure)
+                ctx.beginPath(); ctx.moveTo(Dx, Dy); ctx.lineTo(Dx + (Cx-Dx)*wP, Dy); ctx.stroke();
+                
+                if(wP > 0.8) drawPeg(ctx, Cx, Cy, "C", '#22d3ee');
+            }
+
+            // 6. Check Diagonals
+            if (p > 0.85) {
+                const dP = Math.min(1, (p - 0.85) / 0.15);
+                
+                // Pulsing glow
+                ctx.strokeStyle = 'rgba(168, 85, 247, 0.8)'; ctx.lineWidth = 2; ctx.setLineDash([5,5]);
+                
+                ctx.beginPath(); ctx.moveTo(Ax, Ay); 
+                ctx.lineTo(Ax + (Cx-Ax)*dP, Ay + (Cy-Ay)*dP); ctx.stroke();
+                
+                ctx.beginPath(); ctx.moveTo(Bx, By); 
+                ctx.lineTo(Bx + (Dx-Bx)*dP, By + (Dy-By)*dP); ctx.stroke();
+                
+                ctx.setLineDash([]);
+
+                if (dP === 1) {
+                    drawLabel(ctx, "DIAGONALS EQUAL", cx, cy, '#c084fc');
+                    drawLabel(ctx, "PERFECT RECTANGLE ✓", cx, cy + 20, '#4ade80');
+                }
+            }
+
+            // Always draw base pegs A and B
+            drawPeg(ctx, Ax, Ay, "A", '#22d3ee');
+            if (p > 0.1) drawPeg(ctx, Bx, By, "B", '#22d3ee');
+        }
+
+        // 2. Full House Centre Line Marking
+        function renderCentreLine(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // House plan with 2 rooms
+            const planW = 140;
+            const planH = 100;
+            const midX = cx + 10; // internal wall position
+            const off = 35; // hurdle offset
+            const tW = 16; // trench width
+
+            // Corner coords
+            const corners = [
+                {x: cx - planW/2, y: cy - planH/2}, // TL
+                {x: cx + planW/2, y: cy - planH/2}, // TR
+                {x: cx - planW/2, y: cy + planH/2}, // BL
+                {x: cx + planW/2, y: cy + planH/2},  // BR
+                {x: midX, y: cy - planH/2},         // Mid T
+                {x: midX, y: cy + planH/2}          // Mid B
+            ];
+
+            // Timing Phases
+            // 0.0-0.2: Outline
+            // 0.2-0.4: Hurdles
+            // 0.4-0.6: Strings
+            // 0.6-0.8: Plumb Bobs
+            // 0.8-1.0: Trench Lime
+
+            // 1. Corner Pegs & Faint Plan
+            if (p > 0) {
+                corners.forEach((c, i) => {
+                    if (i < 4) drawPeg(ctx, c.x, c.y, "", '#94a3b8');
+                });
+                
+                // Faint outline
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+                ctx.strokeRect(cx - planW/2, cy - planH/2, planW, planH);
+                ctx.beginPath(); ctx.moveTo(midX, cy - planH/2); ctx.lineTo(midX, cy + planH/2); ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // 2. Profile Boards (Hurdles)
+            const drawHurdle = (x, y, isHoriz) => {
+                ctx.fillStyle = '#b45309'; ctx.strokeStyle = '#78350f'; ctx.lineWidth = 1;
+                if (isHoriz) {
+                    ctx.fillRect(x - 15, y - 3, 30, 6); ctx.strokeRect(x - 15, y - 3, 30, 6);
+                    ctx.fillStyle = '#78350f'; ctx.beginPath(); ctx.arc(x-10, y, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x+10, y, 2, 0, Math.PI*2); ctx.fill();
+                } else {
+                    ctx.fillRect(x - 3, y - 15, 6, 30); ctx.strokeRect(x - 3, y - 15, 6, 30);
+                    ctx.fillStyle = '#78350f'; ctx.beginPath(); ctx.arc(x, y-10, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x, y+10, 2, 0, Math.PI*2); ctx.fill();
+                }
+            };
+
+            if (p > 0.2) {
+                const bP = Math.min(1, (p - 0.2) / 0.15);
+                ctx.globalAlpha = bP;
+                
+                // Horizontals (Top/Bottom)
+                drawHurdle(cx - planW/2, cy - planH/2 - off, true); drawHurdle(cx + planW/2, cy - planH/2 - off, true); drawHurdle(midX, cy - planH/2 - off, true);
+                drawHurdle(cx - planW/2, cy + planH/2 + off, true); drawHurdle(cx + planW/2, cy + planH/2 + off, true); drawHurdle(midX, cy + planH/2 + off, true);
+                
+                // Verticals (Left/Right)
+                drawHurdle(cx - planW/2 - off, cy - planH/2, false); drawHurdle(cx - planW/2 - off, cy + planH/2, false);
+                drawHurdle(cx + planW/2 + off, cy - planH/2, false); drawHurdle(cx + planW/2 + off, cy + planH/2, false);
+                
+                ctx.globalAlpha = 1;
+            }
+
+            // 3. Stretch Strings
+            if (p > 0.4) {
+                const strP = Math.min(1, (p - 0.4) / 0.2);
+                ctx.strokeStyle = '#10b981'; ctx.lineWidth = 1.5;
+                
+                // Vertical Strings
+                [cx - planW/2, midX, cx + planW/2].forEach(x => {
+                    ctx.beginPath(); ctx.moveTo(x, cy - planH/2 - off); 
+                    ctx.lineTo(x, cy - planH/2 - off + (planH + 2*off) * strP); ctx.stroke();
+                });
+                
+                // Horizontal Strings
+                [cy - planH/2, cy + planH/2].forEach(y => {
+                    ctx.beginPath(); ctx.moveTo(cx - planW/2 - off, y); 
+                    ctx.lineTo(cx - planW/2 - off + (planW + 2*off) * strP, y); ctx.stroke();
+                });
+            }
+
+            // 4. Plumb Bob Centers
+            if (p > 0.6) {
+                const plumbP = Math.min(1, (p - 0.6) / 0.15);
+                
+                corners.forEach(c => {
+                    ctx.fillStyle = `rgba(250, 204, 21, ${1 - plumbP})`;
+                    ctx.beginPath(); ctx.arc(c.x, c.y, plumbP * 12, 0, Math.PI*2); ctx.fill();
+                    
+                    ctx.fillStyle = '#facc15';
+                    ctx.beginPath(); ctx.arc(c.x, c.y, 3, 0, Math.PI*2); ctx.fill();
+                });
+            }
+
+            // 5. Lime Marking (Trenches)
+            if (p > 0.8) {
+                const limeP = Math.min(1, (p - 0.8) / 0.2);
+                
+                ctx.strokeStyle = `rgba(248, 250, 252, ${limeP})`; ctx.lineWidth = 3; ctx.setLineDash([3, 3]);
+                
+                // Outer trench
+                ctx.strokeRect(cx - planW/2 - tW/2, cy - planH/2 - tW/2, planW + tW, planH + tW);
+                // Inner trench (hollow rooms)
+                ctx.strokeRect(cx - planW/2 + tW/2, cy - planH/2 + tW/2, (planW/2 + 10) - tW, planH - tW); // left room
+                ctx.strokeRect(midX + tW/2, cy - planH/2 + tW/2, (planW/2 - 10) - tW, planH - tW); // right room
+                
+                ctx.setLineDash([]);
+
+                // Faint white overlay to show excavated area
+                ctx.fillStyle = `rgba(255, 255, 255, ${limeP * 0.1})`;
+                ctx.fillRect(cx - planW/2 - tW/2, cy - planH/2 - tW/2, planW + tW, planH + tW);
+                ctx.clearRect(cx - planW/2 + tW/2, cy - planH/2 + tW/2, (planW/2 + 10) - tW, planH - tW);
+                ctx.clearRect(midX + tW/2, cy - planH/2 + tW/2, (planW/2 - 10) - tW, planH - tW);
+
+                if (limeP === 1) drawLabel(ctx, "TRENCHES MARKED", cx, cy, '#f8fafc');
+            }
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 10000; // 10 seconds per loop for detail
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'pythagoras': renderPythagoras(ctx, w, h, p); break;
+                    case 'centre': renderCentreLine(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,541 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tests of Cement - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling - Lab Grid */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .highlight-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-emerald-400">
+                Lab Tests of Cement
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Construction Materials</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Test 1: Fineness Test -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-cyan-500/30 shadow-[0_10px_30px_-10px_rgba(6,182,212,0.2)]">
+            <div class="h-56 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-fineness" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-cyan-500/20 text-cyan-400 rounded-lg"><i data-lucide="filter" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-cyan-400">1. Fineness Test (Sieve)</h2>
+                </div>
+                <div class="space-y-2 text-sm text-slate-300 leading-relaxed">
+                    <p><strong>Objective:</strong> Check proper grinding. Finer cement hydrates faster, yielding higher early strength.</p>
+                    <ul class="list-disc pl-5 text-xs space-y-1">
+                        <li>Take 100g of cement and place it on an <span class="highlight-badge bg-cyan-500/20 text-cyan-300">IS Sieve No. 9 (90 µm)</span>.</li>
+                        <li>Break lumps, shake continuously for 15 minutes.</li>
+                        <li>Weigh the residue left on the sieve.</li>
+                        <li><strong>Limit:</strong> Residue must not exceed <span class="highlight-badge bg-cyan-500/20 text-cyan-300">10% by weight</span> for Ordinary Portland Cement (OPC).</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- Test 2: Setting Time Test -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-56 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-vicat" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="timer" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">2. Setting Time (Vicat App.)</h2>
+                </div>
+                <div class="space-y-2 text-sm text-slate-300 leading-relaxed">
+                    <p><strong>Objective:</strong> Determine how fast the paste loses plasticity (Initial) and hardens (Final).</p>
+                    <ul class="list-disc pl-5 text-xs space-y-1">
+                        <li>Mix cement with <span class="highlight-badge bg-amber-500/20 text-amber-300">0.85 P water</span> (P = standard consistency).</li>
+                        <li><strong>Initial Set:</strong> 1mm square needle is dropped. Time when it fails to pierce block by <span class="highlight-badge bg-amber-500/20 text-amber-300">5-7mm from bottom</span>. (Limit: ≥ 30 mins).</li>
+                        <li><strong>Final Set:</strong> 5mm annular collar attachment fails to make an impression on the surface. (Limit: ≤ 10 hours).</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- Test 3: Soundness Test -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-rose-500/30 shadow-[0_10px_30px_-10px_rgba(244,63,94,0.2)]">
+            <div class="h-56 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-soundness" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-rose-500/20 text-rose-400 rounded-lg"><i data-lucide="split-square-horizontal" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-rose-400">3. Soundness (Le Chatelier)</h2>
+                </div>
+                <div class="space-y-2 text-sm text-slate-300 leading-relaxed">
+                    <p><strong>Objective:</strong> Detect presence of uncombined Lime/Magnesia which causes dangerous delayed expansion.</p>
+                    <ul class="list-disc pl-5 text-xs space-y-1">
+                        <li>Fill Le Chatelier split brass cylinder with paste.</li>
+                        <li>Submerge in water, bring to boil, boil for <span class="highlight-badge bg-rose-500/20 text-rose-300">3 hours</span>.</li>
+                        <li>Measure the distance between the indicator arms.</li>
+                        <li><strong>Limit:</strong> The expansion of arms must <span class="highlight-badge bg-rose-500/20 text-rose-300">not exceed 10mm</span>.</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- Test 4: Compressive Strength -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-56 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-compressive" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="arrow-down-to-line" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">4. Compressive Strength</h2>
+                </div>
+                <div class="space-y-2 text-sm text-slate-300 leading-relaxed">
+                    <p><strong>Objective:</strong> Determine the structural load-bearing capacity of the cement mortar.</p>
+                    <ul class="list-disc pl-5 text-xs space-y-1">
+                        <li>Mix 1 part cement with 3 parts standard Ennore sand.</li>
+                        <li>Cast in <span class="highlight-badge bg-emerald-500/20 text-emerald-300">70.6 mm face area cubes</span> (50 sq.cm area).</li>
+                        <li>Cure in water. Test in Compressive Testing Machine (CTM) after 3, 7, and 28 days.</li>
+                        <li><strong>Limit (OPC 33):</strong> 3-day strength ≥ 16 N/mm², 28-day ≥ 33 N/mm².</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            fineness: document.getElementById('canvas-fineness'),
+            vicat: document.getElementById('canvas-vicat'),
+            soundness: document.getElementById('canvas-soundness'),
+            compressive: document.getElementById('canvas-compressive')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- SHARED DRAWING UTILS --- //
+        function drawLabel(ctx, text, x, y, color='#fff', bg='rgba(15,23,42,0.8)') {
+            ctx.font = 'bold 11px Inter';
+            const w = ctx.measureText(text).width;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(x - w/2 - 6, y - 10, w + 12, 20, 4); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+        }
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Fineness (Sieve Shaking)
+        function renderFineness(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 - 10;
+
+            // Shaking motion calculation
+            const isShaking = p < 0.6;
+            const shakeOffset = isShaking ? Math.sin(p * Math.PI * 40) * 10 : 0;
+            
+            // Draw Scale/Pan
+            ctx.fillStyle = '#334155'; ctx.fillRect(cx - 50, cy + 80, 100, 10);
+            ctx.fillStyle = '#64748b'; ctx.fillRect(cx - 30, cy + 90, 60, 10);
+            
+            // Draw Sieve Set
+            ctx.save();
+            ctx.translate(cx + shakeOffset, cy + 20);
+
+            // Bottom Pan
+            ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.moveTo(-40, 60); ctx.lineTo(-30, 80); ctx.lineTo(30, 80); ctx.lineTo(40, 60); ctx.fill();
+            
+            // Sieve 90 micron
+            ctx.fillStyle = '#eab308'; // Brass frame
+            ctx.fillRect(-45, 30, 90, 30);
+            ctx.strokeStyle = '#b45309'; ctx.lineWidth = 2; ctx.strokeRect(-45, 30, 90, 30);
+            
+            // Mesh
+            ctx.strokeStyle = '#fcd34d'; ctx.lineWidth = 1; ctx.setLineDash([2,2]);
+            ctx.beginPath(); ctx.moveTo(-40, 50); ctx.lineTo(40, 50); ctx.stroke(); ctx.setLineDash([]);
+            
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 10px JetBrains Mono'; ctx.fillText("90 µm IS Sieve", 0, 42);
+
+            // Particles inside sieve (Retained vs Passing)
+            const finePassed = isShaking ? (p / 0.6) : 1; // 0 to 1
+            
+            ctx.fillStyle = '#cbd5e1'; // Cement dust
+            // Falling dust
+            if (isShaking) {
+                for(let i=0; i<15; i++) {
+                    const px = -30 + Math.random()*60;
+                    const py = 50 + ((p * 5 + Math.random()) % 1) * 25;
+                    ctx.beginPath(); ctx.arc(px, py, 1.5, 0, Math.PI*2); ctx.fill();
+                }
+            }
+            
+            // Retained Lumps on mesh
+            ctx.fillStyle = '#94a3b8';
+            for(let i=0; i<8; i++) {
+                ctx.beginPath(); ctx.arc(-25 + i*7, 48, 2.5, 0, Math.PI*2); ctx.fill();
+            }
+
+            // Accumulated fine powder in pan
+            ctx.fillStyle = '#cbd5e1';
+            ctx.beginPath(); ctx.ellipse(0, 78, 25, 4 * finePassed, 0, 0, Math.PI*2); ctx.fill();
+            
+            ctx.restore();
+
+            // Result display
+            if (!isShaking) {
+                // Calculation Pop-up
+                ctx.fillStyle = 'rgba(15,23,42,0.9)'; ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.roundRect(cx - 60, cy - 80, 120, 50, 6); ctx.fill(); ctx.strokeRect(cx - 60, cy - 80, 120, 50);
+                
+                ctx.fillStyle = '#fff'; ctx.font = '10px Inter';
+                ctx.fillText("Initial: 100g", cx, cy - 65);
+                ctx.fillStyle = '#22d3ee'; ctx.font = 'bold 12px JetBrains Mono';
+                ctx.fillText("Retained: 8g (<10%)", cx, cy - 50);
+                
+                drawLabel(ctx, "PASS ✓", cx, cy - 10, '#4ade80');
+            }
+        }
+
+        // 2. Vicat Apparatus (Initial Setting Time Needle Drop)
+        function renderVicat(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 10;
+
+            // Apparatus Frame
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 6;
+            ctx.beginPath(); ctx.moveTo(cx - 40, cy + 60); ctx.lineTo(cx - 40, cy - 80); ctx.lineTo(cx + 20, cy - 80); ctx.stroke();
+            ctx.fillStyle = '#334155'; ctx.fillRect(cx - 60, cy + 60, 120, 10); // Base plate
+            
+            // Cement Mold (Split ring)
+            ctx.fillStyle = '#94a3b8'; // Paste color
+            ctx.beginPath(); ctx.moveTo(cx - 30, cy + 60); ctx.lineTo(cx - 25, cy + 20); ctx.lineTo(cx + 25, cy + 20); ctx.lineTo(cx + 30, cy + 60); ctx.fill();
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2; // Brass ring
+            ctx.beginPath(); ctx.moveTo(cx - 30, cy + 60); ctx.lineTo(cx - 25, cy + 20); ctx.lineTo(cx + 25, cy + 20); ctx.lineTo(cx + 30, cy + 60); ctx.stroke();
+            
+            // Animation logic: 3 drops. 
+            // Drop 1 (Wet) goes to bottom (cy+60).
+            // Drop 2 (Stiffening) goes halfway (cy+40).
+            // Drop 3 (Initial Set) stops 5mm from bottom (cy+50).
+            
+            const timeCycle = (p * 3) % 1; // 3 loops within the main loop
+            const dropNum = Math.floor(p * 3); // 0, 1, or 2
+            
+            let dropTarget = cy + 60; // default to bottom
+            if (dropNum === 1) dropTarget = cy + 40;
+            if (dropNum === 2) dropTarget = cy + 50; // The 5-7mm mark
+
+            // Y position of needle
+            let needleY = cy - 20; // Default high pos
+            if (timeCycle > 0.2 && timeCycle < 0.4) {
+                // Dropping down
+                const dropP = (timeCycle - 0.2) / 0.2;
+                needleY = (cy - 20) + (dropTarget - (cy - 20)) * dropP;
+            } else if (timeCycle >= 0.4 && timeCycle < 0.8) {
+                // Holding at bottom
+                needleY = dropTarget;
+            }
+
+            // Draw Rod and Needle
+            ctx.fillStyle = '#cbd5e1'; ctx.fillRect(cx - 4, needleY - 80, 8, 80); // main rod
+            ctx.fillStyle = '#ef4444'; ctx.fillRect(cx - 1, needleY, 2, 10); // 1mm square needle
+
+            // Scale marking
+            ctx.fillStyle = '#f8fafc'; ctx.fillRect(cx - 25, cy - 60, 10, 40);
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 1;
+            for(let i=0; i<=40; i+=10) { ctx.beginPath(); ctx.moveTo(cx - 25, cy - 60 + i); ctx.lineTo(cx - 20, cy - 60 + i); ctx.stroke(); }
+            
+            // Indicator pointer on rod
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath(); ctx.moveTo(cx - 4, needleY - 40); ctx.lineTo(cx - 15, needleY - 40); ctx.lineTo(cx - 15, needleY - 43); ctx.fill();
+
+            // Status UI
+            ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 12px Inter';
+            if (dropNum === 0) ctx.fillText("t = 0 mins (WET)", cx + 50, cy - 20);
+            else if (dropNum === 1) ctx.fillText("t = 15 mins (STIFF)", cx + 50, cy - 20);
+            else if (dropNum === 2) {
+                ctx.fillText("t = 30 mins", cx + 50, cy - 20);
+                
+                if (timeCycle >= 0.4) {
+                    ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 1.5; ctx.setLineDash([4,2]);
+                    ctx.beginPath(); ctx.moveTo(cx + 5, cy + 50); ctx.lineTo(cx + 40, cy + 50); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(cx + 5, cy + 60); ctx.lineTo(cx + 40, cy + 60); ctx.stroke(); ctx.setLineDash([]);
+                    
+                    drawLabel(ctx, "5-7mm from bottom", cx + 60, cy + 55, '#4ade80', 'transparent');
+                    drawLabel(ctx, "INITIAL SET REACHED", cx, cy - 80, '#fbbf24');
+                }
+            }
+        }
+
+        // 3. Soundness (Le Chatelier Apparatus expanding)
+        function renderSoundness(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 - 20;
+
+            // Water Bath
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(cx - 60, cy - 40, 120, 120); // Tank
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.4)'; ctx.fillRect(cx - 55, cy - 20, 110, 95); // Water
+            
+            // Boiling effect
+            const isBoiling = p > 0.2 && p < 0.7;
+            if (isBoiling) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                for(let i=0; i<15; i++) {
+                    const bx = cx - 50 + Math.random() * 100;
+                    const by = cy + 75 - ((p * 20 + Math.random()) % 1) * 90;
+                    ctx.beginPath(); ctx.arc(bx, by, 1 + Math.random()*2, 0, Math.PI*2); ctx.fill();
+                }
+                // Fire
+                ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.moveTo(cx-20, cy+80); ctx.lineTo(cx, cy+70); ctx.lineTo(cx+20, cy+80); ctx.lineTo(cx, cy+95); ctx.fill();
+            }
+
+            // Top-down view of Le Chatelier Apparatus
+            ctx.save();
+            ctx.translate(cx, cy + 20); // Center of apparatus
+
+            // Expansion math
+            // Expand from gap=2mm to gap=10mm
+            let expansionP = 0;
+            if (p > 0.3) {
+                expansionP = Math.min(1, (p - 0.3) / 0.4); // Grows during boiling
+            }
+            
+            const baseAngle = 0.05; // initial split gap angle
+            const expandAngle = baseAngle + (expansionP * 0.15); // final gap angle
+
+            // Cement Paste Core
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath(); ctx.arc(0, 0, 15, expandAngle, Math.PI*2 - expandAngle); ctx.fill();
+
+            // Brass Split Ring
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(0, 0, 15, expandAngle, Math.PI*2 - expandAngle); ctx.stroke();
+
+            // Indicator Arms (165mm long, pointing right)
+            const armLen = 60; // Scaled for canvas
+            ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2;
+            
+            // Top arm
+            ctx.beginPath(); ctx.moveTo(Math.cos(expandAngle)*15, Math.sin(expandAngle)*15);
+            const topTipX = Math.cos(expandAngle)*armLen; const topTipY = Math.sin(expandAngle)*armLen;
+            ctx.lineTo(topTipX, topTipY); ctx.stroke();
+            
+            // Bottom arm
+            ctx.beginPath(); ctx.moveTo(Math.cos(-expandAngle)*15, Math.sin(-expandAngle)*15);
+            const botTipX = Math.cos(-expandAngle)*armLen; const botTipY = Math.sin(-expandAngle)*armLen;
+            ctx.lineTo(botTipX, botTipY); ctx.stroke();
+            
+            ctx.restore();
+
+            // UI Overlays
+            if (p < 0.2) drawLabel(ctx, "BEFORE HEATING", cx, cy - 60, '#cbd5e1');
+            else if (p < 0.7) drawLabel(ctx, "BOILING (3 Hrs)", cx, cy - 60, '#f87171');
+            else {
+                drawLabel(ctx, "AFTER COOLING", cx, cy - 60, '#60a5fa');
+                
+                // Measure line between tips
+                const tX = cx + topTipX; const tY = cy + 20 + topTipY;
+                const bX = cx + botTipX; const bY = cy + 20 + botTipY;
+                
+                ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 1; ctx.setLineDash([2,2]);
+                ctx.beginPath(); ctx.moveTo(tX + 10, tY); ctx.lineTo(tX + 10, bY); ctx.stroke(); ctx.setLineDash([]);
+                
+                // Flash result
+                if (Math.floor(p * 20) % 2 === 0) {
+                    drawLabel(ctx, "Expansion < 10mm ✓", tX + 60, cy + 20, '#4ade80');
+                }
+            }
+        }
+
+        // 4. Compressive Strength Test (CTM Crushing Cube)
+        function renderCompressive(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2 + 10;
+
+            // Frame
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 8;
+            ctx.strokeRect(cx - 60, cy - 90, 120, 150);
+            
+            // Bottom Plate (Static)
+            ctx.fillStyle = '#64748b'; ctx.fillRect(cx - 40, cy + 40, 80, 20);
+
+            // Concrete Cube (70.6mm)
+            const cubeSize = 40;
+            ctx.fillStyle = '#94a3b8'; ctx.fillRect(cx - cubeSize/2, cy + 40 - cubeSize, cubeSize, cubeSize);
+
+            // Load Phase (0.2 to 0.7)
+            const loadP = Math.min(1, Math.max(0, (p - 0.2) / 0.5));
+            const plateDrop = loadP * 4; // Plate moves down slightly, compressing cube
+
+            // Top Plate (Moving)
+            ctx.fillStyle = '#475569'; 
+            ctx.beginPath(); ctx.moveTo(cx - 30, cy + 40 - cubeSize + plateDrop); ctx.lineTo(cx + 30, cy + 40 - cubeSize + plateDrop);
+            ctx.lineTo(cx + 10, cy - 30); ctx.lineTo(cx - 10, cy - 30); ctx.fill();
+
+            // Hydraulic ram pushing down
+            ctx.fillStyle = '#cbd5e1'; ctx.fillRect(cx - 5, cy - 90, 10, 60 + plateDrop);
+
+            // Load Dial Gauge
+            ctx.save();
+            ctx.translate(cx + 70, cy - 40);
+            ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI*2); 
+            ctx.fillStyle = '#0f172a'; ctx.fill();
+            ctx.lineWidth = 3; ctx.strokeStyle = '#34d399'; ctx.stroke();
+            
+            // Needle spins based on loadP
+            const needleAng = -Math.PI*0.8 + (loadP * Math.PI * 1.6);
+            ctx.rotate(needleAng);
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath(); ctx.moveTo(-2, 0); ctx.lineTo(2, 0); ctx.lineTo(0, -20); ctx.fill();
+            ctx.restore();
+            
+            ctx.fillStyle = '#34d399'; ctx.font = 'bold 10px JetBrains Mono'; ctx.textAlign='center';
+            ctx.fillText("LOAD (kN)", cx + 70, cy - 5);
+
+            // Crack Formation on Cube at peak load
+            if (loadP > 0.8) {
+                const crackP = (loadP - 0.8) / 0.2;
+                ctx.strokeStyle = '#020617'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); 
+                ctx.moveTo(cx - 10, cy + 40 - cubeSize);
+                ctx.lineTo(cx, cy + 40 - cubeSize + (20 * crackP));
+                ctx.lineTo(cx - 5, cy + 40 - cubeSize + (35 * crackP));
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(cx + 15, cy + 40 - cubeSize);
+                ctx.lineTo(cx + 5, cy + 40 - cubeSize + (15 * crackP));
+                ctx.lineTo(cx + 10, cy + 40 - cubeSize + (40 * crackP));
+                ctx.stroke();
+            }
+
+            if (p > 0.7) {
+                // Math breakdown
+                ctx.fillStyle = 'rgba(15,23,42,0.9)'; ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.roundRect(cx - 70, cy + 10, 140, 50, 6); ctx.fill(); ctx.strokeRect(cx - 70, cy + 10, 140, 50);
+                
+                ctx.fillStyle = '#fff'; ctx.font = '9px JetBrains Mono';
+                ctx.fillText("Load / Area (50 cm²)", cx, cy + 25);
+                ctx.fillStyle = '#4ade80'; ctx.font = 'bold 12px JetBrains Mono';
+                ctx.fillText("Strength = 33 N/mm²", cx, cy + 45);
+
+                drawLabel(ctx, "28 DAYS OPC", cx, cy - 80, '#34d399');
+            } else {
+                drawLabel(ctx, "APPLYING LOAD...", cx, cy - 80, '#f8fafc');
+            }
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 5000; // 5 seconds per loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'fineness': renderFineness(ctx, w, h, p); break;
+                    case 'vicat': renderVicat(ctx, w, h, p); break;
+                    case 'soundness': renderSoundness(ctx, w, h, p); break;
+                    case 'compressive': renderCompressive(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>

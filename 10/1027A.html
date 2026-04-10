@@ -1,0 +1,456 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Road Gradients - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
+        }
+        
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
+        }
+
+        /* Canvas styling - Topo Grid */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-500">
+                Road Gradients
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Highway Engineering</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
+        
+        <!-- Gradient 1: Ruling Gradient -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-ruling" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">1. Ruling (Design) Gradient</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>The Ideal Slope:</strong> The maximum gradient within which the designer attempts to align the road. Vehicles can comfortably cruise up this slope in top gear without losing speed.
+                </p>
+            </div>
+        </article>
+
+        <!-- Gradient 2: Limiting Gradient -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-limiting" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="chevrons-up" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">2. Limiting Gradient</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>The Cost-Saver:</strong> Steeper than ruling gradient. Used when topography forces it, to save massive construction costs. Vehicles will lose speed and drivers must shift to a lower gear.
+                </p>
+            </div>
+        </article>
+
+        <!-- Gradient 3: Exceptional Gradient -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-rose-500/30 shadow-[0_10px_30px_-10px_rgba(244,63,94,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-exceptional" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-rose-500/20 text-rose-400 rounded-lg"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-rose-400">3. Exceptional Gradient</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>The Extreme Case:</strong> Very steep and strictly limited to extremely short stretches (e.g., < 100m). Used only in unavoidable situations. Causes severe engine strain.
+                </p>
+            </div>
+        </article>
+
+        <!-- Gradient 4: Minimum Gradient -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-cyan-500/30 shadow-[0_10px_30px_-10px_rgba(6,182,212,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-minimum" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-cyan-500/20 text-cyan-400 rounded-lg"><i data-lucide="cloud-rain" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-cyan-400">4. Minimum Gradient</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>For Drainage:</strong> A totally flat road (0%) causes rainwater to pond on the surface. A very mild minimum gradient (e.g., 1 in 200) is provided purely to drain rainwater off the road.
+                </p>
+            </div>
+        </article>
+
+        <!-- Gradient 5: Floating Gradient -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-fuchsia-500/30 shadow-[0_10px_30px_-10px_rgba(217,70,239,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-floating" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-fuchsia-500/20 text-fuchsia-400 rounded-lg"><i data-lucide="scale" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-fuchsia-400">5. Floating Gradient</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    <strong>The Equilibrium Slope:</strong> A specific descending gradient where the downward pull of gravity exactly balances the rolling friction. A vehicle descends at a constant speed without braking or accelerating.
+                </p>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            ruling: document.getElementById('canvas-ruling'),
+            limiting: document.getElementById('canvas-limiting'),
+            exceptional: document.getElementById('canvas-exceptional'),
+            minimum: document.getElementById('canvas-minimum'),
+            floating: document.getElementById('canvas-floating')
+        };
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
+        }
+
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
+            }
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // --- SHARED DRAWING UTILS --- //
+        function drawLabel(ctx, text, x, y, color='#fff', bg='rgba(15,23,42,0.8)') {
+            ctx.font = 'bold 11px Inter';
+            const w = ctx.measureText(text).width;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(x - w/2 - 6, y - 10, w + 12, 20, 4); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+        }
+
+        function drawCar(ctx, x, y, angle, color) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            
+            // Tires
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.roundRect(-10, -3, 8, 6, 2); ctx.fill(); // rear
+            ctx.beginPath(); ctx.roundRect(12, -3, 8, 6, 2); ctx.fill(); // front
+            
+            // Body
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.roundRect(-15, -12, 35, 12, 4); ctx.fill();
+            
+            // Cabin
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath(); ctx.moveTo(-5, -12); ctx.lineTo(0, -20); ctx.lineTo(10, -20); ctx.lineTo(15, -12); ctx.fill();
+            
+            ctx.restore();
+        }
+
+        function drawExhaust(ctx, x, y, p, intensity) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.fillStyle = intensity === 'heavy' ? 'rgba(239, 68, 68, 0.6)' : 'rgba(148, 163, 184, 0.4)';
+            for (let i = 0; i < 3; i++) {
+                const puffP = (p + i/3) % 1;
+                ctx.beginPath();
+                ctx.arc(-10 - (puffP * 20), -5 - (puffP * 10), 3 + (puffP * 8), 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        // --- ANIMATION RENDERERS --- //
+
+        // 1. Ruling Gradient (Smooth cruising, gentle slope)
+        function renderRuling(ctx, w, h, p) {
+            const slope = -0.15; // Moderate rise
+            const angle = Math.atan(slope);
+            
+            // Draw Road
+            ctx.fillStyle = '#334155';
+            ctx.beginPath(); ctx.moveTo(0, h); ctx.lineTo(0, h/2 + 20); 
+            ctx.lineTo(w, h/2 + 20 + (w * slope)); ctx.lineTo(w, h); ctx.fill();
+            
+            ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(0, h/2 + 20); ctx.lineTo(w, h/2 + 20 + (w * slope)); ctx.stroke();
+
+            // Car moves fast
+            const carX = (p * 1.5) * w - 50; 
+            if (carX < w + 50) {
+                const carY = (h/2 + 18) + (carX * slope);
+                drawCar(ctx, carX, carY, angle, '#3b82f6');
+                drawExhaust(ctx, carX - 15, carY, p, 'light');
+                
+                // Speed/Gear indicator
+                if (carX > 50 && carX < w - 50) {
+                    drawLabel(ctx, "TOP GEAR", carX, carY - 40, '#4ade80', 'rgba(15,23,42,0.6)');
+                }
+            }
+        }
+
+        // 2. Limiting Gradient (Steeper slope, gear shift, slower)
+        function renderLimiting(ctx, w, h, p) {
+            const slope = -0.3; // Steeper rise
+            const angle = Math.atan(slope);
+            
+            // Draw Road
+            ctx.fillStyle = '#334155';
+            ctx.beginPath(); ctx.moveTo(0, h); ctx.lineTo(0, h/2 + 40); 
+            ctx.lineTo(w, h/2 + 40 + (w * slope)); ctx.lineTo(w, h); ctx.fill();
+            
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(0, h/2 + 40); ctx.lineTo(w, h/2 + 40 + (w * slope)); ctx.stroke();
+
+            // Car moves slower
+            const carX = (p * 0.8) * w - 50; 
+            if (carX < w + 50) {
+                const carY = (h/2 + 38) + (carX * slope);
+                drawCar(ctx, carX, carY, angle, '#3b82f6');
+                drawExhaust(ctx, carX - 15, carY, p, 'light');
+                
+                // Gear shift warning
+                if (carX > w/3 && carX < (w/3)*2) {
+                    // Blinking down arrow
+                    if (Math.floor(p * 20) % 2 === 0) {
+                        drawLabel(ctx, "SHIFT DOWN ⬇", carX, carY - 40, '#facc15');
+                    }
+                }
+            }
+        }
+
+        // 3. Exceptional Gradient (Very steep, short stretch, struggling)
+        function renderExceptional(ctx, w, h, p) {
+            // Flat, then very steep, then flat
+            const startSteep = w * 0.3;
+            const endSteep = w * 0.7;
+            const steepH = 60; // Total height climbed
+            
+            // Draw Road
+            ctx.fillStyle = '#334155';
+            ctx.beginPath(); 
+            ctx.moveTo(0, h); 
+            ctx.lineTo(0, h - 40); // Flat start
+            ctx.lineTo(startSteep, h - 40); // To base of hill
+            ctx.lineTo(endSteep, h - 40 - steepH); // Exceptionally steep climb
+            ctx.lineTo(w, h - 40 - steepH); // Flat top
+            ctx.lineTo(w, h); 
+            ctx.fill();
+            
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(0, h - 40); ctx.lineTo(startSteep, h - 40); ctx.lineTo(endSteep, h - 40 - steepH); ctx.lineTo(w, h - 40 - steepH); ctx.stroke();
+
+            // Highlight the short zone
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.1)';
+            ctx.fillRect(startSteep, 0, endSteep - startSteep, h);
+            ctx.fillStyle = '#ef4444'; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+            ctx.fillText("< 100m Stretch", w/2, 20);
+
+            // Car movement logic
+            const carX = (p * 0.6) * w - 20; 
+            let carY = 0;
+            let angle = 0;
+
+            if (carX < startSteep) {
+                carY = h - 42; // Flat approach
+            } else if (carX < endSteep) {
+                const slopeP = (carX - startSteep) / (endSteep - startSteep);
+                carY = (h - 42) - (steepH * slopeP);
+                angle = Math.atan(-steepH / (endSteep - startSteep));
+            } else {
+                carY = h - 42 - steepH; // Flat top
+            }
+
+            drawCar(ctx, carX, carY, angle, '#3b82f6');
+
+            // Strain when on steep part
+            if (carX >= startSteep && carX <= endSteep) {
+                drawExhaust(ctx, carX - 15, carY, p, 'heavy'); // Red smoke
+                drawLabel(ctx, "ENGINE STRAIN!", carX, carY - 40, '#f87171');
+            } else {
+                drawExhaust(ctx, carX - 15, carY, p, 'light');
+            }
+        }
+
+        // 4. Minimum Gradient (Flat but draining water)
+        function renderMinimum(ctx, w, h, p) {
+            const slope = 0.05; // Very slight slope DOWN
+            const angle = Math.atan(slope);
+            
+            // Draw Road
+            ctx.fillStyle = '#334155';
+            ctx.beginPath(); ctx.moveTo(0, h); ctx.lineTo(0, h/2); 
+            ctx.lineTo(w, h/2 + (w * slope)); ctx.lineTo(w, h); ctx.fill();
+            
+            ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2 + (w * slope)); ctx.stroke();
+
+            // Rain
+            ctx.fillStyle = '#38bdf8';
+            for (let i=0; i<15; i++) {
+                const dropX = (p * w + i * 30) % w;
+                const dropY = (p * h * 2 + i * 20) % (h/2);
+                ctx.beginPath(); ctx.arc(dropX, dropY, 1.5, 0, Math.PI*2); ctx.fill();
+            }
+
+            // Water draining along the slope
+            for (let i=0; i<5; i++) {
+                const drainP = (p + i/5) % 1;
+                const wx = drainP * w;
+                const wy = h/2 + (wx * slope) - 2;
+                ctx.beginPath(); ctx.arc(wx, wy, 3, 0, Math.PI*2); ctx.fill();
+                // Tail
+                ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(wx - 10, wy - 10*slope); ctx.stroke();
+            }
+
+            drawLabel(ctx, "PREVENTS PONDING", w/2, h/2 + 30, '#22d3ee', 'transparent');
+            
+            // Dimension showing slight drop
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+            ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke(); ctx.setLineDash([]);
+            
+            ctx.strokeStyle = '#22d3ee';
+            ctx.beginPath(); ctx.moveTo(w-20, h/2); ctx.lineTo(w-20, h/2 + w*slope); ctx.stroke();
+            ctx.fillStyle = '#22d3ee'; ctx.font = '10px Inter'; ctx.fillText("1 in 200", w-40, h/2 + (w*slope)/2);
+        }
+
+        // 5. Floating Gradient (Constant speed descent, force balance)
+        function renderFloating(ctx, w, h, p) {
+            const slope = 0.2; // Noticeable descent
+            const angle = Math.atan(slope);
+            
+            // Draw Road
+            ctx.fillStyle = '#334155';
+            ctx.beginPath(); ctx.moveTo(0, h); ctx.lineTo(0, h/2 - 20); 
+            ctx.lineTo(w, h/2 - 20 + (w * slope)); ctx.lineTo(w, h); ctx.fill();
+            
+            ctx.strokeStyle = '#d946ef'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(0, h/2 - 20); ctx.lineTo(w, h/2 - 20 + (w * slope)); ctx.stroke();
+
+            // Car descending steadily
+            const carX = (p * 0.8) * w; 
+            const carY = (h/2 - 22) + (carX * slope);
+            
+            drawCar(ctx, carX, carY, angle, '#3b82f6');
+
+            // Force Vectors
+            ctx.save();
+            ctx.translate(carX, carY);
+            ctx.rotate(angle);
+            
+            // Gravity component pulling forward
+            ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(40, -5); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(40, -5); ctx.lineTo(35, -8); ctx.lineTo(35, -2); ctx.fill();
+            ctx.fillStyle = '#22c55e'; ctx.font = 'bold 9px Inter'; ctx.fillText("Gravity Pull", 20, -12);
+
+            // Friction/Rolling resistance pulling back
+            ctx.strokeStyle = '#ef4444';
+            ctx.beginPath(); ctx.moveTo(0, 5); ctx.lineTo(-40, 5); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(-40, 5); ctx.lineTo(-35, 2); ctx.lineTo(-35, 8); ctx.fill();
+            ctx.fillStyle = '#ef4444'; ctx.fillText("Friction", -20, 15);
+            
+            ctx.restore();
+
+            drawLabel(ctx, "CONSTANT SPEED (Forces Balanced)", w/2, 20, '#e879f9');
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 4000; // 4 seconds loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'ruling': renderRuling(ctx, w, h, p); break;
+                    case 'limiting': renderLimiting(ctx, w, h, p); break;
+                    case 'exceptional': renderExceptional(ctx, w, h, p); break;
+                    case 'minimum': renderMinimum(ctx, w, h, p); break;
+                    case 'floating': renderFloating(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>

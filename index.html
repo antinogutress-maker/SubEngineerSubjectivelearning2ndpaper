@@ -29,10 +29,10 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--primary-text);
             margin: 0;
-            padding: 5vh 15px; /* Allows smooth native scrolling from the top */
+            padding: 5vh 15px; 
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Fixes cut-off issues on long scrolling screens */
+            align-items: flex-start; 
             min-height: 100vh;
             font-size: 16px;
             -webkit-user-select: none;
@@ -346,25 +346,21 @@
                 <button class="clay-btn" onclick="openSubject(12, 'Construction Management')">Construction Management</button>
             </div>
             
-            <div class="full-width animated-announcement">
+            <div class="full-width animated-announcement" style="margin-top: 25px;">
                 Except Above Topics, यदि तपाईंहरूलाई कुनै प्रश्नको Answer याद गर्न समय लाग्छ वा परीक्षा हलमा बिर्सिने खाल को प्रश्न छन भने हामीलाई प्रश्न पठाउनुहोस् ।  
                 हामी त्यस Boring उत्तरलाई Interesting तरिकाले Visual, Audio, Animation मार्फत Deep रूपमा Memorization र Clear बनाइदिनेछौं <br> Whatsapp Number : 9865637898
             </div>
             <button class="clay-btn full-width-btn coming-soon-btn" onclick="window.open('https://9865637898.github.io/FederalLoksewaPreparationfor5thlevelCivilEngineers/', '_blank')"> DAILY TESTS </button>
-    
-        <div class="full-width announcement" style="text-align: center; margin-top: 20px;">
-   Deeply  Memorize गर्न  Game खेल्दा तल 🔫  Gun ko तल रहेका Sub topics Scroll गरेर Click गरेर त्यसको मिल्ने Point लाई shoot गर्नुपर्छ।  <br>
-यदि तपाईंले Bottom मा Sub topics फेला पार्नुभएन भने, top right side को 3 dots मा Click गरेर Desktop Site turn on गर्नुहोस् र Desktop site Enable (tick) गर्नुहोस्।    <br>  You can Turn on OR off Desktop site as per Your need.. if any Confusion Whatsapp Number : 9865637898
         
-                <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 25px; width: 100%;">
+            <div class="full-width announcement" style="text-align: center; margin-top: 20px; font-size: 0.85em; color: #888;">
+                Deeply  Memorize गर्न  Game खेल्दा तल 🔫  Gun को तल रहेका Sub topics Scroll गरेर Click गरेर त्यसको मिल्ने Point लाई shoot गर्नुपर्छ।  <br><br>
+                यदि तपाईंले Bottom मा Sub topics फेला पार्नुभएन भने, top right side को 3 dots मा Click गरेर Desktop Site turn on गर्नुहोस् र Desktop site Enable (tick) गर्नुहोस्।    <br><br> You can Turn on OR off Desktop site as per Your need.. if any Confusion Whatsapp Number : 9865637898
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 25px; width: 100%;">
     <img src="1.png" alt="Promo 1" style="width: 100%; border-radius: 15px; box-shadow: var(--clay-shadow-out); object-fit: cover;">
-              
+      </div>
+        </div>
     </div>
-</div>
-    </div>
-
-    </div>
-    
 
     <!-- SUBTOPIC LIST SCREEN -->
     <div id="screen-topics" class="screen">
@@ -395,16 +391,22 @@
             <h2 id="magic-title">Topic Title</h2>
             <p id="magic-loading" style="color: #888; font-weight: bold;">🔍 Checking materials...</p>
             <div id="dynamic-buttons-container"></div>
+            
+            <!-- FULL WIDTH PROMO IMAGES (MAGICAL SCREEN) -->
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 25px; width: 100%;">
+                <img src="1.png" alt="Promo 1" style="width: 100%; border-radius: 15px; box-shadow: var(--clay-shadow-out); object-fit: cover;">
+            </div>
 
             <button class="clay-btn back-btn" onclick="switchScreen('screen-topics')">Back to Topics</button>
         </div>
+    </div> <!-- THIS IS THE CLOSING DIV THAT WAS MISSING EARLIER! -->
 
 
     <!-- PAYMENT MODAL -->
     <div id="payment-modal" class="screen">
         <div class="clay-card">
             <h3>Subject Locked! Unlock Premium</h3>
-            <h2 style="color: #ff4757;"><del>Rs 500</del> ✂️ Rs. 189 Only!</h2>
+            <h2 style="color: #ff4757;"><del>Rs 500</del> ✂️ Rs. 148 Only!</h2>
             
             <div style="margin: 20px 0;">
                 <p style="color:#2ecc71; font-weight:bold; margin: 5px 0;">🚀 High Quality Content</p>
@@ -615,7 +617,7 @@
 
         function checkTimerUI() {
             const trialStart = parseInt(localStorage.getItem('trialStart') || '0');
-            const trialDuration = 3 * 60 * 1000; // 3 mins trial update
+            const trialDuration = 3 * 60 * 1000; // 3 mins trial
             const now = Date.now();
             const timeElapsed = now - trialStart;
             const display = document.getElementById('timer-display');
@@ -628,7 +630,7 @@
                 display.innerText = `⏳ All Core Subjects Free: ${minsLeft} minutes left`;
                 display.style.color = "#1dd1a1";
             } else {
-                display.innerText = "❌ Trial Ended. Old Loksewa & Free Subjects Unlocked.";
+                display.innerText = "❌ Trial Ended. Free Subjects Only.";
                 display.style.color = "#ff4757";
             }
         }
@@ -675,7 +677,7 @@
             // 1. FAST ACCESS CHECK FIRST
             const isUnlocked = await handleAccessLockCheckFast();
             if (!isUnlocked) {
-                return; // Access denied/Handled by lock script
+                return; // Access denied
             }
 
             // 2. Fetch files only if access is confirmed

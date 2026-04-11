@@ -159,19 +159,18 @@
             color: #ff4757;
         }
 
-        /* NATIVE SCROLLING CONTAINER (Removed Max-Height) */
+        /* NATIVE SCROLLING CONTAINER */
         .list-container {
             display: flex;
             flex-direction: column;
             gap: 12px;
             margin-top: 15px;
             padding: 5px;
-            /* Container grows naturally. Body handles the scrolling! */
         }
 
         .list-btn { 
             text-align: left; 
-            padding: 18px 20px; /* Increased padding for larger touch target */
+            padding: 18px 20px; 
             font-size: 0.95em; 
         }
 
@@ -205,8 +204,8 @@
         .floating-back-btn {
             position: fixed;
             top: 15px;
-            right: 15px; /* Shifted to the right side */
-            padding: 8px 14px; /* Shrunk down */
+            right: 15px; 
+            padding: 8px 14px; 
             background-color: rgba(0, 0, 0, 0.5);
             color: white;
             border: none;
@@ -332,11 +331,11 @@
                 <!-- NEW SECOND PAPER PORTAL -->
                 <button class="clay-btn full-width-btn second-paper-btn" onclick="switchScreen('screen-second-paper')">📚 Second Paper Question Collections</button>
                 
+                <!-- Updated FREE SUBJECTS -->
                 <button class="clay-btn free-subject" onclick="openSubject(1, 'Surveying')">Surveying</button>
                 <button class="clay-btn free-subject" onclick="openSubject(2, 'Construction Materials')">Construction Materials</button>
-                
                 <button class="clay-btn" onclick="openSubject(3, 'Mechanics of Structure')">Mechanics of Structure</button>
-                <button class="clay-btn" onclick="openSubject(4, 'Hydraulics')">Hydraulics</button>
+                <button class="clay-btn free-subject" onclick="openSubject(4, 'Hydraulics')">Hydraulics</button>
                 <button class="clay-btn" onclick="openSubject(5, 'Soil Mechanics')">Soil Mechanics</button>
                 <button class="clay-btn" onclick="openSubject(6, 'Structural Design')">Structural Design</button>
                 <button class="clay-btn" onclick="openSubject(7, 'Building Construction Tech')">Building Construction</button>
@@ -344,14 +343,14 @@
                 <button class="clay-btn" onclick="openSubject(9, 'Irrigation Engineering')">Irrigation Engineering</button>
                 <button class="clay-btn" onclick="openSubject(10, 'Highway Engineering')">Highway Engineering</button>
                 <button class="clay-btn" onclick="openSubject(11, 'Estimating and Costing')">Estimating & Costing</button>
-                <button class="clay-btn free-subject" onclick="openSubject(12, 'Construction Management')">Construction Management</button>
-                </div>
-<div class="full-width animated-announcement">
-                Except Above Topics, यदि तपाईंहरूलाई कुनै प्रश्नको Answer याद गर्न समय लाग्छ वा परीक्षा हलमा बिर्सिने खाल को प्रश्न छन भने हामीलाई प्रश्न पठाउनुहोस् ।  
- हामी त्यस Boring उत्तरलाई Interesting तरिकाले Visual, Audio, Animation मार्फत Deep रूपमा Memorization र Clear बनाइदिनेछौं <br> Whatsapp Number : 9865637898</button>
-</div>
-                <button class="clay-btn full-width-btn coming-soon-btn" onclick="window.open('https://9865637898.github.io/FederalLoksewaPreparationfor5thlevelCivilEngineers/', '_blank')"> DAILY TESTS </button>
+                <button class="clay-btn" onclick="openSubject(12, 'Construction Management')">Construction Management</button>
             </div>
+            
+            <div class="full-width animated-announcement">
+                Except Above Topics, यदि तपाईंहरूलाई कुनै प्रश्नको Answer याद गर्न समय लाग्छ वा परीक्षा हलमा बिर्सिने खाल को प्रश्न छन भने हामीलाई प्रश्न पठाउनुहोस् ।  
+                हामी त्यस Boring उत्तरलाई Interesting तरिकाले Visual, Audio, Animation मार्फत Deep रूपमा Memorization र Clear बनाइदिनेछौं <br> Whatsapp Number : 9865637898
+            </div>
+            <button class="clay-btn full-width-btn coming-soon-btn" onclick="window.open('https://9865637898.github.io/FederalLoksewaPreparationfor5thlevelCivilEngineers/', '_blank')"> DAILY TESTS </button>
         </div>
     </div>
 
@@ -462,7 +461,7 @@
                 { id: "0.2.3", name: "सुदूरपश्चिम लोकसेवा २०८०-०४" },
                 { id: "0.2.4", name: "बागमती लोकसेवा २०८२-०२-२३" },
                 { id: "0.2.5", name: "संघीय लोकसेवा २०८२-०१-२७" },
-                
+                { id: "0.2.6", name: "कर्णाली लोकसेवा २०८२-०२-०२" },
                 { id: "0.2.7", name: "गण्डकी लोकसेवा २०८२-१०-०५" },
                 { id: "0.2.8", name: "गण्डकी लोकसेवा चौथो तह २०८२-१२-१३" },
                 { id: "0.2.9", name: "कोशी लोकसेवा चौथो तह २०८३-०१-०५" },
@@ -603,7 +602,7 @@
 
         function checkTimerUI() {
             const trialStart = parseInt(localStorage.getItem('trialStart') || '0');
-            const trialDuration = 6 * 60 * 1000; // 6 mins
+            const trialDuration = 3 * 60 * 1000; // 3 mins trial update
             const now = Date.now();
             const timeElapsed = now - trialStart;
             const display = document.getElementById('timer-display');
@@ -702,22 +701,10 @@
         }
 
         // ==========================================
-        // NEW: SECOND PAPER & OLD PAPER LOGIC (Shared Inverse Lock)
+        // NEW: SECOND PAPER LOGIC (Now COMPLETELY FREE)
         // ==========================================
         async function openSecurePaper(fileName) {
-            // Apply 6-minute inverse lock logic (locked first 6 mins, then free forever)
-            const trialStart = parseInt(localStorage.getItem('trialStart') || '0');
-            const trialDuration = 6 * 60 * 1000;
-            const timeElapsed = Date.now() - trialStart;
-
-            if (localStorage.getItem("paidAccessValid") !== "true") {
-                if (timeElapsed < trialDuration) {
-                    alert("⏳ Second Paper Collections are locked during the initial 6-minute trial. They will become permanently FREE afterwards!");
-                    return;
-                }
-            }
-
-            // Load Secure HTML
+            // Load Secure HTML directly (No lock)
             const viewer = document.getElementById('secure-viewer-overlay');
             const iframe = document.getElementById('secure-iframe');
             viewer.style.display = 'block';
@@ -735,7 +722,7 @@
 
 
         // ==========================================
-        // LIGHTNING FAST ACCESS CHECK (6 Minute Logic)
+        // LIGHTNING FAST ACCESS CHECK (3 Minute Logic)
         // ==========================================
         async function handleAccessLockCheckFast() {
             if (localStorage.getItem("paidAccessValid") === "true") {
@@ -743,29 +730,22 @@
             }
 
             const trialStart = parseInt(localStorage.getItem('trialStart') || '0');
-            const trialDuration = 6 * 60 * 1000; // 6 Minutes
+            const trialDuration = 3 * 60 * 1000; // Updated to 3 Minutes
             const now = Date.now();
             const timeElapsed = now - trialStart;
 
-            // SUBJECT 0 LOGIC: Locked initially, FREE after 6 mins
-            if (currentSubjectId === 0) {
-                if (timeElapsed < trialDuration) {
-                    alert("⏳ Old Loksewa Papers are locked during the initial 6-minute trial. They will become permanently FREE afterwards!");
-                    switchScreen('screen-topics');
-                    return false;
-                }
-                return true; // Freely open after 6 mins!
-            }
-
-            // ALL OTHER SUBJECTS
-            const isAlwaysFree = [1, 2, 12].includes(currentSubjectId);
+            // FREE SUBJECTS: 0 (Old Loksewa), 1 (Surveying), 2 (Materials), 4 (Hydraulics)
+            const isAlwaysFree = [0, 1, 2, 4].includes(currentSubjectId);
+            
+            // These 4 are completely free unconditionally
             if (isAlwaysFree) return true;
 
+            // All Core subjects are free for first 3 mins
             if (timeElapsed < trialDuration) {
-                return true; // All Core subjects are free for first 6 mins
+                return true; 
             }
 
-            // Core subjects locked after 6 mins
+            // Core subjects locked after 3 mins
             switchScreen('payment-modal');
             return false;
         }
@@ -850,5 +830,4 @@
     </script>
 </body>
 </html>
-
 

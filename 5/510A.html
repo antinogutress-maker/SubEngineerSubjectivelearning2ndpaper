@@ -1,0 +1,1489 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = 
+  [
+  {
+    "id": 1,
+    "q": "In a three-phase soil system, if the voids are completely filled with air, the degree of saturation (S) and the physical state of the soil are respectively:",
+    "o": [
+      "S = 100%, Fully saturated",
+      "S = 0%, Perfectly dry",
+      "S = 50%, Partially saturated",
+      "S < 0%, Super dry"
+    ],
+    "a": "S = 0%, Perfectly dry",
+    "e": "Degree of saturation (S) is the ratio of the volume of water to the volume of voids. When voids are filled entirely with air, there is zero water, making S = 0%, which defines a perfectly dry two-phase soil system."
+  },
+  {
+    "id": 2,
+    "q": "What is the theoretical and practical range of the void ratio (e) for a soil mass?",
+    "o": [
+      "0 < e < 1",
+      "0 ≤ e ≤ 1",
+      "e > 0",
+      "e > 1 only"
+    ],
+    "a": "e > 0",
+    "e": "Void ratio is the volume of voids divided by the volume of solids. Since a soil must contain some voids, 'e' cannot be zero. It can, however, be greater than 1 (e.g., in highly organic or loose soils). Therefore, strictly e > 0."
+  },
+  {
+    "id": 3,
+    "q": "A soil sample has a void ratio (e) of 0.50. What is its porosity (n) expressed as a percentage?",
+    "o": [
+      "25.0%",
+      "33.3%",
+      "50.0%",
+      "66.7%"
+    ],
+    "a": "33.3%",
+    "e": "Porosity (n) is mathematically related to void ratio (e) by the formula n = e / (1 + e). Substituting the value: n = 0.50 / (1 + 0.50) = 0.50 / 1.50 = 1/3. In percentage, 1/3 × 100% = 33.33%."
+  },
+  {
+    "id": 4,
+    "q": "For a fully saturated soil sample (S = 1 or 100%), what is the strictly correct relationship between water content (w), specific gravity of solids (G), and void ratio (e)?",
+    "o": [
+      "e = w / G",
+      "e = w × G",
+      "w = e × G",
+      "G = w × e"
+    ],
+    "a": "e = w × G",
+    "e": "The fundamental volumetric relationship is Se = wG. For a fully saturated soil, S = 1. Therefore, the equation perfectly simplifies to e = wG."
+  },
+  {
+    "id": 5,
+    "q": "In the Unified Soil Classification System (USCS) and IS classification, what does the A-line on the plasticity chart mathematically represent?",
+    "o": [
+      "The boundary between silt and clay",
+      "The boundary between organic and inorganic soils",
+      "The boundary between high and low plasticity",
+      "The boundary between well-graded and poorly-graded soils"
+    ],
+    "a": "The boundary between silt and clay",
+    "e": "The A-line (equation: Ip = 0.73(wL - 20)) separates clays from silts. Soils plotting strictly above the A-line are generally classified as clays (C), and those plotting below are silts (M) or organic soils (O)."
+  },
+  {
+    "id": 6,
+    "q": "According to Terzaghi's principle of effective stress, the effective stress (σ') governing soil deformation and shear strength is exactly equal to:",
+    "o": [
+      "Total stress plus pore water pressure",
+      "Total stress multiplied by pore water pressure",
+      "Total stress minus pore water pressure",
+      "Pore water pressure minus total stress"
+    ],
+    "a": "Total stress minus pore water pressure",
+    "e": "Terzaghi's equation is σ' = σ - u. The effective stress (intergranular pressure) is the total stress (σ) reduced by the neutral pore water pressure (u), as water cannot carry static shear forces."
+  },
+  {
+    "id": 7,
+    "q": "Darcy's Law (v = ki) for the flow of water through soils is physically valid only under which specific flow condition?",
+    "o": [
+      "Turbulent flow",
+      "Laminar flow",
+      "Transitional flow",
+      "Supersonic flow"
+    ],
+    "a": "Laminar flow",
+    "e": "Darcy's Law assumes a strict linear relationship between discharge velocity and hydraulic gradient. This holds true only when the flow of water through the soil voids is purely laminar (Reynolds number generally less than 1)."
+  },
+  {
+    "id": 8,
+    "q": "According to Allen Hazen's empirical formula for clean sands, the coefficient of permeability (k) is directly proportional to:",
+    "o": [
+      "The effective size (D10)",
+      "The square of the effective size (D10²)",
+      "The uniformity coefficient (Cu)",
+      "The square of the void ratio (e²)"
+    ],
+    "a": "The square of the effective size (D10²)",
+    "e": "Hazen's equation is k = C × D10², where C is a constant and D10 is the effective particle size. This shows permeability is highly sensitive to and proportional to the square of the effective grain size."
+  },
+  {
+    "id": 9,
+    "q": "For a naturally stratified soil deposit consisting of multiple horizontal layers, how does the equivalent horizontal permeability (kh) generally compare to the vertical permeability (kv)?",
+    "o": [
+      "kh is always strictly less than kv",
+      "kh is always exactly equal to kv",
+      "kh is invariably greater than kv",
+      "They vary completely randomly without correlation"
+    ],
+    "a": "kh is invariably greater than kv",
+    "e": "In horizontal flow, water travels parallel to the layers (flow through the most permeable path dominates). In vertical flow, water must cross every layer (flow is restricted by the least permeable layer). Therefore, mathematically, kh is always greater than kv."
+  },
+  {
+    "id": 10,
+    "q": "During standard soil compaction, adding water initially acts as a lubricant, increasing the dry density. The specific water content at which the maximum dry density (MDD) is achieved is termed:",
+    "o": [
+      "Plastic limit",
+      "Liquid limit",
+      "Optimum Moisture Content (OMC)",
+      "Shrinkage limit"
+    ],
+    "a": "Optimum Moisture Content (OMC)",
+    "e": "The Optimum Moisture Content (OMC) is the precise water content at which a specific compactive effort packs the soil particles closest together, expelling maximum air voids and yielding the Maximum Dry Density (MDD)."
+  },
+  {
+    "id": 11,
+    "q": "In the Standard Proctor Test used for compaction control, what is the exact weight of the dropping rammer and the height of its free fall?",
+    "o": [
+      "2.6 kg rammer, 310 mm drop",
+      "4.89 kg rammer, 450 mm drop",
+      "2.6 kg rammer, 450 mm drop",
+      "4.89 kg rammer, 310 mm drop"
+    ],
+    "a": "2.6 kg rammer, 310 mm drop",
+    "e": "The Standard Proctor Test strictly specifies a 2.6 kg (or roughly 5.5 lb) hammer dropping from a free height of 310 mm (12 inches). The Modified Proctor Test uses a heavier 4.89 kg hammer falling from 450 mm."
+  },
+  {
+    "id": 12,
+    "q": "If a construction site switches from Standard Proctor compactive effort to Modified Proctor compactive effort (heavy machinery), what is the resulting physical effect on the compaction curve?",
+    "o": [
+      "Increases both MDD and OMC",
+      "Decreases both MDD and OMC",
+      "Decreases MDD but increases OMC",
+      "Increases MDD but decreases OMC"
+    ],
+    "a": "Increases MDD but decreases OMC",
+    "e": "Applying higher compactive energy naturally forces soil particles together more effectively at lower moisture levels. This shifts the peak of the compaction curve upward (higher Maximum Dry Density) and to the left (lower Optimum Moisture Content)."
+  },
+  {
+    "id": 13,
+    "q": "Which type of field compaction roller is universally considered the most highly effective for compacting cohesive soils (heavy clays)?",
+    "o": [
+      "Smooth wheel roller",
+      "Pneumatic tyred roller",
+      "Sheep foot roller",
+      "Vibratory roller"
+    ],
+    "a": "Sheep foot roller",
+    "e": "Sheep foot rollers have projecting 'feet' that penetrate the soil layer, providing a kneading action. This breaks clods and forces cohesive clay particles together from the bottom up, making it strictly the best for clayey soils."
+  },
+  {
+    "id": 14,
+    "q": "According to the Mohr-Coulomb failure theory, the shear strength (τ) of a soil is mathematically defined by the equation τ = c + σ tan φ. In this equation, what does 'c' explicitly represent?",
+    "o": [
+      "Angle of internal friction",
+      "Total normal stress",
+      "Effective normal stress",
+      "Apparent cohesion"
+    ],
+    "a": "Apparent cohesion",
+    "e": "In the Mohr-Coulomb equation, 'c' is the cohesion intercept. It represents the inherent shear strength of the soil that exists even when the normal stress (σ) is exactly zero, typical of clayey soils."
+  },
+  {
+    "id": 15,
+    "q": "For a purely non-cohesive soil like clean, dry river sand, what are the theoretical values of cohesion (c) and the angle of internal friction (φ)?",
+    "o": [
+      "c > 0, φ = 0",
+      "c = 0, φ > 0",
+      "c > 0, φ > 0",
+      "c = 0, φ = 0"
+    ],
+    "a": "c = 0, φ > 0",
+    "e": "Clean sands lack any chemical or electrostatic bonding between particles, so their apparent cohesion (c) is exactly 0. Their entire shear strength is derived purely from inter-particle friction and interlocking (φ > 0)."
+  },
+  {
+    "id": 16,
+    "q": "Which state of lateral earth pressure on a retaining wall requires the absolute maximum movement of the wall to fully mobilize?",
+    "o": [
+      "Active earth pressure",
+      "Passive earth pressure",
+      "Earth pressure at rest",
+      "Hydrostatic pressure"
+    ],
+    "a": "Passive earth pressure",
+    "e": "Active pressure mobilizes with a tiny outward yielding of the wall. Passive pressure requires the wall to be physically pushed deep into the soil mass, compressing it heavily, which demands significantly more displacement to fully mobilize."
+  },
+  {
+    "id": 17,
+    "q": "What is the correct order of magnitudes for the coefficients of Active (Ka), At-rest (K0), and Passive (Kp) lateral earth pressures?",
+    "o": [
+      "Ka > K0 > Kp",
+      "Kp > K0 > Ka",
+      "K0 > Ka > Kp",
+      "Kp > Ka > K0"
+    ],
+    "a": "Kp > K0 > Ka",
+    "e": "Active pressure involves soil expansion (relief of stress), making it the smallest. At-rest is the natural unyielding state. Passive involves soil compression against resistance, making it the largest. Therefore, Kp > K0 > Ka."
+  },
+  {
+    "id": 18,
+    "q": "Using Rankine's earth pressure theory, if the angle of internal friction (φ) for a horizontal sandy backfill is exactly 30°, what is the Coefficient of Active Earth Pressure (Ka)?",
+    "o": [
+      "0.33 (or 1/3)",
+      "0.50 (or 1/2)",
+      "1.00",
+      "3.00"
+    ],
+    "a": "0.33 (or 1/3)",
+    "e": "Rankine's active coefficient Ka = (1 - sin φ) / (1 + sin φ). For φ = 30°, sin(30°) = 0.5. Therefore, Ka = (1 - 0.5) / (1 + 0.5) = 0.5 / 1.5 = 1/3 = 0.333."
+  },
+  {
+    "id": 19,
+    "q": "For the same horizontal sandy backfill with φ = 30°, what is the exact Coefficient of Passive Earth Pressure (Kp)?",
+    "o": [
+      "0.33",
+      "1.00",
+      "2.00",
+      "3.00"
+    ],
+    "a": "3.00",
+    "e": "The coefficient of passive earth pressure Kp = (1 + sin φ) / (1 - sin φ), which is strictly the reciprocal of Ka (Kp = 1/Ka). Since Ka = 1/3, Kp = 3.00."
+  },
+  {
+    "id": 20,
+    "q": "What is a primary theoretical assumption made in Rankine's earth pressure theory that explicitly differentiates it from Coulomb's wedge theory?",
+    "o": [
+      "The soil mass is purely cohesive",
+      "The back of the retaining wall is perfectly smooth and vertical",
+      "The failure surface is a curved logarithmic spiral",
+      "Wall friction is the primary resisting force"
+    ],
+    "a": "The back of the retaining wall is perfectly smooth and vertical",
+    "e": "Rankine's theory assumes the wall back is strictly vertical and entirely smooth (no wall friction). Coulomb's theory is more realistic for physical walls as it explicitly accounts for friction between the wall face and the soil wedge."
+  },
+  {
+    "id": 21,
+    "q": "In a cohesive backfill (clay), active earth pressure creates a tension zone at the ground surface. The theoretical depth of this tension crack (Zc) is mathematically equal to:",
+    "o": [
+      "c / (γ √Ka)",
+      "2c / (γ √Ka)",
+      "4c / (γ √Ka)",
+      "c / γ"
+    ],
+    "a": "2c / (γ √Ka)",
+    "e": "The active earth pressure for cohesive soils is pa = Ka γ z - 2c√Ka. At the surface, pressure is negative (tension). Setting pa = 0 to find the depth of the tension zone yields Zc = 2c / (γ √Ka)."
+  },
+  {
+    "id": 22,
+    "q": "According to Terzaghi's bearing capacity theory for shallow strip footings, what does the term '0.5 γ B Nγ' physically represent?",
+    "o": [
+      "The bearing capacity derived purely from soil cohesion",
+      "The bearing capacity derived from the surcharge load above the foundation level",
+      "The bearing capacity derived from the weight of the soil wedge beneath the footing",
+      "The immediate settlement of the foundation"
+    ],
+    "a": "The bearing capacity derived from the weight of the soil wedge beneath the footing",
+    "e": "Terzaghi's ultimate bearing capacity equation is q_u = cNc + qNq + 0.5γBNγ. The third term (0.5γBNγ) accounts for the frictional resistance generated specifically by the self-weight of the soil mass located directly beneath the foundation of width B."
+  },
+  {
+    "id": 23,
+    "q": "In foundation engineering, a 'Local Shear Failure' is typically characterized by slight bulging of the ground surface and no distinct failure plane. It predominantly occurs in which type of soil?",
+    "o": [
+      "Highly dense sand and stiff clay",
+      "Loose sand and soft clay",
+      "Pure solid rock",
+      "Over-consolidated clay"
+    ],
+    "a": "Loose sand and soft clay",
+    "e": "Loose or highly compressible soils undergo significant vertical settlement (compression) before failing, preventing a clear, continuous shear plane from reaching the surface. This is termed local shear failure. Dense sands fail abruptly via General Shear Failure."
+  },
+  {
+    "id": 24,
+    "q": "If the groundwater table sharply rises to exactly the base of a shallow foundation, how does it mathematically affect the ultimate bearing capacity (specifically the third term, 0.5 γ B Nγ)?",
+    "o": [
+      "It has absolutely no effect",
+      "It doubles the contribution of the third term",
+      "It reduces the contribution of the third term by approximately 50%",
+      "It reduces the ultimate bearing capacity to exactly zero"
+    ],
+    "a": "It reduces the contribution of the third term by approximately 50%",
+    "e": "When the water table rises to the foundation base, the bulk unit weight (γ) in the soil wedge term must be replaced by the submerged (effective) unit weight (γ'), which is roughly half of the bulk density. Thus, the bearing capacity of that term drops by ~50%."
+  },
+  {
+    "id": 25,
+    "q": "A soil has a bulk unit weight (γ) of 20 kN/m³ and a water content (w) of 25%. What is the mathematically precise dry unit weight (γd) of this soil?",
+    "o": [
+      "15.0 kN/m³",
+      "16.0 kN/m³",
+      "25.0 kN/m³",
+      "12.5 kN/m³"
+    ],
+    "a": "16.0 kN/m³",
+    "e": "The relationship between bulk and dry unit weight is γd = γ / (1 + w), where w is expressed as a decimal. γd = 20 / (1 + 0.25) = 20 / 1.25 = 16.0 kN/m³."
+  },
+  {
+    "id": 26,
+    "q": "Terzaghi's dimensionless bearing capacity factors (Nc, Nq, Nγ) are solely and strictly a mathematical function of which physical soil property?",
+    "o": [
+      "Cohesion (c)",
+      "Density index (Id)",
+      "Angle of internal friction (φ)",
+      "Unit weight of the soil (γ)"
+    ],
+    "a": "Angle of internal friction (φ)",
+    "e": "The mathematical derivations for Nc, Nq, and Nγ rely entirely on the geometry of the assumed shear failure surfaces beneath the footing, which is governed strictly by the soil's angle of internal friction (φ)."
+  },
+  {
+    "id": 27,
+    "q": "For a pure, saturated clay deposit tested under undrained conditions (φu = 0), what are the theoretical values of Terzaghi's bearing capacity factors Nc, Nq, and Nγ?",
+    "o": [
+      "Nc = 5.7, Nq = 1, Nγ = 0",
+      "Nc = 0, Nq = 1, Nγ = 5.7",
+      "Nc = 1, Nq = 0, Nγ = 0",
+      "Nc = 5.7, Nq = 0, Nγ = 1"
+    ],
+    "a": "Nc = 5.7, Nq = 1, Nγ = 0",
+    "e": "For pure clay under pure cohesion (φ = 0°), the geometry of failure dictates that the cohesion factor Nc = 5.7, the surcharge factor Nq = 1.0 (soil weight above simply adds directly), and the wedge weight factor Nγ = 0 (no frictional contribution from base wedge)."
+  },
+  {
+    "id": 28,
+    "q": "A soil sample has a specific gravity of solids (G) = 2.70 and a void ratio (e) = 0.90. What is the critical hydraulic gradient (ic) that will cause a 'quick sand' condition?",
+    "o": [
+      "0.80",
+      "0.89",
+      "1.00",
+      "1.11"
+    ],
+    "a": "0.89",
+    "e": "The critical hydraulic gradient equation is ic = (G - 1) / (1 + e). Substituting the values: ic = (2.70 - 1) / (1 + 0.90) = 1.70 / 1.90 ≈ 0.894. At this gradient, effective stress becomes zero, causing boiling or quicksand."
+  },
+  {
+    "id": 29,
+    "q": "In soil mechanics, what does the 'Density Index' (or Relative Density, Id) physically indicate about a cohesionless granular soil?",
+    "o": [
+      "Its moisture content relative to the liquid limit",
+      "The specific gravity of its solid particles",
+      "Its degree of compaction relative to its loosest and densest possible states",
+      "Its precise content of organic matter"
+    ],
+    "a": "Its degree of compaction relative to its loosest and densest possible states",
+    "e": "Relative density strictly evaluates how densely the sand particles are packed compared to their theoretical limits. Id = (emax - e) / (emax - emin), ranging from 0% (loosest possible) to 100% (densest possible)."
+  },
+  {
+    "id": 30,
+    "q": "When calculating passive earth pressure for a retaining wall of height 'H' supporting a cohesive-frictional (c-φ) soil backfill, what is the exact formula for the total passive pressure intensity (pp) at the base?",
+    "o": [
+      "pp = Kp γ H + 2c√Kp",
+      "pp = Kp γ H - 2c√Kp",
+      "pp = Ka γ H + 2c√Ka",
+      "pp = Kp γ H"
+    ],
+    "a": "pp = Kp γ H + 2c√Kp",
+    "e": "Passive pressure involves soil resisting the wall. Both the frictional component (Kp γ H) and the cohesive component physically resist compression, so they add together. The tension equivalent in active pressure subtracts the cohesive term, but in passive, it strictly adds."
+  },
+
+
+  {
+    "id": 31,
+    "q": "A fully saturated soil sample has a specific gravity of solids (G) of 2.65 and a void ratio (e) of 0.53. What is the exact water content (w) of the soil?",
+    "o": [
+      "10.0%",
+      "20.0%",
+      "25.0%",
+      "53.0%"
+    ],
+    "a": "20.0%",
+    "e": "Using the fundamental volumetric relationship Se = wG. For a fully saturated soil, S = 1. Therefore, 1 × 0.53 = w × 2.65. Solving for w: w = 0.53 / 2.65 = 0.20, which is exactly 20.0%."
+  },
+  {
+    "id": 32,
+    "q": "If the saturated unit weight (γ_sat) of a soil is 20 kN/m³ and the unit weight of water (γ_w) is taken as 10 kN/m³, what is the submerged (buoyant) unit weight (γ') of the soil?",
+    "o": [
+      "10 kN/m³",
+      "20 kN/m³",
+      "30 kN/m³",
+      "2.0 kN/m³"
+    ],
+    "a": "10 kN/m³",
+    "e": "By Archimedes' principle, the submerged unit weight is the saturated unit weight strictly minus the unit weight of water. γ' = γ_sat - γ_w = 20 - 10 = 10 kN/m³."
+  },
+  {
+    "id": 33,
+    "q": "How does an increase in the temperature of groundwater physically affect the coefficient of permeability (k) of the surrounding soil mass?",
+    "o": [
+      "It decreases the permeability",
+      "It increases the permeability",
+      "It has absolutely no effect",
+      "It makes the soil completely impermeable"
+    ],
+    "a": "It increases the permeability",
+    "e": "Permeability is inversely proportional to the dynamic viscosity of the fluid. As temperature increases, the viscosity of water decreases, allowing the water to flow faster, thereby strictly increasing the coefficient of permeability."
+  },
+  {
+    "id": 34,
+    "q": "If the discharge velocity (v) of water flowing through a soil mass is 1.5 cm/s and the porosity (n) of the soil is 0.30, what is the actual seepage velocity (v_s) through the voids?",
+    "o": [
+      "0.45 cm/s",
+      "1.20 cm/s",
+      "3.00 cm/s",
+      "5.00 cm/s"
+    ],
+    "a": "5.00 cm/s",
+    "e": "Discharge velocity considers the entire cross-sectional area, but water only flows through the voids. Seepage velocity is actual velocity, given by v_s = v / n = 1.5 / 0.30 = 5.00 cm/s."
+  },
+  {
+    "id": 35,
+    "q": "What is the specific mechanical effect of capillary action (capillary rise) on the effective stress within a soil mass above the groundwater table?",
+    "o": [
+      "It decreases the effective stress",
+      "It increases the effective stress",
+      "It reduces the effective stress to exactly zero",
+      "It has no measurable effect"
+    ],
+    "a": "It increases the effective stress",
+    "e": "Capillary water is held in tension, creating a negative pore water pressure (u is negative). Since Effective Stress (σ') = Total Stress (σ) - Pore Pressure (u), subtracting a negative value mathematically increases the total effective stress (σ' = σ + u)."
+  },
+  {
+    "id": 36,
+    "q": "On a standard soil compaction curve (dry density vs. moisture content), the theoretical 'Zero Air Voids line' corresponds exactly to a degree of saturation (S) of:",
+    "o": [
+      "0%",
+      "50%",
+      "95%",
+      "100%"
+    ],
+    "a": "100%",
+    "e": "The Zero Air Voids line represents the theoretical maximum dry density achievable at any given moisture content if all air was perfectly expelled, meaning the soil is 100% saturated. Field compaction curves can never physically cross this line."
+  },
+  {
+    "id": 37,
+    "q": "According to the widely adopted standard testing codes (like IS: 2720), what is the exact internal volume of the standard cylindrical mould used for the Standard Proctor Compaction Test?",
+    "o": [
+      "500 cc",
+      "1000 cc",
+      "2250 cc",
+      "3000 cc"
+    ],
+    "a": "1000 cc",
+    "e": "The standard physical mould used in the laboratory for the Light Compaction (Standard Proctor) test strictly has an internal volume of 1000 cc (cubic centimeters) or 1 liter, to simplify density calculations."
+  },
+  {
+    "id": 38,
+    "q": "An Unconfined Compression Test is performed on a purely cohesive clay sample. If the sample fails at a compressive stress of 150 kPa, what is the theoretical apparent cohesion (c) of the clay?",
+    "o": [
+      "0 kPa",
+      "75 kPa",
+      "150 kPa",
+      "300 kPa"
+    ],
+    "a": "75 kPa",
+    "e": "For a purely cohesive soil (φ = 0), the unconfined compressive strength (q_u) is mathematically exactly twice the undrained cohesion. Therefore, c = q_u / 2 = 150 / 2 = 75 kPa."
+  },
+  {
+    "id": 39,
+    "q": "In a direct shear test on a sample of dry, clean sand, the normal stress applied is 100 kPa and the shear stress at failure is exactly 57.7 kPa. What is the angle of internal friction (φ)?",
+    "o": [
+      "20°",
+      "30°",
+      "45°",
+      "60°"
+    ],
+    "a": "30°",
+    "e": "For clean sand, cohesion c = 0. The Mohr-Coulomb equation simplifies to τ = σ × tan(φ). Therefore, tan(φ) = τ / σ = 57.7 / 100 = 0.577. The angle whose tangent is 0.577 is exactly 30°."
+  },
+  {
+    "id": 40,
+    "q": "In evaluating lateral earth pressures, Coulomb's wedge theory explicitly assumes the shape of the soil failure surface behind a retaining wall to be a:",
+    "o": [
+      "Parabola",
+      "Logarithmic spiral",
+      "Flat straight plane",
+      "Circular arc"
+    ],
+    "a": "Flat straight plane",
+    "e": "To simplify the complex statics calculations of the sliding soil wedge, Coulomb's theory fundamentally assumes that the rupture surface is a perfectly flat, straight plane, despite reality being slightly curved near the bottom."
+  },
+  {
+    "id": 41,
+    "q": "Using Jaky's empirical equation, what is the Coefficient of Earth Pressure at Rest (K0) for a normally consolidated sand deposit having an angle of internal friction (φ) of exactly 30°?",
+    "o": [
+      "0.33",
+      "0.50",
+      "1.00",
+      "3.00"
+    ],
+    "a": "0.50",
+    "e": "Jaky's simplified formula for normally consolidated soils is K0 = 1 - sin(φ). Substituting φ = 30° yields K0 = 1 - sin(30°) = 1 - 0.50 = 0.50."
+  },
+  {
+    "id": 42,
+    "q": "For a smooth vertical retaining wall of height 'H' supporting a dry, cohesionless backfill, the total resultant Active Earth Pressure force (Pa) strictly acts at a height of:",
+    "o": [
+      "H/2 from the base",
+      "H/3 from the base",
+      "2H/3 from the base",
+      "H/4 from the base"
+    ],
+    "a": "H/3 from the base",
+    "e": "The active earth pressure distribution is triangular, starting from zero at the top to a maximum at the base. The geometric centroid of a triangle lies at one-third of its height from the base, which is exactly where the resultant horizontal force acts."
+  },
+  {
+    "id": 43,
+    "q": "In Terzaghi's ultimate bearing capacity equation for a strictly SQUARE footing of width 'B', what are the correct empirical shape factors modifying the cohesion (c) and unit weight (γ) terms respectively?",
+    "o": [
+      "1.3 and 0.5",
+      "1.3 and 0.4",
+      "1.2 and 0.4",
+      "1.0 and 0.5"
+    ],
+    "a": "1.3 and 0.4",
+    "e": "For a continuous strip footing, the multipliers are 1.0 and 0.5. For a square footing, Terzaghi modified the equation to q_u = 1.3 c Nc + q Nq + 0.4 γ B Nγ, changing the shape factors to strictly 1.3 and 0.4."
+  },
+  {
+    "id": 44,
+    "q": "The 'Net Ultimate Bearing Capacity' (q_nu) of a soil is mathematically defined as the ultimate bearing capacity (q_u) strictly minus the:",
+    "o": [
+      "Cohesion of the soil",
+      "Effective surcharge pressure at the foundation base level",
+      "Weight of the concrete footing",
+      "Pore water pressure"
+    ],
+    "a": "Effective surcharge pressure at the foundation base level",
+    "e": "Net ultimate bearing capacity isolates the additional load the soil can take beyond its original state. It is calculated by subtracting the effective overburden pressure (γ × Df) that existed at the base depth before excavation from the gross ultimate capacity (q_u)."
+  },
+  {
+    "id": 45,
+    "q": "What is the ultimate bearing capacity of a shallow strip footing placed directly on the surface (Df = 0) of a purely cohesive clay soil having an undrained cohesion 'c'?",
+    "o": [
+      "2.5 c",
+      "5.14 c",
+      "5.7 c",
+      "7.4 c"
+    ],
+    "a": "5.7 c",
+    "e": "Terzaghi's equation is q_u = cNc + qNq + 0.5γBNγ. At the surface, Df=0 so q=0. For pure clay (φ=0), Nγ=0 and Nc=5.7. The equation collapses strictly to q_u = 5.7 c."
+  },
+  {
+    "id": 46,
+    "q": "In particle size distribution, a soil is formally classified as a 'Well-Graded Sand' (SW) if its Uniformity Coefficient (Cu) is mathematically:",
+    "o": [
+      "Exactly 1",
+      "Less than 4",
+      "Greater than 4",
+      "Greater than 6"
+    ],
+    "a": "Greater than 6",
+    "e": "The Uniformity Coefficient Cu = D60 / D10. Standard classification systems dictate that for a sand to be considered well-graded (having a good mix of all particle sizes), Cu must be strictly greater than 6. For gravels, it must be greater than 4."
+  },
+  {
+    "id": 47,
+    "q": "Alongside the Uniformity Coefficient, a soil must also have a Coefficient of Curvature (Cc) falling within a specific numerical range to be considered well-graded. What is this range?",
+    "o": [
+      "Between 0.5 and 1.0",
+      "Between 1.0 and 3.0",
+      "Between 3.0 and 6.0",
+      "Greater than 6.0"
+    ],
+    "a": "Between 1.0 and 3.0",
+    "e": "The Coefficient of Curvature is Cc = (D30)² / (D60 × D10). For both sands and gravels to be properly well-graded without gap-grading, this value must strictly fall between 1.0 and 3.0."
+  },
+  {
+    "id": 48,
+    "q": "If a fine-grained soil has a Liquid Limit (LL) of 45% and a Plastic Limit (PL) of 20%, what is its Plasticity Index (PI)?",
+    "o": [
+      "20%",
+      "25%",
+      "65%",
+      "2.25"
+    ],
+    "a": "25%",
+    "e": "The Plasticity Index defines the range of moisture content over which a soil exhibits plastic behavior. It is strictly the mathematical difference between the Liquid Limit and the Plastic Limit: PI = LL - PL = 45% - 20% = 25%."
+  },
+  {
+    "id": 49,
+    "q": "Stokes' Law, which forms the physical basis for the Hydrometer sedimentation test in soil analysis, is strictly valid only for spherical particles with diameters falling in the range of:",
+    "o": [
+      "2.0 mm to 0.2 mm",
+      "0.2 mm to 0.0002 mm",
+      "0.0002 mm to 0.00002 mm",
+      "Greater than 4.75 mm"
+    ],
+    "a": "0.2 mm to 0.0002 mm",
+    "e": "Particles larger than 0.2 mm fall too quickly, creating turbulent flow (violating Stokes' assumption of laminar flow). Particles smaller than 0.0002 mm are affected by Brownian motion and do not settle solely by gravity. Thus, the strict valid range is 0.2 mm to 0.0002 mm."
+  },
+  {
+    "id": 50,
+    "q": "For any volume of soil mass 'V' with a defined void ratio 'e', the absolute volume of the solid particles (Vs) alone can be mathematically expressed as:",
+    "o": [
+      "V × e",
+      "V / e",
+      "V / (1 + e)",
+      "V × (1 + e)"
+    ],
+    "a": "V / (1 + e)",
+    "e": "Total volume V = Volume of Voids (Vv) + Volume of Solids (Vs). By definition, e = Vv / Vs, so Vv = e × Vs. Substituting this into the total volume yields V = (e × Vs) + Vs = Vs(1 + e). Rearranging gives exactly Vs = V / (1 + e)."
+  },
+
+
+
+  {
+    "id": 51,
+    "q": "A soil sample has a specific gravity of solids (G) of 2.60 and a void ratio (e) of 0.50. If the degree of saturation (S) is exactly 65%, what is the precise water content (w) of the soil?",
+    "o": [
+      "12.5%",
+      "15.0%",
+      "25.0%",
+      "32.5%"
+    ],
+    "a": "12.5%",
+    "e": "Using the fundamental three-phase relationship S × e = w × G. Substituting the given values: 0.65 × 0.50 = w × 2.60. This gives 0.325 = w × 2.60. Therefore, w = 0.325 / 2.60 = 0.125, which is exactly 12.5%."
+  },
+  {
+    "id": 52,
+    "q": "Which of the following formulas correctly mathematically defines the theoretical Dry Unit Weight (γd) of a soil mass in terms of specific gravity (G), void ratio (e), and unit weight of water (γw)?",
+    "o": [
+      "γd = (G × γw) / (1 - e)",
+      "γd = (G × γw) / (1 + e)",
+      "γd = (G + e) × γw",
+      "γd = (1 + e) / (G × γw)"
+    ],
+    "a": "γd = (G × γw) / (1 + e)",
+    "e": "The dry unit weight relates the weight of solids to the total volume. Since total volume V = 1 + e (assuming Vs = 1), and the weight of solids Ws = G × γw, the dry unit weight γd is strictly (G × γw) / (1 + e)."
+  },
+  {
+    "id": 53,
+    "q": "In soil classification, the 'Liquidity Index' (IL) physically indicates the consistency of a cohesive soil in its natural state. If a natural clay has a water content exactly equal to its Liquid Limit (LL), what is its Liquidity Index?",
+    "o": [
+      "0",
+      "0.5",
+      "1.0",
+      "Greater than 1.0"
+    ],
+    "a": "1.0",
+    "e": "The Liquidity Index is defined mathematically as IL = (w - PL) / (LL - PL). If the natural water content (w) exactly equals the Liquid Limit (LL), the numerator equals the denominator, resulting in an IL of exactly 1.0, indicating the soil is on the verge of behaving like a viscous liquid."
+  },
+  {
+    "id": 54,
+    "q": "What is the primary physical distinction between the processes of 'Soil Compaction' and 'Soil Consolidation'?",
+    "o": [
+      "Compaction expels water, Consolidation expels air",
+      "Compaction is an instantaneous expulsion of air, Consolidation is a gradual expulsion of water",
+      "Both are identical processes occurring at different soil depths",
+      "Compaction applies strictly to clays, Consolidation applies strictly to sands"
+    ],
+    "a": "Compaction is an instantaneous expulsion of air, Consolidation is a gradual expulsion of water",
+    "e": "Compaction is a rapid mechanical process that densifies the soil by exclusively expelling pore air. Consolidation is a time-dependent natural process under sustained static loading that densifies fully saturated cohesive soils by exclusively expelling pore water."
+  },
+  {
+    "id": 55,
+    "q": "When conducting laboratory permeability tests, the 'Constant Head Permeability Test' is universally considered strictly suitable for which specific classification of soils?",
+    "o": [
+      "Highly plastic clays (CH)",
+      "Silts and clayey silts (ML, CL)",
+      "Coarse-grained soils like clean sands and gravels (SW, GW)",
+      "Organic soils (OH, OL)"
+    ],
+    "a": "Coarse-grained soils like clean sands and gravels (SW, GW)",
+    "e": "The constant head test requires a measurable quantity of water to flow through the sample in a short time. This is physically viable only for highly permeable coarse-grained soils. For low-permeability fine soils (clays), the falling head test is mandatory."
+  },
+  {
+    "id": 56,
+    "q": "If the groundwater table in a sandy soil profile permanently rises from a depth of 5 meters up to the exact ground surface, what is the direct physical consequence on the Effective Stress (σ') at a depth of 10 meters?",
+    "o": [
+      "Effective stress remains completely unchanged",
+      "Effective stress is roughly doubled",
+      "Effective stress is roughly halved",
+      "Effective stress drops to exactly zero"
+    ],
+    "a": "Effective stress is roughly halved",
+    "e": "Effective stress (σ') = Total stress (σ) - Pore water pressure (u). When the water table rises to the surface, the pore pressure at 10m depth increases significantly, converting the entire 10m column from bulk unit weight to submerged unit weight (γ'), which is roughly half the bulk density, thus halving the effective stress."
+  },
+  {
+    "id": 57,
+    "q": "A purely cohesive saturated clay sample (φ = 0) is subjected to an Unconsolidated Undrained (UU) triaxial compression test. If the applied cell pressure (σ3) is increased by 50 kPa, the deviator stress at failure (σ1 - σ3) will:",
+    "o": [
+      "Increase by 50 kPa",
+      "Decrease by 50 kPa",
+      "Remain completely unchanged",
+      "Increase by 100 kPa"
+    ],
+    "a": "Remain completely unchanged",
+    "e": "In a UU test on fully saturated clay, an increase in the confining cell pressure strictly causes an equal increase in pore water pressure without changing the effective stress. Consequently, the deviator stress required to cause shear failure remains completely independent of the confining pressure."
+  },
+  {
+    "id": 58,
+    "q": "According to Coulomb's classical Wedge Theory for lateral earth pressure, the critical failure wedge of soil behind a retaining wall is statically assumed to act as a:",
+    "o": [
+      "Fluid with zero shear strength",
+      "Series of thin elastic horizontal slices",
+      "Rigid solid body sliding on a planar surface",
+      "Plastic mass failing along a logarithmic spiral"
+    ],
+    "a": "Rigid solid body sliding on a planar surface",
+    "e": "Coulomb's approach utilizes limit equilibrium mechanics, fundamentally assuming the failing soil mass behind the wall acts as a single, intact, rigid wedge that slides downwards and outwards along a perfectly straight planar failure surface."
+  },
+  {
+    "id": 59,
+    "q": "In the standard execution of the Modified Proctor Compaction Test, the soil is compacted in a specific number of layers using a specific number of blows per layer. What are these exact standard specifications?",
+    "o": [
+      "3 layers, 25 blows per layer",
+      "5 layers, 25 blows per layer",
+      "3 layers, 56 blows per layer",
+      "5 layers, 56 blows per layer"
+    ],
+    "a": "5 layers, 25 blows per layer",
+    "e": "To impart a significantly higher compactive effort representing heavy modern construction machinery, the Modified Proctor test strictly requires the soil to be compacted in 5 equal layers, receiving 25 blows per layer with a 4.89 kg rammer falling 450 mm."
+  },
+  {
+    "id": 60,
+    "q": "A retaining wall with a smooth vertical back supports a cohesive backfill with a bulk unit weight (γ) of 20 kN/m³ and cohesion (c) of 20 kPa. Assuming φ = 0, what is the theoretical depth of the unsupported tension crack (Zc)?",
+    "o": [
+      "1.0 meter",
+      "2.0 meters",
+      "4.0 meters",
+      "10.0 meters"
+    ],
+    "a": "2.0 meters",
+    "e": "For φ = 0, the active earth pressure coefficient Ka = 1. The theoretical depth where active tension drops to zero (Zc) is derived as 2c / (γ √Ka). Substituting values: Zc = (2 × 20) / (20 × √1) = 40 / 20 = 2.0 meters."
+  },
+  {
+    "id": 61,
+    "q": "What is the maximum theoretical unsupported vertical height (Hc) to which a purely cohesive soil trench (like clay) can be safely excavated without any lateral shoring?",
+    "o": [
+      "c / γ",
+      "2c / (γ √Ka)",
+      "4c / (γ √Ka)",
+      "8c / γ"
+    ],
+    "a": "4c / (γ √Ka)",
+    "e": "The total active thrust on a vertical face becomes exactly zero when the negative tension area at the top perfectly balances the positive pressure area below it. This critical depth of unsupported excavation is strictly twice the tension crack depth, physically equaling 4c / (γ √Ka)."
+  },
+  {
+    "id": 62,
+    "q": "When interpreting Mohr's circle for a standard Unconfined Compression Test on a soil cylinder, where does the Mohr's circle physically intersect the horizontal normal stress (σ) axis?",
+    "o": [
+      "At σ = 0 and σ = c",
+      "At σ = 0 and σ = qu",
+      "At σ = c and σ = qu",
+      "At σ = -c and σ = +c"
+    ],
+    "a": "At σ = 0 and σ = qu",
+    "e": "An unconfined compression test has zero lateral confining pressure (σ3 = 0). The sample fails at the unconfined compressive strength (σ1 = qu). Therefore, the Mohr's circle touches the origin (0) and crosses the horizontal axis precisely at the value of qu."
+  },
+  {
+    "id": 63,
+    "q": "According to Terzaghi's bearing capacity equation for shallow foundations, how is the ultimate bearing capacity (qu) mathematically adjusted for a strictly CIRCULAR footing of diameter 'B'?",
+    "o": [
+      "qu = 1.0 c Nc + q Nq + 0.5 γ B Nγ",
+      "qu = 1.3 c Nc + q Nq + 0.4 γ B Nγ",
+      "qu = 1.3 c Nc + q Nq + 0.3 γ B Nγ",
+      "qu = 1.2 c Nc + q Nq + 0.5 γ B Nγ"
+    ],
+    "a": "qu = 1.3 c Nc + q Nq + 0.3 γ B Nγ",
+    "e": "To adapt his continuous strip footing equation for a circular base, Terzaghi derived empirical shape factors. The cohesion term is multiplied by 1.3, and the unit weight wedge term is multiplied by 0.3, yielding qu = 1.3 c Nc + q Nq + 0.3 γ B Nγ."
+  },
+  {
+    "id": 64,
+    "q": "In defining 'Gross Safe Bearing Capacity' (qs) for a foundation design, which specific mathematical formulation is universally correct? (where qu = ultimate bearing capacity, q = overburden pressure, F = Factor of Safety)",
+    "o": [
+      "qs = qu / F",
+      "qs = (qu - q) / F",
+      "qs = [(qu - q) / F] + q",
+      "qs = (qu / F) + q"
+    ],
+    "a": "qs = [(qu - q) / F] + q",
+    "e": "The Factor of Safety (F) is applied strictly to the NET ultimate bearing capacity (qu - q), as the original overburden pressure (q) was already safely carried by the soil. Gross safe bearing capacity is the safe net capacity plus the returned original overburden pressure: qs = [(qu - q) / F] + q."
+  },
+  {
+    "id": 65,
+    "q": "During a Standard Penetration Test (SPT), the recorded N-value is the exact number of hammer blows physically required to drive the standard split-spoon sampler through a specific distance of:",
+    "o": [
+      "The first 150 mm (6 inches) of seating drive",
+      "The final 300 mm (12 inches) after the initial 150 mm seating drive",
+      "The entire 450 mm (18 inches) of total penetration",
+      "A continuous depth of 1.0 meter"
+    ],
+    "a": "The final 300 mm (12 inches) after the initial 150 mm seating drive",
+    "e": "The SPT procedure requires driving the sampler a total of 450 mm. The blows for the first 150 mm are strictly discarded as 'seating drive' because the bottom of the borehole is disturbed. The N-value is exclusively the sum of the blows required for the remaining 300 mm (12 inches)."
+  },
+  {
+    "id": 66,
+    "q": "Which specific laboratory test is deemed universally the most reliable and accurate for determining the true shear strength parameters (c and φ) of a soil under highly controlled drainage conditions?",
+    "o": [
+      "Direct Shear Test",
+      "Unconfined Compression Test",
+      "Triaxial Compression Test",
+      "Vane Shear Test"
+    ],
+    "a": "Triaxial Compression Test",
+    "e": "Unlike the direct shear test (which strictly forces failure along a predetermined horizontal plane), the Triaxial test allows the soil sample to fail naturally along its weakest internal plane while providing perfect control over principal stresses and internal pore water pressure."
+  },
+  {
+    "id": 67,
+    "q": "If a cohesive soil possesses a Liquid Limit (LL) of 65% and plots strictly ABOVE the A-line on the IS Plasticity Chart, what is its formal engineering classification symbol?",
+    "o": [
+      "CL",
+      "CI",
+      "CH",
+      "MH"
+    ],
+    "a": "CH",
+    "e": "Because it plots above the A-line, it is a clay (C). Because its Liquid Limit (65%) is strictly greater than 50%, it is classified as possessing High compressibility or High plasticity (H). Therefore, the correct symbol is strictly CH."
+  },
+  {
+    "id": 68,
+    "q": "In calculating the total active earth thrust (Pa) on a retaining wall, the magnitude of the force is mathematically proportional to the:",
+    "o": [
+      "Square root of the wall height (√H)",
+      "Direct height of the wall (H)",
+      "Square of the wall height (H²)",
+      "Cube of the wall height (H³)"
+    ],
+    "a": "Square of the wall height (H²)",
+    "e": "The lateral active earth pressure distribution forms a triangle with height H and a base width of Ka × γ × H. The total force is the physical area of this triangle: Pa = 0.5 × base × height = 0.5 × (Ka × γ × H) × H = 0.5 × Ka × γ × H². Thus, it is proportional to H²."
+  },
+  {
+    "id": 69,
+    "q": "What is the primary operational disadvantage that makes the 'Direct Shear Test' scientifically less ideal compared to the Triaxial Test?",
+    "o": [
+      "It takes significantly longer to set up and execute",
+      "It requires a much larger soil sample",
+      "The failure plane is artificially forced along a horizontal split rather than the soil's natural weakest plane",
+      "It cannot test sandy or gravelly soils"
+    ],
+    "a": "The failure plane is artificially forced along a horizontal split rather than the soil's natural weakest plane",
+    "e": "In a direct shear box, the machine physically splits horizontally, forcing the soil to shear exactly on that horizontal plane. In reality, the naturally weakest failure plane governed by principal stresses is almost never perfectly horizontal."
+  },
+  {
+    "id": 70,
+    "q": "A standard field 'Vane Shear Test' is highly specialized and is virtually the only reliable field method to directly determine the undrained shear strength of which specific type of soil?",
+    "o": [
+      "Highly compacted gravel",
+      "Dense, dry sand",
+      "Very soft, highly sensitive saturated marine clays",
+      "Over-consolidated stiff clays"
+    ],
+    "a": "Very soft, highly sensitive saturated marine clays",
+    "e": "Soft, sensitive clays lose their structure entirely when sampled and brought to a laboratory. The Vane Shear Test is pushed directly into the undisturbed soil in the field to measure its pure cohesive strength (undrained shear) by strictly twisting a four-bladed vane."
+  },
+  {
+    "id": 71,
+    "q": "The fundamental concept of 'Activity of Clay', formulated by Skempton, is a dimensionless ratio mathematically correlating the soil's Plasticity Index (PI) strictly to its:",
+    "o": [
+      "Natural moisture content",
+      "Percentage by weight of clay-sized particles (finer than 2 microns)",
+      "Specific gravity of the clay minerals",
+      "Undrained shear strength"
+    ],
+    "a": "Percentage by weight of clay-sized particles (finer than 2 microns)",
+    "e": "Activity mathematically isolates the swelling and shrinking potential of the specific clay minerals present. It is explicitly defined as the Plasticity Index (PI) divided by the percentage fraction of particles strictly smaller than 0.002 mm (clay size)."
+  },
+  {
+    "id": 72,
+    "q": "In the standard classification of soils, what defines the specific physical boundary separating 'Sand' particles from 'Silt' particles?",
+    "o": [
+      "4.75 mm (IS Sieve No. 4)",
+      "2.00 mm (IS Sieve No. 10)",
+      "0.075 mm (75 microns / IS Sieve No. 200)",
+      "0.002 mm (2 microns)"
+    ],
+    "a": "0.075 mm (75 microns / IS Sieve No. 200)",
+    "e": "According to the universally adopted Unified and IS soil classification systems, particles strictly larger than 0.075 mm (75 microns) but smaller than 4.75 mm are classified as Sand. Particles physically passing through the 75-micron sieve are classified as fine-grained (Silts and Clays)."
+  },
+  {
+    "id": 73,
+    "q": "When calculating the consolidation settlement of a clay layer, the 'Compression Index' (Cc) is mathematically defined as the slope of the linear portion of which specific laboratory curve?",
+    "o": [
+      "Void ratio (e) versus arithmetic effective stress (σ')",
+      "Void ratio (e) versus log base 10 of effective stress (log σ')",
+      "Shear stress (τ) versus normal stress (σ)",
+      "Dry density (γd) versus moisture content (w)"
+    ],
+    "a": "Void ratio (e) versus log base 10 of effective stress (log σ')",
+    "e": "Consolidation behavior is highly non-linear. However, plotting the void ratio (e) on a linear y-axis against the applied effective pressure (σ') on a logarithmic x-axis strictly yields a straight line for normally consolidated clay. The slope of this line is exactly the Compression Index (Cc)."
+  },
+  {
+    "id": 74,
+    "q": "According to typical engineering values, what is the standard accepted range for the Specific Gravity of solid particles (G) for most inorganic, non-porous soils like sand and clay?",
+    "o": [
+      "1.00 to 1.50",
+      "1.80 to 2.20",
+      "2.60 to 2.80",
+      "3.00 to 3.50"
+    ],
+    "a": "2.60 to 2.80",
+    "e": "The specific gravity of water is 1.0. For the vast majority of natural inorganic mineral soils (quartz sands, silicates, and clay minerals), the solid particles themselves have a specific gravity strictly clustered tightly between 2.60 and 2.80 (typically assumed as 2.65 for sand)."
+  },
+  {
+    "id": 75,
+    "q": "A cohesive clay soil is defined as 'Normally Consolidated' (NC) if the present effective overburden pressure applied to it is:",
+    "o": [
+      "Significantly less than the maximum stress it experienced in its geological history",
+      "Exactly equal to the maximum stress it has ever experienced in its geological history",
+      "Causing the soil to heave and expand upwards",
+      "Equal to the atmospheric pressure"
+    ],
+    "a": "Exactly equal to the maximum stress it has ever experienced in its geological history",
+    "e": "A Normally Consolidated (NC) clay is currently carrying the absolute maximum pressure it has ever felt. If a soil was subjected to a higher pressure in the past (like from glaciers that melted), it is termed strictly 'Over-Consolidated' (OC)."
+  },
+  {
+    "id": 76,
+    "q": "In a flow net constructed for seepage analysis under a hydraulic structure, the fundamental physical requirement is that the equipotential lines and the flow lines must intersect each other at exactly:",
+    "o": [
+      "30 degrees",
+      "45 degrees",
+      "60 degrees",
+      "90 degrees (Orthogonally)"
+    ],
+    "a": "90 degrees (Orthogonally)",
+    "e": "Flow nets are graphical solutions to Laplace's equation for steady 2D flow. To satisfy the mathematics of potential flow theory, the lines representing constant total head (equipotential) and the paths of water travel (flow lines) must strictly intersect at perfect 90-degree right angles."
+  },
+  {
+    "id": 77,
+    "q": "For a vertical retaining wall, if the lateral backfill soil physically moves AWAY from the wall, the lateral pressure state strictly transitions into:",
+    "o": [
+      "Active Earth Pressure",
+      "Passive Earth Pressure",
+      "Earth Pressure at Rest",
+      "Hydrostatic Pressure"
+    ],
+    "a": "Active Earth Pressure",
+    "e": "When the wall yields or the soil mass is allowed to physically expand slightly outward away from the main soil body, internal shear resistance mobilizes to help hold the soil up, strictly reducing the lateral pressure on the wall to its minimum possible value, defined as Active Pressure."
+  },
+  {
+    "id": 78,
+    "q": "A soil sample exhibits an initial void ratio (e0) of 0.80. Under a specific foundation load, its void ratio physically decreases to 0.71. What is the mathematically precise volumetric strain (ΔV/V0) of this soil layer?",
+    "o": [
+      "0.05 (or 5.0%)",
+      "0.09 (or 9.0%)",
+      "0.11 (or 11.0%)",
+      "0.50 (or 50.0%)"
+    ],
+    "a": "0.05 (or 5.0%)",
+    "e": "The volumetric strain due to consolidation is mathematically derived as ΔV/V0 = Δe / (1 + e0). The change in void ratio Δe = 0.80 - 0.71 = 0.09. Therefore, the volumetric strain = 0.09 / (1 + 0.80) = 0.09 / 1.80 = 0.05, which equals exactly 5.0%."
+  },
+  {
+    "id": 79,
+    "q": "In Skempton's pore pressure equation for purely undrained loading (Δu = B [Δσ3 + A (Δσ1 - Δσ3)]), what is the exact theoretical value of pore pressure parameter 'B' for a fully, 100% saturated soil?",
+    "o": [
+      "0",
+      "0.5",
+      "1.0",
+      "Depends entirely on the clay activity"
+    ],
+    "a": "1.0",
+    "e": "Parameter 'B' explicitly measures how much of an applied isotropic confining pressure is physically transferred into pore water pressure. Since water is incompressible relative to the soil skeleton, in a fully 100% saturated soil without drainage, 100% of the load transfers to the water, making B strictly equal to 1.0."
+  },
+  {
+    "id": 80,
+    "q": "When calculating immediate elastic settlement of a foundation resting on a deep cohesive clay deposit (using S = q B (1 - μ²) I / E), what is the universally accepted standard theoretical value of Poisson's ratio (μ) for fully saturated clay under strictly undrained conditions?",
+    "o": [
+      "0.0",
+      "0.25",
+      "0.30",
+      "0.50"
+    ],
+    "a": "0.50",
+    "e": "Under instantaneous undrained conditions, a fully saturated clay behaves completely incompressibly (its total volume cannot change because water cannot escape instantly). Mathematically, a material exhibiting absolutely zero volumetric strain under load possesses a Poisson's ratio strictly equal to 0.50."
+  },
+
+  {
+    "id": 81,
+    "q": "A soil sample extracted from the field has a total bulk density of 18.0 kN/m3 and a natural water content of 20%. What is the strictly calculated dry density of this soil mass?",
+    "o": [
+      "14.4 kN/m3",
+      "15.0 kN/m3",
+      "21.6 kN/m3",
+      "3.6 kN/m3"
+    ],
+    "a": "15.0 kN/m3",
+    "e": "The mathematical relationship between bulk density (bulk unit weight) and dry density is Dry Density = Bulk Density / (1 + w). Therefore, Dry Density = 18.0 / (1 + 0.20) = 18.0 / 1.20 = 15.0 kN/m3."
+  },
+  {
+    "id": 82,
+    "q": "If a laboratory test determines the porosity (n) of a sand sample to be exactly 40% (0.40), what is its corresponding void ratio (e)?",
+    "o": [
+      "0.400",
+      "0.600",
+      "0.667",
+      "1.500"
+    ],
+    "a": "0.667",
+    "e": "The formula to convert porosity to void ratio is e = n / (1 - n). Substituting the given porosity: e = 0.40 / (1 - 0.40) = 0.40 / 0.60 = 2/3, which strictly evaluates to approximately 0.667."
+  },
+  {
+    "id": 83,
+    "q": "A fully saturated clay specimen has a specific gravity of solids (G) of 2.70 and a natural void ratio (e) of 0.70. Assuming the unit weight of water is exactly 10 kN/m3, what is its saturated unit weight?",
+    "o": [
+      "16.0 kN/m3",
+      "20.0 kN/m3",
+      "27.0 kN/m3",
+      "17.0 kN/m3"
+    ],
+    "a": "20.0 kN/m3",
+    "e": "The formula for saturated unit weight is = ((G + e) / (1 + e)) * unit weight of water. Substituting the values: ((2.70 + 0.70) / (1 + 0.70)) * 10 = (3.40 / 1.70) * 10 = 2.0 * 10 = 20.0 kN/m3."
+  },
+  {
+    "id": 84,
+    "q": "A compacted fill material has a specific gravity (G) of 2.60, a water content (w) of 15%, and a void ratio (e) of 0.65. What is the exact Degree of Saturation (S) of this fill?",
+    "o": [
+      "40.0%",
+      "50.0%",
+      "60.0%",
+      "75.0%"
+    ],
+    "a": "60.0%",
+    "e": "Using the three-phase volumetric formula S * e = w * G. Rearranging to solve for S: S = (w * G) / e = (0.15 * 2.60) / 0.65 = 0.39 / 0.65 = 0.60. Converting to a percentage yields exactly 60.0%."
+  },
+  {
+    "id": 85,
+    "q": "During a sieve analysis, the grain size corresponding to 60% passing (D60) is 0.60 mm, and the grain size corresponding to 10% passing (D10) is 0.15 mm. What is the strictly calculated Uniformity Coefficient (Cu)?",
+    "o": [
+      "0.25",
+      "2.00",
+      "4.00",
+      "6.00"
+    ],
+    "a": "4.00",
+    "e": "The Uniformity Coefficient (Cu) is mathematically defined as the ratio of D60 to D10. Cu = D60 / D10 = 0.60 mm / 0.15 mm = 4.00."
+  },
+  {
+    "id": 86,
+    "q": "A fine-grained soil possesses a Liquid Limit (LL) of 60% and a Plastic Limit (PL) of 25%. If its natural water content (w) is currently 46%, what is its exact Liquidity Index (LI)?",
+    "o": [
+      "0.40",
+      "0.50",
+      "0.60",
+      "0.80"
+    ],
+    "a": "0.60",
+    "e": "Liquidity Index (LI) = (w - PL) / (LL - PL). The denominator (Plasticity Index) is 60 - 25 = 35%. The numerator is 46 - 25 = 21%. Therefore, LI = 21 / 35 = 0.60."
+  },
+  {
+    "id": 87,
+    "q": "For the same soil with LL = 60%, PL = 25%, and natural water content w = 46%, what is its calculated Consistency Index (CI)?",
+    "o": [
+      "0.20",
+      "0.40",
+      "0.50",
+      "0.60"
+    ],
+    "a": "0.40",
+    "e": "Consistency Index (CI) = (LL - w) / (LL - PL). The numerator is 60 - 46 = 14%. The denominator (PI) is 35%. Therefore, CI = 14 / 35 = 0.40. (Note: LI + CI mathematically always equals 1.0)."
+  },
+  {
+    "id": 88,
+    "q": "According to Skempton's empirical formula for normally consolidated undisturbed clays, what is the approximate Compression Index (Cc) for a soil with a Liquid Limit of 50%?",
+    "o": [
+      "0.270",
+      "0.360",
+      "0.450",
+      "0.500"
+    ],
+    "a": "0.360",
+    "e": "Skempton's empirical equation is Cc = 0.009 * (LL - 10). Substituting the Liquid Limit of 50: Cc = 0.009 * (50 - 10) = 0.009 * 40 = 0.360."
+  },
+  {
+    "id": 89,
+    "q": "A normally consolidated clay layer is 4.0 meters thick. Its coefficient of volume compressibility (mv) is 2.5 x 10^-4 m2/kN. If a foundation perfectly applies an additional effective stress of 100 kPa (kN/m2), what is the total primary consolidation settlement?",
+    "o": [
+      "10 mm",
+      "25 mm",
+      "50 mm",
+      "100 mm"
+    ],
+    "a": "100 mm",
+    "e": "Primary consolidation settlement S = mv * delta_sigma * H. S = (2.5 x 10^-4 m2/kN) * (100 kN/m2) * (4.0 m) = 2.5 x 10^-2 * 4.0 = 10.0 x 10^-2 m = 0.100 meters. Converting to millimeters yields exactly 100 mm."
+  },
+  {
+    "id": 90,
+    "q": "In a standard Triaxial Compression Test, a soil specimen is subjected to a constant cell pressure (sigma_3) of 150 kPa. It fails when the additional axial deviator stress reaches exactly 250 kPa. What is the major principal stress (sigma_1) at failure?",
+    "o": [
+      "100 kPa",
+      "150 kPa",
+      "250 kPa",
+      "400 kPa"
+    ],
+    "a": "400 kPa",
+    "e": "The major principal stress (sigma_1) is the mathematical sum of the all-around confining cell pressure (sigma_3) and the maximum applied axial deviator stress (sigma_d). sigma_1 = 150 + 250 = 400 kPa."
+  },
+  {
+    "id": 91,
+    "q": "A smooth vertical retaining wall is 6.0 meters high and retains a dry granular backfill with a unit weight of 18 kN/m3 and an internal friction angle of 30 degrees. What is the exact total Active Earth Pressure force per meter length of the wall?",
+    "o": [
+      "108 kN/m",
+      "162 kN/m",
+      "324 kN/m",
+      "972 kN/m"
+    ],
+    "a": "108 kN/m",
+    "e": "First, find Ka = (1 - sin 30) / (1 + sin 30) = 0.5 / 1.5 = 1/3. Total active force Pa = 0.5 * Ka * gamma * H^2. Pa = 0.5 * (1/3) * 18 * (6^2) = 0.5 * 6 * 36 = 3 * 36 = 108 kN/m."
+  },
+  {
+    "id": 92,
+    "q": "For the same 6.0 meter high retaining wall retaining dry granular soil (gamma = 18 kN/m3, phi = 30 degrees), what is the total Passive Earth Pressure force per meter length, assuming the wall is pushed into the soil?",
+    "o": [
+      "108 kN/m",
+      "324 kN/m",
+      "972 kN/m",
+      "1944 kN/m"
+    ],
+    "a": "972 kN/m",
+    "e": "First, find Kp = (1 + sin 30) / (1 - sin 30) = 1.5 / 0.5 = 3.0. Total passive force Pp = 0.5 * Kp * gamma * H^2. Pp = 0.5 * 3.0 * 18 * (6^2) = 0.5 * 54 * 36 = 27 * 36 = 972 kN/m."
+  },
+  {
+    "id": 93,
+    "q": "A shallow strip footing is placed at a depth of 1.5 meters in a soil with a unit weight of 20 kN/m3. The ultimate bearing capacity (qu) is calculated to be 430 kPa. What is the precise Net Ultimate Bearing Capacity (qnu)?",
+    "o": [
+      "400 kPa",
+      "415 kPa",
+      "445 kPa",
+      "460 kPa"
+    ],
+    "a": "400 kPa",
+    "e": "Net ultimate bearing capacity (qnu) strictly excludes the original effective overburden pressure (q = gamma * Df). q = 20 kN/m3 * 1.5 m = 30 kPa. Therefore, qnu = qu - q = 430 - 30 = 400 kPa."
+  },
+  {
+    "id": 94,
+    "q": "Using the previous Net Ultimate Bearing Capacity of 400 kPa, and assuming a mandatory Factor of Safety (F) of 2.5, what is the Net Safe Bearing Capacity (qns)?",
+    "o": [
+      "120 kPa",
+      "160 kPa",
+      "172 kPa",
+      "190 kPa"
+    ],
+    "a": "160 kPa",
+    "e": "The Factor of Safety is applied exclusively to the net ultimate capacity. Net Safe Bearing Capacity (qns) = qnu / F = 400 kPa / 2.5 = 160 kPa."
+  },
+  {
+    "id": 95,
+    "q": "If the degree of saturation of a soil mass is 80%, what is the mathematically exact Air Content (ac) of the soil?",
+    "o": [
+      "10%",
+      "20%",
+      "80%",
+      "120%"
+    ],
+    "a": "20%",
+    "e": "The sum of the volume of water and the volume of air completely fills the voids. Therefore, the Degree of Saturation (S) plus the Air Content (ac) must theoretically equal 1 (or 100%). ac = 100% - 80% = 20%."
+  },
+  {
+    "id": 96,
+    "q": "A soil mass has a porosity (n) of 0.40 and an air content (ac) of 0.25 (25%). What is the exact Percentage Air Voids (na) for the total volume of the soil?",
+    "o": [
+      "10.0%",
+      "15.0%",
+      "40.0%",
+      "65.0%"
+    ],
+    "a": "10.0%",
+    "e": "Percentage Air Voids (na) relates the volume of air to the TOTAL volume of soil. It is mathematically calculated as the product of porosity (n) and air content (ac). na = n * ac = 0.40 * 0.25 = 0.10, which is exactly 10.0%."
+  },
+  {
+    "id": 97,
+    "q": "A purely cohesive clay has an unconfined compressive strength (qu) of 120 kPa. Under a footing, Terzaghi's bearing capacity factor Nc is 5.7. Assuming surface loading (Df = 0), what is the gross ultimate bearing capacity?",
+    "o": [
+      "120 kPa",
+      "342 kPa",
+      "684 kPa",
+      "1140 kPa"
+    ],
+    "a": "342 kPa",
+    "e": "For Df=0 and phi=0, Terzaghi's formula simplifies to qu_gross = c * Nc. The cohesion 'c' is half of the unconfined compressive strength, so c = 120 / 2 = 60 kPa. qu_gross = 60 * 5.7 = 342 kPa."
+  },
+  {
+    "id": 98,
+    "q": "In a falling head permeability test, the head drops from 100 cm to 50 cm. The natural log of (h1/h2) is required for the calculation. What is the precise numerical value of ln(100/50)?",
+    "o": [
+      "0.301",
+      "0.500",
+      "0.693",
+      "2.000"
+    ],
+    "a": "0.693",
+    "e": "The ratio h1/h2 is 100/50 = 2.0. The mathematical value of the natural logarithm of 2, denoted as ln(2) or log_e(2), is universally a constant approximately equal to 0.693."
+  },
+  {
+    "id": 99,
+    "q": "A perfectly rectangular foundation measures exactly 2 meters by 3 meters. Under an applied vertical load, the foundation distributes the stress into the soil at an assumed 2V:1H geometric ratio. At a depth of 2 meters below the base, what are the dimensions of the load dispersion area?",
+    "o": [
+      "2m x 3m",
+      "3m x 4m",
+      "4m x 5m",
+      "6m x 7m"
+    ],
+    "a": "4m x 5m",
+    "e": "A 2V:1H distribution means that for every 2 meters of depth, the stress spreads outward by 1 meter strictly on ALL sides. At 2m depth, the spread is 1m outward on all four sides. The new width is B + 2(1) = 2 + 2 = 4m, and the new length is L + 2(1) = 3 + 2 = 5m."
+  },
+  {
+    "id": 100,
+    "q": "A soil sample has a total volume of 1.0 cubic meter and a void ratio of 0.60. What is the theoretically exact volume of the solid particles (Vs) alone?",
+    "o": [
+      "0.375 m3",
+      "0.400 m3",
+      "0.600 m3",
+      "0.625 m3"
+    ],
+    "a": "0.625 m3",
+    "e": "The total volume V = Vs * (1 + e). Rearranging to solve for the volume of solids: Vs = V / (1 + e) = 1.0 / (1 + 0.60) = 1.0 / 1.60 = 0.625 cubic meters."
+  }
+
+
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
+            btn.classList.add('wrong');
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>
+

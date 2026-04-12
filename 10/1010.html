@@ -1,0 +1,1366 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = 
+  [
+  {
+    "id": 1,
+    "q": "The historical Macadam road construction method mathematically and physically revolutionized road building by introducing the fundamental concept of:",
+    "o": [
+      "Using heavy tar to bind the stones together",
+      "Constructing a rigid concrete slab over the soil",
+      "Providing a cross slope or camber to the compacted subgrade to ensure drainage",
+      "Using massive boulders at the very bottom for maximum strength"
+    ],
+    "a": "[Providing a cross slope or camber to the compacted subgrade to ensure drainage]",
+    "e": "John Macadam famously proved that massive foundation stones were unnecessary. His strict principle was that if the subgrade is perfectly sloped to drain water and kept dry, it can safely support the traffic load through compacted layers of smaller broken stones."
+  },
+  {
+    "id": 2,
+    "q": "According to standard geometric design criteria, the fundamental requirement for a good road alignment is that it must strictly be short, easy, economical, and:",
+    "o": [
+      "Perfectly straight",
+      "Safe",
+      "Scenic",
+      "Wide"
+    ],
+    "a": "[Safe]",
+    "e": "The primary physical and operational goals of road alignment dictate that the route must be as direct as possible, physically easy to construct and traverse, economically viable, and above all, absolutely safe for vehicular traffic."
+  },
+  {
+    "id": 3,
+    "q": "In highway cross-section design, what is the standard recommended physical width of the carriageway for a two-lane road without raised curbs?",
+    "o": [
+      "3.75 meters",
+      "5.50 meters",
+      "7.00 meters",
+      "7.50 meters"
+    ],
+    "a": "[7.00 meters]",
+    "e": "A single lane is universally taken as 3.75 meters. For a two-lane road without raised curbs, the physical width is strictly designed as 7.00 meters. If raised curbs are present, it is increased to 7.50 meters to account for the physical edge clearance required by drivers."
+  },
+  {
+    "id": 4,
+    "q": "To safely facilitate the swift drainage of rainwater from the road surface, a transverse slope is provided. This slope is technically termed:",
+    "o": [
+      "Gradient",
+      "Super elevation",
+      "Camber",
+      "Shoulder slope"
+    ],
+    "a": "[Camber]",
+    "e": "Camber, also known as cross fall, is the strictly designed transverse slope physically provided to the road surface to shed rainwater quickly, preventing dangerous skidding and structural damage to the pavement."
+  },
+  {
+    "id": 5,
+    "q": "For a standard bituminous surface road located in regions experiencing heavy rainfall, what is the explicitly recommended steepness of the camber?",
+    "o": [
+      "1.7%",
+      "2.0%",
+      "2.5%",
+      "3.0%"
+    ],
+    "a": "[2.5%]",
+    "e": "Standard design codes recommend a camber of 2.0% for low rainfall and strictly 2.5% for heavy rainfall areas on bituminous pavements, ensuring rapid water clearance without compromising driving stability."
+  },
+  {
+    "id": 6,
+    "q": "To safely counteract centrifugal force on a horizontal curve, the outer edge of the pavement is physically raised with respect to the inner edge. This engineering feature is called:",
+    "o": [
+      "Camber",
+      "Transition curve",
+      "Super elevation",
+      "Extra widening"
+    ],
+    "a": "[Super elevation]",
+    "e": "Super elevation or cant is the inward transverse inclination physically provided to the road surface at horizontal curves. It safely tilts the vehicle inward to combat the outward centrifugal pull, preventing overturning and lateral skidding."
+  },
+  {
+    "id": 7,
+    "q": "What is the mathematically exact empirical formula utilized to design the theoretical super elevation e where V is the design speed in km/h and R is the curve radius in meters?",
+    "o": [
+      "e = V² / 127R",
+      "e = V / 127R",
+      "e = V² / 225R",
+      "e = V² / 12R"
+    ],
+    "a": "[e = V² / 225R]",
+    "e": "While the absolute equilibrium equation is e + f = V² / 127R, the strict practical design formula safely assumes mixed traffic conditions by designing for exactly 75% of the design speed, resulting mathematically in e = V² / 225R."
+  },
+  {
+    "id": 8,
+    "q": "According to standard highway design codes, what is the absolute maximum permissible limit for super elevation e safely adopted in plain and rolling terrain?",
+    "o": [
+      "4%",
+      "7%",
+      "10%",
+      "15%"
+    ],
+    "a": "[7%]",
+    "e": "To prevent slow-moving heavy vehicles from physically sliding inwards during icy or wet conditions, codes strictly cap the maximum super elevation at 7% or 0.07 for plain and rolling terrain, extending to 10% strictly for hilly terrain."
+  },
+  {
+    "id": 9,
+    "q": "When a long vehicle negotiates a sharp horizontal curve, its rear wheels physically fail to follow the exact path of the front wheels. This physical phenomenon dictates the need for:",
+    "o": [
+      "Transition curves",
+      "Mechanical extra widening",
+      "Super elevation",
+      "Psychological widening"
+    ],
+    "a": "[Mechanical extra widening]",
+    "e": "This specific off-tracking effect requires the road to be physically widened. The mechanical widening compensates for the geometric rigidity of the wheelbase, while psychological widening gives drivers extra clearance confidence."
+  },
+  {
+    "id": 10,
+    "q": "What is the mathematically precise formula utilized to calculate the Mechanical Extra Widening Wm for a road curve, where n is the number of lanes, l is the wheelbase length, and R is the radius?",
+    "o": [
+      "Wm = n × l / 2R",
+      "Wm = n × l² / 2R",
+      "Wm = V / 9.5 × √R",
+      "Wm = n² × l / R"
+    ],
+    "a": "[Wm = n × l² / 2R]",
+    "e": "The total extra widening is the sum of mechanical and psychological widening. The strictly mechanical component physically required to accommodate the off-tracking of the vehicle is mathematically derived as n × l² / 2R."
+  },
+  {
+    "id": 11,
+    "q": "In the longitudinal profile of a road, the maximum designed slope strictly intended to be universally utilized by the design engineer is technically defined as the:",
+    "o": [
+      "Limiting gradient",
+      "Ruling gradient",
+      "Exceptional gradient",
+      "Floating gradient"
+    ],
+    "a": "[Ruling gradient]",
+    "e": "The Ruling Gradient is the standard design gradient. It is the maximum slope the engineer attempts to adhere to. Steeper slopes like Limiting or Exceptional gradients are strictly reserved for rare, unavoidable topographical constraints."
+  },
+  {
+    "id": 12,
+    "q": "When a sharp horizontal curve occurs precisely on a steep uphill gradient, the resistance to the vehicle heavily compounds. To maintain safety, the code strictly mandates applying:",
+    "o": [
+      "Grade compensation",
+      "Extra super elevation",
+      "Double widening",
+      "A vertical summit curve"
+    ],
+    "a": "[Grade compensation]",
+    "e": "Because the vehicle must simultaneously overcome curve resistance and grade resistance, the longitudinal gradient is physically flattened or reduced strictly at the curve. This mathematical reduction is termed Grade Compensation."
+  },
+  {
+    "id": 13,
+    "q": "The absolute minimum clear physical distance visible ahead of a driver to safely bring the vehicle to a complete halt before colliding with a stationary hazard is termed:",
+    "o": [
+      "Overtaking Sight Distance",
+      "Stopping Sight Distance",
+      "Intermediate Sight Distance",
+      "Headlight Sight Distance"
+    ],
+    "a": "[Stopping Sight Distance]",
+    "e": "Stopping Sight Distance SSD is the mandatory baseline safety requirement everywhere on a road. It mathematically consists of the distance traveled during the driver's mental reaction time plus the physical braking distance."
+  },
+  {
+    "id": 14,
+    "q": "In calculating the Stopping Sight Distance SSD, standard design codes universally standardize the total reaction time of an average driver to be exactly:",
+    "o": [
+      "1.0 seconds",
+      "2.0 seconds",
+      "2.5 seconds",
+      "3.5 seconds"
+    ],
+    "a": "[2.5 seconds]",
+    "e": "Based on the PIEV theory Perception, Intellection, Emotion, Volition, extensive studies strictly define the total reaction time for an average driver dealing with a sudden hazard as precisely 2.5 seconds for safe mathematical modeling."
+  },
+  {
+    "id": 15,
+    "q": "For calculating safety sight distances, the standard physical height of the driver's eye above the road surface is strictly assumed to be:",
+    "o": [
+      "1.00 meters",
+      "1.20 meters",
+      "1.50 meters",
+      "2.00 meters"
+    ],
+    "a": "[1.20 meters]",
+    "e": "Whether calculating Stopping Sight Distance or Overtaking Sight Distance, the standardized geometric height of the driver's eye level is strictly fixed at 1.20 meters above the road surface, ensuring uniformity in vertical curve design."
+  },
+  {
+    "id": 16,
+    "q": "In mountainous terrain, to physically prevent massive volumes of surface runoff from higher slopes from washing across the road, a specific drainage structure is built on the uphill side called a:",
+    "o": [
+      "Side drain",
+      "Cross drainage work",
+      "Catch water drain",
+      "Subsurface drain"
+    ],
+    "a": "[Catch water drain]",
+    "e": "Catch water drains are explicitly excavated on the hillside physically above the road cutting. They intercept the sheet flow of water coming down the mountain and safely channel it away before it ever reaches or damages the highway."
+  },
+  {
+    "id": 17,
+    "q": "The fundamental structural mechanism by which a Flexible Pavement safely distributes heavy wheel loads down to the weak soil subgrade is strictly via:",
+    "o": [
+      "Slab action and flexural strength",
+      "Grain-to-grain transfer through interlocking of aggregate layers",
+      "High tensile steel reinforcement",
+      "Chemical bonding of the asphalt"
+    ],
+    "a": "[Grain-to-grain transfer through interlocking of aggregate layers]",
+    "e": "Flexible pavements like asphalt completely lack bending strength. They safely spread the heavy, concentrated surface point load over a much wider area of the subgrade strictly by grain-to-grain physical transfer downward through successive granular layers."
+  },
+  {
+    "id": 18,
+    "q": "In contrast to flexible pavements, a Rigid Pavement constructed of cement concrete distributes the physical wheel loads entirely through:",
+    "o": [
+      "Slab action derived from its high flexural strength",
+      "Grain-to-grain transfer",
+      "Subsurface drainage systems",
+      "The heavy compaction of the sub-base"
+    ],
+    "a": "[Slab action derived from its high flexural strength]",
+    "e": "Rigid pavements possess enormous flexural rigidity. They do not bend to the contour of the subgrade. Instead, they bridge over minor soil weaknesses, transferring loads over a massive area purely through beam-like slab action."
+  },
+  {
+    "id": 19,
+    "q": "In the structural profile of a standard flexible pavement, which physical layer rests directly and immediately upon the compacted earthen subgrade?",
+    "o": [
+      "Surface course",
+      "Binder course",
+      "Base course",
+      "Sub-base course"
+    ],
+    "a": "[Sub-base course]",
+    "e": "The physical hierarchy of a flexible pavement from bottom to top is strictly: Subgrade natural soil, Sub-base course lower quality aggregate, Base course high quality aggregate, Binder course, and finally the Surface course."
+  },
+  {
+    "id": 20,
+    "q": "To universally evaluate the physical bearing strength of the subgrade soil for designing the strict thickness of a flexible pavement, the globally adopted standard laboratory test is the:",
+    "o": [
+      "California Bearing Ratio CBR test",
+      "Los Angeles Abrasion test",
+      "Marshall Stability test",
+      "Standard Penetration test"
+    ],
+    "a": "[California Bearing Ratio CBR test]",
+    "e": "The CBR test physically measures the sheer resistance of a soil sample to penetration by a standard plunger. The resulting ratio strictly dictates the exact mathematical thickness of pavement required to prevent subgrade failure."
+  },
+  {
+    "id": 21,
+    "q": "For the heavy physical compaction of highly cohesive soils like sticky clays during highway embankment construction, which specific piece of machinery is proven to be the most strictly efficient?",
+    "o": [
+      "Smooth wheel roller",
+      "Pneumatic tyred roller",
+      "Sheep-foot roller",
+      "Vibratory plate compactor"
+    ],
+    "a": "[Sheep-foot roller]",
+    "e": "Sheep-foot rollers feature large steel drums covered in heavy projecting metal feet. These feet physically penetrate and knead the clay, breaking up hard clods and compacting the cohesive soil effectively from the bottom up."
+  },
+  {
+    "id": 22,
+    "q": "Which highly versatile piece of heavy construction machinery is specifically equipped with a long, adjustable angled blade perfectly designed for the precise final cutting, leveling, and finishing of the road subgrade?",
+    "o": [
+      "Bulldozer",
+      "Hydraulic Excavator",
+      "Motor Grader",
+      "Front-end Loader"
+    ],
+    "a": "[Motor Grader]",
+    "e": "While bulldozers do the rough, heavy earthmoving, the Motor Grader is a highly precise finishing machine. Its long, mechanically adjustable center blade shaves the subgrade and base layers to the exact strict geometrical camber and gradient required."
+  },
+  {
+    "id": 23,
+    "q": "In bridge engineering terminology, a water crossing structure physically possessing a total span length of strictly less than 6.0 meters is technically and formally classified as a:",
+    "o": [
+      "Minor Bridge",
+      "Major Bridge",
+      "Culvert",
+      "Viaduct"
+    ],
+    "a": "[Culvert]",
+    "e": "Engineering codes strictly differentiate structures by span to standardize design and funding. A span of up to 6 meters is a Culvert, 6 to 60 meters is a Minor Bridge, and anything exceeding 60 meters is structurally a Major Bridge."
+  },
+  {
+    "id": 24,
+    "q": "The heavy, solid vertical structural supports located physically at both the extreme ends of a bridge, which explicitly support the deck while simultaneously retaining the earth embankment, are termed:",
+    "o": [
+      "Piers",
+      "Abutments",
+      "Wing walls",
+      "Bearings"
+    ],
+    "a": "[Abutments]",
+    "e": "While 'Piers' are the intermediate vertical supports holding up the spans over the water, 'Abutments' are the massive terminal supports at the exact ends of the bridge, structurally serving the dual purpose of seating the deck and physically holding back the approach roads."
+  },
+  {
+    "id": 25,
+    "q": "A severe maintenance defect in flexible pavements where individual aggregate particles physically dislodge and scatter, leading to a rough, porous, and heavily pitted surface, is technically termed:",
+    "o": [
+      "Rutting",
+      "Bleeding",
+      "Raveling",
+      "Alligator cracking"
+    ],
+    "a": "[Raveling]",
+    "e": "Raveling occurs when the asphalt binder severely oxidizes or is stripped away by water, losing its sticky grip. The traffic physically rips the loose stones away from the surface, causing the pavement to progressively disintegrate downwards."
+  },
+  {
+    "id": 26,
+    "q": "The dangerous defect known as 'Bleeding' in a bituminous pavement manifests as a slick, shiny film of liquid asphalt coating the surface, completely destroying skid resistance. This is structurally caused by:",
+    "o": [
+      "Extreme freezing temperatures",
+      "Excessive application of bitumen binder or prime coat during construction",
+      "A complete lack of traffic over the road",
+      "Using overly large, oversized aggregate pieces"
+    ],
+    "a": "[Excessive application of bitumen binder or prime coat during construction]",
+    "e": "If the mix strictly contains too much liquid bitumen, or if heavy traffic physically compacts the pavement further during extreme summer heat, the excess liquid has nowhere to go and physically bleeds upward onto the surface, creating a deadly, slippery glaze."
+  },
+  {
+    "id": 27,
+    "q": "In routine highway maintenance operations, the physical process of explicitly cleaning out and filling localized holes or depressions in the pavement to safely restore a smooth driving surface is known as:",
+    "o": [
+      "Overlaying",
+      "Patching",
+      "Seal coating",
+      "Fog sealing"
+    ],
+    "a": "[Patching]",
+    "e": "Patching is the highly targeted, localized repair of potholes and severe depressions. The damaged area is physically cut out into a neat square, cleaned, tacked, filled with fresh hot-mix asphalt, and strictly compacted flush with the surrounding road."
+  },
+  {
+    "id": 28,
+    "q": "In the severe mountainous topography characterizing rural Nepal, suspension bridges are predominantly and structurally engineered to exclusively carry which specific category of traffic?",
+    "o": [
+      "Heavy commercial trucks and buses",
+      "Light motorized passenger vehicles only",
+      "Pedestrian foot traffic and loaded pack animals",
+      "Standard gauge railway trains"
+    ],
+    "a": "[Pedestrian foot traffic and loaded pack animals]",
+    "e": "Due to the extreme depth of the Himalayan gorges and the lack of motorable approach roads, the vast network of trail suspension bridges in Nepal is structurally optimized and strictly built to safely support high volumes of pedestrians and pack animals connecting remote villages."
+  },
+  {
+    "id": 29,
+    "q": "When geometric constraints on a steep hill road demand a severe curve that physically turns the alignment nearly 180 degrees back upon itself to rapidly gain elevation, this specific feature is termed a:",
+    "o": [
+      "Reverse curve",
+      "Summit curve",
+      "Hairpin bend",
+      "Valley curve"
+    ],
+    "a": "[Hairpin bend]",
+    "e": "A Hairpin bend physically resembles a hair pin. It is utilized strictly to negotiate extremely steep terrain by drastically switching the direction of the road up the face of the mountain. It requires heavy retaining walls and significant localized widening."
+  },
+  {
+    "id": 30,
+    "q": "On a single-lane road physically carrying two-way traffic without a divider, what is the absolute mathematical minimum sight distance safely required to prevent a head-on collision between two vehicles approaching each other?",
+    "o": [
+      "1.0 × Stopping Sight Distance",
+      "1.5 × Stopping Sight Distance",
+      "2.0 × Stopping Sight Distance",
+      "1.0 × Overtaking Sight Distance"
+    ],
+    "a": "[2.0 × Stopping Sight Distance]",
+    "e": "If both vehicles are traveling at the design speed toward each other on a narrow single lane, they both require their own independent physical stopping distance. Thus, the total clear sight distance between them must strictly equal 2 × SSD to avoid a fatal impact."
+  },
+
+
+  {
+    "id": 31,
+    "q": "In the historical development of modern highway engineering, which landmark 20th-century road plan formally introduced the 'Star and Grid' pattern for classifying and developing the road network?",
+    "o": [
+      "Bombay Road Plan",
+      "Nagpur Road Plan",
+      "Lucknow Road Plan",
+      "Delhi Road Plan"
+    ],
+    "a": "Nagpur Road Plan",
+    "e": "The Nagpur Road Plan (1943) was the first major long-term highway development plan in the Indian subcontinent. It systematically classified roads into NH, SH, MDR, ODR, and VR, and strictly recommended a geometric 'Star and Grid' pattern for the network layout."
+  },
+  {
+    "id": 32,
+    "q": "What is the absolute fundamental difference in structural application between a 'Prime Coat' and a 'Tack Coat' in flexible pavement construction?",
+    "o": [
+      "A prime coat seals the final top surface, while a tack coat is mixed with the soil subgrade.",
+      "A prime coat is applied over an existing bituminous layer, while a tack coat is applied over a fresh granular base.",
+      "A prime coat is applied over an unbound granular base (like WBM) to plug voids, while a tack coat is applied over an existing bituminous layer to ensure bonding.",
+      "Both are identical but use completely different grades of cement."
+    ],
+    "a": "A prime coat is applied over an unbound granular base (like WBM) to plug voids, while a tack coat is applied over an existing bituminous layer to ensure bonding.",
+    "e": "A Prime Coat is a low-viscosity bitumen sprayed on an absorbent granular base (WBM/WMM) to penetrate, plug voids, and bind the loose particles. A Tack Coat is a highly sticky bitumen sprayed over an existing black-top surface strictly to act as glue for the new asphalt layer."
+  },
+  {
+    "id": 33,
+    "q": "To ensure absolute driving safety, standard highway design codes mandate that the 'Height of the Object' physically assumed for calculating the Stopping Sight Distance (SSD) is strictly:",
+    "o": [
+      "0.15 meters",
+      "0.60 meters",
+      "1.20 meters",
+      "1.50 meters"
+    ],
+    "a": "0.15 meters",
+    "e": "For SSD calculations, the driver's eye height is fixed at 1.20 meters, and the stationary object ahead is conservatively assumed to be just 0.15 meters (15 cm or approx. 6 inches) high, ensuring the driver can see and avoid even small obstacles like rocks or fallen debris."
+  },
+  {
+    "id": 34,
+    "q": "When geometric design strictly demands 'Grade Compensation' due to a sharp horizontal curve occurring on a steep gradient, what is the empirical formula used to calculate the percentage of compensation?",
+    "o": [
+      "(30 + R) / R, subject to a maximum of 75 / R",
+      "(75 + R) / R, subject to a maximum of 30 / R",
+      "V / (9.5 × √R)",
+      "V² / 225R"
+    ],
+    "a": "(30 + R) / R, subject to a maximum of 75 / R",
+    "e": "To prevent excessive tractive resistance on a curve, the longitudinal grade is mathematically flattened. The code strictly defines this grade compensation as (30 + R) / R percent, but explicitly caps it at a maximum mathematical value of 75 / R."
+  },
+  {
+    "id": 35,
+    "q": "In evaluating the physical properties of paving bitumen, the standard 'Penetration Test' is utilized globally to explicitly determine the material's:",
+    "o": [
+      "Ductility and stretching capacity",
+      "Hardness or softness (Grade)",
+      "Flash and fire point",
+      "Specific gravity"
+    ],
+    "a": "Hardness or softness (Grade)",
+    "e": "The penetration test measures the depth (in tenths of a millimeter) that a standard 100-gram needle physically penetrates the bitumen sample at 25°C in 5 seconds. A grade of 80/100 means the needle penetrates between 8 to 10 mm, classifying its physical hardness."
+  },
+  {
+    "id": 36,
+    "q": "What is the specific mathematical formula utilized to calculate the 'Psychological Extra Widening' (Wps) required on a horizontal highway curve?",
+    "o": [
+      "Wps = n × l² / 2R",
+      "Wps = V / (9.5 × √R)",
+      "Wps = V² / 127R",
+      "Wps = (30 + R) / R"
+    ],
+    "a": "Wps = V / (9.5 × √R)",
+    "e": "While mechanical widening handles the physical off-tracking of the rear wheels, psychological widening gives the driver extra space to compensate for the mental strain of steering around a curve at speed. It is mathematically strictly defined as V / (9.5 × √R)."
+  },
+  {
+    "id": 37,
+    "q": "In the structural design of Hill Roads, what is the absolute fundamental difference between a 'Retaining Wall' and a 'Breast Wall'?",
+    "o": [
+      "A retaining wall is built of concrete, while a breast wall is built of stone.",
+      "A retaining wall safely supports the downhill fill material, while a breast wall safely supports the uphill excavated earth face.",
+      "A retaining wall prevents water from crossing the road, while a breast wall acts as a bridge.",
+      "A retaining wall is used strictly in plain terrain, and a breast wall strictly in hills."
+    ],
+    "a": "A retaining wall safely supports the downhill fill material, while a breast wall safely supports the uphill excavated earth face.",
+    "e": "A Retaining Wall is physically constructed on the valley (downhill) side of the road to support the roadbed fill. A Breast Wall is physically built on the mountain (uphill) side strictly to prevent the freshly cut earth/rock slope from sliding down onto the road."
+  },
+  {
+    "id": 38,
+    "q": "When calculating the safe Overtaking Sight Distance (OSD) for a two-way highway, the total physical distance mathematically comprises three distinct components (d1 + d2 + d3). What does 'd3' explicitly represent?",
+    "o": [
+      "The distance traveled by the overtaking vehicle during the reaction time",
+      "The distance traveled by the overtaking vehicle during the actual passing maneuver",
+      "The physical distance traveled by the oncoming opposing vehicle during the overtaking maneuver",
+      "The safe gap maintained between the vehicles before overtaking"
+    ],
+    "a": "The physical distance traveled by the oncoming opposing vehicle during the overtaking maneuver",
+    "e": "OSD must safely account for opposing traffic. 'd1' is the reaction distance, 'd2' is the actual distance to physically pass the slow vehicle, and 'd3' is the strict distance covered by a vehicle coming from the opposite direction during the time the passing maneuver occurs."
+  },
+  {
+    "id": 39,
+    "q": "To universally ensure driving comfort and safety, standard geometric design codes dictate that the total length of a physically marked 'Overtaking Zone' on a highway should optimally be:",
+    "o": [
+      "Exactly equal to the OSD",
+      "3 to 5 times the OSD",
+      "10 times the OSD",
+      "Equal to the SSD plus OSD"
+    ],
+    "a": "3 to 5 times the OSD",
+    "e": "An overtaking zone is a widened, straight section of road safely allowing vehicles to pass. Because multiple vehicles may attempt to pass, the absolute minimum length is 3 times the OSD, while the optimal desirable length is strictly designed as 5 times the OSD."
+  },
+  {
+    "id": 40,
+    "q": "In severe flexible pavement degradation, a specific structural failure pattern consisting of a highly interconnected network of polygon-shaped cracks, physically resembling crocodile skin, is technically termed:",
+    "o": [
+      "Reflection cracking",
+      "Alligator cracking (Fatigue cracking)",
+      "Longitudinal rutting",
+      "Bleeding"
+    ],
+    "a": "Alligator cracking (Fatigue cracking)",
+    "e": "Alligator (or Map) cracking is a massive structural failure. It physically indicates that the subgrade, sub-base, or base has completely failed under repeated heavy traffic loads (fatigue failure), causing the asphalt surface to flex excessively and shatter into a polygon pattern."
+  },
+  {
+    "id": 41,
+    "q": "When a brand new flexible asphalt overlay is physically placed directly on top of an old, heavily cracked rigid concrete pavement, the old cracks quickly propagate straight up through the new asphalt. This specific defect is termed:",
+    "o": [
+      "Alligator cracking",
+      "Raveling",
+      "Reflection cracking",
+      "Edge breaking"
+    ],
+    "a": "Reflection cracking",
+    "e": "The rigid concrete slabs physically expand, contract, and shift at their existing joints and cracks. This concentrated movement physically rips the new flexible asphalt layer directly above it, 'reflecting' the old crack pattern perfectly through the new surface."
+  },
+  {
+    "id": 42,
+    "q": "To efficiently lower the high groundwater table beneath a highway and physically prevent the subgrade soil from becoming saturated and structurally weak, which specific subsurface drainage system is universally utilized?",
+    "o": [
+      "Catch water drain",
+      "French drain (Blind drain)",
+      "Open trapezoidal side drain",
+      "Cambered cross-fall"
+    ],
+    "a": "French drain (Blind drain)",
+    "e": "A French drain consists of a deep, narrow trench physically filled with coarse gravel and a perforated pipe at the bottom. It intercepts and draws down the high subsurface water table without posing a physical collision hazard to vehicles at the surface."
+  },
+  {
+    "id": 43,
+    "q": "In standard bridge engineering, the term 'Afflux' is explicitly and mathematically defined as the:",
+    "o": [
+      "Safe clearance height between the High Flood Level and the bottom of the bridge deck",
+      "Physical depth of scour generated around the bridge piers",
+      "Maximum physical rise in the river's water level immediately upstream caused by the obstruction of the bridge piers",
+      "Distance between two adjacent bridge piers"
+    ],
+    "a": "Maximum physical rise in the river's water level immediately upstream caused by the obstruction of the bridge piers",
+    "e": "When a bridge is constructed, its solid piers partially block the natural river channel. This physical constriction forces the water to back up, increasing the upstream water surface elevation. This specific geometric rise is structurally termed 'Afflux'."
+  },
+  {
+    "id": 44,
+    "q": "According to Lacey's regime theory for calculating the safe foundation depth of bridge piers in a sandy riverbed, the mathematically calculated maximum 'Scour Depth' (D) is proportional to:",
+    "o": [
+      "(Q / f)^(1/2)",
+      "(Q / f)^(1/3)",
+      "(Q × f)^(1/2)",
+      "(Q² / f)"
+    ],
+    "a": "(Q / f)^(1/3)",
+    "e": "Lacey's standard formula for normal scour depth is D = 0.473 × (Q / f)^(1/3), where Q is the total flood discharge and f is the silt factor. Bridge pier foundations must be physically sunk significantly deeper than this calculated maximum scour level to prevent collapse."
+  },
+  {
+    "id": 45,
+    "q": "In selecting heavy construction machinery, which specific piece of equipment is mechanically optimized to excavate soft, marshy earth from physically below its own track level by throwing a heavy bucket out and dragging it back?",
+    "o": [
+      "Power Shovel",
+      "Dragline Excavator",
+      "Wheel Loader",
+      "Motor Scraper"
+    ],
+    "a": "Dragline Excavator",
+    "e": "A power shovel physically digs upwards and struggles in swamps. A Dragline utilizes a long boom and a cable-thrown bucket. It physically sits on dry, solid ground and casts the bucket far out into the swamp or river, dragging the wet earth backward toward itself."
+  },
+  {
+    "id": 46,
+    "q": "To universally classify the administrative and functional hierarchy of land used for road construction, the physical area comprising the absolute total width of land legally acquired by the government for the highway is formally termed the:",
+    "o": [
+      "Formation Width",
+      "Carriageway",
+      "Right of Way (ROW)",
+      "Building Line"
+    ],
+    "a": "Right of Way (ROW)",
+    "e": "The Right of Way (ROW) is the entire physical expanse of land legally owned by the highway authority. It includes the carriageway, shoulders, side drains, utility corridors, and sufficient extra land for future road widening and embankment construction."
+  },
+  {
+    "id": 47,
+    "q": "In the structural mechanics of a massive Suspension Bridge, the massive main sweeping steel cables supporting the entire deck structure are physically subjected strictly to:",
+    "o": [
+      "Pure bending moments",
+      "Heavy shear forces",
+      "Pure axial tension",
+      "Pure axial compression"
+    ],
+    "a": "Pure axial tension",
+    "e": "Cables possess zero flexural stiffness; they cannot physically resist bending or compression. In a suspension bridge, the immense weight of the deck is entirely transferred up through the suspender ropes into the main sweeping cables, pulling them strictly in pure, massive axial tension."
+  },
+  {
+    "id": 48,
+    "q": "When analyzing Traffic Engineering data, the parameter 'Traffic Volume' is strictly and mathematically defined as the:",
+    "o": [
+      "Average physical speed of the vehicles passing a point",
+      "Total number of vehicles physically passing a specific point on the road per unit of time",
+      "Number of vehicles physically occupying a unit length of the road at any given instant",
+      "Maximum legal weight capacity of the vehicles"
+    ],
+    "a": "Total number of vehicles physically passing a specific point on the road per unit of time",
+    "e": "Traffic Volume is a pure rate of flow (e.g., 500 vehicles per hour, or 10,000 vehicles per day). In contrast, 'Traffic Density' measures physical crowding, defined as the number of vehicles occupying a one-kilometer stretch of road at one exact snapshot in time."
+  },
+  {
+    "id": 49,
+    "q": "For the physical compaction of completely cohesionless, dry, granular soils (like clean river sand and gravel) in a deep highway embankment, the most mechanically efficient type of roller is strictly the:",
+    "o": [
+      "Heavy static smooth-wheel roller",
+      "Sheep-foot roller",
+      "Vibratory roller",
+      "Pneumatic tyred roller"
+    ],
+    "a": "Vibratory roller",
+    "e": "Cohesionless sand particles do not bind together; they simply shift under heavy static weight. A Vibratory Roller physically shakes the particles at high frequencies, completely destroying the inter-granular friction and forcing the sand grains to instantly fall into their absolute densest physical state."
+  },
+  {
+    "id": 50,
+    "q": "In standard bridge architecture, 'Elastomeric Bearings' are tough, rubber-like pads physically placed between the bridge deck girders and the concrete piers. Their fundamental structural purpose is to safely permit:",
+    "o": [
+      "Absolutely rigid fixation to prevent any deck movement",
+      "Only vertical downward loads without any lateral yielding",
+      "Both horizontal translation (expansion/contraction) and slight rotational movements of the deck",
+      "The flow of flood water over the piers"
+    ],
+    "a": "Both horizontal translation (expansion/contraction) and slight rotational movements of the deck",
+    "e": "Bridge decks expand and contract massively due to temperature changes and physically bend under heavy truck loads. Elastomeric bearings safely deform, absorbing these massive horizontal and rotational stresses without transferring destructive, cracking forces down into the rigid concrete piers."
+  },
+  {
+    "id": 51,
+    "q": "According to universally adopted road safety geometrics, a physical 'Hairpin Bend' on a steep mountain road must strictly be designed with an absolute minimum curve radius of:",
+    "o": [
+      "5.0 meters",
+      "14.0 meters",
+      "30.0 meters",
+      "50.0 meters"
+    ],
+    "a": "14.0 meters",
+    "e": "A hairpin bend reverses the road direction by 180 degrees. To ensure long trucks and buses can physically clear the turn without reversing or falling off the cliff edge, standard hill road codes mandate an absolute minimum inner curve radius of exactly 14.0 meters."
+  },
+  {
+    "id": 52,
+    "q": "In the structural design of flexible pavements using the classical Boussinesq theory, the 'Equivalent Single Wheel Load' (ESWL) concept is utilized. At a physical depth equal to twice the center-to-center spacing of the dual wheels (2S), the ESWL is mathematically taken as exactly:",
+    "o": [
+      "The load of one single wheel (P)",
+      "Half the load of one wheel (0.5 P)",
+      "Twice the load of one wheel (2P)",
+      "The load of one wheel multiplied by the tire pressure"
+    ],
+    "a": "Twice the load of one wheel (2P)",
+    "e": "Dual tires spread their load. Near the surface (depth < d/2), the soil only feels one tire (ESWL = P). However, as depth physically increases, the stress bulbs overlap heavily. At a massive depth (≥ 2S), the soil strictly feels the combined massive weight of both tires acting together (ESWL = 2P)."
+  },
+  {
+    "id": 53,
+    "q": "For standard Water Bound Macadam (WBM) road surfaces located in heavy rainfall regions, standard codes mathematically recommend the physical steepness of the cross slope (Camber) to be exactly:",
+    "o": [
+      "1.7% (1 in 60)",
+      "2.0% (1 in 50)",
+      "2.5% (1 in 40)",
+      "3.0% (1 in 33)"
+    ],
+    "a": "3.0% (1 in 33)",
+    "e": "WBM is highly permeable and physically washes away easily. To guarantee absolutely rapid surface runoff before the water can physically soak in and destroy the base, the camber for WBM in heavy rainfall areas is maintained extremely steep, strictly at 3.0% (or 1 in 33)."
+  },
+  {
+    "id": 54,
+    "q": "In routine flexible pavement maintenance, the extremely thin, specialized surface application of a liquid bituminous binder immediately followed by a fine layer of sand or stone grit is technically termed a:",
+    "o": [
+      "Prime coat",
+      "Tack coat",
+      "Seal coat",
+      "Base coat"
+    ],
+    "a": "Seal coat",
+    "e": "A 'Seal Coat' serves two critical physical purposes: it absolutely seals the microscopic surface voids of the asphalt to completely waterproof the pavement, and the embedded fine grit physically restores the tire skid resistance of an older, polished road surface."
+  },
+  {
+    "id": 55,
+    "q": "In the laboratory testing of aggregates for highway base construction, the 'Impact Test' is physically and explicitly executed to strictly evaluate the aggregate's:",
+    "o": [
+      "Resistance to gradual wear and abrasion",
+      "Specific gravity and water absorption",
+      "Physical toughness and resistance to sudden, severe shock loading",
+      "Flakiness and elongation index"
+    ],
+    "a": "Physical toughness and resistance to sudden, severe shock loading",
+    "e": "The Los Angeles test measures gradual grinding wear (Abrasion). In stark contrast, the Impact Test involves repeatedly dropping a heavy 13.5 kg to 14.0 kg metal hammer violently onto the stones to physically measure their 'Toughness' against sudden, high-energy impact shocks from jumping vehicle wheels."
+  },
+  {
+    "id": 56,
+    "q": "To universally ensure safety and geometric standardization across international highway networks, the standard physical width of a single individual traffic lane is strictly established as:",
+    "o": [
+      "2.50 meters",
+      "3.00 meters",
+      "3.75 meters",
+      "4.50 meters"
+    ],
+    "a": "3.75 meters",
+    "e": "While a standard heavy vehicle is roughly 2.44 meters wide, standard geometric highway design strictly dictates that a single individual lane must be physically 3.75 meters wide to provide adequate, safe physical side-clearance for the driver at high speeds."
+  },
+  {
+    "id": 57,
+    "q": "In rural track and trail engineering designed for non-motorized transport (mules and pedestrians) in mountainous terrain, the absolute maximum permissible physical gradient is typically restricted to:",
+    "o": [
+      "3% to 5%",
+      "10% to 12%",
+      "20% to 25%",
+      "35% to 40%"
+    ],
+    "a": "10% to 12%",
+    "e": "While pedestrians can briefly climb steep steps, continuous travel for heavily loaded pack animals (like mules) becomes physically exhausting and extremely dangerous on slippery surfaces. The ruling gradient for major mountain trails is strictly capped around 10% to 12%."
+  },
+  {
+    "id": 58,
+    "q": "When explicitly analyzing the physical 'Super elevation' required for a completely mixed-traffic highway, standard design codes mandate that the theoretical super elevation equation should structurally be designed for:",
+    "o": [
+      "Exactly 50% of the maximum design speed",
+      "Exactly 75% of the maximum design speed, ignoring side friction entirely",
+      "Exactly 100% of the design speed, relying fully on side friction",
+      "The absolute minimum speed of the slowest bullock cart"
+    ],
+    "a": "Exactly 75% of the maximum design speed, ignoring side friction entirely",
+    "e": "If designed for 100% speed, slow vehicles would physically slide down the extreme tilt. To perfectly balance fast cars and slow carts, the code strictly calculates the super elevation ignoring tire friction completely, and assumes the traffic moves at exactly 75% of the design speed (yielding e = V² / 225R)."
+  },
+  {
+    "id": 59,
+    "q": "In physical pavement design and analysis, 'Rutting' is a highly dangerous surface defect geometrically characterized by:",
+    "o": [
+      "Random, highly localized deep potholes",
+      "Severe longitudinal depressions physically forming exactly along the parallel wheel paths of heavy traffic",
+      "Lateral, transverse cracks running entirely across the width of the road",
+      "A slick, highly polished surface lacking friction"
+    ],
+    "a": "Severe longitudinal depressions physically forming exactly along the parallel wheel paths of heavy traffic",
+    "e": "Rutting physically manifests as continuous, sunken longitudinal channels precisely where the heavy truck tires roll. It is a severe structural deformation physically caused by the heavy consolidation or lateral plastic flow of the asphalt layers or the weak subgrade beneath the wheel tracks."
+  },
+  {
+    "id": 60,
+    "q": "For the fundamental structural layout of bridges, what is the explicit physical distinction between the 'Freeboard' and the 'Clearance'?",
+    "o": [
+      "They are two identical terms for the same physical measurement.",
+      "Freeboard is the vertical distance from the High Flood Level (HFL) to the lowest point of the bridge superstructure, whereas Clearance relates to horizontal width.",
+      "Freeboard relates strictly to road embankments, while Clearance relates strictly to bridges.",
+      "Freeboard is the vertical distance from the river bed to the HFL, whereas clearance is from the HFL to the bridge deck."
+    ],
+    "a": "Freeboard is the vertical distance from the High Flood Level (HFL) to the lowest point of the bridge superstructure, whereas Clearance relates to horizontal width.",
+    "e": "In bridge engineering, 'Freeboard' is the strict vertical safety gap left physically between the absolute highest expected flood water level (HFL) and the bottom-most beam of the bridge deck to safely allow floating logs and massive debris to pass underneath without physically smashing into the bridge."
+  },
+
+{
+"id": 61,
+"q": "In the historical evolution of highway engineering, what was the primary structural difference between the methods proposed by Thomas Telford and John Macadam?",
+"o": [
+"Telford used bituminous tar, whereas Macadam used plain water.",
+"Telford insisted on a heavy, solid foundation of large, hand-packed stones, whereas Macadam strictly utilized layers of broken angular stones on a compacted subgrade.",
+"Telford introduced the concept of camber, which Macadam completely ignored.",
+"Telford constructed rigid concrete slabs, whereas Macadam built flexible pavements."
+],
+"a": "Telford insisted on a heavy, solid foundation of large, hand-packed stones, whereas Macadam strictly utilized layers of broken angular stones on a compacted subgrade.",
+"e": "Telford believed a massive, rigid foundation of large stones was structurally necessary to transfer loads. Macadam revolutionized road building by mathematically proving that a well-drained, compacted earth subgrade could safely bear the traffic load through layered, broken stones alone."
+},
+{
+"id": 62,
+"q": "In urban road network classification, which specific category of road is primarily and physically designed to safely handle large volumes of high-speed through-traffic, strictly minimizing direct access to adjacent private properties?",
+"o": [
+"Arterial Roads",
+"Sub-arterial Roads",
+"Collector Streets",
+"Local Streets"
+],
+"a": "Arterial Roads",
+"e": "Arterial roads physically form the primary backbone of an urban network. Their absolute structural and geometric priority is unhindered mobility for heavy traffic volumes, which explicitly requires heavily restricting direct driveway access and cross-traffic."
+},
+{
+"id": 63,
+"q": "During the rigorous planning of a highway alignment, fixed geographical or structural points through which the road must physically pass (such as a mountain pass or an existing major river bridge) are formally termed:",
+"o": [
+"Control Points",
+"Positive Obligatory Points",
+"Negative Obligatory Points",
+"Tangent Points"
+],
+"a": "Positive Obligatory Points",
+"e": "Positive obligatory points forcefully dictate the route alignment, physically drawing the highway towards them. Conversely, Negative obligatory points (like deep swamps, religious sites, or military zones) explicitly force the alignment to deviate physically away from them."
+},
+{
+"id": 64,
+"q": "In topographical classification for highway geometric design, a specific terrain is mathematically defined as 'Rolling Terrain' if its natural cross slope strictly falls within the percentage range of:",
+"o": [
+"0% to 10%",
+"10% to 25%",
+"25% to 60%",
+"Greater than 60%"
+],
+"a": "10% to 25%",
+"e": "Standard design codes physically categorize terrain by its cross slope: Plain (0 to 10%), Rolling (10 to 25%), Mountainous (25 to 60%), and Steep (greater than 60%). This heavily dictates the permissible gradients and curve radii."
+},
+{
+"id": 65,
+"q": "In the structural cross-section of a standard highway, the 'Formation Width' (or Roadway Width) is geometrically and explicitly defined as the total sum of the:",
+"o": [
+"Carriageway width and the side drain widths",
+"Carriageway width and the physical widths of the shoulders on both sides",
+"Right of Way (ROW) and the building lines",
+"Pavement width and the central median only"
+],
+"a": "Carriageway width and the physical widths of the shoulders on both sides",
+"e": "The Formation Width is the total top width of the physical earthwork embankment or the bottom width of an earthwork cutting. It strictly encompasses the paved carriageway plus the unpaved or paved usable shoulders on both sides, entirely excluding side drains."
+},
+{
+"id": 66,
+"q": "To physically execute Super elevation on a highway curve in the field while simultaneously ensuring that the total volume of earthwork excavation exactly balances the total volume of earthwork filling, the pavement must strictly be rotated about its:",
+"o": [
+"Inner edge",
+"Outer edge",
+"Center line",
+"Shoulder edge"
+],
+"a": "Center line",
+"e": "Rotating the pavement mathematically about its geometric center line physically depresses the inner half and elevates the outer half by the exact same amount. This perfectly balances the earthwork, although it requires careful adjustment of the longitudinal drainage profile."
+},
+{
+"id": 67,
+"q": "According to strict highway design mechanics, if the theoretically calculated super elevation (e) required for a curve physically exceeds the absolute maximum permissible code limit of 7% (0.07), the structural design must safely rely on:",
+"o": [
+"Increasing the radius of the curve",
+"The coefficient of lateral friction (f) up to its maximum safe limit",
+"Reducing the width of the carriageway",
+"Providing an exceptional gradient"
+],
+"a": "The coefficient of lateral friction (f) up to its maximum safe limit",
+"e": "If 'e' exceeds 0.07, it is legally capped at 0.07. The remaining centrifugal force must physically be resisted by the lateral friction of the tires against the road. The engineer then calculates if 'f' remains safely below its absolute maximum permissible limit of 0.15."
+},
+{
+"id": 68,
+"q": "When geometric constraints force the application of Mechanical Extra Widening on a sharp horizontal curve on a steep Hill Road, standard codes strictly mandate that this widening must be physically provided:",
+"o": [
+"Equally on both the inner and outer sides of the curve",
+"Entirely on the outer side of the curve",
+"Entirely on the inner side of the curve",
+"Only in the transition curve zones"
+],
+"a": "Entirely on the inner side of the curve",
+"e": "On plain terrain, widening is distributed 50/50. However, on dangerous hill roads, expanding outward towards the cliff edge is structurally hazardous. Therefore, 100% of the calculated extra widening is physically excavated and provided strictly on the inner (mountain) side of the curve."
+},
+{
+"id": 69,
+"q": "In highway longitudinal profile design, 'Exceptional Gradients' are the absolute steepest slopes structurally permitted. However, to prevent severe vehicle stalling and engine failure, their continuous physical length must strictly NEVER exceed:",
+"o": [
+"50 meters",
+"100 meters",
+"200 meters",
+"500 meters"
+],
+"a": "100 meters",
+"e": "Exceptional gradients are physically steeper than the limiting gradient and are used strictly in unavoidable, extreme topographical bottlenecks. Standard codes absolutely mandate that a vehicle must not be subjected to this severe strain for a continuous physical distance exceeding exactly 100 meters."
+},
+{
+"id": 70,
+"q": "To explicitly guarantee the physical longitudinal drainage of surface rainwater along a flat highway pavement (especially those with kerbs), standard geometric design codes mandate an absolute 'Minimum Gradient' of:",
+"o": [
+"1 in 50 (2.0%)",
+"1 in 100 (1.0%)",
+"1 in 200 (0.5%) to 1 in 500 (0.2%) depending on the soil and surface type",
+"0% (Perfectly flat)"
+],
+"a": "1 in 200 (0.5%) to 1 in 500 (0.2%) depending on the soil and surface type",
+"e": "Even on completely plain terrain, a road cannot be built perfectly level longitudinally. To allow water to physically flow away in the side drains without stagnating and breeding mosquitoes or damaging the subgrade, a strict minimum slope (e.g., 0.5% for earth drains, 0.2% for concrete) is mandated."
+},
+{
+"id": 71,
+"q": "If physical constraints make it completely impossible to provide the required Overtaking Sight Distance (OSD) on a two-way highway, standard safety codes strictly mandate providing an 'Intermediate Sight Distance' (ISD). The ISD is mathematically exactly equal to:",
+"o": [
+"1.5 × Stopping Sight Distance (SSD)",
+"2.0 × Stopping Sight Distance (SSD)",
+"0.5 × Overtaking Sight Distance (OSD)",
+"The safe stopping distance of a heavy truck"
+],
+"a": "2.0 × Stopping Sight Distance (SSD)",
+"e": "ISD provides a compromised but highly crucial safety margin. It gives two opposing vehicles traveling at design speed sufficient physical distance to both brake and safely come to a complete halt before a head-on collision. Therefore, it is strictly 2 × SSD."
+},
+{
+"id": 72,
+"q": "When calculating the vertical geometry of a highway Valley Curve (Sag Curve), the physical length of the curve is predominantly and strictly governed by the safety requirement of:",
+"o": [
+"Overtaking Sight Distance during the day",
+"Headlight Sight Distance during the night",
+"Drainage clearance",
+"Centrifugal outward acceleration"
+],
+"a": "Headlight Sight Distance during the night",
+"e": "Unlike summit curves where the hill itself blocks vision, visibility in a valley curve is unrestricted during the day. However, at night, the vehicle's headlights physically point straight ahead into the opposite hill slope, severely limiting vision. The curve must be long and flat enough to ensure the Headlight Sight Distance at least equals the SSD."
+},
+{
+"id": 73,
+"q": "In subsurface highway drainage, the physical phenomenon where groundwater from a high water table travels upwards against gravity through the microscopic voids of the subgrade soil, completely saturating and destroying the pavement base, is termed:",
+"o": [
+"Infiltration",
+"Percolation",
+"Capillary action",
+"Artesian upwelling"
+],
+"a": "Capillary action",
+"e": "Fine-grained soils (like silt and clay) act like sponges. Surface tension physically draws the groundwater upwards (capillary rise) far above the actual water table. If it reaches the pavement base, the road physically fails. A highly porous granular layer (Capillary Cut-off) is utilized to physically break this upward suction."
+},
+{
+"id": 74,
+"q": "In the Group Index (GI) empirical method utilized for physical flexible pavement design, the calculated GI value strictly ranges from 0 to 20. A soil subgrade possessing a Group Index of exactly 20 is structurally classified as:",
+"o": [
+"Excellent quality subgrade",
+"Good quality subgrade",
+"Fair quality subgrade",
+"Extremely poor quality subgrade"
+],
+"a": "Extremely poor quality subgrade",
+"e": "The Group Index is a physical penalty score based on the soil's Liquid Limit, Plasticity Index, and percentage passing the 75-micron sieve. A score of 0 means the soil is highly granular and structurally excellent. A score of 20 means it is highly plastic, expansive clay, representing an extremely poor subgrade requiring immense pavement thickness."
+},
+{
+"id": 75,
+"q": "In the structural mechanics of Rigid Pavements (Concrete Slabs) analyzed via Westergaard's Theory, the concrete slab physically experiences maximum tensile bending stresses under wheel loads at three critical geometric locations. Which of these locations is fundamentally most susceptible to top-down cracking?",
+"o": [
+"The Interior region of the slab",
+"The extreme Edge region of the slab",
+"The extreme Corner region of the slab",
+"Directly over the dowel bars"
+],
+"a": "The extreme Corner region of the slab",
+"e": "When a heavy wheel load physically strikes the unsupported corner of a concrete slab, the corner acts as a cantilever. It physically bends downwards, generating massive tension directly at the top surface of the concrete slab, causing diagonal corner cracks."
+},
+{
+"id": 76,
+"q": "During heavy highway construction, which specialized piece of heavy machinery physically receives hot asphalt from dump trucks, uniformly spreads it across the prepared base, and utilizes an oscillating screed to strike it off to a mathematically precise thickness and camber?",
+"o": [
+"Motor Grader",
+"Asphalt Paver Finisher",
+"Pneumatic Tyred Roller",
+"Tandem Vibratory Roller"
+],
+"a": "Asphalt Paver Finisher",
+"e": "The Asphalt Paver Finisher is a highly complex, precision machine. It physically floats an electrically heated screed plate over the hot mix, ensuring the new surface achieves the exact geometric profile, thickness, and initial pre-compaction required before heavy rollers take over."
+},
+{
+"id": 77,
+"q": "In standard bridge engineering and hydrology, the theoretically calculated 'Economic Span' of a multi-span bridge is physically and mathematically achieved strictly when the:",
+"o": [
+"Cost of the concrete perfectly equals the cost of the steel reinforcement",
+"Total cost of the entire superstructure exactly equals the total cost of the substructure (piers and their deep foundations)",
+"Cost of the approach roads equals the cost of the bridge itself",
+"Span length reaches exactly 30.0 meters"
+],
+"a": "Total cost of the entire superstructure exactly equals the total cost of the substructure (piers and their deep foundations)",
+"e": "This is a fundamental theorem in bridge economics. By mathematically differentiating the total cost equation, engineers prove that the most economically optimized bridge geometry occurs physically when the massive cost of the piers and foundations precisely matches the cost of the spanning girders and deck above them."
+},
+{
+"id": 78,
+"q": "According to Lacey's Scour Theory utilized for bridge pier foundation design, the actual physical foundation of a bridge pier must be safely sunk well below the maximum scour level. For a bridge pier, the localized maximum scour depth is mathematically estimated as:",
+"o": [
+"1.00 × Normal calculated scour depth (D)",
+"1.50 × Normal calculated scour depth (D)",
+"2.00 × Normal calculated scour depth (D)",
+"3.00 × Normal calculated scour depth (D)"
+],
+"a": "2.00 × Normal calculated scour depth (D)",
+"e": "The physical obstruction of the pier creates violent downward vortexes (horseshoe vortices) that aggressively dig deep holes specifically around the base of the pier. To prevent catastrophic collapse, the localized scour depth is strictly modeled as 2.00 times the normal river scour depth (D)."
+},
+{
+"id": 79,
+"q": "In the severe structural failure of Rigid Concrete Pavements, the dangerous physical phenomenon termed 'Mud Pumping' explicitly involves:",
+"o": [
+"The asphalt bleeding through the expansion joints",
+"The violent upward ejection of water and fine subgrade soil through cracks and joints directly under the heavy impact of wheel loads",
+"The physical buckling and shattering of the slab due to thermal expansion",
+"The freezing of groundwater beneath the slab causing it to lift"
+],
+"a": "The violent upward ejection of water and fine subgrade soil through cracks and joints directly under the heavy impact of wheel loads",
+"e": "When water accumulates under a concrete slab resting on a fine-grained (silty/clayey) subbase, heavy truck tires physically push the slab down, violently squirting the water-soil slurry out through the joints. This physically excavates large voids under the slab, leading to total structural collapse."
+},
+{
+"id": 80,
+"q": "To strictly rejuvenate a severely dry, oxidized, and highly porous old flexible pavement surface without physically adding any new layer of aggregate or stone chips, maintenance engineers explicitly spray a highly diluted asphalt emulsion known technically as a:",
+"o": [
+"Seal coat",
+"Fog seal",
+"Tack coat",
+"Slurry seal"
+],
+"a": "Fog seal",
+"e": "A Fog Seal is a highly specialized maintenance treatment. It is a very light, physical 'fog' spray of diluted asphalt emulsion. It chemically penetrates the microscopic surface voids to restore the brittle, oxidized binder, safely extending the pavement life without utilizing any cover aggregate."
+},
+{
+"id": 81,
+"q": "In the unique topography of Nepal, a vast majority of pedestrian trail bridges are categorized as 'Suspended Bridges'. Structurally, a Suspended Bridge physically differs from a standard Suspension Bridge strictly because:",
+"o": [
+"It uses steel chains instead of wire ropes.",
+"The walking deck physically rests directly upon the main sagging load-bearing cables, causing the deck itself to sag in a parabolic curve.",
+"It does not use massive concrete anchorages.",
+"The deck is perfectly flat and suspended by vertical suspender rods."
+],
+"a": "The walking deck physically rests directly upon the main sagging load-bearing cables, causing the deck itself to sag in a parabolic curve.",
+"e": "A standard 'Suspension Bridge' features tall towers and a perfectly flat deck hung by vertical suspender rods. A 'Suspended Bridge' (highly economical and common in Nepal) features no suspenders; the deck is physically attached directly to the main sagging cables, making the walking path itself dip severely in the center."
+},
+{
+"id": 82,
+"q": "For the geometric design of rural mountain trails primarily utilized by heavily loaded pack animals (like mules and yaks) in regions lacking motorable roads, the absolute physical minimum safe width of the walking track is standardly defined as:",
+"o": [
+"0.5 to 0.8 meters",
+"1.2 to 1.5 meters",
+"2.0 to 2.5 meters",
+"3.0 meters"
+],
+"a": "1.2 to 1.5 meters",
+"e": "Pack animals physically carry bulky panniers on their sides. To ensure they can safely pass a rocky outcropping without being pushed off the cliff, and to safely allow limited two-way passing, the absolute safe physical width of the trail is strictly engineered to be 1.2 to 1.5 meters."
+},
+{
+"id": 83,
+"q": "In the structural design of heavy highway bridges, 'Fixed Bearings' are physically installed beneath the girders. A Fixed Bearing is explicitly engineered to safely permit:",
+"o": [
+"Absolutely zero movement of any kind",
+"Strictly rotational movement only, while absolutely preventing any linear horizontal translation",
+"Both full rotation and full linear sliding translation",
+"Vertical uplifting movement only"
+],
+"a": "Strictly rotational movement only, while absolutely preventing any linear horizontal translation",
+"e": "As a heavy truck drives over a bridge beam, the beam bends, causing its ends to physically rotate slightly. A Fixed Bearing allows this natural flexural rotation to happen safely, but it acts as a rigid anchor completely stopping the deck from physically sliding horizontally forward or backward."
+},
+{
+"id": 84,
+"q": "In highway traffic engineering and urban safety, the primary functional goal of providing artificial Street Lighting is to allow drivers to physically detect pedestrians and hazards ahead primarily through the visual phenomenon of:",
+"o": [
+"Direct glare illumination",
+"Color contrast recognition",
+"Silhouette",
+"Stereoscopic depth perception"
+],
+"a": "Silhouette",
+"e": "Streetlights are strictly designed to physically illuminate the pavement surface, making the road itself bright. Any object, hazard, or pedestrian physically standing on the road blocks this light, appearing as a sharp, dark 'Silhouette' against the bright background, making them instantly visible at massive distances."
+},
+{
+"id": 85,
+"q": "According to the Third 20-Year Road Development Plan (Lucknow Road Plan, 1981-2001) in the Indian subcontinent context, a new, supreme physical classification of highway was formally introduced. These highly superior roads are termed:",
+"o": [
+"Super National Highways",
+"Expressways",
+"Interstate Corridors",
+"Freeways"
+],
+"a": "Expressways",
+"e": "The Lucknow Plan formally recognized the need for absolute high-speed mobility. It introduced 'Expressways' as a completely separate tier above National Highways, physically featuring grade-separated intersections, absolute access control, divided dual carriageways, and extremely high geometric design speeds."
+},
+{
+"id": 86,
+"q": "When a highway physically transitions from a straight tangent section into a circular curve, a 'Transition Curve' is introduced. The fundamental mathematical property of an ideal transition curve (like a Spiral) is that its physical radius:",
+"o": [
+"Remains completely constant throughout its length",
+"Gradually decreases from infinity at the straight tangent down to the exact radius of the circular curve",
+"Increases from zero to infinity",
+"Suddenly drops to match the circular curve"
+],
+"a": "Gradually decreases from infinity at the straight tangent down to the exact radius of the circular curve",
+"e": "A straight line physically has an infinite radius. The transition curve smoothly and mathematically links the straight road to the circular curve by gradually and uniformly tightening its radius from infinity down to 'R', allowing the driver to turn the steering wheel gradually and safely."
+},
+{
+"id": 87,
+"q": "In the physical design of traffic intersections, a 'Rotary Intersection' (or Roundabout) explicitly and safely eliminates which specific, highly dangerous type of vehicular conflict entirely?",
+"o": [
+"Merging conflicts",
+"Diverging conflicts",
+"Right-angle crossing conflicts",
+"Weaving conflicts"
+],
+"a": "Right-angle crossing conflicts",
+"e": "A physical roundabout forces all entering vehicles to merge into a single, continuous, one-way circular flow. By physically routing traffic around a central island, it safely converts all deadly, high-speed perpendicular crossing conflicts into relatively safe, low-speed merging and weaving maneuvers."
+},
+{
+"id": 88,
+"q": "To structurally assess the load-carrying capacity of an existing, fully constructed flexible pavement without destroying it, engineers utilize the 'Benkelman Beam Deflection Test'. This highly sensitive instrument physically measures the:",
+"o": [
+"Depth of the asphalt binder layer",
+"Physical rebound deflection of the pavement surface exactly when a standard heavy dual-wheel truck load moves away from the test point",
+"Frictional skid resistance of the surface course",
+"Moisture content of the subgrade"
+],
+"a": "Physical rebound deflection of the pavement surface exactly when a standard heavy dual-wheel truck load moves away from the test point",
+"e": "The Benkelman Beam is a precise physical lever arm. Its tip is placed exactly between the dual tires of a heavily loaded truck. As the truck slowly drives away, the temporarily compressed pavement physically 'rebounds' (bounces back up). The beam precisely measures this microscopic rebound, mathematically revealing the pavement's hidden structural strength."
+},
+{
+"id": 89,
+"q": "In railway track engineering, the highly specific structural defect where the steel rails progressively physically elongate and move longitudinally along the track bed due to massive acceleration and braking forces is technically termed:",
+"o": [
+"Buckling",
+"Creep of Rails",
+"Hogging",
+"Corrugation"
+],
+"a": "Creep of Rails",
+"e": "As massive trains brake or accelerate, the immense friction physically drags the steel rails forward. This continuous, slow longitudinal shifting is formally called the 'Creep of Rails'. It brutally misaligns track joints and physical switches, requiring heavy mechanical 'Anti-creepers' to structurally anchor the track."
+},
+{
+"id": 90,
+"q": "According to the exact mathematical definition used in geometric highway design, the 'Coefficient of Longitudinal Friction' (used strictly for braking and calculating SSD) safely ranges between:",
+"o": [
+"0.10 to 0.15",
+"0.35 to 0.40",
+"0.50 to 0.60",
+"0.80 to 1.00"
+],
+"a": "0.35 to 0.40",
+"e": "The lateral friction coefficient (used for side-sliding on curves) is exactly 0.15. However, a tire pointing straight ahead has much higher physical grip when braking. Standard codes mathematically assign the safe longitudinal braking friction coefficient strictly between 0.35 (for high speeds) and 0.40 (for low speeds)."
+}
+
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
+            btn.classList.add('wrong');
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>
+
+n

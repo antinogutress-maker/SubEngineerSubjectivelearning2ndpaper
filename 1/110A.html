@@ -1,0 +1,1976 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = 
+  [
+  {
+    "id": 1,
+    "q": "The fundamental principle of surveying, 'working from whole to part', is primarily adopted to:",
+    "o": [
+      "Speed up the surveying process",
+      "Prevent the accumulation of errors",
+      "Use fewer surveying instruments",
+      "Make plotting easier on the map"
+    ],
+    "a": "Prevent the accumulation of errors",
+    "e": "By establishing highly precise main control points first (the whole) and then surveying minor details within them (the part), any localized errors are contained within that specific area and do not accumulate across the entire survey."
+  },
+  {
+    "id": 2,
+    "q": "Up to what approximate area is plane surveying generally considered perfectly acceptable, ignoring the curvature of the earth?",
+    "o": [
+      "100 sq. km",
+      "250 sq. km",
+      "500 sq. km",
+      "1000 sq. km"
+    ],
+    "a": "250 sq. km",
+    "e": "For standard engineering surveys, the earth's curvature is ignored for areas up to 250 sq. km (or roughly 260 sq. km depending on the specific text). Beyond this limit, geodetic surveying principles must be applied to account for spherical geometry."
+  },
+  {
+    "id": 3,
+    "q": "A plan is drawn to a scale of 1:2000. Over time, the paper shrinks such that a line originally 10 cm long now measures 9.5 cm. What is the revised shrunk scale of the plan?",
+    "o": [
+      "1:1900",
+      "1:2105",
+      "1:2500",
+      "1:1850"
+    ],
+    "a": "1:2105",
+    "e": "Shrinkage Factor (SF) = Shrunk Length / Original Length = 9.5 / 10 = 0.95. The Shrunk Scale = SF * Original Scale = 0.95 * (1/2000) = 0.95 / 2000 = 1 / 2105.26. Therefore, the shrunk scale is approximately 1:2105."
+  },
+  {
+    "id": 4,
+    "q": "In a levelling operation, a Back Sight (BS) of 1.250 m is taken on a Benchmark (RL = 100.000 m). A Fore Sight (FS) of 1.850 m is then taken on a forward station. What is the Reduced Level (RL) of the forward station?",
+    "o": [
+      "99.400 m",
+      "100.600 m",
+      "101.250 m",
+      "103.100 m"
+    ],
+    "a": "99.400 m",
+    "e": "Height of Instrument (HI) = RL of BM + BS = 100.000 + 1.250 = 101.250 m. The RL of the forward station = HI - FS = 101.250 - 1.850 = 99.400 m."
+  },
+  {
+    "id": 5,
+    "q": "What is the combined correction for earth's curvature and atmospheric refraction for a staff reading taken at a distance of 1.2 km? (Use standard coefficient C = 0.0673 D²)",
+    "o": [
+      "0.081 m (subtractive)",
+      "0.097 m (subtractive)",
+      "0.097 m (additive)",
+      "0.115 m (subtractive)"
+    ],
+    "a": "0.097 m (subtractive)",
+    "e": "The combined correction (C) in meters is given by 0.0673 * D², where D is the distance in kilometers. C = 0.0673 * (1.2)² = 0.0673 * 1.44 = 0.0969 m. This correction is always subtractive from the staff reading."
+  },
+  {
+    "id": 6,
+    "q": "Reciprocal levelling is specifically adopted to completely eliminate the errors caused by:",
+    "o": [
+      "Settlement of the tripod",
+      "Parallax in the telescope",
+      "Earth's curvature and atmospheric refraction",
+      "Improper leveling of the bubble tube"
+    ],
+    "a": "Earth's curvature and atmospheric refraction",
+    "e": "By taking level readings from both sides of a wide obstacle (like a river) and averaging the apparent differences in elevation, reciprocal leveling perfectly mathematically cancels out the errors due to curvature, refraction, and line of collimation."
+  },
+  {
+    "id": 7,
+    "q": "In plane tabling, which method is uniquely suited and most commonly used for locating details across inaccessible points (e.g., across a river)?",
+    "o": [
+      "Radiation",
+      "Intersection",
+      "Traversing",
+      "Resection"
+    ],
+    "a": "Intersection",
+    "e": "The intersection method requires plotting a point by intersecting rays drawn from two different, known plane table stations. Since the target point itself does not need to be physically occupied, it is perfect for inaccessible details."
+  },
+  {
+    "id": 8,
+    "q": "Lehman's Rules are utilized in plane table surveying specifically to solve:",
+    "o": [
+      "The two-point problem",
+      "The three-point problem (by trial and error method)",
+      "The closing error in a traverse",
+      "The orientation of the table using a magnetic compass"
+    ],
+    "a": "The three-point problem (by trial and error method)",
+    "e": "Lehman's Rules provide a systematic geometric method to eliminate the 'triangle of error' that forms when trying to orient a plane table using three known visible points (the three-point resection problem)."
+  },
+  {
+    "id": 9,
+    "q": "What defines a 'Transit' theodolite compared to a non-transit theodolite?",
+    "o": [
+      "It has a more precise micrometer scale.",
+      "The telescope can be completely revolved through 180° in the vertical plane about its horizontal axis.",
+      "It is primarily used for astronomical observations.",
+      "It contains an anallactic lens for tacheometry."
+    ],
+    "a": "The telescope can be completely revolved through 180° in the vertical plane about its horizontal axis.",
+    "e": "Transiting (or plunging/reversing) the telescope allows it to rotate fully 180 degrees vertically. This feature allows for the elimination of instrumental errors by taking face-left and face-right observations."
+  },
+  {
+    "id": 10,
+    "q": "What is the correct sequential order of temporary adjustments performed on a theodolite at a station?",
+    "o": [
+      "Leveling, Centering, Elimination of Parallax",
+      "Centering, Leveling, Elimination of Parallax",
+      "Elimination of Parallax, Centering, Leveling",
+      "Centering, Elimination of Parallax, Leveling"
+    ],
+    "a": "Centering, Leveling, Elimination of Parallax",
+    "e": "The instrument is first roughly centered over the station mark, then accurately leveled using the foot screws, and finally, the eyepiece and objective are focused to eliminate parallax before taking readings."
+  },
+  {
+    "id": 11,
+    "q": "Regarding the fundamental lines of a properly adjusted theodolite, the axis of the plate level must be strictly perpendicular to the:",
+    "o": [
+      "Line of collimation",
+      "Horizontal axis (Trunnion axis)",
+      "Vertical axis",
+      "Axis of the altitude level"
+    ],
+    "a": "Vertical axis",
+    "e": "For the instrument to rotate in a perfectly horizontal plane, the vertical axis must be truly vertical. This is achieved only when the axis of the plate level is truly perpendicular to the vertical axis."
+  },
+  {
+    "id": 12,
+    "q": "In a stadia tacheometric observation on a vertical staff, the upper, middle, and lower hair readings are 1.850 m, 1.500 m, and 1.150 m respectively. If the multiplying constant (k) is 100 and the additive constant (c) is 0, what is the horizontal distance to the staff?",
+    "o": [
+      "35 m",
+      "70 m",
+      "115 m",
+      "150 m"
+    ],
+    "a": "70 m",
+    "e": "The stadia intercept (s) = Upper reading - Lower reading = 1.850 - 1.150 = 0.700 m. Horizontal Distance (D) = ks + c. D = (100 * 0.700) + 0 = 70 meters."
+  },
+  {
+    "id": 13,
+    "q": "An anallactic lens is specifically provided in the telescope of a tacheometer to:",
+    "o": [
+      "Increase the magnification of the staff",
+      "Eliminate spherical aberration",
+      "Make the additive constant (c) exactly zero",
+      "Make the multiplying constant (k) exactly 100"
+    ],
+    "a": "Make the additive constant (c) exactly zero",
+    "e": "The anallactic lens is a special convex lens placed between the objective and the eyepiece. Its optical properties shift the apex of the tacheometric angle to the vertical axis of the instrument, making c = 0 and simplifying calculations to just D = ks."
+  },
+  {
+    "id": 14,
+    "q": "In a closed traverse of 'n' sides, the theoretical sum of the measured interior angles must be exactly equal to:",
+    "o": [
+      "(2n - 4) x 90°",
+      "(2n + 4) x 90°",
+      "(n - 2) x 180°",
+      "Both (2n - 4) x 90° and (n - 2) x 180°"
+    ],
+    "a": "Both (2n - 4) x 90° and (n - 2) x 180°",
+    "e": "Geometrically, the sum of interior angles of any closed polygon is (2n - 4) right angles, which is mathematically identical to (n - 2) * 180 degrees. This is the primary arithmetic check for traversing."
+  },
+  {
+    "id": 15,
+    "q": "A series of closed contour lines on a map, with progressively higher elevation values placed inward toward the center, visually represents a:",
+    "o": [
+      "Depression or pond",
+      "Hillock",
+      "Saddle",
+      "Vertical cliff"
+    ],
+    "a": "Hillock",
+    "e": "When closed contours increase in elevation toward the center, it indicates that the ground is rising to a peak, forming a hill or hillock. Conversely, if values decrease inward, it represents a depression."
+  },
+  {
+    "id": 16,
+    "q": "If contour lines of different elevations merge and unite to form a single line on a topographical map, this specific geographic feature is a:",
+    "o": [
+      "Steep slope",
+      "Uniform slope",
+      "Vertical cliff",
+      "Overhanging cliff"
+    ],
+    "a": "Vertical cliff",
+    "e": "Contour lines never cross or touch each other under normal terrain conditions. They can only unite into a single line when the terrain drops vertically at 90 degrees, which is a vertical cliff."
+  },
+  {
+    "id": 17,
+    "q": "Which method of contour interpolation is mathematically the most accurate during contour plotting?",
+    "o": [
+      "Estimation by eye",
+      "Graphical method",
+      "Arithmetic calculation method",
+      "Tracing method"
+    ],
+    "a": "Arithmetic calculation method",
+    "e": "Arithmetic calculation uses linear interpolation based strictly on the measured elevations and horizontal distances between spot levels. It is not prone to drafting or visual errors, making it the most precise method."
+  },
+  {
+    "id": 18,
+    "q": "When setting out the foundation lines of a building, a right angle (90°) can be established accurately in the field using a long measuring tape by forming a triangle with side lengths in the ratio of:",
+    "o": [
+      "1:2:3",
+      "2:3:4",
+      "3:4:5",
+      "4:5:6"
+    ],
+    "a": "3:4:5",
+    "e": "This applies the Pythagorean theorem (3² + 4² = 5², or 9 + 16 = 25). Establishing tape sides of 3m, 4m, and 5m (or any multiple thereof) guarantees a perfect 90-degree angle between the 3m and 4m sides."
+  },
+  {
+    "id": 19,
+    "q": "In the arithmetic check for the 'Rise and Fall' method of levelling, which of the following equations must hold true?",
+    "o": [
+      "ΣBS - ΣFS = ΣRise - ΣFall = Last RL - First RL",
+      "ΣBS - ΣFS = Last RL - First RL",
+      "ΣRise - ΣFall = Last RL - First RL",
+      "ΣBS + ΣFS = ΣRise + ΣFall"
+    ],
+    "a": "ΣBS - ΣFS = ΣRise - ΣFall = Last RL - First RL",
+    "e": "The Rise and Fall method provides a complete arithmetic check on all intermediate sights as well. The sum of back sights minus the sum of fore sights must equal the sum of rises minus the sum of falls, which must equal the difference between the last and first Reduced Levels."
+  },
+  {
+    "id": 20,
+    "q": "In a 5-sided closed traverse, the observed interior angles are: 100°30', 105°15', 120°00', 95°45', and 118°00'. What is the angular misclosure of the traverse?",
+    "o": [
+      "+30'",
+      "-30'",
+      "+15'",
+      "-15'"
+    ],
+    "a": "-30'",
+    "e": "Theoretical sum = (2n-4)*90 = (10-4)*90 = 540°. Sum of observed angles = 100°30' + 105°15' + 120°00' + 95°45' + 118°00' = 539°30'. Misclosure = Observed Sum - Theoretical Sum = 539°30' - 540°00' = -30'."
+  },
+
+
+  {
+    "id": 21,
+    "q": "If the smallest division of a vernier scale is longer than the smallest division of its primary scale, the vernier is classified as a:",
+    "o": [
+      "Direct vernier",
+      "Retrograde vernier",
+      "Extended vernier",
+      "Double vernier"
+    ],
+    "a": "Retrograde vernier",
+    "e": "In a retrograde vernier, 'n' divisions on the vernier scale are equal in length to '(n+1)' divisions on the primary main scale, making its divisions slightly longer."
+  },
+  {
+    "id": 22,
+    "q": "Which of the following modifications will significantly increase the sensitiveness of a spirit bubble tube in a leveling instrument?",
+    "o": [
+      "Decreasing the internal radius of curvature of the tube",
+      "Increasing the internal radius of curvature of the tube",
+      "Using a more viscous liquid inside the tube",
+      "Decreasing the length of the bubble"
+    ],
+    "a": "Increasing the internal radius of curvature of the tube",
+    "e": "The sensitiveness of a bubble tube is directly proportional to its internal radius of curvature. A larger radius (flatter curve) means a smaller tilt causes a larger displacement of the bubble."
+  },
+  {
+    "id": 23,
+    "q": "To determine the Reduced Level (RL) of the bottom of a ceiling beam, a leveling instrument is set up. The staff reading on the floor benchmark (RL = 100.000 m) is 1.450 m. The staff is then held inverted against the bottom of the beam, reading 2.550 m. What is the RL of the beam?",
+    "o": [
+      "98.900 m",
+      "101.450 m",
+      "102.550 m",
+      "104.000 m"
+    ],
+    "a": "104.000 m",
+    "e": "Height of Instrument (HI) = 100.000 + 1.450 = 101.450 m. An inverted staff reading acts as a negative foresight. RL of beam = HI - (-FS) = 101.450 + 2.550 = 104.000 m."
+  },
+  {
+    "id": 24,
+    "q": "In plane table surveying, which specific accessory is utilized to perfectly align the station point on the paper exactly over the corresponding station peg on the ground?",
+    "o": [
+      "Alidade",
+      "Spirit level",
+      "Trough compass",
+      "U-fork with a plumb bob"
+    ],
+    "a": "U-fork with a plumb bob",
+    "e": "The U-fork (or plumbing fork) is designed with two arms. The pointed upper arm is placed on the plotted station on the paper, while the plumb bob suspended from the lower arm centers it exactly over the ground peg."
+  },
+  {
+    "id": 25,
+    "q": "During the adjustment of a transit theodolite, the 'Spire Test' is specifically conducted to ensure that the:",
+    "o": [
+      "Line of collimation is perpendicular to the horizontal axis",
+      "Horizontal axis is perpendicular to the vertical axis",
+      "Vertical cross-hair is truly vertical",
+      "Axis of the plate level is perpendicular to the vertical axis"
+    ],
+    "a": "Horizontal axis is perpendicular to the vertical axis",
+    "e": "The Spire Test checks the adjustment of the horizontal (trunnion) axis. If adjusted correctly, when the telescope is raised or lowered (like sighting a tall spire and then the ground), the line of sight sweeps a perfectly vertical plane."
+  },
+  {
+    "id": 26,
+    "q": "If the whole circle bearing (WCB) of a survey line is 285°30', what is its equivalent reduced bearing (Quadrantal Bearing)?",
+    "o": [
+      "N 74°30' W",
+      "S 74°30' W",
+      "N 14°30' W",
+      "S 14°30' E"
+    ],
+    "a": "N 74°30' W",
+    "e": "A WCB of 285°30' lies in the 4th quadrant (North-West). The reduced bearing is calculated as 360° - 285°30' = 74°30'. Therefore, it is N 74°30' W."
+  },
+  {
+    "id": 27,
+    "q": "In a closed traverse, if the algebraic sum of Latitudes (ΣL) is positive and the algebraic sum of Departures (ΣD) is negative, the closing error vector lies in which quadrant?",
+    "o": [
+      "North-East (1st Quadrant)",
+      "South-East (2nd Quadrant)",
+      "South-West (3rd Quadrant)",
+      "North-West (4th Quadrant)"
+    ],
+    "a": "North-West (4th Quadrant)",
+    "e": "Latitude is positive towards the North and negative towards the South. Departure is positive towards the East and negative towards the West. Positive latitude and negative departure perfectly defines the North-West quadrant."
+  },
+  {
+    "id": 28,
+    "q": "When adjusting a closed traverse survey network, Bowditch's rule (Compass rule) is most appropriate to apply when:",
+    "o": [
+      "Angular measurements are much more precise than linear measurements",
+      "Linear measurements are much more precise than angular measurements",
+      "Both linear and angular measurements are made with equal precision",
+      "The traverse is an open traverse"
+    ],
+    "a": "Both linear and angular measurements are made with equal precision",
+    "e": "Bowditch's rule assumes that errors in linear measurements are proportional to √L and angular errors are proportional to 1/√L, making it the standard adjustment method when both a tape/chain and compass/theodolite are used with equal relative precision."
+  },
+  {
+    "id": 29,
+    "q": "In tacheometric surveying using the standard stadia method, an anallactic lens ensures that the additive constant (C) is strictly zero. What type of lens is an anallactic lens?",
+    "o": [
+      "Concave lens",
+      "Convex lens",
+      "Plano-concave lens",
+      "Cylindrical lens"
+    ],
+    "a": "Convex lens",
+    "e": "An anallactic lens is an additional convex lens placed between the objective lens and the diaphragm of a tacheometer telescope to force the anallactic point to coincide with the vertical axis of the instrument, eliminating the additive constant."
+  },
+  {
+    "id": 30,
+    "q": "A tacheometer with an anallactic lens is used to measure the horizontal distance to a vertical staff. The stadia hair readings are 2.100 m, 1.800 m, and 1.500 m. If the multiplying constant is 100, what is the horizontal distance?",
+    "o": [
+      "30 m",
+      "60 m",
+      "150 m",
+      "180 m"
+    ],
+    "a": "60 m",
+    "e": "Stadia intercept (s) = Top hair reading - Bottom hair reading = 2.100 - 1.500 = 0.600 m. Since it has an anallactic lens, C = 0. Horizontal Distance (D) = ks + C = (100 * 0.600) + 0 = 60 meters."
+  },
+  {
+    "id": 31,
+    "q": "Which basic topographic feature is distinctly represented by a series of V-shaped contour lines pointing towards higher elevations?",
+    "o": [
+      "A ridge line",
+      "A valley line",
+      "A steep cliff",
+      "A uniform gentle slope"
+    ],
+    "a": "A valley line",
+    "e": "In contour mapping, valley lines are depicted by V-shaped contours that point upstream or towards the higher elevation. Conversely, ridge lines are depicted by U-shaped or V-shaped contours pointing towards the lower elevation."
+  },
+  {
+    "id": 32,
+    "q": "The strictly horizontal distance between two consecutive contour lines on a topographical map is technically termed as the:",
+    "o": [
+      "Contour interval",
+      "Horizontal equivalent",
+      "Vertical equivalent",
+      "Contour gradient"
+    ],
+    "a": "Horizontal equivalent",
+    "e": "While the 'contour interval' is the constant vertical distance between contours, the 'horizontal equivalent' is the horizontal distance between them, which varies depending on the steepness of the terrain."
+  },
+  {
+    "id": 33,
+    "q": "In setting out a simple circular highway curve using a single theodolite and a chain, Rankine's method involves the precise setting out of:",
+    "o": [
+      "Offsets from the long chord",
+      "Offsets from the tangents",
+      "Deflection angles from the tangent",
+      "Successive bisection of arcs"
+    ],
+    "a": "Deflection angles from the tangent",
+    "e": "Rankine's method (method of tangential angles) uses a theodolite to measure deflection angles from the tangent point to fix successive points on the curve, while a chain measures the chord lengths."
+  },
+  {
+    "id": 34,
+    "q": "What is the theoretical closing error (e) in a closed traverse if the sum of Latitudes is +0.30 m and the sum of Departures is -0.40 m?",
+    "o": [
+      "0.10 m",
+      "0.50 m",
+      "0.70 m",
+      "-0.10 m"
+    ],
+    "a": "0.50 m",
+    "e": "The linear closing error (e) is the hypotenuse of the right-angled triangle formed by the misclosures. e = √(ΣL² + ΣD²) = √((0.30)² + (-0.40)²) = √(0.09 + 0.16) = √0.25 = 0.50 m."
+  },
+  {
+    "id": 35,
+    "q": "In surveying instruments, what is the primary optical working principle of an 'Optical Square' used for setting out right angles?",
+    "o": [
+      "Refraction",
+      "Interference",
+      "Double reflection",
+      "Total internal reflection"
+    ],
+    "a": "Double reflection",
+    "e": "An optical square contains two mirrors set exactly at a 45° angle to each other. By the principle of double reflection, an incident ray is reflected twice and deviates by exactly 90°, allowing for precise perpendicular offsets."
+  },
+  {
+    "id": 36,
+    "q": "When preparing architectural plans or maps, a drawing scale of '1 cm = 5 meters' is equivalent to a Representative Fraction (RF) of:",
+    "o": [
+      "1/5",
+      "1/50",
+      "1/500",
+      "1/5000"
+    ],
+    "a": "1/500",
+    "e": "Representative Fraction requires both units to be identical. 5 meters = 500 centimeters. Therefore, 1 cm on the map represents 500 cm on the ground, making the RF exactly 1/500."
+  },
+  {
+    "id": 37,
+    "q": "If Lehman's Rules are being applied during a plane table survey to orient the table, the surveyor is attempting to completely eliminate the:",
+    "o": [
+      "Triangle of error",
+      "Local attraction",
+      "Index error",
+      "Parallax"
+    ],
+    "a": "Triangle of error",
+    "e": "When solving the three-point problem by the trial and error method (resection), the three resectors usually form a small triangle instead of intersecting at a single point. Lehman's Rules are geometric guidelines used to shift the point and eliminate this 'triangle of error'."
+  },
+  {
+    "id": 38,
+    "q": "Which specific line in a theodolite passes through the optical center of the objective lens and the geometric center of the cross-hairs?",
+    "o": [
+      "Axis of the telescope",
+      "Vertical axis",
+      "Line of collimation (Line of sight)",
+      "Trunnion axis"
+    ],
+    "a": "Line of collimation (Line of sight)",
+    "e": "The line of collimation, or line of sight, is the imaginary optical ray that extends from the intersection of the cross-hairs through the optical center of the objective lens to the target being sighted."
+  },
+  {
+    "id": 39,
+    "q": "During profile leveling for a highway project, taking a 'Change Point' (or Turning Point) fundamentally requires taking:",
+    "o": [
+      "Only a Back Sight",
+      "Only a Fore Sight",
+      "Both a Fore Sight and a Back Sight on the same staff",
+      "Multiple Intermediate Sights"
+    ],
+    "a": "Both a Fore Sight and a Back Sight on the same staff",
+    "e": "A Change Point (CP) is established to shift the leveling instrument. A Fore Sight is taken on the CP from the old instrument position to find its elevation, and a Back Sight is taken on the same CP from the new instrument position to establish the new height of instrument."
+  },
+  {
+    "id": 40,
+    "q": "In a subtense bar method of tacheometry, what must be the mandatory orientation of the subtense bar relative to the line of sight to ensure geometric accuracy?",
+    "o": [
+      "Parallel to the line of sight",
+      "Exactly 45 degrees to the line of sight",
+      "Horizontal and strictly perpendicular to the line of sight",
+      "Vertical and perpendicular to the line of sight"
+    ],
+    "a": "Horizontal and strictly perpendicular to the line of sight",
+    "e": "Unlike standard stadia tacheometry which uses a vertical staff, the subtense bar is a fixed-length horizontal bar. It must be set perfectly horizontal and exactly perpendicular to the line of sight to accurately calculate distance using the measured subtended horizontal angle."
+  },
+
+
+  {
+    "id": 41,
+    "q": "If a topographical map is drawn to a scale of 1:10000, what actual ground area is represented by exactly 1 square centimeter on the map?",
+    "o": [
+      "100 square meters",
+      "1000 square meters",
+      "1 hectare (10,000 sq.m)",
+      "10 hectares (100,000 sq.m)"
+    ],
+    "a": "1 hectare (10,000 sq.m)",
+    "e": "A scale of 1:10000 means 1 cm on the map equals 10,000 cm (or 100 meters) on the ground. Therefore, 1 square centimeter on the map represents $100 \\text{ m} \\times 100 \\text{ m} = 10,000$ square meters, which is exactly 1 hectare."
+  },
+  {
+    "id": 42,
+    "q": "In surveying instruments, how is the physical size of a theodolite fundamentally specified?",
+    "o": [
+      "By the magnifying power of the telescope",
+      "By the diameter of the lower graduated horizontal circle",
+      "By the length of the telescope tube",
+      "By the weight of the instrument"
+    ],
+    "a": "By the diameter of the lower graduated horizontal circle",
+    "e": "The size of a theodolite (e.g., a 15 cm theodolite) is defined by the diameter of the lower plate, which carries the main graduated horizontal circle used for angular measurements."
+  },
+  {
+    "id": 43,
+    "q": "What is the primary advantage that makes Plane Table surveying unique among other conventional surveying methods?",
+    "o": [
+      "It requires highly expensive precision instruments",
+      "Plotting of the map and field observations are done simultaneously",
+      "It is perfectly suitable for surveying in dense rain and bad weather",
+      "It mathematically eliminates all closure errors"
+    ],
+    "a": "Plotting of the map and field observations are done simultaneously",
+    "e": "Plane tabling is a graphical method where field observations and plotting are carried out simultaneously on the board in the field, preventing the omission of any details and eliminating the need for keeping separate field notes."
+  },
+  {
+    "id": 44,
+    "q": "During a reciprocal levelling operation across a river, the instrument at Station A reads 1.500 m on A and 2.500 m on B. When shifted to Station B, it reads 1.000 m on A and 2.200 m on B. What is the true difference in elevation between A and B?",
+    "o": [
+      "1.000 m",
+      "1.100 m",
+      "1.200 m",
+      "2.200 m"
+    ],
+    "a": "1.100 m",
+    "e": "Apparent difference from setup A = $2.500 - 1.500 = 1.000$ m. Apparent difference from setup B = $2.200 - 1.000 = 1.200$ m. The true difference is the average of the two apparent differences: $(1.000 + 1.200) / 2 = 1.100$ meters."
+  },
+  {
+    "id": 45,
+    "q": "In a closed traverse, if $\\Sigma L$ represents the algebraic sum of latitudes and $\\Sigma D$ represents the algebraic sum of departures, the tangent of the direction angle ($\\theta$) of the closing error is geometrically defined as:",
+    "o": [
+      "$\\Sigma L / \\Sigma D$",
+      "$\\Sigma D / \\Sigma L$",
+      "$(\\Sigma D)^2 / (\\Sigma L)^2$",
+      "$\\sqrt{\\Sigma L / \\Sigma D}$"
+    ],
+    "a": "$\\Sigma D / \\Sigma L$",
+    "e": "By plotting the closure error on a Cartesian plane where Latitude is the Y-axis and Departure is the X-axis, the angle $\\theta$ made with the vertical (Latitude) axis is calculated using $\\tan \\theta = \\text{Opposite} / \\text{Adjacent} = \\Sigma D / \\Sigma L$."
+  },
+  {
+    "id": 46,
+    "q": "Which specific error in staff reading during leveling is strictly cumulative (systematic) and always makes the observed staff reading greater than the true reading?",
+    "o": [
+      "Errors due to atmospheric refraction",
+      "Error due to the staff not being held truly vertical (plumb)",
+      "Settlement of the leveling instrument tripod",
+      "Error due to the earth's curvature"
+    ],
+    "a": "Error due to the staff not being held truly vertical (plumb)",
+    "e": "If a leveling staff is tilted in any direction from the vertical plumb line, the line of sight intersects it at a higher point, consistently causing the measured reading to be larger than the true vertical reading. This makes the error cumulative and strictly positive."
+  },
+  {
+    "id": 47,
+    "q": "Why is a graphical scale universally drawn on topographical plans and maps in addition to the numerical Representative Fraction (RF)?",
+    "o": [
+      "It improves the aesthetic appearance of the map",
+      "It remains true even if the map paper shrinks or expands over time",
+      "It is required for international map standardization",
+      "It converts metric units into imperial units instantly"
+    ],
+    "a": "It remains true even if the map paper shrinks or expands over time",
+    "e": "Paper is susceptible to shrinkage or expansion due to atmospheric changes. A graphical scale drawn on the paper shrinks or expands proportionally with the map, ensuring measurements taken directly from the scale remain accurate."
+  },
+  {
+    "id": 48,
+    "q": "In the context of the fundamental lines of a theodolite, the 'Line of Collimation' must be adjusted to be strictly perpendicular to which of the following axes?",
+    "o": [
+      "The vertical axis",
+      "The horizontal axis (Trunnion axis)",
+      "The axis of the plate level",
+      "The axis of the altitude level"
+    ],
+    "a": "The horizontal axis (Trunnion axis)",
+    "e": "For the telescope to generate a perfectly vertical plane when transited (plunged) up and down, the line of collimation must be exactly at 90 degrees to its axis of rotation, which is the horizontal or trunnion axis."
+  },
+  {
+    "id": 49,
+    "q": "When analyzing a topographical map, what do uniformly spaced contour lines reliably indicate regarding the nature of the terrain?",
+    "o": [
+      "A very steep hill",
+      "A flat, horizontal plain",
+      "A uniform slope",
+      "A vertical cliff"
+    ],
+    "a": "A uniform slope",
+    "e": "Because the contour interval (vertical distance) is fixed, if the horizontal equivalent (spacing between the lines on the map) remains constant, the gradient is constant, indicating a uniform, even slope."
+  },
+  {
+    "id": 50,
+    "q": "The mechanical method of solving the Three-Point Problem in plane table surveying, which involves tracing rays on a transparent sheet, is famously known as:",
+    "o": [
+      "Lehman's method",
+      "Bessel's graphical method",
+      "Tracing paper method",
+      "Two-point method"
+    ],
+    "a": "Tracing paper method",
+    "e": "The tracing paper method is a fast, mechanical solution where the surveyor traces three radiating lines towards the three known points on tracing paper, and then moves the paper over the plotted points until all lines pass through their respective points simultaneously to fix the station."
+  },
+  {
+    "id": 51,
+    "q": "In geodetic surveying, because the curvature of the earth is accounted for, a triangle formed by three distinct survey stations is treated mathematically as a:",
+    "o": [
+      "Plane triangle",
+      "Spherical triangle",
+      "Right-angled triangle",
+      "Equilateral triangle"
+    ],
+    "a": "Spherical triangle",
+    "e": "Geodetic surveying considers the true shape of the earth. The lines connecting stations are arcs of great circles, making the enclosed area a spherical triangle rather than a flat plane triangle, requiring spherical trigonometry for calculations."
+  },
+  {
+    "id": 52,
+    "q": "During the temporary adjustment of a theodolite, how is the optical error known as 'Parallax' completely eliminated?",
+    "o": [
+      "By centering the bubble in the plate level",
+      "By perfectly centering the instrument over the station mark",
+      "By focusing both the eyepiece and the objective lens to bring the image onto the plane of the cross-hairs",
+      "By transiting the telescope 180 degrees"
+    ],
+    "a": "By focusing both the eyepiece and the objective lens to bring the image onto the plane of the cross-hairs",
+    "e": "Parallax occurs when the image formed by the objective lens does not fall exactly on the plane of the cross-hairs. It is eliminated in two steps: focusing the eyepiece for distinct vision of the cross-hairs, and focusing the objective to bring the target's image to that same plane."
+  },
+  {
+    "id": 53,
+    "q": "What is the defining characteristic of the 'Contour Interval' on a meticulously prepared standard topographic map?",
+    "o": [
+      "It changes depending on the steepness of the terrain",
+      "It is kept strictly constant throughout the entire map",
+      "It is the horizontal distance between two consecutive contours",
+      "It must always be exactly 1 meter"
+    ],
+    "a": "It is kept strictly constant throughout the entire map",
+    "e": "To ensure uniform representation and prevent misinterpretation of the terrain's steepness, the contour interval (the vertical elevation difference between consecutive contour lines) is maintained strictly constant across a single map sheet."
+  },
+  {
+    "id": 54,
+    "q": "The fundamental mathematical principle behind Stadia Tacheometry relies entirely on the geometric properties of:",
+    "o": [
+      "Congruent triangles",
+      "Similar triangles",
+      "Right-angled triangles",
+      "Spherical triangles"
+    ],
+    "a": "Similar triangles",
+    "e": "The stadia method is based on the principle of similar isosceles triangles. The ratio of the perpendicular distance from the apex to the base is perfectly constant, allowing the horizontal distance to be derived from the vertical staff intercept."
+  },
+  {
+    "id": 55,
+    "q": "In a traverse survey, a 'Deflection Angle' is strictly defined as the angle measured between:",
+    "o": [
+      "The true North meridian and the survey line",
+      "The preceding line and the following line inside the polygon",
+      "The prolongation of the preceding line and the forward line",
+      "The magnetic North and the true North"
+    ],
+    "a": "The prolongation of the preceding line and the forward line",
+    "e": "A deflection angle signifies how much a survey line deviates from its straight-line path. It is explicitly the angle between the extended (prolonged) line of the preceding traverse leg and the actual direction of the next forward leg."
+  },
+  {
+    "id": 56,
+    "q": "For setting out a simple circular highway curve using linear methods, the method of 'perpendicular offsets from the tangent' is practically suitable only for:",
+    "o": [
+      "Long curves with large radii",
+      "Short curves with small radii",
+      "Transition curves",
+      "Reverse curves"
+    ],
+    "a": "Short curves with small radii",
+    "e": "Because setting long perpendicular offsets accurately with a tape becomes practically impossible and highly error-prone in the field, this linear method is strictly limited to short curves where the offset distances remain small."
+  },
+  {
+    "id": 57,
+    "q": "What is the standard measurement unit used to define the 'Sensitiveness' of a spirit bubble tube in a precision leveling instrument?",
+    "o": [
+      "Millimeters per degree",
+      "Seconds of arc per 2 mm division",
+      "Degrees per millimeter",
+      "Centimeters of liquid displaced"
+    ],
+    "a": "Seconds of arc per 2 mm division",
+    "e": "Sensitiveness is defined as the angular value (in seconds of arc) that corresponds to the longitudinal movement of the bubble by exactly one standard division on the glass tube, which is typically 2 mm long."
+  },
+  {
+    "id": 58,
+    "q": "When referring to benchmark classifications, a temporary benchmark (TBM) is established typically at the end of a day's work. To resume surveying the next day, the first reading taken on this TBM is fundamentally a:",
+    "o": [
+      "Fore Sight (FS)",
+      "Intermediate Sight (IS)",
+      "Back Sight (BS)",
+      "Change Point (CP)"
+    ],
+    "a": "Back Sight (BS)",
+    "e": "A Back Sight is strictly the first staff reading taken after setting up a leveling instrument. Since the TBM has a known established elevation from the previous day, a BS must be taken on it to determine the new Height of Instrument."
+  },
+  {
+    "id": 59,
+    "q": "Which orientation of the Plane Table provides the highest precision and ensures the drawn survey lines remain strictly parallel to their corresponding ground lines?",
+    "o": [
+      "Orientation by Trough Compass",
+      "Orientation by Backsighting",
+      "Orientation by Resection",
+      "Orientation by estimation"
+    ],
+    "a": "Orientation by Backsighting",
+    "e": "Orientation by backsighting uses already plotted lines and established ground stations to orient the board, ensuring perfect geometric continuity and eliminating the unreliability associated with magnetic compasses due to local attraction."
+  },
+  {
+    "id": 60,
+    "q": "If the intercept on a vertical staff is observed to be 1.250 m at a horizontal distance of 125 meters using a standard tacheometer (where C=0), what is the multiplying constant (k) of the instrument?",
+    "o": [
+      "50",
+      "100",
+      "125",
+      "150"
+    ],
+    "a": "100",
+    "e": "Using the standard tacheometric distance equation $D = ks + C$. Given $D = 125$ m, $s = 1.250$ m, and $C = 0$, we have $125 = k(1.250)$. Solving for $k$ yields $k = 125 / 1.250 = 100$."
+  },
+
+
+  {
+    "id": 61,
+    "q": "In levelling calculations, the correction for atmospheric refraction is generally considered to be what specific mathematical fraction of the correction for earth's curvature?",
+    "o": [
+      "1/2 (additive)",
+      "1/7 (additive)",
+      "1/7 (subtractive)",
+      "1/14 (additive)"
+    ],
+    "a": "1/7 (additive)",
+    "e": "The correction for earth's curvature is always subtractive, while the correction for atmospheric refraction bends the line of sight downward, making the reading smaller, thus its correction is additive and is generally taken as 1/7th of the curvature correction."
+  },
+  {
+    "id": 62,
+    "q": "A levelling instrument is set up near a column. The back sight on a nearby benchmark (RL = 105.000 m) reads 1.250 m. The staff is then held inverted against the ceiling slab directly above, reading 2.750 m. What is the exact Reduced Level (RL) of the ceiling?",
+    "o": [
+      "103.500 m",
+      "106.250 m",
+      "107.750 m",
+      "109.000 m"
+    ],
+    "a": "109.000 m",
+    "e": "Height of Instrument (HI) = BM RL + BS = 105.000 + 1.250 = 106.250 m. An inverted staff indicates a point above the line of sight (a negative foresight). RL of ceiling = HI - (-FS) = 106.250 + 2.750 = 109.000 m."
+  },
+  {
+    "id": 63,
+    "q": "If the sensitiveness of a spirit bubble tube is exactly 20.6265 seconds per division, what will be the resulting linear error in a staff reading at a horizontal distance of 100 meters if the bubble is off-center by exactly one division?",
+    "o": [
+      "1 mm",
+      "10 mm",
+      "20 mm",
+      "100 mm"
+    ],
+    "a": "10 mm",
+    "e": "Error (E) = D * (alpha / 206265) where alpha is in seconds. E = 100 * (20.6265 / 206265) = 100 * 0.0001 = 0.01 meters, which is exactly 10 mm."
+  },
+  {
+    "id": 64,
+    "q": "While reducing levelling notes, which method provides a complete and rigorous arithmetic check on all the Intermediate Sights (IS) taken during the survey?",
+    "o": [
+      "Height of Instrument (HI) method",
+      "Rise and Fall method",
+      "Line of Collimation method",
+      "Both HI and Rise and Fall methods"
+    ],
+    "a": "Rise and Fall method",
+    "e": "The Rise and Fall method calculates the elevation difference between every consecutive point, ensuring that Intermediate Sights are mathematically cross-checked through the equation: Sum of Rises - Sum of Falls = Last RL - First RL."
+  },
+  {
+    "id": 65,
+    "q": "Although reciprocal levelling eliminates instrumental errors and errors due to earth's curvature, which specific error can it NOT entirely eliminate due to rapidly changing environmental conditions?",
+    "o": [
+      "Error due to non-parallelism of collimation and bubble axes",
+      "Error due to the horizontal cross-hair being tilted",
+      "Error due to variations in atmospheric refraction",
+      "Error due to the curvature of the earth"
+    ],
+    "a": "Error due to variations in atmospheric refraction",
+    "e": "Reciprocal levelling assumes that refraction is identical at both instrument stations. However, if the readings are not taken simultaneously, changing air densities and temperatures can alter the refraction, leaving a small residual error."
+  },
+  {
+    "id": 66,
+    "q": "In a transit theodolite, what is the primary purpose of providing two verniers (A and B) situated exactly 180 degrees apart on the horizontal circle?",
+    "o": [
+      "To eliminate the error due to the non-verticality of the vertical axis",
+      "To completely eliminate the error due to eccentricity of the inner and outer axes",
+      "To magnify the reading scale for better precision",
+      "To eliminate errors caused by parallax"
+    ],
+    "a": "To completely eliminate the error due to eccentricity of the inner and outer axes",
+    "e": "If the mechanical center of the vernier plate (inner axis) does not perfectly coincide with the center of the main scale plate (outer axis), an eccentricity error occurs. Averaging the readings of two opposite verniers geometrically cancels this error out completely."
+  },
+  {
+    "id": 67,
+    "q": "During a theodolite survey, observing an angle in both Face Left (FL) and Face Right (FR) conditions and taking their mean completely eliminates the error caused if the:",
+    "o": [
+      "Line of collimation is not exactly perpendicular to the horizontal axis",
+      "Vertical axis is not strictly perpendicular to the horizontal axis",
+      "Tripod settles unevenly during the observation",
+      "Bubble tube is not properly centered"
+    ],
+    "a": "Line of collimation is not exactly perpendicular to the horizontal axis",
+    "e": "Changing faces reverses the geometry of the instrument. Errors due to the line of collimation not being perpendicular to the trunnion axis, and the trunnion axis not being perpendicular to the vertical axis, are equal and opposite in FL and FR, thus averaging them out."
+  },
+  {
+    "id": 68,
+    "q": "In the process of measuring a horizontal angle with a theodolite, rotating the telescope exclusively in the horizontal plane about its vertical axis is technically termed as:",
+    "o": [
+      "Transiting",
+      "Swinging",
+      "Plunging",
+      "Reversing"
+    ],
+    "a": "Swinging",
+    "e": "Swinging refers to turning the telescope left or right in a horizontal plane about the vertical axis. Transiting or plunging refers to turning the telescope vertically over 180 degrees about its horizontal (trunnion) axis."
+  },
+  {
+    "id": 69,
+    "q": "When adjusting a precise theodolite, the 'Plate Level Test' is explicitly performed to ensure that the:",
+    "o": [
+      "Horizontal cross-hair is truly horizontal",
+      "Axis of the plate bubble tube is perpendicular to the vertical axis",
+      "Line of sight is parallel to the telescope bubble",
+      "Optical plummet is accurately aligned"
+    ],
+    "a": "Axis of the plate bubble tube is perpendicular to the vertical axis",
+    "e": "The plate level test ensures that when the bubble is centered, the vertical axis is truly vertical. If the axis of the bubble tube is not exactly 90 degrees to the vertical axis, the instrument cannot be leveled correctly in all directions."
+  },
+  {
+    "id": 70,
+    "q": "In a closed traverse composed of 'n' stations, what must the theoretical sum of the strictly exterior angles be mathematically equal to?",
+    "o": [
+      "(2n - 4) x 90 degrees",
+      "(n - 2) x 180 degrees",
+      "(2n + 4) x 90 degrees",
+      "n x 360 degrees"
+    ],
+    "a": "(2n + 4) x 90 degrees",
+    "e": "While the sum of the interior angles of a closed polygon is geometrically (2n - 4) right angles, the sum of all the exterior angles around the polygon is strictly (2n + 4) right angles, which serves as a primary angular check."
+  },
+  {
+    "id": 71,
+    "q": "In a closed traverse survey, the sum of Latitudes (Sum L) is perfectly zero, but the sum of Departures (Sum D) is exactly +2.00 meters. The absolute direction (azimuth) of the closing error is exactly:",
+    "o": [
+      "0 degrees (Due North)",
+      "90 degrees (Due East)",
+      "180 degrees (Due South)",
+      "270 degrees (Due West)"
+    ],
+    "a": "90 degrees (Due East)",
+    "e": "The closing error has zero latitude (no North/South component) and a positive departure (pure East component). Therefore, the vector of the closing error points directly due East, which corresponds to an azimuth of 90 degrees."
+  },
+  {
+    "id": 72,
+    "q": "The Bowditch Rule (Compass Rule) applied for adjusting a closed traverse distributes the closing errors in latitude and departure fundamentally proportional to the:",
+    "o": [
+      "Latitude and departure of the respective side",
+      "Square of the length of the respective side",
+      "Length of the respective side itself",
+      "Interior angle measured at the station"
+    ],
+    "a": "Length of the respective side itself",
+    "e": "Bowditch's rule dictates that the correction to the latitude or departure of a given side is equal to the total error in latitude or departure multiplied by the ratio of that side's length to the total perimeter of the traverse."
+  },
+  {
+    "id": 73,
+    "q": "If a closed traverse is conducted where the precise angular measurements taken by a theodolite are deemed far superior in accuracy compared to the rough linear chaining, which adjustment method is strictly the most suitable?",
+    "o": [
+      "Bowditch's Rule",
+      "Transit Rule",
+      "Graphical Method",
+      "Axis Method"
+    ],
+    "a": "Transit Rule",
+    "e": "The Transit Rule alters angular measurements much less than linear measurements. It distributes the closure error proportional to the latitudes and departures of the sides, making it ideal when angular precision heavily outweighs linear precision."
+  },
+  {
+    "id": 74,
+    "q": "The 'Relative Error of Closure' defines the overall precision of a closed traverse. How is it expressed mathematically, where 'e' is the linear closing error and 'P' is the total perimeter?",
+    "o": [
+      "e / P",
+      "P / e",
+      "1 / (e x P)",
+      "1 / (P / e)"
+    ],
+    "a": "1 / (P / e)",
+    "e": "Relative precision is traditionally expressed as a fraction with a numerator of 1. It is calculated by dividing both the error (e) and the perimeter (P) by the error, resulting in the standard format of 1 : (P / e)."
+  },
+  {
+    "id": 75,
+    "q": "If contour lines of differing elevations physically cross each other on a topographical map, this extremely rare geometric representation reliably indicates the presence of a:",
+    "o": [
+      "Vertical cliff",
+      "Saddle or pass",
+      "Deep gorge or canyon",
+      "Overhanging cliff or cave"
+    ],
+    "a": "Overhanging cliff or cave",
+    "e": "Contour lines represent distinct elevations and generally never cross. They can only cross in the specific instance of an overhanging cliff or a cave, where a higher elevation point physically projects outward over a lower elevation point."
+  },
+  {
+    "id": 76,
+    "q": "A civil engineer needs to maintain a strict contour gradient of 1 in 50 for a proposed hill road. If the contour interval of the base map is 2 meters, what must be the constant horizontal equivalent (distance) between consecutive contours on the alignment?",
+    "o": [
+      "25 meters",
+      "50 meters",
+      "100 meters",
+      "200 meters"
+    ],
+    "a": "100 meters",
+    "e": "Gradient is defined as Vertical Drop / Horizontal Distance. 1 / 50 = Contour Interval / Horizontal Equivalent. 1 / 50 = 2m / HE. Therefore, the required Horizontal Equivalent = 2 * 50 = 100 meters."
+  },
+  {
+    "id": 77,
+    "q": "When calculating the storage capacity (volume) of a water reservoir from the areas enclosed by consecutive contour lines, which mathematical formula generally provides the most highly accurate volumetric result?",
+    "o": [
+      "Trapezoidal Formula",
+      "Prismoidal Formula (Simpson's Rule)",
+      "Average End Area Method",
+      "Mid-ordinate Rule"
+    ],
+    "a": "Prismoidal Formula (Simpson's Rule)",
+    "e": "The Prismoidal formula assumes the surface between successive contours forms a curved parabolic surface rather than flat planes. Because natural terrain is generally curved, it yields much more precise volume calculations than the linear Trapezoidal method."
+  },
+  {
+    "id": 78,
+    "q": "In the process of contouring, what characterizes the 'Direct Method' compared to indirect methods like gridding or cross-sectioning?",
+    "o": [
+      "It is the fastest method available for large areas",
+      "It relies heavily on interpolation in the office",
+      "The contours are directly traced out on the ground using a level",
+      "It is primarily used for highly rugged, mountainous terrain"
+    ],
+    "a": "The contours are directly traced out on the ground using a level",
+    "e": "In the direct method, the surveyor locates a series of points on the ground that exactly match the target contour elevation using a leveling instrument, then surveys their positions. It is the most accurate method but extremely slow and tedious."
+  },
+  {
+    "id": 79,
+    "q": "A closed set of contour lines shows values decreasing continuously towards the central point (e.g., 100m, 95m, 90m inside). This specific topographic configuration explicitly represents a:",
+    "o": [
+      "Ridge line",
+      "Hillock or peak",
+      "Saddle",
+      "Depression or basin"
+    ],
+    "a": "Depression or basin",
+    "e": "When the contour values decrease inward, it means the ground is dropping towards the center, forming a depression, pond, or crater. Conversely, values increasing inward represent a hill."
+  },
+  {
+    "id": 80,
+    "q": "During profile leveling along the central alignment of a proposed highway, the staff readings taken strictly to plot the surface profile (not on turning points) are classified as:",
+    "o": [
+      "Back Sights (BS)",
+      "Fore Sights (FS)",
+      "Intermediate Sights (IS)",
+      "Change Points (CP)"
+    ],
+    "a": "Intermediate Sights (IS)",
+    "e": "All staff readings taken between the initial Back Sight and the final Fore Sight of a single instrument setup, solely to determine the elevation of specific ground points along the profile, are logged as Intermediate Sights."
+  },
+
+
+  {
+    "id": 81,
+    "q": "In a levelling operation, the total sum of back sights is 12.450 m and the sum of fore sights is 10.250 m. If the starting Reduced Level (First RL) is 100.000 m, what is the strictly correct Last RL?",
+    "o": [
+      "97.800 m",
+      "102.200 m",
+      "100.000 m",
+      "112.450 m"
+    ],
+    "a": "102.200 m",
+    "e": "Using the basic arithmetic check for levelling: ΣBS - ΣFS = Last RL - First RL. 12.450 - 10.250 = +2.200 m (indicating a net rise). Last RL = 100.000 + 2.200 = 102.200 m."
+  },
+  {
+    "id": 82,
+    "q": "What is the standard least count of a conventional engineer's Vernier transit theodolite commonly used in standard field surveys?",
+    "o": [
+      "1 second",
+      "10 seconds",
+      "20 seconds",
+      "1 minute"
+    ],
+    "a": "20 seconds",
+    "e": "A standard field transit theodolite typically features a primary circle graduated to 20 minutes (1/3 of a degree), with a vernier divided into 60 parts. The least count is calculated as 20 minutes / 60 = 1/3 minute = 20 seconds."
+  },
+  {
+    "id": 83,
+    "q": "A closed traverse has a total perimeter of 1000 m. The algebraic sum of latitudes reveals a total error of -0.50 m. Using Bowditch's rule, what is the exact latitude correction for a side measuring 200 m?",
+    "o": [
+      "+0.10 m",
+      "-0.10 m",
+      "+0.25 m",
+      "-0.25 m"
+    ],
+    "a": "+0.10 m",
+    "e": "Bowditch's correction = Total Error * (Length of side / Perimeter). The closing error is -0.50m, meaning the correction must be positive. C = 0.50 * (200 / 1000) = 0.50 * 0.2 = +0.10 m."
+  },
+  {
+    "id": 84,
+    "q": "On a contour map, the horizontal equivalent between the 100 m and 102 m contour lines is scaled as 40 m. Assuming a uniform slope, at what exact horizontal distance from the 100 m contour will the interpolated 100.5 m spot level be plotted?",
+    "o": [
+      "5 m",
+      "10 m",
+      "15 m",
+      "20 m"
+    ],
+    "a": "10 m",
+    "e": "The elevation difference is 2m over a horizontal distance of 40m. For a required elevation change of 0.5m (100.5 - 100), the interpolated horizontal distance is (40 / 2) * 0.5 = 10 m."
+  },
+  {
+    "id": 85,
+    "q": "In a dumpy or auto level, the imaginary line joining the optical center of the objective lens to the precise intersection of the cross-hairs is technically defined as the:",
+    "o": [
+      "Axis of the telescope",
+      "Line of collimation",
+      "Vertical axis",
+      "Axis of the bubble tube"
+    ],
+    "a": "Line of collimation",
+    "e": "The Line of Collimation (or line of sight) strictly connects the intersection of the diaphragm cross-hairs to the optical center of the objective lens, continuing outward to the target being surveyed."
+  },
+  {
+    "id": 86,
+    "q": "To directly measure the magnetic bearing of a line using a theodolite equipped with a tubular compass, the Vernier A must be clamped to exactly what value before orienting the instrument to magnetic North?",
+    "o": [
+      "0°00'00\"",
+      "90°00'00\"",
+      "180°00'00\"",
+      "270°00'00\""
+    ],
+    "a": "0°00'00\"",
+    "e": "To read true bearings directly from the horizontal circle, Vernier A is set to exactly 0°00'00\". Then, using the lower clamp, the entire instrument is rotated until the compass needle aligns with magnetic North, setting the zero reference perfectly."
+  },
+  {
+    "id": 87,
+    "q": "In a closed traverse forming a 6-sided polygon (hexagon), if the interior angles are strictly observed, the primary arithmetic check demands their sum equal exactly:",
+    "o": [
+      "360°",
+      "540°",
+      "720°",
+      "900°"
+    ],
+    "a": "720°",
+    "e": "The sum of interior angles in any closed polygon is strictly given by the formula (2n - 4) * 90°. For n = 6, the sum is (12 - 4) * 90° = 8 * 90° = 720°."
+  },
+  {
+    "id": 88,
+    "q": "At what specific angle do contour lines generally intersect a true ridge line (watershed line) or valley line on a meticulously surveyed topographical map?",
+    "o": [
+      "30°",
+      "45°",
+      "60°",
+      "90°"
+    ],
+    "a": "90°",
+    "e": "Due to the natural behavior of water flow and terrain geometry, contour lines invariably cross ridge lines and valley lines at exactly right angles (90 degrees), forming U or V shapes respectively."
+  },
+  {
+    "id": 89,
+    "q": "A spirit level has a sensitiveness of 30 seconds per 2 mm division. If the bubble is displaced off-center by exactly 2 divisions, what is the resulting vertical error in a staff reading taken at a horizontal distance of 80 meters?",
+    "o": [
+      "11.6 mm",
+      "23.3 mm",
+      "30.0 mm",
+      "46.6 mm"
+    ],
+    "a": "23.3 mm",
+    "e": "Total angular deviation (α) = 2 divisions * 30\" = 60\". Error (E) = Distance * (α / 206265). E = 80000 mm * (60 / 206265) = 23.27 mm (approx 23.3 mm)."
+  },
+  {
+    "id": 90,
+    "q": "Which fundamental instrumental error in a transit theodolite is mathematically impossible to eliminate by simply taking the mean of Face Left (FL) and Face Right (FR) observations?",
+    "o": [
+      "Line of collimation not being perpendicular to the trunnion axis",
+      "Trunnion axis not being perpendicular to the vertical axis",
+      "Eccentricity of the inner and outer axes",
+      "Error due to the vertical axis not being truly vertical (plumb)"
+    ],
+    "a": "Error due to the vertical axis not being truly vertical (plumb)",
+    "e": "Changing faces reverses internal optics and axes, canceling out collimation and trunnion errors. However, if the main vertical axis is tilted (due to improper plate leveling), changing the face cannot correct this tilt."
+  },
+  {
+    "id": 91,
+    "q": "The measured length of a traverse line AB is 100 meters, and its observed Reduced Bearing is N 30° E. What are the respective calculated Latitude (L) and Departure (D) of line AB?",
+    "o": [
+      "L = +50.00 m, D = +86.60 m",
+      "L = +86.60 m, D = +50.00 m",
+      "L = -86.60 m, D = -50.00 m",
+      "L = +100.00 m, D = +0.00 m"
+    ],
+    "a": "L = +86.60 m, D = +50.00 m",
+    "e": "Latitude = l * cos(θ) = 100 * cos(30°) = 100 * 0.866 = +86.60 m (North is +). Departure = l * sin(θ) = 100 * sin(30°) = 100 * 0.500 = +50.00 m (East is +)."
+  },
+  {
+    "id": 92,
+    "q": "The distinct topographic feature representing a low-lying dip or pass along a ridge crest between two higher mountain peaks, mapped as an hourglass-like arrangement of contours, is termed a:",
+    "o": [
+      "Gorge",
+      "Valley",
+      "Saddle",
+      "Escarpment"
+    ],
+    "a": "Saddle",
+    "e": "A saddle (also known as a pass or col) represents the lowest point between two peaks along a ridge. On a contour map, it appears as a flat area flanked by two rising contour loops and two falling valleys."
+  },
+  {
+    "id": 93,
+    "q": "The rapid levelling process exclusively executed to transfer elevations from a permanent benchmark to a distant construction site, strictly omitting all intermediate details, is called:",
+    "o": [
+      "Profile levelling",
+      "Fly levelling",
+      "Reciprocal levelling",
+      "Cross-sectioning"
+    ],
+    "a": "Fly levelling",
+    "e": "Fly levelling prioritizes speed over detailing. It is used solely to establish a Temporary Benchmark (TBM) by taking only back sights and fore sights with long distances between setups."
+  },
+  {
+    "id": 94,
+    "q": "During a theodolite survey, if the observed Zenith Angle to a target is strictly 80°30', what is the corresponding Vertical Angle (angle of elevation or depression)?",
+    "o": [
+      "+9°30' (Elevation)",
+      "-9°30' (Depression)",
+      "+80°30' (Elevation)",
+      "-80°30' (Depression)"
+    ],
+    "a": "+9°30' (Elevation)",
+    "e": "The Zenith is exactly 0° straight up, making the true horizontal plane exactly 90°. A zenith reading of 80°30' is above the horizontal line. Vertical Angle = 90°00' - 80°30' = +9°30' (an angle of elevation)."
+  },
+  {
+    "id": 95,
+    "q": "In adjusting a closed traverse, the computed closing error vector possesses a Latitude of -1.50 m and a Departure of -1.50 m. What is the Whole Circle Bearing (WCB) of the specific correction required to balance this traverse?",
+    "o": [
+      "45°",
+      "135°",
+      "225°",
+      "315°"
+    ],
+    "a": "45°",
+    "e": "The error vector is strictly South-West (Lat -, Dep -) with an angle of 225°. The correction required must be equal and opposite to the error, moving North-East (Lat +, Dep +). The WCB for due North-East is exactly 45°."
+  },
+  {
+    "id": 96,
+    "q": "As a standard engineering practice, if an urban planning topographical map is prepared at a scale of 1:1000 for gently rolling terrain, what is the most appropriate contour interval to adopt?",
+    "o": [
+      "0.1 to 0.2 meters",
+      "0.5 to 1.0 meters",
+      "2.0 to 3.0 meters",
+      "5.0 to 10.0 meters"
+    ],
+    "a": "0.5 to 1.0 meters",
+    "e": "For a large-scale map (1:1000) meant for detailed engineering work on rolling ground, a smaller contour interval of 0.5m to 1.0m is standard to capture sufficient topographical variation without overcrowding the paper."
+  },
+  {
+    "id": 97,
+    "q": "In the mechanical design of a traditional Dumpy Level, the telescope is cast rigidly with its vertical spindle. Consequently, which of the following internal adjustments is physically impossible to perform?",
+    "o": [
+      "Adjusting the cross-hairs vertically",
+      "Adjusting the line of collimation parallel to the bubble axis",
+      "Adjusting the horizontal trunnion axis",
+      "Adjusting the bubble axis strictly perpendicular to the vertical axis"
+    ],
+    "a": "Adjusting the horizontal trunnion axis",
+    "e": "Because a Dumpy Level cannot transit (tilt vertically up or down), it does not possess a horizontal trunnion axis. It rotates entirely on its vertical axis. Hence, trunnion axis adjustments apply only to Transit Theodolites or Y-levels."
+  },
+  {
+    "id": 98,
+    "q": "To geometrically prolong a straight line over a considerable distance with the utmost precision using a transit theodolite, the surveyor must strictly employ the method of:",
+    "o": [
+      "Single swinging",
+      "Double sighting (transiting in both faces)",
+      "Balancing in",
+      "Random lining"
+    ],
+    "a": "Double sighting (transiting in both faces)",
+    "e": "Double sighting requires transiting the telescope in Face Left, marking a point, then repeating in Face Right to mark a second point. The true extended line lies exactly midway between these marks, completely eliminating residual collimation and trunnion errors."
+  },
+  {
+    "id": 99,
+    "q": "When balancing a compass traverse, the graphical method (which distributes the closing error by drawing parallel vectors proportional to the distance from the origin) is fundamentally the geometric equivalent of:",
+    "o": [
+      "Simpson's Rule",
+      "Transit Rule",
+      "Bowditch's Rule",
+      "Axis Method"
+    ],
+    "a": "Bowditch's Rule",
+    "e": "The graphical adjustment scales the total closing error vector proportionally directly against the cumulative lengths of the traverse legs. This exact proportionality perfectly mimics the mathematical logic of Bowditch's Compass Rule."
+  },
+  {
+    "id": 100,
+    "q": "The areas enclosed within two successive contour lines (100 m and 105 m) are 500 sq.m and 800 sq.m respectively. Utilizing the standard Trapezoidal formula, what is the computed volume of earthwork between them?",
+    "o": [
+      "2000 cubic meters",
+      "3250 cubic meters",
+      "3500 cubic meters",
+      "6500 cubic meters"
+    ],
+    "a": "3250 cubic meters",
+    "e": "The contour interval (h) is 105 - 100 = 5 meters. The Trapezoidal formula for volume is (h / 2) * (A1 + A2). Volume = (5 / 2) * (500 + 800) = 2.5 * 1300 = 3250 cubic meters."
+  },
+
+
+
+  {
+    "id": 101,
+    "q": "In an Automatic Level, which specific precision component automatically ensures the line of collimation remains strictly horizontal even if the instrument is slightly tilted?",
+    "o": [
+      "Parallax focusing screw",
+      "Optical Compensator",
+      "Tubular spirit level",
+      "Anallactic lens"
+    ],
+    "a": "Optical Compensator",
+    "e": "An auto level uses an internal optical compensator mechanism (usually a pendulum system of prisms) that automatically adjusts the line of sight to be perfectly horizontal, provided the circular bubble is roughly centered."
+  },
+  {
+    "id": 102,
+    "q": "What is the standard full extended length of a commonly used telescopic (folding) levelling staff in standard engineering surveys?",
+    "o": [
+      "2.0 meters",
+      "3.0 meters",
+      "4.0 meters",
+      "5.0 meters"
+    ],
+    "a": "4.0 meters",
+    "e": "The most widely adopted telescopic levelling staff extends to a maximum length of exactly 4.0 meters, usually consisting of three telescoping segments to allow for easy transport when closed."
+  },
+  {
+    "id": 103,
+    "q": "In modern internal focusing telescopes used in precision levelling instruments, the focusing of the target image is mechanically achieved by the movement of a:",
+    "o": [
+      "Diverging (Concave) lens",
+      "Converging (Convex) lens",
+      "Plano-convex objective lens",
+      "Fixed cross-hair diaphragm"
+    ],
+    "a": "Diverging (Concave) lens",
+    "e": "Internal focusing telescopes utilize a movable double concave (diverging) lens located between the objective and the eyepiece. Sliding this internal lens changes the focal length without altering the external length of the telescope tube."
+  },
+  {
+    "id": 104,
+    "q": "Which method of levelling strictly utilizes the measurement of atmospheric pressure to estimate elevation differences between distinct ground points?",
+    "o": [
+      "Trigonometric levelling",
+      "Barometric levelling",
+      "Profile levelling",
+      "Differential levelling"
+    ],
+    "a": "Barometric levelling",
+    "e": "Barometric levelling relies on the physical principle that atmospheric pressure decreases inversely with altitude. An aneroid barometer or altimeter is used to measure these pressure differences to calculate relative elevations."
+  },
+  {
+    "id": 105,
+    "q": "When levelling across an extremely steep, inaccessible gorge where setting up a standard dumpy level is impossible, the surveyor must rely on taking vertical angles. This standard procedure is classified as:",
+    "o": [
+      "Profile levelling",
+      "Fly levelling",
+      "Trigonometric levelling",
+      "Reciprocal levelling"
+    ],
+    "a": "Trigonometric levelling",
+    "e": "Trigonometric levelling (or indirect levelling) calculates elevation differences geometrically using observed vertical angles (from a theodolite) and known horizontal or inclined distances, bypassing the need for horizontal line-of-sight levelling."
+  },
+  {
+    "id": 106,
+    "q": "In a plane table survey, a Telescopic Alidade is distinctly preferred over a standard Plain (Sight Rule) Alidade strictly when:",
+    "o": [
+      "The survey area is extremely flat and open",
+      "Sighting inclined lines of sight in hilly terrain is required",
+      "Magnetic interference makes compasses useless",
+      "The plane table cannot be properly centered"
+    ],
+    "a": "Sighting inclined lines of sight in hilly terrain is required",
+    "e": "A Telescopic Alidade features a telescope mounted on a horizontal axis, allowing it to be tilted up or down. This makes it essential for sighting points that are much higher or lower than the instrument station, which a plain alidade cannot do."
+  },
+  {
+    "id": 107,
+    "q": "According to standard engineering survey specifications, what are the dimensions of a standard plane table board typically utilized for topographical works?",
+    "o": [
+      "300 x 300 mm",
+      "400 x 500 mm",
+      "600 x 750 mm",
+      "1000 x 1000 mm"
+    ],
+    "a": "600 x 750 mm",
+    "e": "The standard drawing board used for plane tabling in heavy engineering and topographical surveys is conventionally specified as 600 mm by 750 mm to provide sufficient drawing area without being too heavy to mount on a tripod."
+  },
+  {
+    "id": 108,
+    "q": "Which primary method of plane tabling dictates that the surveyor must physically measure linear distances on the ground (using a tape or chain) from the instrument station to the detail points?",
+    "o": [
+      "Method of Intersection",
+      "Method of Resection",
+      "Method of Radiation",
+      "Three-point method"
+    ],
+    "a": "Method of Radiation",
+    "e": "In the radiation method, rays are drawn from a single central instrument station towards various ground points. The linear horizontal distance to each point is then physically measured with a tape and scaled directly onto the corresponding ray."
+  },
+  {
+    "id": 109,
+    "q": "The fundamental geometric principle utilized in the 'Intersection Method' of plane tabling explicitly involves plotting a point by:",
+    "o": [
+      "Measuring one precise angle and one linear distance",
+      "The intersection of rays drawn from two known, mutually visible stations",
+      "Locating the instrument station itself by sighting three known points",
+      "Running a continuous closed polygon traverse"
+    ],
+    "a": "The intersection of rays drawn from two known, mutually visible stations",
+    "e": "The intersection method plots details by establishing a baseline between two known stations. Rays are drawn towards the target from both ends of the baseline. Where the rays intersect on the paper is the true location of the point."
+  },
+  {
+    "id": 110,
+    "q": "The 'Resection' method in plane table surveying is exclusively and explicitly employed for the purpose of:",
+    "o": [
+      "Plotting highly inaccessible distant objects",
+      "Determining the exact map location of the current instrument station",
+      "Establishing a permanent leveling benchmark",
+      "Measuring horizontal distances without chaining"
+    ],
+    "a": "Determining the exact map location of the current instrument station",
+    "e": "Resection is the process of precisely locating the position of the plane table station on the drawing sheet by taking sights backwards (resecting) towards already plotted and highly visible ground control points (like two-point or three-point problems)."
+  },
+  {
+    "id": 111,
+    "q": "The 'Direct Method' of contouring involves finding the exact physical points on the ground having the target contour elevation. From an execution standpoint, this method is fundamentally characterized as:",
+    "o": [
+      "Extremely fast and ideally suited for very large areas",
+      "The most accurate but exceptionally slow and tedious",
+      "Primarily reliant on mathematical interpolation in the office",
+      "Executed exclusively using aerial photogrammetry"
+    ],
+    "a": "The most accurate but exceptionally slow and tedious",
+    "e": "Because the surveyor must physically search the ground using a levelling instrument to pinpoint exact elevations before staking and surveying them, the direct method is highly accurate but too slow and labor-intensive for anything other than small, precise projects."
+  },
+  {
+    "id": 112,
+    "q": "For preparing a highly detailed contour map of a relatively flat, open plain area (like a building construction site), which specific method of indirect contouring is strictly the most suitable and commonly adopted?",
+    "o": [
+      "Method of Cross-sections",
+      "Radial line method",
+      "Method of Squares (Gridding)",
+      "Tacheometric method"
+    ],
+    "a": "Method of Squares (Gridding)",
+    "e": "The method of squares divides the flat terrain into a grid. Elevations are taken at every grid intersection using a level. Contours are then easily and accurately interpolated across the uniform squares in the office."
+  },
+  {
+    "id": 113,
+    "q": "In linear alignment projects such as highways, railways, or canals, the most practical and universally adopted method of contouring to plot the terrain directly along the route is:",
+    "o": [
+      "Tacheometric contouring method",
+      "Direct tracing method",
+      "Method of Squares (Gridding)",
+      "Method of Cross-sections"
+    ],
+    "a": "Method of Cross-sections",
+    "e": "For long, narrow route surveys, a longitudinal profile is run along the centerline, and cross-sections are taken perpendicular to it at regular intervals. Elevations along these cross-sections provide exactly the topographic data needed for earthwork design."
+  },
+  {
+    "id": 114,
+    "q": "Which lightweight, hand-held optical instrument is extensively utilized by surveyors in the field for the rapid physical interpolation of contours and for rapidly determining the gradient of ground slopes?",
+    "o": [
+      "Theodolite",
+      "Dumpy level",
+      "Abney level (or Clinometer)",
+      "Planimeter"
+    ],
+    "a": "Abney level (or Clinometer)",
+    "e": "A clinometer (such as an Abney level) is a small hand instrument consisting of a sighting tube and an attached spirit level with a graduated arc. It is specifically designed to measure angles of elevation or depression (slopes) directly in the field."
+  },
+  {
+    "id": 115,
+    "q": "In the optical system of a levelling instrument's telescope, the primary physical function of the 'Objective Lens' is to gather light and explicitly:",
+    "o": [
+      "Magnify the cross-hairs for the observer",
+      "Form a real and inverted image of the targeted object",
+      "Erect the inverted image back to an upright position",
+      "Completely eliminate atmospheric refraction"
+    ],
+    "a": "Form a real and inverted image of the targeted object",
+    "e": "The objective lens captures light from the distant object (like a levelling staff) and converges the rays to form a real, inverted, and smaller image exactly at the plane of the cross-hairs inside the telescope."
+  },
+  {
+    "id": 116,
+    "q": "In a grid method of contouring, the four corners of a perfectly square 10m x 10m grid have measured RLs of 101.00 m, 101.50 m, 102.50 m, and 102.00 m respectively. If estimating the ground elevation at the exact geometric center of this grid square, what is the mathematically interpolated RL?",
+    "o": [
+      "101.50 m",
+      "101.75 m",
+      "102.00 m",
+      "102.25 m"
+    ],
+    "a": "101.75 m",
+    "e": "Assuming a uniform plane across the grid, the elevation at the geometric centroid is the arithmetic mean of the four corner elevations. Centroid RL = (101.00 + 101.50 + 102.50 + 102.00) / 4 = 407.00 / 4 = 101.75 m."
+  },
+  {
+    "id": 117,
+    "q": "'Hypsometry' is an unconventional but scientifically established method of determining relative terrain elevations by explicitly observing and correlating changes in the:",
+    "o": [
+      "Speed of sound in atmospheric air",
+      "Boiling point of pure water",
+      "Magnetic declination of the area",
+      "Refraction index of visible light"
+    ],
+    "a": "Boiling point of pure water",
+    "e": "Hypsometry utilizes a hypsometer to measure the exact boiling point of liquid. Because the boiling point of water drops predictably as atmospheric pressure decreases with altitude, it provides a means to calculate elevation."
+  },
+  {
+    "id": 118,
+    "q": "Among the various inherent errors encountered in plane tabling, which specific physical error is extremely difficult to eliminate and fundamentally limits the long-term precision of the graphical map?",
+    "o": [
+      "Expansion and shrinkage of the drawing paper due to weather",
+      "Defective optical quality of the alidade lens",
+      "Error caused by the earth's natural curvature",
+      "Sighting errors over extremely long distances"
+    ],
+    "a": "Expansion and shrinkage of the drawing paper due to weather",
+    "e": "Because plane tabling plots map directly on paper in the field, fluctuations in humidity and temperature cause the paper to expand or shrink unequally, permanently distorting the geometry of the drawn rays and plotted points."
+  },
+  {
+    "id": 119,
+    "q": "A 'Ceylon Ghat Tracer' is a highly specific surveying field instrument historically and primarily utilized during route surveying and contouring in hilly terrain to explicitly determine the:",
+    "o": [
+      "Exact horizontal distances without requiring a chain",
+      "Specific required gradient or slope of the ground alignment",
+      "Magnetic bearing of the traverse line",
+      "Total height of the instrument station"
+    ],
+    "a": "Specific required gradient or slope of the ground alignment",
+    "e": "The Ceylon Ghat Tracer is a simple but effective gradient-measuring instrument. It is used extensively in hilly areas (ghats) to trace out a uniform contour gradient for aligning mountain roads or water channels."
+  },
+  {
+    "id": 120,
+    "q": "While conducting profile levelling, a back sight reading of 1.500 m is recorded. The staff is then moved 50 meters forward, where the ground dips sharply into a ravine. If the top of the standard 4-meter staff drops entirely below the instrument's line of sight, what must the surveyor strictly do to continue?",
+    "o": [
+      "Immediately switch to the trigonometric levelling method",
+      "Establish a Change Point (CP) by moving the instrument forward",
+      "Hold a second 4-meter staff precisely on top of the first one",
+      "Extrapolate the unseen reading graphically in the field book"
+    ],
+    "a": "Establish a Change Point (CP) by moving the instrument forward",
+    "e": "When the staff reading falls out of range (either too high or dropping completely below the line of sight), the reach of the instrument is exhausted. The surveyor must establish a Change Point (turning point) and shift the instrument to a lower (or higher) elevation to resume readings."
+  },
+
+
+
+  {
+    "id": 121,
+    "q": "In a levelling operation, what is the standard correction for the earth's curvature for a staff reading taken at a horizontal distance of exactly 2.0 kilometers?",
+    "o": [
+      "0.157 meters",
+      "0.314 meters",
+      "0.067 meters",
+      "0.134 meters"
+    ],
+    "a": "0.314 meters",
+    "e": "The correction for earth's curvature (Cc) is mathematically given by Cc = 0.0785 * d^2, where d is the distance in kilometers. Cc = 0.0785 * (2.0)^2 = 0.0785 * 4 = 0.314 meters (always subtractive)."
+  },
+  {
+    "id": 122,
+    "q": "If the total combined correction for both curvature and atmospheric refraction is required for a sight distance of 3.0 kilometers, what is the precise subtractive value applied to the staff reading?",
+    "o": [
+      "0.202 meters",
+      "0.606 meters",
+      "0.706 meters",
+      "0.812 meters"
+    ],
+    "a": "0.606 meters",
+    "e": "The combined correction (C) is given by C = 0.0673 * d^2. For d = 3.0 km, C = 0.0673 * (3.0)^2 = 0.0673 * 9 = 0.6057 meters, rounded to 0.606 meters."
+  },
+  {
+    "id": 123,
+    "q": "A dumpy level has a Height of Instrument (HI) of 105.500 m. A staff is held inverted against the bottom of a bridge girder directly above, and the reading is 3.250 m. What is the Reduced Level (RL) of the bottom of the girder?",
+    "o": [
+      "102.250 m",
+      "105.500 m",
+      "108.750 m",
+      "112.000 m"
+    ],
+    "a": "108.750 m",
+    "e": "An inverted staff reading implies the target is above the line of sight and is treated mathematically as a negative foresight (-FS). RL = HI - (-FS) = 105.500 + 3.250 = 108.750 m."
+  },
+  {
+    "id": 124,
+    "q": "Point A has an RL of 250.00 m and Point B has an RL of 253.50 m. If the straight-line horizontal distance between A and B is exactly 140 meters, what is the longitudinal gradient from A to B?",
+    "o": [
+      "1 in 20 (or 5.0%)",
+      "1 in 40 (or 2.5%)",
+      "1 in 50 (or 2.0%)",
+      "1 in 70 (or 1.4%)"
+    ],
+    "a": "1 in 40 (or 2.5%)",
+    "e": "Gradient is Vertical Rise / Horizontal Distance. The rise is 253.50 - 250.00 = 3.50 m. Gradient = 3.50 / 140 = 1 / 40. This is expressed as 1 in 40, or mathematically 2.5%."
+  },
+  {
+    "id": 125,
+    "q": "A bubble tube on a levelling instrument has a division length of 2.0 mm and an internal radius of curvature of 20.6265 meters. What is the exact sensitiveness of the bubble per division in seconds of arc?",
+    "o": [
+      "10 seconds",
+      "20 seconds",
+      "30 seconds",
+      "40 seconds"
+    ],
+    "a": "20 seconds",
+    "e": "Sensitiveness (alpha) in radians = length of division (l) / Radius (R). alpha = 0.002 m / 20.6265 m. To convert to seconds, multiply by 206265. Alpha = (0.002 / 20.6265) * 206265 = 20 seconds."
+  },
+  {
+    "id": 126,
+    "q": "The True Whole Circle Bearing (WCB) of a line is 149°30'. If the local magnetic declination is strictly 2°00' East, what is the observed Magnetic Bearing expressed in the quadrantal system?",
+    "o": [
+      "S 30°30' E",
+      "S 32°30' E",
+      "S 28°30' E",
+      "S 30°30' W"
+    ],
+    "a": "S 32°30' E",
+    "e": "Magnetic WCB = True WCB - Declination (East) = 149°30' - 2°00' = 147°30'. This lies in the South-East quadrant. Reduced Bearing = 180°00' - 147°30' = 32°30'. Therefore, it is S 32°30' E."
+  },
+  {
+    "id": 127,
+    "q": "In a closed theodolite traverse, the computed linear closing error is 0.40 meters, and the total perimeter of the traverse is 1200 meters. What is the calculated relative precision of the survey?",
+    "o": [
+      "1 in 300",
+      "1 in 1200",
+      "1 in 3000",
+      "1 in 4800"
+    ],
+    "a": "1 in 3000",
+    "e": "Relative precision is the ratio of the closing error (e) to the total perimeter (P), expressed as a fraction with a numerator of 1. Precision = 1 / (P / e) = 1 / (1200 / 0.40) = 1 / 3000."
+  },
+  {
+    "id": 128,
+    "q": "A 4-sided closed traverse has observed interior angles of 89°30', 90°15', 90°45', and 89°00'. If the angular error is distributed equally among all stations, what is the exact correction applied to each angle?",
+    "o": [
+      "+0°07'30\"",
+      "-0°07'30\"",
+      "+0°15'00\"",
+      "-0°30'00\""
+    ],
+    "a": "+0°07'30\"",
+    "e": "Sum of observed angles = 359°30'. Theoretical sum = (2n-4)*90° = 360°00'. Total error = 359°30' - 360°00' = -30'. Total correction required is +30'. Distributed equally among 4 angles: +30' / 4 = +7.5 minutes = +0°07'30\"."
+  },
+  {
+    "id": 129,
+    "q": "The main horizontal scale of a theodolite is divided into 15-minute (0.25°) graduations. If a Vernier is constructed so that 30 Vernier divisions exactly match 29 main scale divisions, what is the precise least count of the instrument?",
+    "o": [
+      "10 seconds",
+      "20 seconds",
+      "30 seconds",
+      "60 seconds"
+    ],
+    "a": "30 seconds",
+    "e": "For a direct vernier, Least Count = value of smallest main scale division (s) / total number of vernier divisions (n). LC = 15 minutes / 30 = 0.5 minutes. Converting to seconds: 0.5 * 60 = 30 seconds."
+  },
+  {
+    "id": 130,
+    "q": "In a traverse, the Whole Circle Bearing of line AB is precisely 45°00' and the bearing of the subsequent line BC is precisely 120°00'. What is the calculated deflection angle at station B?",
+    "o": [
+      "75° Left",
+      "75° Right",
+      "105° Right",
+      "165° Right"
+    ],
+    "a": "75° Right",
+    "e": "The deflection angle is the angle between the prolonged forward line of the preceding traverse leg and the next leg. Deflection angle = Bearing of BC - Bearing of AB = 120° - 45° = +75°. A positive result indicates a Right deflection."
+  },
+  {
+    "id": 131,
+    "q": "A civil engineer is designing a road alignment with a strict 1 in 20 ascending gradient. If the base topographical map has a contour interval of 5 meters and is drawn to a scale of 1:2000, what must be the physical distance between consecutive contours on the drawing paper?",
+    "o": [
+      "2.5 cm",
+      "5.0 cm",
+      "10.0 cm",
+      "20.0 cm"
+    ],
+    "a": "5.0 cm",
+    "e": "Required Horizontal Equivalent (HE) on the ground = Contour Interval * Gradient factor = 5 m * 20 = 100 meters. On a map scaled at 1:2000 (1 cm = 20 m), the distance on paper = 100 m / 20 m/cm = 5.0 cm."
+  },
+  {
+    "id": 132,
+    "q": "Spot levels at points A and B on a grid are 102.00 m and 104.00 m respectively. The horizontal distance between them is 40 meters. Assuming a uniform slope, at what exact horizontal distance from point A should the 103.50 m contour line be interpolated?",
+    "o": [
+      "10 meters",
+      "20 meters",
+      "30 meters",
+      "35 meters"
+    ],
+    "a": "30 meters",
+    "e": "The total elevation change is 2.00 m over 40 m distance. The required elevation change from A is 103.50 - 102.00 = 1.50 m. Interpolated distance = (40 m / 2.00 m) * 1.50 m = 20 * 1.50 = 30 meters."
+  },
+  {
+    "id": 133,
+    "q": "The areas enclosed by three consecutive contour lines (at 2m intervals) are 100 sq.m, 200 sq.m, and 400 sq.m respectively. Utilizing the standard Trapezoidal rule, what is the computed volume of the earthwork?",
+    "o": [
+      "800 cubic meters",
+      "900 cubic meters",
+      "1000 cubic meters",
+      "1400 cubic meters"
+    ],
+    "a": "900 cubic meters",
+    "e": "Contour interval (h) = 2m. Trapezoidal formula for three areas: V = h * [(A1 + A3)/2 + A2] = 2 * [(100 + 400)/2 + 200] = 2 * [250 + 200] = 2 * 450 = 900 cubic meters."
+  },
+  {
+    "id": 134,
+    "q": "Using the same areas (100 sq.m, 200 sq.m, and 400 sq.m) with a 2m contour interval, what is the computed volume using the more precise Prismoidal formula (Simpson's Rule)?",
+    "o": [
+      "866.67 cubic meters",
+      "900.00 cubic meters",
+      "933.33 cubic meters",
+      "1200.00 cubic meters"
+    ],
+    "a": "866.67 cubic meters",
+    "e": "Prismoidal formula for three areas: V = (h/3) * [A1 + A3 + 4*(A2)]. V = (2/3) * [100 + 400 + 4*(200)] = (2/3) * [500 + 800] = (2/3) * 1300 = 2600 / 3 = 866.67 cubic meters."
+  },
+  {
+    "id": 135,
+    "q": "A hill's absolute peak elevation is measured at 214.50 m. The flat ground immediately surrounding the base is perfectly level at 190.00 m. If the map utilizes a strict 5-meter contour interval, exactly how many closed contour loops will encompass the hill?",
+    "o": [
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    "a": "4",
+    "e": "Contour lines strictly represent whole number multiples of the interval. Between 190.00 m (base) and 214.50 m (peak), the 5-meter contours drawn will be exactly at 195 m, 200 m, 205 m, and 210 m. Thus, there are 4 distinct contour loops."
+  },
+  {
+    "id": 136,
+    "q": "A plane table plan is originally drawn to a scale of 1:1000. Years later, a reference line originally drawn as 10.0 cm is measured and found to be shrunk to 9.6 cm. What is the precise Shrunk Scale of the plan?",
+    "o": [
+      "1:960",
+      "1:1041.67",
+      "1:1100",
+      "1:1410.67"
+    ],
+    "a": "1:1041.67",
+    "e": "Shrinkage Factor (SF) = 9.6 / 10.0 = 0.96. Shrunk Scale = SF * Original Scale = 0.96 * (1/1000) = 0.96 / 1000 = 1 / (1000 / 0.96) = 1 / 1041.67."
+  },
+  {
+    "id": 137,
+    "q": "In plane tabling, standard engineering drawing limits state the maximum permissible plotting error by a skilled draftsmen is 0.25 mm on paper. If surveying at a scale of 1:1000, what is the maximum permissible centering error of the table over the ground station?",
+    "o": [
+      "2.5 cm",
+      "25 cm",
+      "250 cm",
+      "2.5 mm"
+    ],
+    "a": "25 cm",
+    "e": "The ground error corresponds exactly to the paper plotting limit multiplied by the scale factor. Ground error = 0.25 mm * 1000 = 250 mm. Converting to centimeters, this equals exactly 25 cm."
+  },
+  {
+    "id": 138,
+    "q": "During a plane table intersection survey, baseline AB is laid exactly 50 meters long. The alidade is used to observe target P, recording angle PAB as exactly 90° and angle PBA as exactly 45°. What is the true perpendicular ground distance from point P to the baseline AB?",
+    "o": [
+      "25 meters",
+      "50 meters",
+      "70.7 meters",
+      "100 meters"
+    ],
+    "a": "50 meters",
+    "e": "This forms a right-angled triangle at A, where angle A is 90° and angle B is 45°. This means angle P must also be 45°, making it an isosceles right triangle. Therefore, the perpendicular height AP is exactly equal to the base AB, which is 50 meters."
+  },
+  {
+    "id": 139,
+    "q": "During the solution of a Two-Point problem, the geometric error causes a point on the plane table drawing to be shifted by exactly 2.0 mm from its true position. If the survey scale is 1 cm = 5 m (1:500), what is the actual physical ground displacement caused by this error?",
+    "o": [
+      "0.5 meters",
+      "1.0 meters",
+      "2.5 meters",
+      "10.0 meters"
+    ],
+    "a": "1.0 meters",
+    "e": "Scale 1:500 means 1 unit on paper = 500 units on ground. Ground displacement = 2.0 mm * 500 = 1000 mm. Converting millimeters to meters yields exactly 1.0 meter."
+  },
+  {
+    "id": 140,
+    "q": "Using the method of radiation in plane tabling, the physical ground distance from the instrument station to a fence corner is measured as exactly 45 meters using a tape. If the plan scale is designated as 1:1500, exactly how long should the radiating ray be drawn on the paper?",
+    "o": [
+      "1.5 cm",
+      "3.0 cm",
+      "4.5 cm",
+      "30.0 cm"
+    ],
+    "a": "3.0 cm",
+    "e": "Using the scale 1:1500, distance on paper = Ground distance / 1500. Distance = 45 meters = 4500 centimeters. Paper distance = 4500 cm / 1500 = exactly 3.0 cm."
+  }
+
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
+            btn.classList.add('wrong');
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>
+

@@ -762,7 +762,7 @@
             return false;
         }
 
-        // ==========================================
+                // ==========================================
         // MANUAL SERVER VERIFICATION
         // ==========================================
         async function verifyPaymentManual() {
@@ -772,11 +772,22 @@
             
             try {
                 const phone = localStorage.getItem('userPhone');
-                const response = await fetch(`${SCRIPT_URL}?action=check_premium&phone=${phone}`);
+                
+                // Using POST since your login uses POST (Prevents Google Apps Script errors)
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'check_premium', phone: phone })
+                });
+                
                 const data = await response.json();
                 
-                if(data.status === 'premium') {
-                    localStorage.setItem("paidAccessValid", "true");
+                // 1. Check if server replies with "sent"
+                if(data.status && data.status.toLowerCase() === 'sent') {
+                    
+                    // 2. Save directly to local browser so it never asks again
+                    localStorage.setItem("paidAccessValid", "true"); 
+                    
                     alert("Payment Verified! Premium Unlocked.");
                     openMagicalScreen(currentTopicIdOriginal, currentTopicNameOriginal);
                 } else {
@@ -786,15 +797,6 @@
             } catch(e) {
                 alert("Network error. Please try again.");
                 btn.innerText = originalText;
-            }
-        }
-
-        async function checkFileExists(url) {
-            try {
-                const response = await fetch(url, { method: 'HEAD' });
-                return response.ok; 
-            } catch (error) {
-                return false;
             }
         }
 

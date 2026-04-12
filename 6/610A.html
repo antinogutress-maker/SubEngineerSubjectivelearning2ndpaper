@@ -1,0 +1,1247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = 
+  [
+  {
+    "id": 1,
+    "q": "In the Limit State Method (LSM) of structural design, the partial safety factors assigned to concrete and steel are respectively:",
+    "o": [
+      "1.15 and 1.50",
+      "1.50 and 1.15",
+      "1.50 and 1.50",
+      "1.00 and 1.00"
+    ],
+    "a": "1.50 and 1.15",
+    "e": "Concrete is a site-mixed material with higher quality control variability, so it is given a higher safety factor (1.50). Steel is manufactured in controlled factory conditions, hence a lower safety factor (1.15) is applied."
+  },
+  {
+    "id": 2,
+    "q": "Why does the Limit State design code explicitly prohibit the design of an 'Over-reinforced' concrete section?",
+    "o": [
+      "It requires excessive amounts of steel, making it uneconomical.",
+      "It causes the steel to yield prematurely before the concrete reaches its peak strength.",
+      "It mathematically results in a sudden, explosive, and brittle compression failure of concrete without any warning.",
+      "It induces severe shear cracking at the supports."
+    ],
+    "a": "It mathematically results in a sudden, explosive, and brittle compression failure of concrete without any warning.",
+    "e": "In an over-reinforced section, the concrete reaches its ultimate strain capacity (0.0035) before the steel yields. This leads to a sudden, brittle, and catastrophic crushing failure of the concrete without the visual warning of large deflections."
+  },
+  {
+    "id": 3,
+    "q": "For a singly reinforced rectangular beam using Fe415 grade steel, what is the theoretical limiting depth of the neutral axis (x_u,max) expressed in terms of the effective depth (d)?",
+    "o": [
+      "0.53 d",
+      "0.48 d",
+      "0.46 d",
+      "0.43 d"
+    ],
+    "a": "0.48 d",
+    "e": "The limiting depth of the neutral axis depends strictly on the grade of steel. From strain compatibility, x_u,max is mathematically 0.53d for Fe250, 0.48d for Fe415, and 0.46d for Fe500."
+  },
+  {
+    "id": 4,
+    "q": "Under the Limit State of Collapse in flexure, what is the exact maximum assumed compressive strain in concrete at the outermost extreme fiber?",
+    "o": [
+      "0.0020",
+      "0.0030",
+      "0.0035",
+      "0.0040"
+    ],
+    "a": "0.0035",
+    "e": "Regardless of the concrete grade, the standard assumption for limit state design in flexure is that the maximum compressive strain in the outermost concrete fiber at the instant of failure is precisely 0.0035."
+  },
+  {
+    "id": 5,
+    "q": "A doubly reinforced concrete beam section is structurally mandated primarily when:",
+    "o": [
+      "The shear force is excessively high at the supports.",
+      "The applied factored bending moment strictly exceeds the limiting moment of resistance (Mu,lim) of a singly reinforced section of the same restricted dimensions.",
+      "The span of the beam is very short.",
+      "The beam is subjected to heavy torsional moments."
+    ],
+    "a": "The applied factored bending moment strictly exceeds the limiting moment of resistance (Mu,lim) of a singly reinforced section of the same restricted dimensions.",
+    "e": "When architectural constraints restrict the physical depth and width of a beam, and the external bending moment exceeds what a balanced singly reinforced section can safely carry, compression steel must be added to increase the moment capacity, creating a doubly reinforced beam."
+  },
+  {
+    "id": 6,
+    "q": "In the Working Stress Method (WSM), the modular ratio (m) mathematically accounts for the long-term effects of creep. If the permissible compressive stress in concrete in bending is designated as 'sigma_cbc', what is the empirical formula for 'm'?",
+    "o": [
+      "280 / (3 * sigma_cbc)",
+      "280 / (sigma_cbc)",
+      "3 * sigma_cbc / 280",
+      "Es / Ec"
+    ],
+    "a": "280 / (3 * sigma_cbc)",
+    "e": "The standard IS code formula for the modular ratio is m = 280 / (3 * sigma_cbc). This empirical formula partially accounts for the long-term effects of creep and shrinkage in the concrete, unlike the purely theoretical Es/Ec ratio."
+  },
+  {
+    "id": 7,
+    "q": "Diagonal tension failure in a reinforced concrete beam physically occurs typically near the supports. This highly specific failure mechanism is driven primarily by:",
+    "o": [
+      "Maximum bending moment and zero shear force",
+      "Maximum shear force and minimum (or zero) bending moment",
+      "Maximum deflection at the center",
+      "Excessive compressive stresses in the top fibers"
+    ],
+    "a": "Maximum shear force and minimum (or zero) bending moment",
+    "e": "Near the supports, the bending moment is small but the shear force is at its maximum. This creates principal tensile stresses acting at roughly 45 degrees, which causes diagonal tension cracks. Shear reinforcement (stirrups) is explicitly designed to intercept these cracks."
+  },
+  {
+    "id": 8,
+    "q": "If the calculated nominal shear stress (tau_v) in a beam exceeds the design shear strength of the concrete (tau_c) but remains less than the absolute maximum shear stress limit (tau_c,max), what is the required design action?",
+    "o": [
+      "Provide only nominal minimum shear reinforcement.",
+      "Redesign the entire cross-section by increasing the depth.",
+      "Design shear reinforcement strictly for the net shear force (Vus = Vu - tau_c * b * d).",
+      "Ignore it, as the concrete is still safe."
+    ],
+    "a": "Design shear reinforcement strictly for the net shear force (Vus = Vu - tau_c * b * d).",
+    "e": "Since the nominal shear stress exceeds what the concrete alone can safely carry (tau_c), shear reinforcement (like stirrups) must be explicitly designed to carry the excess shear force, calculated mathematically as Vus = Vu - (tau_c * b * d)."
+  },
+  {
+    "id": 9,
+    "q": "According to standard structural codes, what is the theoretical maximum permissible spacing of vertical shear stirrups in a reinforced concrete beam of effective depth 'd'?",
+    "o": [
+      "0.50 d or 300 mm, whichever is less",
+      "0.75 d or 300 mm, whichever is less",
+      "1.00 d or 450 mm, whichever is less",
+      "1.50 d or 450 mm, whichever is less"
+    ],
+    "a": "0.75 d or 300 mm, whichever is less",
+    "e": "To ensure that every potential 45-degree diagonal tension crack is physically intercepted by at least one vertical stirrup, the code strictly limits the maximum spacing of vertical stirrups to 0.75 times the effective depth (0.75d), capping it at an absolute maximum of 300 mm."
+  },
+  {
+    "id": 10,
+    "q": "Bent-up bars are frequently utilized as shear reinforcement. However, design codes dictate that the total shear resistance mathematically provided by the bent-up bars alone must never exceed:",
+    "o": [
+      "25% of the total required shear reinforcement force",
+      "50% of the total required shear reinforcement force",
+      "75% of the total required shear reinforcement force",
+      "100% of the total required shear reinforcement force"
+    ],
+    "a": "50% of the total required shear reinforcement force",
+    "e": "While bent-up bars are highly efficient at resisting diagonal tension, they cannot handle shear reversals or provide confinement. Therefore, standard codes mandate that vertical stirrups must be designed to carry at least 50% of the total shear reinforcement force."
+  },
+  {
+    "id": 11,
+    "q": "In reinforced concrete structural design, a column is formally and mathematically classified as a 'Short Column' if the ratio of its effective length (L_eff) to its least lateral dimension (D) is:",
+    "o": [
+      "Less than 10",
+      "Less than 12",
+      "Less than 15",
+      "Less than 20"
+    ],
+    "a": "Less than 12",
+    "e": "The slenderness ratio differentiates short columns from long columns. If L_eff / D is less than 12, it is a short column, failing primarily by direct crushing. If it is 12 or greater, it is a long (slender) column subject to buckling failure."
+  },
+  {
+    "id": 12,
+    "q": "To account for accidental eccentricities during construction, Limit State codes require all axially loaded short columns to be designed for a minimum theoretical eccentricity (e_min). What is the exact formula for this?",
+    "o": [
+      "L/500 + D/30, subject to a minimum of 20 mm",
+      "L/300 + D/500, subject to a minimum of 20 mm",
+      "L/500 + D/30, subject to a minimum of 15 mm",
+      "Strictly 0.05 D"
+    ],
+    "a": "L/500 + D/30, subject to a minimum of 20 mm",
+    "e": "The minimum eccentricity ensures the column can withstand minor unintended moments. It is computed as the unsupported length divided by 500 plus the lateral dimension divided by 30, with a strict absolute minimum of 20 mm."
+  },
+  {
+    "id": 13,
+    "q": "What is the specified absolute minimum percentage and absolute maximum percentage of longitudinal steel reinforcement permitted in a standard RC column (assuming bars are lapped)?",
+    "o": [
+      "0.6% minimum, 4.0% maximum",
+      "0.8% minimum, 4.0% maximum",
+      "0.8% minimum, 6.0% maximum",
+      "1.0% minimum, 8.0% maximum"
+    ],
+    "a": "0.8% minimum, 4.0% maximum",
+    "e": "Codes dictate a minimum of 0.8% (of gross area) to resist shrinkage and incidental bending. The theoretical maximum is 6.0%, but practically it is strictly limited to 4.0% to prevent extreme congestion of steel, especially at lap splices, which would prevent proper concrete pouring."
+  },
+  {
+    "id": 14,
+    "q": "According to standard RC design codes, what is the absolute minimum number of longitudinal reinforcing bars that must be provided in a circular column and a rectangular column respectively?",
+    "o": [
+      "4 in circular, 4 in rectangular",
+      "6 in circular, 4 in rectangular",
+      "8 in circular, 6 in rectangular",
+      "6 in circular, 6 in rectangular"
+    ],
+    "a": "6 in circular, 4 in rectangular",
+    "e": "To ensure uniform confinement of the concrete core within the transverse ties/spirals, a circular column strictly requires a minimum of 6 longitudinal bars. A rectangular or square column requires a minimum of 4 longitudinal bars (one in each corner)."
+  },
+  {
+    "id": 15,
+    "q": "An RC short column has a gross cross-sectional area (Ag) of 150,000 mm². According to IS standard specifications, what is the calculated absolute minimum area of longitudinal steel reinforcement required?",
+    "o": [
+      "900 mm²",
+      "1200 mm²",
+      "1500 mm²",
+      "6000 mm²"
+    ],
+    "a": "1200 mm²",
+    "e": "The minimum longitudinal steel is 0.8% of the gross cross-sectional area. Area of steel = (0.8 / 100) * 150,000 mm² = 0.008 * 150,000 = 1200 mm²."
+  },
+  {
+    "id": 16,
+    "q": "A reinforced concrete slab is strictly classified and designed as a 'Two-Way Slab' when it is physically supported on all four edges and the ratio of its longer span (Ly) to its shorter span (Lx) is mathematically:",
+    "o": [
+      "Greater than 2.0",
+      "Less than or equal to 2.0",
+      "Exactly 1.0 only",
+      "Greater than 1.5"
+    ],
+    "a": "Less than or equal to 2.0",
+    "e": "If Ly/Lx > 2, the load transfers almost entirely in the shorter direction, making it a one-way slab. If Ly/Lx <= 2, the slab bends significantly in both orthogonal directions, requiring main reinforcement in both directions (a two-way slab)."
+  },
+  {
+    "id": 17,
+    "q": "For a solid RC slab utilizing High Yield Strength Deformed (HYSD) bars (e.g., Fe415), what is the mandatory minimum percentage of longitudinal reinforcement provided in either direction?",
+    "o": [
+      "0.10% of the total cross-sectional area",
+      "0.12% of the total cross-sectional area",
+      "0.15% of the total cross-sectional area",
+      "0.20% of the total cross-sectional area"
+    ],
+    "a": "0.12% of the total cross-sectional area",
+    "e": "To adequately control temperature and shrinkage cracks in slabs, codes require a minimum reinforcement of 0.15% of the total cross-sectional area for mild steel (Fe250), but this is mathematically reduced to exactly 0.12% when using higher strength deformed bars (Fe415 or Fe500)."
+  },
+  {
+    "id": 18,
+    "q": "To safely control vertical deflection without performing complex calculations, the basic empirical span-to-effective-depth ratio (L/d) limit for a simply supported one-way slab is generally taken as:",
+    "o": [
+      "7",
+      "20",
+      "26",
+      "35"
+    ],
+    "a": "20",
+    "e": "For deflection control in continuous, simply supported, and cantilever spans, the basic L/d ratios are 26, 20, and 7 respectively. For a simply supported slab, the span-to-depth ratio must not theoretically exceed 20 (before applying modification factors)."
+  },
+  {
+    "id": 19,
+    "q": "A rectangular concrete beam has a width (b) of 250 mm and an effective depth (d) of 400 mm. Utilizing the Limit State Method formula, what is the absolute minimum tension reinforcement area (A_st) required if Fe415 steel is used?",
+    "o": [
+      "160 mm²",
+      "204.8 mm²",
+      "250 mm²",
+      "400 mm²"
+    ],
+    "a": "204.8 mm²",
+    "e": "The minimum tension reinforcement formula is A_st = (0.85 * b * d) / fy. Substituting the values: A_st = (0.85 * 250 * 400) / 415 = 85,000 / 415 = 204.81 mm². Therefore, approximately 204.8 mm² is required to prevent sudden failure upon the cracking of the concrete tension zone."
+  },
+  {
+    "id": 20,
+    "q": "In the design of a solid RC slab, the maximum permissible spacing for the main tension reinforcement bars is strictly limited to:",
+    "o": [
+      "3 times the effective depth (3d) or 300 mm, whichever is smaller",
+      "5 times the effective depth (5d) or 450 mm, whichever is smaller",
+      "2 times the effective depth (2d) or 200 mm, whichever is smaller",
+      "3 times the effective depth (3d) or 450 mm, whichever is smaller"
+    ],
+    "a": "3 times the effective depth (3d) or 300 mm, whichever is smaller",
+    "e": "To ensure uniform stress distribution and limit crack widths, the spacing of the primary (main) reinforcement in a slab is restricted to exactly 3d or 300 mm, whichever is the lesser value. Distribution steel is capped at 5d or 450 mm."
+  },
+
+
+  {
+    "id": 21,
+    "q": "In the Limit State Method (LSM) of design, the physical shape of the idealized compressive stress block in concrete is strictly assumed to be:",
+    "o": [
+      "Perfectly triangular from the neutral axis to the extreme fiber",
+      "Perfectly rectangular throughout the compression zone",
+      "Parabolic from the neutral axis up to a strain of 0.002, and strictly rectangular thereafter up to 0.0035",
+      "Semi-circular across the entire compression depth"
+    ],
+    "a": "Parabolic from the neutral axis up to a strain of 0.002, and strictly rectangular thereafter up to 0.0035",
+    "e": "The standard IS 456 code idealizes the compressive stress-strain curve for concrete as a combination of a parabola (up to a strain of 0.002) and a straight horizontal line (rectangular section) up to the ultimate failure strain of 0.0035."
+  },
+  {
+    "id": 22,
+    "q": "A reinforced concrete beam is formally classified as an 'Under-reinforced' section when the actual depth of the neutral axis (xu) compares to the limiting depth of the neutral axis (xu,max) in what mathematical way?",
+    "o": [
+      "xu > xu,max",
+      "xu = xu,max",
+      "xu < xu,max",
+      "xu ≥ xu,max"
+    ],
+    "a": "xu < xu,max",
+    "e": "In an under-reinforced section, the provided tension steel is less than that required for a balanced section. Consequently, the neutral axis shifts upward (xu < xu,max), ensuring the steel yields completely before the concrete crushes, providing a ductile warning."
+  },
+  {
+    "id": 23,
+    "q": "What is the primary philosophical difference between the Limit State Method (LSM) and the Working Stress Method (WSM) in structural design?",
+    "o": [
+      "LSM uses actual service loads without safety factors, whereas WSM uses factored ultimate loads.",
+      "LSM explicitly evaluates structure behavior at absolute collapse (ultimate capacity) and serviceability, whereas WSM strictly ensures elastic behavior under normal working loads.",
+      "WSM produces much thinner and more economical sections than LSM.",
+      "LSM assumes concrete can carry significant tensile forces, whereas WSM assumes concrete carries zero tension."
+    ],
+    "a": "LSM explicitly evaluates structure behavior at absolute collapse (ultimate capacity) and serviceability, whereas WSM strictly ensures elastic behavior under normal working loads.",
+    "e": "WSM is a deterministic, elastic method ensuring stresses under working loads remain within permissible limits. LSM is a probabilistic method that targets ultimate collapse states using factored loads, while simultaneously checking serviceability (deflection/cracking)."
+  },
+  {
+    "id": 24,
+    "q": "According to standard codes, where is the 'Critical Section' for calculating the maximum design shear force located in a typical continuously supported reinforced concrete beam?",
+    "o": [
+      "Exactly at the face of the support",
+      "Exactly at the center of the support bearing",
+      "At a distance equal to the effective depth (d) from the face of the support",
+      "At a distance of 2 times the effective depth (2d) from the support"
+    ],
+    "a": "At a distance equal to the effective depth (d) from the face of the support",
+    "e": "When the support introduces a reactive compression into the end region of the beam, it enhances local shear strength. Thus, the critical section for evaluating diagonal tension (shear) is conservatively taken at a distance 'd' away from the face of the support."
+  },
+  {
+    "id": 25,
+    "q": "A rectangular concrete beam has a width (b) of 250 mm and an effective depth (d) of 400 mm. If it is subjected to a factored maximum shear force (Vu) of 150 kN, what is the nominal shear stress (τ_v) developed?",
+    "o": [
+      "0.60 MPa",
+      "1.00 MPa",
+      "1.50 MPa",
+      "2.25 MPa"
+    ],
+    "a": "1.50 MPa",
+    "e": "The nominal shear stress is calculated strictly as τ_v = Vu / (b × d). Substituting the values: τ_v = 150,000 N / (250 mm × 400 mm) = 150,000 / 100,000 = 1.50 N/mm² (or 1.50 MPa)."
+  },
+  {
+    "id": 26,
+    "q": "When designing shear reinforcement (stirrups) for a reinforced concrete beam, the standard formula for the spacing (Sv) of 2-legged vertical stirrups is strictly based on resisting the 'Net Shear Force' (Vus). Which equation correctly represents this?",
+    "o": [
+      "Vus = Vu + (τ_c × b × d)",
+      "Vus = Vu - (τ_c × b × d)",
+      "Vus = (τ_c,max - τ_c) × b × d",
+      "Vus = 0.87 × fy × Asv × d"
+    ],
+    "a": "Vus = Vu - (τ_c × b × d)",
+    "e": "The total factored shear force (Vu) is partially resisted by the concrete itself (τ_c × b × d). The remaining unbalanced shear force, which the steel stirrups must be explicitly designed to carry, is the difference: Vus = Vu - (τ_c × b × d)."
+  },
+  {
+    "id": 27,
+    "q": "If vertical shear stirrups are strictly provided at the absolute maximum permissible spacing defined by codes, the spacing must not mathematically exceed:",
+    "o": [
+      "0.50 d or 200 mm, whichever is less",
+      "0.75 d or 300 mm, whichever is less",
+      "1.00 d or 450 mm, whichever is less",
+      "1.50 d or 600 mm, whichever is less"
+    ],
+    "a": "0.75 d or 300 mm, whichever is less",
+    "e": "To structurally guarantee that every potential 45-degree diagonal tension crack is intersected by at least one shear stirrup, the spacing of vertical stirrups is strictly capped at 0.75 times the effective depth (d), and never exceeding 300 mm physically."
+  },
+  {
+    "id": 28,
+    "q": "In the Limit State design of short axially loaded columns with lateral ties, what is the standard IS 456 mathematical formula for computing the ultimate axial load capacity (Pu)?",
+    "o": [
+      "Pu = 0.45 fck Ac + 0.75 fy Asc",
+      "Pu = 0.40 fck Ac + 0.67 fy Asc",
+      "Pu = 0.67 fck Ac + 0.87 fy Asc",
+      "Pu = 0.50 fck Ac + 0.50 fy Asc"
+    ],
+    "a": "Pu = 0.40 fck Ac + 0.67 fy Asc",
+    "e": "This specific equation accounts for a minimum accidental eccentricity of up to 0.05 times the lateral dimension. It reduces the theoretical compression capacity factors (0.45 and 0.75) down to 0.40 for concrete (Ac) and 0.67 for steel (Asc) for safe design."
+  },
+  {
+    "id": 29,
+    "q": "A circular reinforced concrete column is designed utilizing continuous, closely spaced helical reinforcement (spirals) that meets strict code confinement criteria. How much higher is its safe load-carrying capacity compared to an identical column using separate lateral ties?",
+    "o": [
+      "It is identical (0% increase)",
+      "It is increased by exactly 5%",
+      "It is increased by exactly 10%",
+      "It is increased by exactly 15%"
+    ],
+    "a": "It is increased by exactly 5%",
+    "e": "Properly designed helical binding strongly confines the concrete core, significantly delaying the splitting and crushing of the concrete under extreme axial loads. Standard codes explicitly allow a 5% mathematically calculated increase in the ultimate load capacity (Pu) for such columns."
+  },
+  {
+    "id": 30,
+    "q": "An RC short column possesses an unsupported length (L) of 3000 mm and a square cross-section of 400 mm × 400 mm. Utilizing standard code formulas, what is the exact minimum eccentricity (e_min) it must be designed to withstand?",
+    "o": [
+      "15.0 mm",
+      "19.3 mm",
+      "20.0 mm",
+      "25.0 mm"
+    ],
+    "a": "20.0 mm",
+    "e": "The calculated formula is e_min = L/500 + D/30. Here, 3000/500 + 400/30 = 6 + 13.33 = 19.33 mm. However, structural codes strictly dictate that the design minimum eccentricity must NEVER be taken as less than 20.0 mm. Thus, 20.0 mm applies."
+  },
+  {
+    "id": 31,
+    "q": "For a standard rectangular column measuring 300 mm × 400 mm, reinforced with 20 mm diameter longitudinal main bars and 8 mm diameter lateral ties, what is the absolute maximum permissible pitch (spacing) of the lateral ties?",
+    "o": [
+      "128 mm",
+      "300 mm",
+      "320 mm",
+      "400 mm"
+    ],
+    "a": "300 mm",
+    "e": "The pitch of ties must be the LEAST of: (i) least lateral dimension = 300 mm, (ii) 16 × main bar diameter = 16 × 20 = 320 mm, or (iii) 300 mm limit. The smallest of 300, 320, and 300 is exactly 300 mm."
+  },
+  {
+    "id": 32,
+    "q": "In structural drawing and analysis, a reinforced concrete slab that is cast directly upon the supporting columns without any intermediate physical beams or drop panels is formally classified as a:",
+    "o": [
+      "One-way continuous slab",
+      "Waffle slab",
+      "Flat plate (or Flat slab)",
+      "Ribbed slab"
+    ],
+    "a": "Flat plate (or Flat slab)",
+    "e": "A flat slab directly transfers its load to the supporting columns. It is primarily used in commercial buildings to maximize headroom and simplify formwork, though it is highly susceptible to punching shear failure around the column heads."
+  },
+  {
+    "id": 33,
+    "q": "According to the Limit State Method for flexure, what is the mathematically exact expression for the limiting moment of resistance (Mu,lim) of a balanced rectangular section utilizing M20 concrete and Fe415 grade steel?",
+    "o": [
+      "0.149 fck b d²",
+      "0.138 fck b d²",
+      "0.133 fck b d²",
+      "0.87 fy Ast d"
+    ],
+    "a": "0.138 fck b d²",
+    "e": "The factor depends strictly on the steel grade (which defines xu,max/d). For Fe250 it is 0.149, for Fe415 it is precisely 0.138, and for Fe500 it is 0.133. Thus, for Fe415, the balanced moment is strictly calculated as 0.138 × fck × b × d²."
+  },
+  {
+    "id": 34,
+    "q": "A simply supported beam requires a balanced limiting moment of resistance (Mu,lim) of exactly 138 kNm. Utilizing M20 grade concrete, Fe415 steel, and assuming a beam width (b) of 250 mm, what is the theoretically exact effective depth (d) required?",
+    "o": [
+      "350.0 mm",
+      "400.0 mm",
+      "447.2 mm",
+      "500.0 mm"
+    ],
+    "a": "447.2 mm",
+    "e": "Using the equation Mu,lim = 0.138 × fck × b × d². Substituting the knowns: 138 × 10⁶ Nmm = 0.138 × 20 × 250 × d². This yields 138,000,000 = 690 × d². Solving for d² = 200,000. Therefore, d = √200,000 ≈ 447.2 mm."
+  },
+  {
+    "id": 35,
+    "q": "When calculating the temperature and shrinkage reinforcement for a 150 mm thick solid RC slab utilizing Fe415 (HYSD) bars, what is the exact minimum area of steel (Ast) required per meter width of the slab?",
+    "o": [
+      "150 mm²",
+      "180 mm²",
+      "225 mm²",
+      "300 mm²"
+    ],
+    "a": "180 mm²",
+    "e": "For HYSD bars (Fe415), the minimum reinforcement is strictly 0.12% of the total gross cross-sectional area. Ast = (0.12 / 100) × 1000 mm × 150 mm = 0.0012 × 150,000 = exactly 180 mm² per meter width."
+  },
+  {
+    "id": 36,
+    "q": "In the Working Stress Method (WSM), what is the mathematically specific value of the Modular Ratio (m) utilized for M20 grade concrete, where the permissible compressive stress in bending (σ_cbc) is defined as 7.0 MPa?",
+    "o": [
+      "10.98",
+      "13.33",
+      "15.00",
+      "18.66"
+    ],
+    "a": "13.33",
+    "e": "The standard IS code formula for modular ratio is m = 280 / (3 × σ_cbc). Substituting the permissible stress for M20 concrete: m = 280 / (3 × 7) = 280 / 21 = 13.33. This value is used to convert steel area into an equivalent concrete area."
+  },
+  {
+    "id": 37,
+    "q": "When a monolithic Two-Way solid slab is constructed, the loads are geometrically distributed to the supporting edge beams. The pattern of load distribution to the longer supporting beams strictly forms a:",
+    "o": [
+      "Rectangular shape",
+      "Perfectly triangular shape",
+      "Trapezoidal shape",
+      "Parabolic shape"
+    ],
+    "a": "Trapezoidal shape",
+    "e": "Due to the physical two-way bending mechanism, the load transfers to the supporting beams along yield lines acting at 45 degrees from the corners. This geometric fracture strictly places a triangular load on the short beams and a trapezoidal load on the long beams."
+  },
+  {
+    "id": 38,
+    "q": "In Limit State flexural design, the maximum longitudinal tensile strain occurring in the tension steel reinforcement exactly at the theoretical state of failure shall absolutely not be less than:",
+    "o": [
+      "0.0020",
+      "0.0035",
+      "fy / (1.15 × Es)",
+      "(fy / 1.15 Es) + 0.002"
+    ],
+    "a": "(fy / 1.15 Es) + 0.002",
+    "e": "To ensure ductile yielding before failure, the code strictly mandates that the tensile strain in the steel must cross the yield plateau. It equals the elastic yield strain (0.87 fy / Es) plus an additional guaranteed plastic inelastic strain of exactly 0.002."
+  },
+  {
+    "id": 39,
+    "q": "In detailing simply supported solid slabs, it is standard practice to bend up (curtail) alternate main reinforcing bars near the supports. Standard detailing rules dictate that what percentage of the mid-span bottom steel must physically extend straight into the support?",
+    "o": [
+      "25%",
+      "33%",
+      "50%",
+      "100%"
+    ],
+    "a": "50%",
+    "e": "While bending up 50% of the bars provides negative moment resistance at the edges and acts as shear reinforcement, the code strictly requires that at least 50% of the main positive tension steel must run straight and extend completely into the support to ensure basic anchorage."
+  },
+  {
+    "id": 40,
+    "q": "When analyzing a T-beam section in monolithic construction, the 'Effective Flange Width' (bf) mathematically depends on several factors. According to standard codes, which of the following is NOT a factor in determining bf for an isolated T-beam?",
+    "o": [
+      "The effective span of the beam (l0)",
+      "The actual physical width of the flange (b)",
+      "The width of the web/rib (bw)",
+      "The absolute depth of the web extending below the flange"
+    ],
+    "a": "The absolute depth of the web extending below the flange",
+    "e": "For an isolated T-beam, bf = [l0 / ((l0/b) + 4)] + bw. The formula relies strictly on the effective span (l0), the actual physical width of the top slab (b), and the width of the web (bw). The vertical depth of the web does not mathematically influence the effective lateral spread of the compressive flange."
+  },
+
+{
+"id": 41,
+"q": "In the Limit State Method (LSM), what is the mathematically calculated lever arm (z) for a perfectly balanced rectangular concrete beam section utilizing Fe415 grade steel?",
+"o": [
+"0.798 d",
+"0.810 d",
+"0.820 d",
+"0.870 d"
+],
+"a": "0.798 d",
+"e": "The lever arm depth is z = d - 0.42 × xu. For a balanced section using Fe415 steel, xu,max = 0.48 d. Therefore, z = d - (0.42 × 0.48 d) = d - 0.2016 d = 0.798 d."
+},
+{
+"id": 42,
+"q": "According to the Working Stress Method (WSM), what is the explicitly defined permissible stress in direct compression (σcc) for standard M20 grade concrete?",
+"o": [
+"5.0 MPa",
+"7.0 MPa",
+"8.5 MPa",
+"20.0 MPa"
+],
+"a": "5.0 MPa",
+"e": "In WSM (IS 456), the permissible compressive stress in bending (σcbc) for M20 is 7.0 MPa, but the permissible stress in direct axial compression (σcc) is strictly lower, exactly 5.0 MPa."
+},
+{
+"id": 43,
+"q": "A reinforced concrete beam of width b = 250 mm and effective depth d = 400 mm is subjected to a factored shear force (Vu) of 50 kN beyond the capacity of the concrete. Using 8 mm diameter 2-legged vertical stirrups of Fe415 steel (Area = 100.5 mm²), what is the exact required theoretical spacing (Sv)?",
+"o": [
+"150 mm",
+"225 mm",
+"290 mm",
+"300 mm"
+],
+"a": "290 mm",
+"e": "The spacing formula is Sv = (0.87 × fy × Asv × d) / Vus. Substituting the values: Sv = (0.87 × 415 × 100.5 × 400) / 50,000 = 14,516,220 / 50,000 = 290.3 mm. Providing a spacing of exactly 290 mm satisfies the requirement."
+},
+{
+"id": 44,
+"q": "What is the primary physical reason why building codes restrict the maximum spacing of longitudinal bars measured along the periphery of an RC column to exactly 300 mm?",
+"o": [
+"To significantly increase the ultimate load-carrying capacity",
+"To physically prevent the outward buckling of the longitudinal steel bars",
+"To reduce the overall volume of concrete required",
+"To ensure maximum bond strength between steel and concrete"
+],
+"a": "To physically prevent the outward buckling of the longitudinal steel bars",
+"e": "If longitudinal bars are spaced too far apart, the lateral ties cannot effectively confine them. A maximum peripheral spacing of 300 mm ensures the bars are held rigidly by the ties, preventing localized outward buckling under heavy compressive loads."
+},
+{
+"id": 45,
+"q": "For a standard isolated flat slab constructed without drop panels, what is the mandatory minimum absolute thickness required by IS 456 to prevent punching shear failure?",
+"o": [
+"100 mm",
+"125 mm",
+"150 mm",
+"200 mm"
+],
+"a": "125 mm",
+"e": "Flat slabs rest directly on columns, causing massive localized shear stresses (punching shear). To ensure adequate physical depth to resist this punching action, the code dictates the thickness must never be mathematically less than 125 mm."
+},
+{
+"id": 46,
+"q": "A short, axially loaded square RC column measures 300 mm × 300 mm and is reinforced with four 20 mm diameter bars (Asc = 1256 mm²). Using M20 concrete and Fe415 steel, what is its exact Limit State ultimate axial load capacity (Pu)?",
+"o": [
+"850 kN",
+"1059 kN",
+"1245 kN",
+"1500 kN"
+],
+"a": "1059 kN",
+"e": "Gross area Ag = 90,000 mm². Concrete area Ac = 90,000 - 1256 = 88,744 mm². The standard formula is Pu = 0.4 × fck × Ac + 0.67 × fy × Asc. Pu = (0.4 × 20 × 88,744) + (0.67 × 415 × 1256) = 709,952 N + 349,231 N = 1,059,183 N, which is approximately 1059 kN."
+},
+{
+"id": 47,
+"q": "If the calculated nominal shear stress (τv) in an RC beam completely exceeds the absolute maximum permissible shear stress of the concrete grade (τc,max), what structural modification is strictly mandatory?",
+"o": [
+"Provide closely spaced vertical stirrups",
+"Bend up 100% of the main tension bars",
+"Physically redesign the beam section by increasing its cross-sectional dimensions",
+"Increase the grade of steel from Fe415 to Fe500"
+],
+"a": "Physically redesign the beam section by increasing its cross-sectional dimensions",
+"e": "τc,max represents the absolute upper limit of diagonal compression failure in the concrete web. If τv exceeds τc,max, the concrete web will violently crush regardless of how much shear steel is provided. The only physical solution is to increase the beam's width or depth."
+},
+{
+"id": 48,
+"q": "In evaluating the theoretical effective length (L_eff) of a compression member (column) that is perfectly fixed against both position and rotation at both ends, standard codes conservatively recommend an effective length factor of:",
+"o": [
+"0.50 L",
+"0.65 L",
+"0.80 L",
+"1.00 L"
+],
+"a": "0.65 L",
+"e": "While Euler's pure theoretical mechanics dictates the effective length is exactly 0.50 L, IS 456 conservatively recommends using 0.65 L for design purposes to account for the physical impossibility of achieving 100% absolute rigidity at real-world structural joints."
+},
+{
+"id": 49,
+"q": "In the Limit State analysis of a doubly reinforced beam, to determine the exact compressive stress in the compression steel (fsc), one must geometrically calculate the concrete strain exactly at the level of the compression steel. This strain is mathematically proportional to:",
+"o": [
+"xu / d",
+"(xu - d') / xu",
+"(d - xu) / xu",
+"d' / xu"
+],
+"a": "(xu - d') / xu",
+"e": "Based strictly on the principle of similar triangles in the linear strain diagram, if the extreme top fiber strain is 0.0035, the strain at the compression steel depth (d') is exactly 0.0035 × (xu - d') / xu."
+},
+{
+"id": 50,
+"q": "To safely control the formation and propagation of shear cracks, codes mandate providing Minimum Shear Reinforcement. For vertical stirrups, this minimum requirement mathematically satisfies the equation:",
+"o": [
+"Asv / (b × Sv) ≥ 0.4 / (0.87 × fy)",
+"Asv / (b × Sv) ≤ 0.4 / fy",
+"Asv / Sv ≥ 0.87 × fy / b",
+"Asv × fy / (b × Sv) ≥ 0.4"
+],
+"a": "Asv / (b × Sv) ≥ 0.4 / (0.87 × fy)",
+"e": "This formula ensures that even if nominal shear stress is very low, a minimum web steel ratio is provided. It guarantees ductile behavior, intercepts sudden diagonal tension cracks, and physically holds the longitudinal bars in place during concrete pouring."
+},
+{
+"id": 51,
+"q": "For a standard Two-Way slab physically supported on all four edges, but with both edges meeting at a corner being completely discontinuous (e.g., the outer corner of a building), special torsional reinforcement is strictly required. This must be provided in four layers over a length equal to:",
+"o": [
+"Lx / 3",
+"Lx / 4",
+"Lx / 5",
+"Ly / 5"
+],
+"a": "Lx / 5",
+"e": "Discontinuous corners tend to lift up due to two-way bending action, generating heavy torsional moments. The code strictly mandates providing a highly concentrated mesh of torsional reinforcement in the top and bottom over a physical distance of one-fifth of the shorter span (Lx/5)."
+},
+{
+"id": 52,
+"q": "In the Working Stress Method (WSM), what is the mathematically implicit Factor of Safety assigned to standard mild steel (Fe250) in tension?",
+"o": [
+"1.15",
+"1.50",
+"1.78",
+"3.00"
+],
+"a": "1.78",
+"e": "In WSM, the permissible tensile stress in mild steel (σst) is taken as strictly 140 MPa. Since its yield strength (fy) is 250 MPa, the mathematical factor of safety is exactly 250 / 140 = 1.785 (typically rounded to 1.78 or 1.8)."
+},
+{
+"id": 53,
+"q": "A rectangular beam utilizes M20 concrete and Fe415 steel. If its width (b) is 250 mm and effective depth (d) is 400 mm, what is the mathematically exact limiting (maximum) area of tension steel (Ast,lim) required to achieve a perfectly balanced section?",
+"o": [
+"650 mm²",
+"960 mm²",
+"1200 mm²",
+"1550 mm²"
+],
+"a": "960 mm²",
+"e": "The limiting steel percentage pt,lim = 41.61 × (fck / fy) × (xu,max / d). For M20/Fe415: pt,lim = 41.61 × (20 / 415) × 0.48 = 0.962%. The exact area Ast,lim = (0.962 / 100) × 250 × 400 = 962 mm², which is closest to 960 mm²."
+},
+{
+"id": 54,
+"q": "In detailing continuous RC slabs, standard bending moment coefficients are utilized. For a continuous slab carrying a uniform dead load, what is the specific theoretical bending moment coefficient occurring at the support immediately next to the end support?",
+"o": [
+"+ 1/12",
+"- 1/10",
+"- 1/12",
+"+ 1/10"
+],
+"a": "- 1/10",
+"e": "The support immediately adjacent to the first (end) support is subjected to the highest negative moment in a continuous system. IS 456 assigns a maximum negative bending moment coefficient of exactly -1/10 (i.e., wl²/10) for dead loads and imposed loads fixed in position."
+},
+{
+"id": 55,
+"q": "When designing columns with helical (spiral) reinforcement, the pitch (spacing) of the helical turns must strictly fall within specified mechanical limits to ensure proper confinement. The absolute maximum permissible pitch is:",
+"o": [
+"50 mm",
+"75 mm",
+"100 mm",
+"300 mm"
+],
+"a": "75 mm",
+"e": "To guarantee that the concrete core remains perfectly confined and does not bulge out between the spirals under immense pressure, codes strictly dictate that the pitch of the helix must physically not exceed 75 mm, nor be less than 25 mm to allow aggregate to pass."
+},
+{
+"id": 56,
+"q": "If a reinforced concrete beam explicitly lacks any shear reinforcement whatsoever, the principal tensile stresses will eventually cause it to physically fail via diagonal tension cracks. These distinct cracks fundamentally propagate at what angle to the horizontal axis?",
+"o": [
+"0 degrees (Horizontal)",
+"30 degrees",
+"45 degrees",
+"90 degrees (Vertical)"
+],
+"a": "45 degrees",
+"e": "Pure shear stress near the neutral axis creates principal tensile and compressive stresses acting at precisely 45 degrees to the longitudinal axis. Since concrete is weak in tension, it naturally tears apart perpendicular to the principal tension, forming a strict 45-degree diagonal crack."
+},
+{
+"id": 57,
+"q": "What is the mathematically exact expression for calculating the theoretical 'Effective Span' (L_eff) of a simply supported RC beam or slab resting freely on masonry walls?",
+"o": [
+"The exact clear span between the walls",
+"The distance between the physical centers of the supports",
+"The clear span plus the effective depth (d), or the center-to-center distance of supports, whichever is LESS",
+"The clear span plus the effective depth (d), or the center-to-center distance of supports, whichever is GREATER"
+],
+"a": "The clear span plus the effective depth (d), or the center-to-center distance of supports, whichever is LESS",
+"e": "To precisely calculate bending moments, the code mandates that the effective span is the mathematically lesser value between (Clear Span + Effective Depth) and (Center-to-Center distance of the physical supports)."
+},
+{
+"id": 58,
+"q": "In the analysis of a singly reinforced flanged beam (T-beam), if the calculated depth of the neutral axis (xu) mathematically falls completely within the physical thickness of the top flange (Df), the beam is structurally analyzed exactly as:",
+"o": [
+"A doubly reinforced rectangular beam",
+"A standard rectangular beam possessing a width equal to the web width (bw)",
+"A standard rectangular beam possessing a width equal to the effective flange width (bf)",
+"A true T-beam requiring complex integrations"
+],
+"a": "A standard rectangular beam possessing a width equal to the effective flange width (bf)",
+"e": "Since all concrete below the neutral axis is assumed to crack and be ineffective in tension, if xu is less than Df, the missing concrete in the web physically does not matter. The compressive zone is a perfect rectangle of width 'bf', so it analyzes identically to a standard rectangular beam of width 'bf'."
+},
+{
+"id": 59,
+"q": "According to Limit State design criteria, a concrete section physically cracks and the structural integrity relies on the tension steel the exact moment the extreme fiber tensile stress exceeds:",
+"o": [
+"0.87 fy",
+"0.45 fck",
+"0.7 √fck",
+"0.67 fck"
+],
+"a": "0.7 √fck",
+"e": "This specific mathematical formula defines the theoretical 'flexural tensile strength' or modulus of rupture of concrete. Once the applied bending stress physically exceeds exactly 0.7 × √fck, microscopic cracks form, transferring all tensile force abruptly to the reinforcing steel."
+},
+{
+"id": 60,
+"q": "In the execution of RC design, 'Side Face Reinforcement' must be strictly provided along the two vertical faces of a beam if its physical overall depth (D) exceeds:",
+"o": [
+"450 mm",
+"500 mm",
+"750 mm",
+"1000 mm"
+],
+"a": "750 mm",
+"e": "Deep beams are highly susceptible to significant lateral buckling and severe vertical shrinkage cracks. Standard codes mathematically mandate that if the total depth exceeds exactly 750 mm, side face reinforcement (minimum 0.1% of web area) must be evenly distributed on both vertical faces."
+},
+
+
+  {
+    "id": 61,
+    "q": "According to standard RC design codes, what is the absolute minimum nominal diameter permitted for longitudinal reinforcing bars in a structural column?",
+    "o": [
+      "8 mm",
+      "10 mm",
+      "12 mm",
+      "16 mm"
+    ],
+    "a": "12 mm",
+    "e": "To prevent buckling of the longitudinal bars between the lateral ties under heavy compressive loads, standard specifications strictly mandate that longitudinal bars in a column must physically never be less than 12 mm in diameter."
+  },
+  {
+    "id": 62,
+    "q": "In the Working Stress Method (WSM), an 'Under-reinforced' concrete section is characterized by which specific material reaching its maximum permissible stress first?",
+    "o": [
+      "Concrete in compression",
+      "Steel in tension",
+      "Both concrete and steel simultaneously",
+      "Neither reaches permissible stress"
+    ],
+    "a": "Steel in tension",
+    "e": "In an under-reinforced section, the area of steel provided is less than that of a balanced section. Consequently, the steel reaches its permissible tensile stress (σst) before the concrete mathematically reaches its permissible compressive stress (σcbc)."
+  },
+  {
+    "id": 63,
+    "q": "For a solid RC slab utilizing mild steel (Fe250) bars, what is the mandatory minimum percentage of longitudinal distribution reinforcement required?",
+    "o": [
+      "0.10%",
+      "0.12%",
+      "0.15%",
+      "0.20%"
+    ],
+    "a": "0.15%",
+    "e": "To adequately control temperature and shrinkage cracks, standard codes dictate a minimum reinforcement of exactly 0.15% of the gross cross-sectional area for mild steel, which is explicitly reduced to 0.12% when using high-strength deformed (Fe415/Fe500) bars."
+  },
+  {
+    "id": 64,
+    "q": "To ensure adequate bond strength between concrete and steel, what is the exact mathematical expression for calculating the Development Length (Ld) of a reinforcing bar of diameter Φ and design stress σs?",
+    "o": [
+      "(Φ × σs) / (2 × τbd)",
+      "(Φ × σs) / (3 × τbd)",
+      "(Φ × σs) / (4 × τbd)",
+      "(Φ × σs) / (5 × τbd)"
+    ],
+    "a": "(Φ × σs) / (4 × τbd)",
+    "e": "Equating the total tension in the bar to the bond resistance over its surface area (Tension = π/4 × Φ² × σs; Bond Force = π × Φ × Ld × τbd), the required development length Ld strictly simplifies to (Φ × σs) / (4 × τbd)."
+  },
+  {
+    "id": 65,
+    "q": "When utilizing High Yield Strength Deformed (HYSD) bars in place of plain round bars, the permissible design bond stress (τbd) is explicitly increased by what exact percentage?",
+    "o": [
+      "25%",
+      "40%",
+      "60%",
+      "100%"
+    ],
+    "a": "60%",
+    "e": "The ribs and deformations on the surface of HYSD bars significantly enhance the mechanical interlocking with the concrete matrix. Standard design codes acknowledge this by uniformly increasing the permissible bond stress by exactly 60% over plain bars."
+  },
+  {
+    "id": 66,
+    "q": "In limit state design of columns, if a column is subjected purely to uniform axial compression, what is the strictly assumed maximum compressive strain in the concrete?",
+    "o": [
+      "0.0020",
+      "0.0030",
+      "0.0035",
+      "0.0040"
+    ],
+    "a": "0.0020",
+    "e": "Unlike flexural members where the extreme outer fiber strain reaches 0.0035, an axially loaded column compresses uniformly across its entire section. The code specifies the maximum uniform compressive strain at failure for pure axial compression to be strictly 0.0020."
+  },
+  {
+    "id": 67,
+    "q": "The absolute maximum nominal shear stress (τc,max) that can be permitted in a concrete beam, regardless of the amount of shear reinforcement provided, depends entirely on the:",
+    "o": [
+      "Grade of steel reinforcement",
+      "Grade of concrete",
+      "Spacing of the vertical stirrups",
+      "Effective depth of the beam"
+    ],
+    "a": "Grade of concrete",
+    "e": "τc,max represents the absolute physical upper limit to prevent diagonal compression failure (crushing of the concrete web). It is strictly a function of the concrete grade (e.g., 2.8 N/mm² for M20, 3.1 N/mm² for M25)."
+  },
+  {
+    "id": 68,
+    "q": "In designing a solid reinforced concrete slab, the absolute maximum diameter of the reinforcing bars utilized must strictly not exceed what fraction of the total slab thickness?",
+    "o": [
+      "1/4th",
+      "1/6th",
+      "1/8th",
+      "1/10th"
+    ],
+    "a": "1/8th",
+    "e": "To prevent internal cracking and to ensure adequate concrete cover and structural integrity around the reinforcement matrix, codes mandate that the physical diameter of any bar shall not exceed exactly 1/8th of the total thickness of the slab."
+  },
+  {
+    "id": 69,
+    "q": "For a continuous beam subjected to a uniformly distributed load, the Limit State of Serviceability strictly dictates that the basic span-to-effective-depth ratio (L/d) should not exceed:",
+    "o": [
+      "7",
+      "20",
+      "26",
+      "35"
+    ],
+    "a": "26",
+    "e": "To theoretically prevent excessive vertical deflection that could physically crack partitions or affect aesthetics, standard empirical limits for the L/d ratio are 7 for cantilevers, 20 for simply supported beams, and exactly 26 for continuous beams."
+  },
+  {
+    "id": 70,
+    "q": "In the Limit State analysis of a standard flanged beam (T-beam), what is the mathematically calculated 'Effective Width of Flange' (bf) for a continuous T-beam?",
+    "o": [
+      "(l0 / 6) + bw + 6Df",
+      "(l0 / 12) + bw + 3Df",
+      "(l0 / 6) + bw",
+      "bw + 6Df"
+    ],
+    "a": "(l0 / 6) + bw + 6Df",
+    "e": "For a continuous or simply supported T-beam cast monolithically with the slab, the effective flange width mathematically equals the distance between points of zero moment (l0) divided by 6, plus the web width (bw), plus six times the flange thickness (6Df)."
+  },
+  {
+    "id": 71,
+    "q": "In a Two-Way slab where the corners are restrained from lifting, the specialized torsional reinforcement required at the discontinuous corners must possess a total cross-sectional area in each of the four layers equal to:",
+    "o": [
+      "25% of the area of main steel required for maximum mid-span moment",
+      "50% of the area of main steel required for maximum mid-span moment",
+      "75% of the area of main steel required for maximum mid-span moment",
+      "100% of the area of main steel required for maximum mid-span moment"
+    ],
+    "a": "75% of the area of main steel required for maximum mid-span moment",
+    "e": "The lifting torsional stresses at discontinuous corners are severe. The code mandates a highly concentrated mesh of steel at these corners, with the area of steel in each of the four layers strictly equaling 3/4th (75%) of the required main mid-span reinforcement."
+  },
+  {
+    "id": 72,
+    "q": "For calculating the development length of reinforcing bars, if the bar is strictly in compression (e.g., in an axially loaded column), the design bond stress (τbd) is:",
+    "o": [
+      "Decreased by 25%",
+      "Decreased by 50%",
+      "Increased by 25%",
+      "Increased by 60%"
+    ],
+    "a": "Increased by 25%",
+    "e": "Bars in compression physically expand laterally (Poisson's effect), tightening their grip against the surrounding concrete and preventing the concrete from splitting longitudinally. Consequently, the standard design bond stress is explicitly increased by exactly 25%."
+  },
+  {
+    "id": 73,
+    "q": "According to the Limit State Method, the mathematically assumed maximum depth of the neutral axis (xu,max) for a concrete beam reinforced with Fe500 grade steel is:",
+    "o": [
+      "0.53 d",
+      "0.48 d",
+      "0.46 d",
+      "0.43 d"
+    ],
+    "a": "0.46 d",
+    "e": "As the yield strength of the steel increases, its failure strain geometrically increases, requiring the neutral axis to shift upward to maintain a balanced strain state (0.0035 in the concrete extreme fiber). Thus, xu,max mathematically decreases to 0.46 d strictly for Fe500 steel."
+  },
+  {
+    "id": 74,
+    "q": "When executing column design using the Working Stress Method (WSM), what is the explicitly defined permissible compressive stress in the longitudinal steel bars (σsc)?",
+    "o": [
+      "0.40 fy",
+      "0.67 fy",
+      "0.87 fy",
+      "130 MPa or 190 MPa depending on the grade of steel and concrete"
+    ],
+    "a": "130 MPa or 190 MPa depending on the grade of steel and concrete",
+    "e": "In WSM, the permissible stress in the compression steel is derived empirically. For standard mild steel it is restricted to 130 MPa, and for HYSD bars it is restricted to 190 MPa, but it must never physically exceed the calculated strain-compatible stress based on the surrounding concrete."
+  },
+  {
+    "id": 75,
+    "q": "In the design of isolated column footings, the critical section for punching shear (two-way shear) is mathematically located at a specific physical distance from the face of the column. What is this distance?",
+    "o": [
+      "At the face of the column",
+      "At a distance 'd/2' from the face of the column",
+      "At a distance 'd' from the face of the column",
+      "At a distance '2d' from the face of the column"
+    ],
+    "a": "At a distance 'd/2' from the face of the column",
+    "e": "Punching shear physically causes the column to punch completely through the footing slab, forming a truncated pyramid. The critical perimeter for assessing this specific two-way failure mechanism is strictly assumed to be located exactly half the effective depth (d/2) away from the column periphery."
+  },
+  {
+    "id": 76,
+    "q": "A one-way continuous slab is subjected to both dead loads (DL) and imposed live loads (LL). For the physical design of the span moment near the middle of the end span, what is the exact bending moment coefficient typically utilized?",
+    "o": [
+      "+ 1/10 for DL and + 1/10 for LL",
+      "+ 1/12 for DL and + 1/10 for LL",
+      "+ 1/16 for DL and + 1/12 for LL",
+      "- 1/10 for DL and - 1/9 for LL"
+    ],
+    "a": "+ 1/12 for DL and + 1/10 for LL",
+    "e": "Standard mathematical moment coefficients from IS 456 for a continuous slab strictly specify that the positive moment near the middle of the end span is +WL²/12 for dead loads and +WL²/10 for imposed live loads."
+  },
+  {
+    "id": 77,
+    "q": "The specific geometric requirement for the minimum pitch (spacing) of helical reinforcement in a circular column is that it must not be less than 25 mm, nor strictly less than:",
+    "o": [
+      "The diameter of the longitudinal bar",
+      "3 times the diameter of the steel bar forming the helix",
+      "1/6th of the core diameter",
+      "50 mm"
+    ],
+    "a": "3 times the diameter of the steel bar forming the helix",
+    "e": "To ensure that the coarse aggregate can physically pass completely through the spirals during concrete pouring without creating weak honeycombed areas, the pitch must never be physically less than 25 mm or strictly less than 3 times the diameter of the helical wire itself."
+  },
+  {
+    "id": 78,
+    "q": "In the fundamental assumption of the Working Stress Method (WSM) for flexure, the physical stress-strain relationship for concrete in compression is explicitly modeled as:",
+    "o": [
+      "Perfectly parabolic",
+      "Perfectly plastic",
+      "Perfectly linear (elastic)",
+      "A combination of parabolic and rectangular"
+    ],
+    "a": "Perfectly linear (elastic)",
+    "e": "WSM strictly assumes that both concrete and steel behave as perfectly elastic materials up to their permissible stresses, resulting in a strictly linear (triangular) stress distribution block where internal stress is mathematically directly proportional to the physical distance from the neutral axis."
+  },
+  {
+    "id": 79,
+    "q": "According to Limit State structural requirements, the clear cover to the main longitudinal reinforcement in a column must mathematically not be less than 40 mm, nor strictly less than:",
+    "o": [
+      "25 mm",
+      "The diameter of the main longitudinal bar",
+      "1.5 times the diameter of the main longitudinal bar",
+      "50 mm"
+    ],
+    "a": "The diameter of the main longitudinal bar",
+    "e": "To structurally guarantee adequate bond strength, prevent steel corrosion, and protect against fire damage, the clear concrete cover must equal or exceed 40 mm, and it must physically never be less than the actual diameter of the longitudinal bar being covered."
+  },
+  {
+    "id": 80,
+    "q": "A reinforced concrete beam relies on shear stirrups to resist diagonal tension. To ensure the stirrups function physically as intended without slipping, they must be adequately anchored. What is the standard anchorage length required for a standard 135-degree hook in a stirrup?",
+    "o": [
+      "4 times the diameter of the stirrup bar",
+      "6 times the diameter of the stirrup bar",
+      "8 times the diameter of the stirrup bar",
+      "10 times the diameter of the stirrup bar"
+    ],
+    "a": "6 times the diameter of the stirrup bar",
+    "e": "For transverse shear stirrups, a 135-degree bend (standard hook) specifically requires a straight extension physically protruding into the confined concrete core by a length of exactly 6 times the diameter of the bar (6Φ), with an absolute minimum extension of 65 mm."
+  }
+
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
+            btn.classList.add('wrong');
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>
+

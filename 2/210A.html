@@ -1,0 +1,1489 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = 
+  [
+  {
+    "id": 1,
+    "q": "In stone masonry construction, to maximize the load-bearing capacity, stones should always be laid so that the applied pressure is:",
+    "o": [
+      "Parallel to their natural bed",
+      "Perpendicular to their natural bed",
+      "At a 45-degree angle to their natural bed",
+      "Independent of the natural bed"
+    ],
+    "a": "Perpendicular to their natural bed",
+    "e": "Stones are strongest in compression when the load is applied perpendicular (at right angles) to their natural bed (the plane of stratification), which prevents the splitting or delamination of the stone."
+  },
+  {
+    "id": 2,
+    "q": "To prevent the separation of facing and backing materials in a thick stone masonry wall, which type of stones are strictly required at regular intervals?",
+    "o": [
+      "Quoin stones",
+      "Rubble stones",
+      "Through stones (Bond stones)",
+      "Cornice stones"
+    ],
+    "a": "Through stones (Bond stones)",
+    "e": "Through stones, or bond stones, run across the full thickness of the wall. They act as ties to lock the facing and backing together, ensuring the wall acts as a single structural unit."
+  },
+  {
+    "id": 3,
+    "q": "Which Bogue's compound in Portland cement is primarily responsible for its early strength development (within the first 7 days)?",
+    "o": [
+      "Dicalcium Silicate (C2S)",
+      "Tricalcium Silicate (C3S)",
+      "Tricalcium Aluminate (C3A)",
+      "Tetracalcium Aluminoferrite (C4AF)"
+    ],
+    "a": "Tricalcium Silicate (C3S)",
+    "e": "Tricalcium Silicate (C3S) hydrates and hardens rapidly, making it the primary contributor to the initial set and early strength of the cement. C2S contributes to ultimate (long-term) strength."
+  },
+  {
+    "id": 4,
+    "q": "What is the primary function of adding 2% to 3% gypsum (calcium sulfate) during the grinding of cement clinker?",
+    "o": [
+      "To act as an accelerator",
+      "To increase the ultimate strength",
+      "To retard the initial setting time",
+      "To reduce the heat of hydration"
+    ],
+    "a": "To retard the initial setting time",
+    "e": "Gypsum acts as a retarder. It prevents the flash setting of Tricalcium Aluminate (C3A), allowing sufficient working time to mix, transport, and place the concrete before it hardens."
+  },
+  {
+    "id": 5,
+    "q": "Why is the dry process of cement manufacturing generally preferred over the wet process in modern plants?",
+    "o": [
+      "It produces a higher ultimate strength cement",
+      "It requires significantly less fuel for clinkerization",
+      "It allows for easier mixing of raw materials",
+      "It produces zero dust emissions"
+    ],
+    "a": "It requires significantly less fuel for clinkerization",
+    "e": "In the dry process, raw materials are fed into the rotary kiln in a dry powder form rather than as a slurry. This saves a massive amount of thermal energy (fuel) that would otherwise be wasted evaporating water."
+  },
+  {
+    "id": 6,
+    "q": "The Le-Chatelier apparatus is standardly used in laboratory tests to determine which property of cement?",
+    "o": [
+      "Fineness",
+      "Initial setting time",
+      "Compressive strength",
+      "Soundness"
+    ],
+    "a": "Soundness",
+    "e": "The Le-Chatelier test measures the soundness of cement, specifically identifying the volumetric expansion caused by the presence of uncombined (free) lime."
+  },
+  {
+    "id": 7,
+    "q": "When conducting a standard compressive strength test for cement, what is the exact size of the mortar cube specimens used?",
+    "o": [
+      "50.0 mm",
+      "70.6 mm",
+      "100.0 mm",
+      "150.0 mm"
+    ],
+    "a": "70.6 mm",
+    "e": "Standard cement testing requires a mortar mix of cement and standard sand (1:3 ratio) cast into cubes with face areas of exactly 50 sq.cm, which corresponds to side lengths of 70.6 mm."
+  },
+  {
+    "id": 8,
+    "q": "In the manufacturing of bricks, a pug mill is utilized for which specific operation?",
+    "o": [
+      "Weathering of clay",
+      "Tempering of clay",
+      "Moulding of bricks",
+      "Burning of bricks"
+    ],
+    "a": "Tempering of clay",
+    "e": "Tempering is the process of kneading the clay with water to make it plastic and workable for moulding. A pug mill mechanically kneads the clay much more efficiently than manual treading."
+  },
+  {
+    "id": 9,
+    "q": "Which brick masonry bond provides the highest structural strength and consists of alternating completely header courses and completely stretcher courses?",
+    "o": [
+      "Flemish Bond",
+      "English Bond",
+      "Stretcher Bond",
+      "Header Bond"
+    ],
+    "a": "English Bond",
+    "e": "English bond is structurally the strongest and most widely used bond for load-bearing walls. It eliminates continuous vertical joints by alternating header and stretcher courses."
+  },
+  {
+    "id": 10,
+    "q": "When laying standard bricks in masonry walls, the 'frog' (the depression on the face of the brick) should always point in which direction?",
+    "o": [
+      "Downwards",
+      "Upwards",
+      "Towards the outer face",
+      "Towards the inner face"
+    ],
+    "a": "Upwards",
+    "e": "Bricks are laid with the frog pointing upwards. This allows the depression to be filled with mortar, acting as a shear key that interlocking the upper and lower brick courses, increasing wall stability."
+  },
+  {
+    "id": 11,
+    "q": "In the preparation of oil paints, what role does Linseed oil primarily play?",
+    "o": [
+      "Pigment",
+      "Vehicle (Binder)",
+      "Drier",
+      "Thinner (Solvent)"
+    ],
+    "a": "Vehicle (Binder)",
+    "e": "Linseed oil acts as the vehicle or binder. It holds the pigment particles in suspension, allows the paint to spread evenly, and oxidizes to form a tough, durable film upon drying."
+  },
+  {
+    "id": 12,
+    "q": "Cutback bitumen, characterized by its lower viscosity, is manufactured by blending penetration grade asphaltic bitumen with:",
+    "o": [
+      "Water and an emulsifying agent",
+      "Portland cement",
+      "Volatile solvents like kerosene or naphtha",
+      "Crushed stone aggregates"
+    ],
+    "a": "Volatile solvents like kerosene or naphtha",
+    "e": "Cutback bitumen is created by adding a volatile solvent (distillate) to reduce its viscosity for low-temperature application. Once applied, the solvent evaporates, leaving the bitumen behind."
+  },
+  {
+    "id": 13,
+    "q": "For coating the exterior foundation of a concrete retaining wall exposed to damp soil, which material is technically superior for selection?",
+    "o": [
+      "Enamel Paint",
+      "Bituminous Coating",
+      "Acrylic Emulsion",
+      "Distemper"
+    ],
+    "a": "Bituminous Coating",
+    "e": "Bitumen provides excellent waterproofing properties, superior resistance to soil chemicals, and flexibility, making it far superior to standard paints for below-grade dampproofing and waterproofing."
+  },
+  {
+    "id": 14,
+    "q": "When applying paint to a newly plastered concrete wall, what is the primary technical function of applying a primer coat before the finishing coats?",
+    "o": [
+      "To provide the final aesthetic color",
+      "To increase the drying time of the final coat",
+      "To seal the porous substrate and provide adhesion",
+      "To prevent the plastered wall from cracking structurally"
+    ],
+    "a": "To seal the porous substrate and provide adhesion",
+    "e": "Masonry and concrete surfaces are porous. The primer acts as a sealer to prevent the substrate from absorbing the vehicle from the finishing coats, ensuring proper adhesion and a uniform finish."
+  },
+  {
+    "id": 15,
+    "q": "Which specific defect occurs in a painted plastered masonry surface due to the chemical reaction between alkalis in the cement and the oils in the paint?",
+    "o": [
+      "Blistering",
+      "Flaking",
+      "Saponification",
+      "Chalking"
+    ],
+    "a": "Saponification",
+    "e": "Saponification occurs when alkaline moisture in fresh concrete or plaster reacts with the fatty acids in oil-based paints, forming a soapy layer that destroys the paint's adhesion and structure."
+  }, 
+
+
+  {
+    "id": 16,
+    "q": "In high-quality fine ashlar stone masonry, the thickness of the mortar joints is strictly specified to not exceed:",
+    "o": [
+      "1 mm",
+      "3 mm",
+      "10 mm",
+      "15 mm"
+    ],
+    "a": "3 mm",
+    "e": "Ashlar fine masonry uses precisely dressed stones. To maintain structural integrity and aesthetics, the mortar joints are kept extremely thin, typically restricted to a maximum of 3 mm (about 1/8 inch)."
+  },
+  {
+    "id": 17,
+    "q": "What is the primary structural purpose of providing 'weep holes' in stone masonry retaining walls?",
+    "o": [
+      "To reduce the total volume of stone required",
+      "To provide ventilation to the backfill material",
+      "To safely drain water and relieve hydrostatic pressure",
+      "To allow for the settlement of the foundation"
+    ],
+    "a": "To safely drain water and relieve hydrostatic pressure",
+    "e": "Water accumulating behind a retaining wall drastically increases the lateral active earth pressure. Weep holes drain this water, preventing structural failure caused by excessive hydrostatic pressure."
+  },
+  {
+    "id": 18,
+    "q": "For the mix design of concrete and quality control, the specific gravity of Ordinary Portland Cement (OPC) is universally taken as:",
+    "o": [
+      "2.65",
+      "2.80",
+      "3.15",
+      "3.45"
+    ],
+    "a": "3.15",
+    "e": "The standard specific gravity of OPC is 3.15. This value is critical for calculating the absolute volume of cement when designing concrete mixes."
+  },
+  {
+    "id": 19,
+    "q": "According to standard specifications, the initial setting time for Ordinary Portland Cement (OPC) should not be less than:",
+    "o": [
+      "10 minutes",
+      "30 minutes",
+      "60 minutes",
+      "600 minutes"
+    ],
+    "a": "30 minutes",
+    "e": "OPC must have a minimum initial setting time of 30 minutes to allow adequate time for mixing, transporting, placing, and compacting the concrete before it begins to lose plasticity."
+  },
+  {
+    "id": 20,
+    "q": "To prevent 'warehouse pack' (lumping due to pressure and moisture) during storage, bags of cement should not be stacked higher than:",
+    "o": [
+      "5 bags",
+      "10 bags",
+      "15 bags",
+      "20 bags"
+    ],
+    "a": "10 bags",
+    "e": "Stacking cement bags more than 10-14 bags high (standard is strictly 10 bags) causes the bottom bags to consolidate heavily under the weight, a condition known as warehouse pack, which ruins the powder format."
+  },
+  {
+    "id": 21,
+    "q": "During the manufacturing of cement in a rotary kiln, what is the peak temperature required to fuse the raw materials into clinker?",
+    "o": [
+      "800°C - 1000°C",
+      "1100°C - 1200°C",
+      "1400°C - 1500°C",
+      "1800°C - 2000°C"
+    ],
+    "a": "1400°C - 1500°C",
+    "e": "Clinkerization requires a burning zone temperature of 1400°C to 1500°C. At this intense heat, partial fusion occurs, allowing the silicates and aluminates to chemically react and form Bogue's compounds."
+  },
+  {
+    "id": 22,
+    "q": "Excess quantities of free lime (CaO) or magnesia (MgO) in Portland cement lead to which specific defect?",
+    "o": [
+      "Flash setting",
+      "Unsoundness (Expansion)",
+      "Loss of early strength",
+      "Sulfate attack"
+    ],
+    "a": "Unsoundness (Expansion)",
+    "e": "Uncombined free lime and magnesia hydrate very slowly. They react with moisture after the cement has already set, causing delayed volumetric expansion (unsoundness) which leads to cracking."
+  },
+  {
+    "id": 23,
+    "q": "In the standard test for initial setting time using the Vicat apparatus, what is the exact specification of the penetrating needle used?",
+    "o": [
+      "1 mm square cross-section",
+      "10 mm diameter cylinder",
+      "5 mm diameter pin",
+      "A conical attachment"
+    ],
+    "a": "1 mm square cross-section",
+    "e": "The initial setting time is measured by the penetration resistance of a standard Vicat needle having a 1 mm square cross-section (or equivalent 1.13 mm diameter), which must fail to pierce the test block to the bottom."
+  },
+  {
+    "id": 24,
+    "q": "To test the fineness of Ordinary Portland Cement by dry sieving, the cement sample is passed through which standard IS Sieve?",
+    "o": [
+      "45 microns (IS Sieve No. 4)",
+      "90 microns (IS Sieve No. 9)",
+      "150 microns (IS Sieve No. 15)",
+      "300 microns (IS Sieve No. 30)"
+    ],
+    "a": "90 microns (IS Sieve No. 9)",
+    "e": "Fineness by dry sieving is checked using a 90-micron sieve. For standard OPC, the residue left on the 90-micron sieve must not exceed 10% by weight."
+  },
+  {
+    "id": 25,
+    "q": "Which chemical constituent constitutes the largest percentage (50% to 60%) of a high-quality brick earth?",
+    "o": [
+      "Alumina",
+      "Silica",
+      "Iron Oxide",
+      "Calcium Carbonate"
+    ],
+    "a": "Silica",
+    "e": "Silica (sand) forms the bulk of the brick earth (50-60%). It prevents cracking, shrinking, and warping of raw bricks during drying and burning, providing dimensional stability."
+  },
+  {
+    "id": 26,
+    "q": "The appearance of powdery white patches on the surface of exposed brickwork is termed 'efflorescence'. What is its fundamental cause?",
+    "o": [
+      "Overburning of the bricks in the kiln",
+      "Presence of excess soluble salts and alkalis in the clay",
+      "Using saline water for curing the concrete foundation",
+      "Reaction of atmospheric carbon dioxide with mortar"
+    ],
+    "a": "Presence of excess soluble salts and alkalis in the clay",
+    "e": "Efflorescence is caused by the presence of water-soluble alkalis (salts) in the brick earth. When the brick gets wet, these salts dissolve, migrate to the surface, and are left behind as a white powder when the water evaporates."
+  },
+  {
+    "id": 27,
+    "q": "In standard English bond brick masonry, where is the 'queen closer' positioned to break the vertical joints effectively?",
+    "o": [
+      "In the middle of the stretcher course",
+      "As the first brick (quoin) in a header course",
+      "Placed strictly next to the quoin header in a header course",
+      "At the corner of every alternate stretcher course"
+    ],
+    "a": "Placed strictly next to the quoin header in a header course",
+    "e": "To stagger the vertical joints and achieve structural bond (a 1/4 brick lap), a queen closer is always placed immediately after the corner brick (quoin header) in a heading course."
+  },
+  {
+    "id": 28,
+    "q": "What are the exact nominal dimensions of a standard modular brick (including mortar thickness)?",
+    "o": [
+      "190 x 90 x 90 mm",
+      "200 x 100 x 100 mm",
+      "230 x 110 x 70 mm",
+      "215 x 102.5 x 65 mm"
+    ],
+    "a": "200 x 100 x 100 mm",
+    "e": "The standard physical size of a modular brick is 190 x 90 x 90 mm. However, the nominal size, which accounts for the standard 10 mm mortar joint on all sides, is universally considered 200 x 100 x 100 mm."
+  },
+  {
+    "id": 29,
+    "q": "In the preparation of paint meant for solid masonry or metal surfaces, what is the specific chemical function of a 'drier' (e.g., litharge)?",
+    "o": [
+      "To evaporate the solvent rapidly",
+      "To act as a catalyst and accelerate the oxidation of the oil vehicle",
+      "To provide opacity and body to the paint",
+      "To prevent the settling of pigments at the bottom of the tin"
+    ],
+    "a": "To act as a catalyst and accelerate the oxidation of the oil vehicle",
+    "e": "Driers do not evaporate. Instead, they act as catalysts that absorb oxygen from the air and transfer it to the drying oil (vehicle), dramatically speeding up the oxidation and hardening process."
+  },
+  {
+    "id": 30,
+    "q": "Distemper is a highly cost-effective finish generally restricted to interior plastered surfaces. What constitutes the primary base material in distemper?",
+    "o": [
+      "White lead",
+      "Zinc oxide",
+      "Chalk (Whiting)",
+      "Red oxide"
+    ],
+    "a": "Chalk (Whiting)",
+    "e": "Distemper is basically a water paint where powdered chalk (whiting) serves as the base and water serves as the carrier, often bound together with glue or casein."
+  },
+  {
+    "id": 31,
+    "q": "For priming structural steel works to prevent corrosion before painting, which base pigment is universally considered the most effective?",
+    "o": [
+      "Titanium dioxide",
+      "Red lead",
+      "Lithopone",
+      "Aluminum powder"
+    ],
+    "a": "Red lead",
+    "e": "Red lead is heavily relied upon as a base pigment for anti-corrosive priming paints on steel surfaces because it offers exceptional rust-inhibiting properties when reacting with linseed oil."
+  },
+  {
+    "id": 32,
+    "q": "How does a bituminous emulsion fundamentally differ from a cutback bitumen in terms of its composition?",
+    "o": [
+      "Emulsion uses volatile solvents; cutback uses water",
+      "Emulsion uses water as the suspension medium; cutback uses volatile solvents",
+      "Emulsion contains coarse aggregates; cutback contains fine dust",
+      "Emulsion is applied hot; cutback is applied cold"
+    ],
+    "a": "Emulsion uses water as the suspension medium; cutback uses volatile solvents",
+    "e": "An emulsion is a two-phase system where fine droplets of bitumen are suspended in water using an emulsifying agent. A cutback is a true solution of bitumen dissolved in a volatile petroleum solvent."
+  },
+  {
+    "id": 33,
+    "q": "To determine the consistency and grading of bitumen, the standard penetration test measures the depth a standard needle penetrates under a 100g load for 5 seconds at what exact temperature?",
+    "o": [
+      "15°C",
+      "25°C",
+      "35°C",
+      "60°C"
+    ],
+    "a": "25°C",
+    "e": "The standard penetration test for bitumen is strictly conducted at a controlled temperature of 25°C to ensure uniformity and global standardization in grading paving bitumen."
+  },
+  {
+    "id": 34,
+    "q": "The 'Ring and Ball test' is a standardized laboratory procedure used specifically to determine which critical property of bitumen?",
+    "o": [
+      "Ductility",
+      "Viscosity",
+      "Softening point",
+      "Flash and fire point"
+    ],
+    "a": "Softening point",
+    "e": "The Ring and Ball test determines the softening point of bitumen, which is the temperature at which the material attains a specific degree of softening under standardized test conditions, critical for evaluating its high-temperature susceptibility."
+  },
+  {
+    "id": 35,
+    "q": "When applying paint to a plastered surface, blistering and peeling of the paint film are most commonly caused by:",
+    "o": [
+      "Applying paint in excessively thin coats",
+      "Using a high-quality primer before painting",
+      "Trapped moisture in the substrate beneath the paint film",
+      "Excessive amount of pigment in the paint mixture"
+    ],
+    "a": "Trapped moisture in the substrate beneath the paint film",
+    "e": "If paint is applied to masonry or plaster that is not completely dry, the trapped moisture expands when heated by the sun or room temperature, breaking the bond and causing the paint film to blister."
+  },
+
+  {
+    "id": 36,
+    "q": "What is the internal pressure intensity within a water droplet of diameter 'd' having a surface tension 'σ'?",
+    "o": [
+      "2σ / d",
+      "4σ / d",
+      "8σ / d",
+      "16σ / d"
+    ],
+    "a": "4σ / d",
+    "e": "For a liquid droplet (like water), there is only one surface interface. By balancing the pressure force with the surface tension force, the internal pressure p = 4σ/d."
+  },
+  {
+    "id": 37,
+    "q": "For a vertically immersed triangular lamina with its base lying perfectly on the free surface of a liquid and height 'h', at what depth does the center of pressure lie?",
+    "o": [
+      "h / 2",
+      "h / 3",
+      "2h / 3",
+      "3h / 4"
+    ],
+    "a": "h / 2",
+    "e": "While the center of gravity (centroid) of such a triangle is at h/3 from the base, the center of pressure, calculated using the moment of inertia and parallel axis theorem, is located at exactly h/2 from the free surface."
+  },
+  {
+    "id": 38,
+    "q": "The coefficient of discharge (Cd) for a standard, well-designed Venturimeter typically falls within which range?",
+    "o": [
+      "0.60 to 0.65",
+      "0.75 to 0.85",
+      "0.85 to 0.90",
+      "0.95 to 0.99"
+    ],
+    "a": "0.95 to 0.99",
+    "e": "Because a Venturimeter uses a gradual converging cone that virtually eliminates flow separation and form drag, its head loss is extremely small, leading to a high Cd of 0.95 to 0.99."
+  },
+  {
+    "id": 39,
+    "q": "In open channel flow hydraulics, the ratio of the cross-sectional area of flow (A) to the top width of the water surface (T) is defined as:",
+    "o": [
+      "Hydraulic radius",
+      "Hydraulic depth",
+      "Wetted perimeter",
+      "Section factor"
+    ],
+    "a": "Hydraulic depth",
+    "e": "Hydraulic depth (D = A/T) represents the mean depth of flow. It is a critical parameter for calculating the Froude number to determine if a flow is subcritical, critical, or supercritical."
+  },
+  {
+    "id": 40,
+    "q": "A Sutro weir (proportional weir) is specially profiled so that its discharge (Q) maintains what mathematical relationship with the head (H)?",
+    "o": [
+      "Q is proportional to H^(1/2)",
+      "Q is proportional to H",
+      "Q is proportional to H^(3/2)",
+      "Q is proportional to H^(5/2)"
+    ],
+    "a": "Q is proportional to H",
+    "e": "The unique geometry of a Sutro weir ensures a linear relationship where discharge is directly proportional to the head (Q ∝ H). It is heavily utilized in grit chambers to maintain a constant velocity of flow."
+  },
+  {
+    "id": 41,
+    "q": "If the discharge (Q) remains strictly constant in a closed pipe system, how is the head loss due to friction (hf) related to the pipe diameter (d) according to the Darcy-Weisbach equation?",
+    "o": [
+      "Inversely proportional to d",
+      "Inversely proportional to d^2",
+      "Inversely proportional to d^4",
+      "Inversely proportional to d^5"
+    ],
+    "a": "Inversely proportional to d^5",
+    "e": "Substituting v = Q/A into the Darcy-Weisbach equation hf = (fLv²)/(2gd) yields hf = (8fLQ²)/(π²gd⁵). Therefore, for a given discharge, head loss varies inversely with the fifth power of the diameter."
+  },
+  {
+    "id": 42,
+    "q": "The phenomenon of 'Water Hammer' in a pipeline is fundamentally caused by:",
+    "o": [
+      "Gradual accumulation of air bubbles",
+      "Friction between the fluid and pipe walls",
+      "The sudden closure of a valve",
+      "Excessive pipe diameter expansion"
+    ],
+    "a": "The sudden closure of a valve",
+    "e": "When a valve is closed suddenly, the kinetic energy of the flowing fluid is abruptly converted into pressure energy, sending a high-pressure shock wave backward through the pipe, causing the 'hammering' effect."
+  },
+  {
+    "id": 43,
+    "q": "When water flows over a weir, the 'velocity of approach' effectively increases the total discharge. How is this velocity mathematically accounted for in discharge formulas?",
+    "o": [
+      "By multiplying the discharge coefficient by the velocity head",
+      "By adding the velocity head to the static head over the crest",
+      "By subtracting the velocity head from the static head",
+      "By squaring the total head"
+    ],
+    "a": "By adding the velocity head to the static head over the crest",
+    "e": "The kinetic energy of the approaching water (Va²/2g) acts as an additional driving head. It is added to the measured static head (H) to compute the total energy head driving the flow."
+  },
+  {
+    "id": 44,
+    "q": "Which Bogue's compound is responsible for generating the maximum total heat of hydration over its complete chemical reaction lifecycle?",
+    "o": [
+      "Tricalcium Silicate (C3S)",
+      "Dicalcium Silicate (C2S)",
+      "Tricalcium Aluminate (C3A)",
+      "Tetracalcium Aluminoferrite (C4AF)"
+    ],
+    "a": "Tricalcium Aluminate (C3A)",
+    "e": "Tricalcium Aluminate (C3A) reacts the fastest with water and liberates the highest amount of heat (approx 865 J/g) compared to the other compounds, making it critical to control in mass concrete structures."
+  },
+  {
+    "id": 45,
+    "q": "For standard structural use, what is the universally accepted minimum crushing strength for a 'good' building stone?",
+    "o": [
+      "10 MPa",
+      "50 MPa",
+      "100 MPa",
+      "250 MPa"
+    ],
+    "a": "100 MPa",
+    "e": "A high-quality building stone suitable for heavy structural load-bearing applications, such as granite or compact sandstone, should possess a compressive (crushing) strength of at least 100 N/mm² (100 MPa)."
+  },
+  {
+    "id": 46,
+    "q": "As per standard testing (Blaine's air permeability method), the minimum specific surface area required for Ordinary Portland Cement (OPC) is:",
+    "o": [
+      "1500 cm²/g",
+      "2250 cm²/g",
+      "3000 cm²/g",
+      "3250 cm²/g"
+    ],
+    "a": "2250 cm²/g",
+    "e": "Fineness controls the rate of hydration. For OPC, the specific surface area must not be less than 2250 cm²/g to ensure adequate reaction rates and strength development. Rapid hardening cement requires a minimum of 3250 cm²/g."
+  },
+  {
+    "id": 47,
+    "q": "To qualify as a 'First-Class' building brick according to standard specifications, its water absorption after 24 hours of immersion in cold water should not exceed what percentage of its dry weight?",
+    "o": [
+      "10%",
+      "15%",
+      "20%",
+      "25%"
+    ],
+    "a": "20%",
+    "e": "A first-class brick is well-burnt and dense. Its maximum permissible water absorption is strictly capped at 20% by weight. Second-class bricks allow up to 22%, and third-class up to 25%."
+  },
+  {
+    "id": 48,
+    "q": "In brick masonry terminology, if a standard brick is cut to remove a triangular piece spanning from the center of one end to the center of one adjacent side, the remaining larger piece is called a:",
+    "o": [
+      "Queen closer",
+      "King closer",
+      "Mitred closer",
+      "Bevelled bat"
+    ],
+    "a": "King closer",
+    "e": "A King closer has one corner cut off diagonally. It is predominantly used near door and window openings to form reveals and maintain structural bond without creating continuous vertical joints."
+  },
+  {
+    "id": 49,
+    "q": "When excess Alumina (Al2O3) is present in the raw materials for manufacturing Portland cement, what is its primary effect on the final product?",
+    "o": [
+      "It drastically increases ultimate strength",
+      "It causes the cement to flash set and reduces ultimate strength",
+      "It makes the cement highly resistant to sulfate attacks",
+      "It perfectly prevents the cement from shrinking"
+    ],
+    "a": "It causes the cement to flash set and reduces ultimate strength",
+    "e": "Alumina acts as a flux during burning, lowering the clinkering temperature. However, an excess amount creates too much C3A, which causes premature flash setting and lowers the long-term structural strength."
+  },
+  {
+    "id": 50,
+    "q": "In painting applications on solid metallic or masonry surfaces, the defect known as 'Chalking' is primarily characterized by:",
+    "o": [
+      "The formation of trapped air bubbles",
+      "The separation of the paint film into layers",
+      "The formation of a loose powder on the surface due to binder destruction",
+      "The chemical saponification of alkalis"
+    ],
+    "a": "The formation of a loose powder on the surface due to binder destruction",
+    "e": "Chalking occurs when the vehicle (binder) in the paint breaks down due to weathering or UV radiation, leaving the pigment particles loose and powdery on the surface like chalk dust."
+  },
+  {
+    "id": 51,
+    "q": "For brick masonry exposed directly to severe weathering and heavy rains, which type of mortar pointing is structurally the most durable?",
+    "o": [
+      "Struck pointing",
+      "Weathered pointing",
+      "Flush pointing",
+      "V-groove pointing"
+    ],
+    "a": "Flush pointing",
+    "e": "Flush pointing finishes flush with the masonry face. Because it provides no ledges or grooves for rainwater or dirt to accumulate, it is the most durable profile against environmental degradation."
+  },
+  {
+    "id": 52,
+    "q": "In highway engineering and waterproofing, what does the designation of a bitumen grade as '80/100' exactly specify?",
+    "o": [
+      "It softens between 80°C and 100°C",
+      "It contains 80% to 100% pure asphalt",
+      "Its standard penetration value is between 80 and 100 tenths of a millimeter",
+      "Its specific gravity ranges from 0.80 to 1.00"
+    ],
+    "a": "Its standard penetration value is between 80 and 100 tenths of a millimeter",
+    "e": "Bitumen is graded by its penetration value at 25°C. The grade '80/100' means a standard needle will penetrate the sample by a depth of 80 to 100 units, where each unit is 0.1 mm (i.e., 8 to 10 mm deep)."
+  },
+  {
+    "id": 53,
+    "q": "Which of the following is commonly utilized as a commercial thinner for synthetic enamel paints to adjust their application viscosity?",
+    "o": [
+      "Linseed oil",
+      "White spirit (Turpentine substitute)",
+      "Litharge",
+      "Water"
+    ],
+    "a": "White spirit (Turpentine substitute)",
+    "e": "White spirit, mineral turpentine, or naphtha are highly volatile solvents used to thin enamel paints. They reduce the viscosity for brushing or spraying and evaporate entirely as the paint dries."
+  },
+  {
+    "id": 54,
+    "q": "For the construction of structural arches using brick masonry, which specific shape of brick is manufactured to minimize thick, wedge-shaped mortar joints?",
+    "o": [
+      "Perforated bricks",
+      "Bullnose bricks",
+      "Voussoir (wedge-shaped) bricks",
+      "Hollow bricks"
+    ],
+    "a": "Voussoir (wedge-shaped) bricks",
+    "e": "Voussoir bricks are tapered (wedge-shaped) during manufacturing. This allows them to form the curve of an arch while maintaining uniform, thin mortar joints, vastly improving the compressive load transfer."
+  },
+  {
+    "id": 55,
+    "q": "When a bituminous emulsion is applied to a road surface or masonry, it transitions from a brown liquid to a black solid mass. This specific curing process is termed:",
+    "o": [
+      "Saponification",
+      "Oxidation",
+      "Breaking of the emulsion",
+      "Distillation"
+    ],
+    "a": "Breaking of the emulsion",
+    "e": "When the water in the emulsion evaporates or is absorbed by the surface, the suspended bitumen droplets coalesce and stick together, leaving a continuous black film. This process is called 'breaking'."
+  },
+
+
+  {
+    "id": 56,
+    "q": "In the Le-Chatelier test for determining the soundness of Ordinary Portland Cement (OPC), the maximum allowable expansion of the indicator points is:",
+    "o": [
+      "5 mm",
+      "10 mm",
+      "15 mm",
+      "20 mm"
+    ],
+    "a": "10 mm",
+    "e": "The Le-Chatelier test measures the expansion caused by uncombined (free) lime. For standard OPC, the split cylinder's expansion must not exceed 10 mm to ensure the cement is sound and will not crack post-setting."
+  },
+  {
+    "id": 57,
+    "q": "When preparing a cement paste for the standard initial and final setting time tests using the Vicat apparatus, what percentage of water by weight of cement is added?",
+    "o": [
+      "0.78 P",
+      "0.85 P",
+      "1.00 P",
+      "1.20 P"
+    ],
+    "a": "0.85 P",
+    "e": "Where 'P' represents the standard consistency (the percentage of water required to produce a standard cement paste), setting time tests strictly require the addition of water equal to 0.85 times P (0.85P)."
+  },
+  {
+    "id": 58,
+    "q": "For paving grade bitumen (e.g., VG30), standard specifications dictate that the minimum flash point measured via the Cleveland Open Cup method should be:",
+    "o": [
+      "150°C",
+      "175°C",
+      "220°C",
+      "300°C"
+    ],
+    "a": "220°C",
+    "e": "The flash point indicates the critical temperature at which bitumen vapor briefly ignites. For safety during heating and mixing in highway construction, paving bitumen must have a minimum flash point of 220°C."
+  },
+  {
+    "id": 59,
+    "q": "To determine the ductility of a bitumen sample, a standard briquette is pulled apart at a controlled test temperature of 25°C. What is the standard rate of pull applied?",
+    "o": [
+      "10 mm/minute",
+      "25 mm/minute",
+      "50 mm/minute",
+      "100 mm/minute"
+    ],
+    "a": "50 mm/minute",
+    "e": "The standard ductility test measures the distance in centimeters to which bitumen will elongate before breaking. The test is strictly performed at 25°C with a constant pulling speed of exactly 50 mm per minute."
+  },
+  {
+    "id": 60,
+    "q": "In the Autoclave test, which is used to detect soundness due to both free lime and magnesia in cement, the maximum permissible expansion is:",
+    "o": [
+      "0.2%",
+      "0.8%",
+      "1.5%",
+      "5.0%"
+    ],
+    "a": "0.8%",
+    "e": "While the Le-Chatelier test only accounts for free lime, the Autoclave test covers both lime and magnesia. The maximum allowed expansion in the autoclave test for OPC is universally capped at 0.8%."
+  },
+  {
+    "id": 61,
+    "q": "For standard 43 Grade Ordinary Portland Cement, what is the minimum required compressive strength after 7 days of curing?",
+    "o": [
+      "23 MPa",
+      "33 MPa",
+      "43 MPa",
+      "53 MPa"
+    ],
+    "a": "33 MPa",
+    "e": "For 43 Grade OPC, the 28-day strength is 43 MPa. The standard strength development requires a minimum of 23 MPa at 3 days, and 33 MPa at 7 days."
+  },
+  {
+    "id": 62,
+    "q": "What is the standard specific gravity range for pure, unadulterated asphaltic paving bitumen used in road construction?",
+    "o": [
+      "0.80 to 0.85",
+      "0.97 to 1.02",
+      "1.15 to 1.25",
+      "1.40 to 1.50"
+    ],
+    "a": "0.97 to 1.02",
+    "e": "Pure asphaltic bitumen has a specific gravity very close to water, typically ranging between 0.97 and 1.02 at 27°C. Values significantly higher often indicate the presence of mineral impurities or adulterants."
+  },
+  {
+    "id": 63,
+    "q": "In the 'Loss on Heating' test for paving bitumen, a 50-gram sample is heated in a standard oven. What is the specified temperature and duration for this test?",
+    "o": [
+      "100°C for 2 hours",
+      "163°C for 5 hours",
+      "200°C for 3 hours",
+      "220°C for 1 hour"
+    ],
+    "a": "163°C for 5 hours",
+    "e": "The loss on heating test simulates the hardening of bitumen during the hot-mix process. The standard procedure requires heating a 50g sample at 163°C for exactly 5 hours, after which the loss in weight must not exceed 1%."
+  },
+  {
+    "id": 64,
+    "q": "When applying cement-based paints (like Snowcem) to a newly plastered exterior masonry wall, what is a critical post-application requirement?",
+    "o": [
+      "Applying an oil-based varnish over it immediately",
+      "Heating the wall surface with blowlamps to dry it",
+      "Water curing the painted surface for 2 to 3 days",
+      "Rubbing the surface with pumice stone for a glossy finish"
+    ],
+    "a": "Water curing the painted surface for 2 to 3 days",
+    "e": "Cement paints use Portland cement as their base. Just like structural concrete or plaster, the paint film requires hydration to harden and bond correctly, mandating a fine spray of water for 2-3 days post-application."
+  },
+  {
+    "id": 65,
+    "q": "Which highly effective chemical solvent is traditionally used in laboratory extraction tests to accurately determine the exact bitumen content in a bituminous concrete mix?",
+    "o": [
+      "Distilled water",
+      "Trichloroethylene (or Benzene)",
+      "Linseed oil",
+      "Hydrochloric acid"
+    ],
+    "a": "Trichloroethylene (or Benzene)",
+    "e": "To extract bitumen from aggregates for quality control testing, strong organic solvents like Trichloroethylene, Benzene, or Toluene are used because they completely dissolve the asphaltic binder."
+  },
+  {
+    "id": 66,
+    "q": "To prevent blistering and saponification, paint should never be applied to newly constructed plastered masonry walls until the moisture content of the substrate drops below:",
+    "o": [
+      "2%",
+      "12%",
+      "25%",
+      "35%"
+    ],
+    "a": "12%",
+    "e": "Plaster and masonry must be allowed to dry thoroughly. Applying impermeable paints over a substrate with a moisture content higher than 10-12% will inevitably trap moisture, leading to blistering, flaking, and alkali attacks."
+  },
+  {
+    "id": 67,
+    "q": "In the manufacture of Low Heat Portland Cement (used for mass concrete like dams), the maximum allowed heat of hydration at 7 days is strictly limited to:",
+    "o": [
+      "65 calories per gram",
+      "85 calories per gram",
+      "100 calories per gram",
+      "120 calories per gram"
+    ],
+    "a": "65 calories per gram",
+    "e": "To prevent thermal cracking in massive structures, Low Heat Cement is formulated with lower C3S and C3A. Its standard specification limits the heat of hydration to 65 cal/g at 7 days and 75 cal/g at 28 days."
+  },
+  {
+    "id": 68,
+    "q": "The property known as 'Pigment Volume Concentration' (PVC) profoundly affects paint characteristics. For flat (matte) finish paints used on masonry, the PVC is typically:",
+    "o": [
+      "Very low (under 20%)",
+      "Moderate (25% to 35%)",
+      "High (50% to 75%)",
+      "Exactly 100%"
+    ],
+    "a": "High (50% to 75%)",
+    "e": "Flat or matte paints require a high ratio of pigment relative to the binder to scatter light and prevent gloss. Therefore, they have a high PVC (typically above 50%). Glossy paints have lower PVCs."
+  },
+  {
+    "id": 69,
+    "q": "Which type of specialized paint incorporates base materials like Sodium Silicate to effectively protect steel structures and solid surfaces from high-temperature environments?",
+    "o": [
+      "Cellulose paint",
+      "Fire-resisting paint",
+      "Bituminous paint",
+      "Aluminum paint"
+    ],
+    "a": "Fire-resisting paint",
+    "e": "Fire-resisting or intumescent paints are specially formulated with chemicals like sodium silicate. When exposed to heat, they swell and form a thick, insulating, non-combustible foam layer that protects the underlying structure."
+  },
+  {
+    "id": 70,
+    "q": "According to the water content test for paving grade bitumen, what is the maximum percentage of water (by weight) legally permitted in the material to prevent severe frothing when heated?",
+    "o": [
+      "0.2%",
+      "1.0%",
+      "2.5%",
+      "5.0%"
+    ],
+    "a": "0.2%",
+    "e": "Water in bitumen causes severe and dangerous foaming (frothing) when heated above 100°C. Standard specifications mandate that the water content in paving bitumen must not exceed 0.2% by mass."
+  },
+  {
+    "id": 71,
+    "q": "To accurately measure the kinematic viscosity of cutback bitumen or road tar in the laboratory, a standard Tar Viscometer is used. What is the standard orifice diameter for measuring medium-viscosity binders?",
+    "o": [
+      "2 mm",
+      "4 mm",
+      "10 mm",
+      "25 mm"
+    ],
+    "a": "10 mm",
+    "e": "The standard Tar Viscometer test records the time taken (in seconds) for 50 ml of the binder to flow through a standard orifice. A 10 mm orifice is standard for road tars and medium/high viscosity cutback bitumens."
+  },
+  {
+    "id": 72,
+    "q": "Rapid Hardening Portland Cement (RHPC) attains high early strength primarily through an increased C3S content and ultra-fine grinding. Its minimum specific surface area must be:",
+    "o": [
+      "2250 cm²/g",
+      "3250 cm²/g",
+      "4000 cm²/g",
+      "5000 cm²/g"
+    ],
+    "a": "3250 cm²/g",
+    "e": "The increased fineness of RHPC exposes more surface area to water, accelerating hydration. While standard OPC requires 2250 cm²/g, Rapid Hardening Cement strictly requires a minimum specific surface area of 3250 cm²/g."
+  },
+  {
+    "id": 73,
+    "q": "Which of the following physical characteristics indicates the 'Flash Point' of a bituminous material rather than its 'Fire Point'?",
+    "o": [
+      "The material ignites and burns continuously for at least 5 seconds",
+      "The material begins to boil rapidly",
+      "The material emits a momentary flash of flame in the presence of an ignition source",
+      "The material completely vaporizes"
+    ],
+    "a": "The material emits a momentary flash of flame in the presence of an ignition source",
+    "e": "The flash point is the lowest temperature at which vapors ignite instantly (flash) but do not sustain burning. The fire point (usually higher by about 10°C) is when the material ignites and sustains a flame for at least 5 seconds."
+  },
+  {
+    "id": 74,
+    "q": "When calculating the mix proportions for mortar or concrete, the bulk density of loosely packed Portland cement is standardly taken to be approximately:",
+    "o": [
+      "1000 kg/m³",
+      "1440 kg/m³",
+      "2400 kg/m³",
+      "3150 kg/m³"
+    ],
+    "a": "1440 kg/m³",
+    "e": "While the absolute specific gravity is 3.15 (density 3150 kg/m³ without air voids), the standard bulk density of cement (including the air trapped between particles in a standard 50 kg bag) is widely assumed to be 1440 kg/m³ for volumetric batching."
+  },
+  {
+    "id": 75,
+    "q": "A high-quality synthetic enamel paint typically requires how much time to become completely 'surface dry' (tack-free) under normal atmospheric conditions?",
+    "o": [
+      "10 to 15 minutes",
+      "1 to 2 hours",
+      "6 to 8 hours",
+      "24 to 48 hours"
+    ],
+    "a": "6 to 8 hours",
+    "e": "Unlike fast-drying emulsions or nitrocellulose lacquers, synthetic enamel paints utilize an alkyd resin binder that hardens through a slower oxidation process. They generally take 6 to 8 hours to become surface dry and 16-24 hours to become hard dry."
+  },
+
+  {
+    "id": 76,
+    "q": "For the determination of the final setting time of cement using the Vicat apparatus, what is the specific design of the needle used?",
+    "o": [
+      "A 1 mm square needle",
+      "A 10 mm diameter plunger",
+      "A 1 mm diameter needle with a 5 mm diameter annular collar",
+      "A conical needle with a 5 mm base"
+    ],
+    "a": "A 1 mm diameter needle with a 5 mm diameter annular collar",
+    "e": "The final setting time is reached when the 1 mm needle makes an impression on the test block, but the 5 mm annular collar (metal attachment) fails to make an impression, indicating the paste has sufficiently hardened."
+  },
+  {
+    "id": 77,
+    "q": "What is the universally accepted minimum specific surface area (by Blaine's air permeability method) required for Portland Pozzolana Cement (PPC)?",
+    "o": [
+      "2250 cm2/g",
+      "3000 cm2/g",
+      "3250 cm2/g",
+      "4000 cm2/g"
+    ],
+    "a": "3000 cm2/g",
+    "e": "PPC requires a higher degree of fineness than standard OPC (2250 cm2/g) to ensure the slower-reacting pozzolanic materials have sufficient surface area for hydration. The minimum specification is 3000 cm2/g."
+  },
+  {
+    "id": 78,
+    "q": "According to standard specifications, what is the minimum compressive strength requirement for 53 Grade Ordinary Portland Cement after 3 days of curing?",
+    "o": [
+      "16 MPa",
+      "23 MPa",
+      "27 MPa",
+      "33 MPa"
+    ],
+    "a": "27 MPa",
+    "e": "For 53 Grade OPC, the strength development curve mandates a minimum of 27 MPa at 3 days, 37 MPa at 7 days, and 53 MPa at 28 days."
+  },
+  {
+    "id": 79,
+    "q": "During the standard Ring and Ball test to determine the softening point of bitumen, what is the strictly specified rate at which the water bath temperature must be raised?",
+    "o": [
+      "1°C per minute",
+      "2°C per minute",
+      "5°C per minute",
+      "10°C per minute"
+    ],
+    "a": "5°C per minute",
+    "e": "The softening point test is highly sensitive to the heating rate. The standard protocol strictly requires the temperature to be raised at a uniform rate of exactly 5°C per minute."
+  },
+  {
+    "id": 80,
+    "q": "In the grading of paving bitumen using viscosity (e.g., VG-30), what is the target absolute viscosity measured at 60°C?",
+    "o": [
+      "1000 Poise",
+      "2400 Poise",
+      "3000 Poise",
+      "4000 Poise"
+    ],
+    "a": "2400 Poise",
+    "e": "The Viscosity Grade (VG) roughly corresponds to the absolute viscosity at 60°C divided by 100. For VG-30, the standard specification requires an absolute viscosity of 2400 Poise (±400)."
+  },
+  {
+    "id": 81,
+    "q": "For severe climatic conditions and heavy traffic, standard specifications limit the 'Stripping Value' of aggregates in a bituminous mix to a maximum of:",
+    "o": [
+      "5%",
+      "10%",
+      "15%",
+      "25%"
+    ],
+    "a": "5%",
+    "e": "Stripping refers to the detachment of the bitumen film from the aggregate surface due to water. For critical highway construction, the maximum permissible stripping value is 5% to ensure durability against moisture damage."
+  },
+  {
+    "id": 82,
+    "q": "How does the specific gravity of standard road tar generally compare to the specific gravity of paving grade asphaltic bitumen?",
+    "o": [
+      "Tar is significantly lighter (0.80 - 0.90)",
+      "They have the exact same specific gravity (0.97 - 1.02)",
+      "Tar is heavier (1.10 - 1.25)",
+      "Tar varies depending entirely on its water content"
+    ],
+    "a": "Tar is heavier (1.10 - 1.25)",
+    "e": "Road tar, derived from the destructive distillation of coal, contains heavier hydrocarbon compounds compared to petroleum-derived bitumen. Tar has a specific gravity of 1.10 to 1.25, while bitumen is 0.97 to 1.02."
+  },
+  {
+    "id": 83,
+    "q": "In the standard Marshall Stability test for bituminous concrete mix design, the test specimens are submerged in a water bath before testing. What is the standard temperature and duration for this bath?",
+    "o": [
+      "25°C for 24 hours",
+      "60°C for 30 to 40 minutes",
+      "100°C for 10 minutes",
+      "135°C for 5 minutes"
+    ],
+    "a": "60°C for 30 to 40 minutes",
+    "e": "The Marshall test evaluates the stability and flow of a mix under high summer temperatures. Specimens are conditioned in a water bath at exactly 60°C for 30 to 40 minutes immediately prior to applying the crushing load."
+  },
+  {
+    "id": 84,
+    "q": "To limit delayed expansion and potential cracking in concrete, standard codes restrict the maximum allowable percentage of Magnesia (MgO) in Ordinary Portland Cement to:",
+    "o": [
+      "2.0%",
+      "4.0%",
+      "6.0%",
+      "10.0%"
+    ],
+    "a": "6.0%",
+    "e": "Excessive Magnesia hydrates very slowly, causing harmful volumetric expansion (unsoundness) in hardened concrete. Therefore, standard specifications limit the MgO content strictly to a maximum of 6%."
+  },
+  {
+    "id": 85,
+    "q": "What is the maximum permissible 'Insoluble Residue' by weight in standard Ordinary Portland Cement?",
+    "o": [
+      "0.5%",
+      "2.0%",
+      "5.0%",
+      "10.0%"
+    ],
+    "a": "2.0%",
+    "e": "Insoluble residue indicates impurities (like unreacted silica or clay) in the cement. For high-quality OPC, this non-cementitious residue is legally capped at 2.0% (and often lower in some regional codes)."
+  },
+  {
+    "id": 86,
+    "q": "Unlike Ordinary Portland Cement, High Alumina Cement is known for its exceptionally rapid strength development. What is its standard initial setting time?",
+    "o": [
+      "5 minutes",
+      "30 minutes",
+      "1.5 hours",
+      "3.5 hours"
+    ],
+    "a": "3.5 hours",
+    "e": "Despite achieving very high strength in just 24 hours, High Alumina Cement has a surprisingly long initial setting time of approximately 3.5 hours, providing excellent workability before it suddenly and rapidly hardens."
+  },
+  {
+    "id": 87,
+    "q": "In a standard paint mixture for masonry surfaces, Pigment Volume Concentration (PVC) defines the ratio of pigment to total non-volatile volume. For a high-gloss enamel, the PVC is typically in the range of:",
+    "o": [
+      "10% to 25%",
+      "35% to 45%",
+      "50% to 65%",
+      "75% to 85%"
+    ],
+    "a": "10% to 25%",
+    "e": "To achieve a high-gloss finish, there must be a high proportion of binder (vehicle) to completely coat the pigment particles and form a smooth, continuous surface. Therefore, the PVC for gloss paints is kept low (10-25%)."
+  },
+  {
+    "id": 88,
+    "q": "When calculating paint quantities for building estimation, what is the approximate spreading capacity (coverage) of one liter of synthetic enamel paint in a single coat over a smooth, primed masonry surface?",
+    "o": [
+      "2 to 5 sq.m",
+      "10 to 15 sq.m",
+      "20 to 25 sq.m",
+      "30 to 40 sq.m"
+    ],
+    "a": "10 to 15 sq.m",
+    "e": "Standard synthetic enamel paint applied to a non-porous, properly primed smooth surface generally provides a spreading capacity of 10 to 15 square meters per liter per coat."
+  },
+  {
+    "id": 89,
+    "q": "According to the fundamental composition of a standard clear oil varnish, what is the expected Pigment Volume Concentration (PVC)?",
+    "o": [
+      "0%",
+      "25%",
+      "50%",
+      "100%"
+    ],
+    "a": "0%",
+    "e": "Varnishes are essentially paints without any pigment. They consist only of resin, a drying oil, a drier, and a solvent, forming a transparent or translucent protective film. Thus, their PVC is effectively 0%."
+  },
+  {
+    "id": 90,
+    "q": "During the Los Angeles Abrasion test to determine the hardness of aggregates used in bituminous pavements, what is the standard speed of rotation for the test cylinder?",
+    "o": [
+      "10 to 15 rpm",
+      "30 to 33 rpm",
+      "50 to 60 rpm",
+      "100 rpm"
+    ],
+    "a": "30 to 33 rpm",
+    "e": "The Los Angeles abrasion machine cylinder rotates at a strictly controlled speed of 30 to 33 revolutions per minute for a specified number of revolutions (usually 500 or 1000) to ensure standard impact and attrition on the aggregates."
+  },
+  {
+    "id": 91,
+    "q": "When curing standard cement mortar cubes for compressive strength testing, the water bath must be maintained at what specific temperature?",
+    "o": [
+      "20 ± 2 °C",
+      "27 ± 2 °C",
+      "35 ± 2 °C",
+      "100 °C"
+    ],
+    "a": "27 ± 2 °C",
+    "e": "Temperature significantly impacts the rate of hydration. Standard laboratory specifications (such as IS codes) mandate that cement cubes be cured in clean water maintained at exactly 27 ± 2 °C."
+  },
+  {
+    "id": 92,
+    "q": "In the classification of cutback bitumens, a 'Rapid Curing' (RC) cutback is produced by dissolving asphalt cement in a highly volatile solvent such as:",
+    "o": [
+      "Kerosene",
+      "Diesel oil",
+      "Naphtha or Gasoline",
+      "Water"
+    ],
+    "a": "Naphtha or Gasoline",
+    "e": "Rapid Curing (RC) cutbacks require a solvent that evaporates very quickly after application to leave the bitumen binder behind. Highly volatile petroleum distillates like naphtha or gasoline are used for this purpose."
+  },
+  {
+    "id": 93,
+    "q": "What is the primary function of adding a small quantity of 'Lithopone' in the manufacturing of certain paints?",
+    "o": [
+      "To act as a fast-drying solvent",
+      "To provide a white pigment base",
+      "To prevent fungal growth on masonry",
+      "To accelerate the oxidation of the binder"
+    ],
+    "a": "To provide a white pigment base",
+    "e": "Lithopone is a mixture of barium sulfate and zinc sulfide. It is widely used as a brilliant white pigment base in interior paints, offering good covering power and opacity."
+  },
+  {
+    "id": 94,
+    "q": "The flash point of a cutback bitumen is significantly lower than that of paving grade bitumen. What is the approximate flash point limit for a Rapid Curing (RC) cutback?",
+    "o": [
+      "Below 30°C",
+      "Around 100°C",
+      "Around 150°C",
+      "Above 200°C"
+    ],
+    "a": "Below 30°C",
+    "e": "Because Rapid Curing cutbacks contain highly volatile solvents like naphtha or gasoline, their flash points are dangerously low, often below 27°C, requiring extreme fire safety precautions during handling and heating."
+  },
+  {
+    "id": 95,
+    "q": "In the manufacture of Portland Slag Cement (PSC), standard specifications state that the granulated slag content should generally be between:",
+    "o": [
+      "5% to 10%",
+      "25% to 65%",
+      "70% to 85%",
+      "90% to 95%"
+    ],
+    "a": "25% to 65%",
+    "e": "Portland Slag Cement is made by blending OPC clinker, gypsum, and granulated blast furnace slag. To ensure adequate strength development and sulfate resistance, the slag content is typically mandated to be between 25% and 65%."
+  },
+
+
+  {
+    "id": 96,
+    "q": "What is the standard temperature of the testing room and the mixing water maintained during the determination of setting times of cement using the Vicat apparatus?",
+    "o": [
+      "20 ± 2 °C",
+      "25 ± 2 °C",
+      "27 ± 2 °C",
+      "35 ± 2 °C"
+    ],
+    "a": "27 ± 2 °C",
+    "e": "Standard testing codes in the region strictly require the ambient laboratory room temperature and the mixing water for cement setting time tests to be maintained at 27 ± 2 °C to ensure consistent hydration rates."
+  },
+  {
+    "id": 97,
+    "q": "According to standard laboratory practices, the specific gravity of paving grade bitumen is commonly determined using a pycnometer at a strictly controlled temperature of:",
+    "o": [
+      "15 °C",
+      "25 °C",
+      "27 °C",
+      "60 °C"
+    ],
+    "a": "27 °C",
+    "e": "While penetration is tested at 25°C, the specific gravity of paving bitumen is universally measured and standardized at a controlled temperature of 27 °C (± 0.1°C) using a specific gravity bottle (pycnometer)."
+  },
+  {
+    "id": 98,
+    "q": "When calculating the theoretical coverage of standard red lead primer applied to structural steelworks, what is the approximate expected spreading rate per liter for the priming coat?",
+    "o": [
+      "5 to 8 sq.m",
+      "10 to 12 sq.m",
+      "15 to 20 sq.m",
+      "25 to 30 sq.m"
+    ],
+    "a": "10 to 12 sq.m",
+    "e": "Due to the extremely dense nature and high specific gravity of red lead primer, its spreading capacity on a smooth, clean structural steel surface is typically around 10 to 12 square meters per liter."
+  },
+  {
+    "id": 99,
+    "q": "While performing the Le-Chatelier test for the soundness of cement, the test cylinder is completely submerged in water and continuously boiled for exactly:",
+    "o": [
+      "1 hour",
+      "2 hours",
+      "3 hours",
+      "5 hours"
+    ],
+    "a": "3 hours",
+    "e": "The standard Le-Chatelier test procedure requires the assembled cylinder containing the set cement paste to be submerged in water and continuously boiled for exactly 3 hours to artificially accelerate the hydration and expansion of free lime."
+  },
+  {
+    "id": 100,
+    "q": "In the standard penetration test for bitumen graded as '60/70', the difference between the minimum and maximum acceptable penetration depth mathematically corresponds to exactly:",
+    "o": [
+      "0.1 mm",
+      "1.0 mm",
+      "5.0 mm",
+      "10.0 mm"
+    ],
+    "a": "1.0 mm",
+    "e": "The grade '60/70' signifies a penetration value between 60 and 70 tenths of a millimeter (i.e., 6.0 mm to 7.0 mm). The difference is 10 units, which equals exactly 1.0 mm of penetration depth."
+  }
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
+            btn.classList.add('wrong');
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>
+

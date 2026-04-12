@@ -1,0 +1,1487 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = 
+[
+  {
+    "id": 1,
+    "q": "In the Standard Penetration Test (SPT) used for subsoil exploration, what is the standard weight of the drop hammer and the strictly specified height of its free fall?",
+    "o": [
+      "50.0 kg weight, 600 mm fall",
+      "63.5 kg weight, 760 mm fall",
+      "65.0 kg weight, 750 mm fall",
+      "75.0 kg weight, 1000 mm fall"
+    ],
+    "a": "63.5 kg weight, 760 mm fall",
+    "e": "The SPT (IS: 2131) internationally specifies a driving hammer weighing exactly 63.5 kg (140 lbs) falling freely from a standard height of exactly 760 mm (30 inches) to drive the split-spoon sampler."
+  },
+  {
+    "id": 2,
+    "q": "Using Rankine's formula for the minimum depth of a shallow foundation, if the safe bearing capacity of the soil is 180 kN/m², the unit weight is 20 kN/m³, and the angle of internal friction (φ) is exactly 30°, what is the absolute minimum depth required?",
+    "o": [
+      "0.50 m",
+      "1.00 m",
+      "1.50 m",
+      "3.00 m"
+    ],
+    "a": "1.00 m",
+    "e": "Rankine's minimum depth D = (p / γ) × [(1 - sin φ) / (1 + sin φ)]². For φ = 30°, the term in brackets (Ka) is 1/3. Therefore, D = (180 / 20) × (1/3)² = 9 × (1/9) = 1.00 meter."
+  },
+  {
+    "id": 3,
+    "q": "In deep foundation design, the highly detrimental phenomenon of 'Negative Skin Friction' on a pile fundamentally occurs when:",
+    "o": [
+      "The pile is driven into heavily over-consolidated clay",
+      "The surrounding soil mass settles downwards faster than the pile itself",
+      "The groundwater table physically rises above the pile cap",
+      "The pile is subjected to extreme uplift (tension) forces"
+    ],
+    "a": "The surrounding soil mass settles downwards faster than the pile itself",
+    "e": "Negative skin friction happens when unconsolidated, soft, or newly filled soil around the pile consolidates and settles downward relative to the pile. Instead of providing upward resisting friction, the soil drags the pile downward, adding a massive extra load."
+  },
+  {
+    "id": 4,
+    "q": "For temporarily supporting an unsafe structure without obstructing the ground space below (e.g., in a narrow street between two buildings), which highly specific type of shoring is strictly employed?",
+    "o": [
+      "Raking Shores",
+      "Flying Shores",
+      "Dead Shores",
+      "Needle Shores"
+    ],
+    "a": "Flying Shores",
+    "e": "Flying shores (or horizontal shores) strictly span horizontally mid-air between two adjacent parallel walls to provide temporary support without touching the ground, thereby keeping the pathway or excavation area completely clear."
+  },
+  {
+    "id": 5,
+    "q": "When designing a simple stepped brick masonry foundation for a load-bearing wall of thickness 't', the standard empirical width of the bottom-most concrete base footing is generally kept as:",
+    "o": [
+      "1.5 t",
+      "2.0 t",
+      "2.5 t",
+      "3.0 t"
+    ],
+    "a": "2.0 t",
+    "e": "For a standard, simple load-bearing brick wall foundation, the lowest concrete bed block physically distributing the load to the soil is conventionally and economically sized to be exactly twice the thickness of the main superstructure wall (Width = 2t)."
+  },
+  {
+    "id": 6,
+    "q": "For structural safety, building codes explicitly limit the 'Slenderness Ratio' of a load-bearing brick masonry wall. What is the standard theoretical maximum slenderness ratio permitted for a wall using Portland cement mortar?",
+    "o": [
+      "13",
+      "20",
+      "27",
+      "35"
+    ],
+    "a": "27",
+    "e": "The slenderness ratio (Effective Height / Effective Thickness) dictates buckling susceptibility. For unreinforced load-bearing masonry walls built with high-strength cement mortar (not lime), the absolute maximum permissible ratio is strictly capped at 27."
+  },
+  {
+    "id": 7,
+    "q": "In the construction of temporary scaffolding, the horizontal structural members that run parallel to the wall and physically support the transverse putlogs are technically termed:",
+    "o": [
+      "Standards",
+      "Ledgers",
+      "Transoms",
+      "Braces"
+    ],
+    "a": "Ledgers",
+    "e": "In scaffolding terminology, 'Standards' are the vertical posts, 'Ledgers' are the continuous longitudinal horizontal tubes running parallel to the building face, and 'Putlogs' (or transoms) are the transverse members resting on the ledgers that hold the working platform."
+  },
+  {
+    "id": 8,
+    "q": "To permanently prevent capillary moisture from rising into the superstructure, a standard Cement Concrete Damp Proof Course (DPC) is provided at the plinth level. What is its standard thickness and typical concrete mix ratio?",
+    "o": [
+      "12 mm thickness of 1:3:6 mix",
+      "25 mm thickness of 1:1.5:3 mix",
+      "50 mm thickness of 1:4:8 mix",
+      "75 mm thickness of 1:2:4 mix"
+    ],
+    "a": "25 mm thickness of 1:1.5:3 mix",
+    "e": "A standard rigid DPC utilizes a rich, dense concrete mix (traditionally 1:1.5:3 or 1:2:4) integrated with a waterproofing compound. It is universally laid at a physical thickness of 25 mm (1 inch) up to 40 mm."
+  },
+  {
+    "id": 9,
+    "q": "Abram's Water-Cement Ratio Law dictates that for completely compacted concrete, the ultimate compressive strength is exclusively and mathematically dependent on:",
+    "o": [
+      "The quantity of cement in the mix",
+      "The quality and grading of the aggregates",
+      "The ratio of the volume of water to the volume of cement",
+      "The exact time of curing"
+    ],
+    "a": "The ratio of the volume of water to the volume of cement",
+    "e": "Duff Abram empirically proved that as long as the concrete mix is workable and perfectly compacted, its structural compressive strength is inversely and strictly dependent ONLY on the water-cement (w/c) ratio. More water geometrically dilutes the cement paste, lowering strength."
+  },
+  {
+    "id": 10,
+    "q": "In concrete technology, what does the calculated 'Fineness Modulus' (FM) of an aggregate specifically indicate?",
+    "o": [
+      "The total percentage of silt and clay present",
+      "The specific gravity of the solid particles",
+      "An empirical index of the average particle size of the aggregate",
+      "The exact amount of water required for full hydration"
+    ],
+    "a": "An empirical index of the average particle size of the aggregate",
+    "e": "The Fineness Modulus is an empirical number derived from standard sieve analysis. A higher FM strictly indicates a coarser aggregate grading overall (larger average particle size), while a lower FM indicates finer material."
+  },
+  {
+    "id": 11,
+    "q": "For executing standard reinforced cement concrete (RCC) structural elements, what is the nominally prescribed mix proportion (Cement : Fine Aggregate : Coarse Aggregate) for M20 grade concrete?",
+    "o": [
+      "1 : 1 : 2",
+      "1 : 1.5 : 3",
+      "1 : 2 : 4",
+      "1 : 3 : 6"
+    ],
+    "a": "1 : 1.5 : 3",
+    "e": "IS 456 nominal mix proportions mandate 1:1:2 for M25, strictly 1:1.5:3 for M20, 1:2:4 for M15, and 1:3:6 for M10. M20 is the absolute minimum grade structurally permitted for standard RCC works."
+  },
+  {
+    "id": 12,
+    "q": "According to IS 456 standard specifications, what is the absolute minimum stripping time required before physically removing the vertical formwork (props) spanning under a large beam of exactly 7.0 meters span?",
+    "o": [
+      "7 days",
+      "14 days",
+      "21 days",
+      "28 days"
+    ],
+    "a": "21 days",
+    "e": "Formwork striking times are highly critical. For beams and arches, if the clear span is strictly up to 6.0 meters, props can be removed in 14 days. If the span exceeds 6.0 meters, the code explicitly mandates waiting exactly 21 days to prevent deflection failures."
+  },
+  {
+    "id": 13,
+    "q": "During a standard Slump Test for concrete workability, what is the geometrically exact height of the standard metallic slump cone frustum utilized?",
+    "o": [
+      "200 mm",
+      "250 mm",
+      "300 mm",
+      "400 mm"
+    ],
+    "a": "300 mm",
+    "e": "The standard physical slump cone is exactly 300 mm (30 cm) in vertical height, with a strict bottom diameter of 200 mm and a top diameter of 100 mm."
+  },
+  {
+    "id": 14,
+    "q": "In the architectural design of a comfortable indoor staircase, standard empirical rules dictate a strict geometric relationship between the Riser (R) and the Tread (T). Which mathematical formula is conventionally adopted?",
+    "o": [
+      "R + T = 400 to 450 mm",
+      "2R + T = 600 to 640 mm",
+      "R × T = 4000 to 4500 mm²",
+      "T - R = 100 to 150 mm"
+    ],
+    "a": "2R + T = 600 to 640 mm",
+    "e": "Based on the average human stride length, the universally adopted empirical formula for ergonomic stair design ensures that exactly twice the riser height plus the tread width physically falls within the comfortable range of 600 mm to 640 mm (e.g., 2(150) + 300 = 600)."
+  },
+  {
+    "id": 15,
+    "q": "For standard residential and commercial buildings, the structural 'pitch' or slope angle of a staircase to the horizontal floor should physically remain strictly within the range of:",
+    "o": [
+      "15° to 25°",
+      "25° to 40°",
+      "40° to 55°",
+      "55° to 70°"
+    ],
+    "a": "25° to 40°",
+    "e": "Stairs shallower than 25° consume too much horizontal space and require unnatural strides. Stairs steeper than 40° become physically exhausting and extremely dangerous to descend. Therefore, the optimal legal pitch is strictly between 25° and 40°."
+  },
+  {
+    "id": 16,
+    "q": "In standard construction practice, what is the nominally prescribed thickness for cement plaster applied on the internal surface of a brick wall, and on the concrete ceiling, respectively?",
+    "o": [
+      "12 mm internal, 6 mm ceiling",
+      "20 mm internal, 12 mm ceiling",
+      "15 mm internal, 15 mm ceiling",
+      "6 mm internal, 12 mm ceiling"
+    ],
+    "a": "12 mm internal, 6 mm ceiling",
+    "e": "Internal brick walls generally require a single uniform coat of 12 mm (1/2 inch) plaster. Concrete ceilings are significantly smoother from the formwork and structurally only require a thin, strict 6 mm (1/4 inch) plaster coat to prevent heavy spalling."
+  },
+  {
+    "id": 17,
+    "q": "In the laying of high-quality Terrazzo flooring, thin metallic or glass dividing strips are embedded strictly into the sub-floor at defined intervals. What is the fundamental structural purpose of these strips?",
+    "o": [
+      "To increase the overall load-bearing capacity of the floor",
+      "To act purely as decorative aesthetic borders",
+      "To strictly localize and prevent the random propagation of shrinkage cracks",
+      "To firmly bond the terrazzo topping to the base concrete"
+    ],
+    "a": "To strictly localize and prevent the random propagation of shrinkage cracks",
+    "e": "Terrazzo (marble chips in cement) undergoes significant shrinkage during curing. Without joints, ugly jagged cracks will tear across the floor. The physical strips (glass, aluminum, or brass) divide the floor into smaller panels, strictly forcing the unavoidable shrinkage cracks to occur invisibly at these straight joints."
+  },
+  {
+    "id": 18,
+    "q": "When dewatering a deep excavation foundation trench situated in highly permeable, water-bearing sandy soils, which specific mechanical method is universally recognized as the most effective?",
+    "o": [
+      "Simple open sump and centrifugal pump",
+      "Well point system",
+      "Freezing process",
+      "Chemical grouting"
+    ],
+    "a": "Well point system",
+    "e": "Open sumps fail in sand because the rushing water carries the sand with it, collapsing the trench. A well point system utilizes a series of tiny, screened pipes physically driven into the ground surrounding the excavation. They safely vacuum out the groundwater while holding back the fine sand particles."
+  },
+  {
+    "id": 19,
+    "q": "In building masonry, a highly specific type of scaffolding called 'Double Scaffolding' (or Independent Scaffolding) is absolutely structurally mandated for which type of construction?",
+    "o": [
+      "Standard brick masonry",
+      "Lightweight partition walls",
+      "Ashlar stone masonry",
+      "Reinforced concrete columns"
+    ],
+    "a": "Ashlar stone masonry",
+    "e": "In brickwork, 'Single Scaffolding' is used where one end of the putlogs rests inside a hole physically left in the brick wall. In high-quality stone masonry, leaving ugly holes in the finished stone face is strictly forbidden. Thus, a completely independent, self-supporting 'Double' frame of scaffolding must be built completely detached from the wall face."
+  },
+  {
+    "id": 20,
+    "q": "A structural concrete mix has been designed utilizing a water-cement ratio of 0.50. If exactly one standard 50 kg bag of Portland cement is utilized for a small batch, what is the precise volume of water required?",
+    "o": [
+      "20.0 Liters",
+      "25.0 Liters",
+      "30.0 Liters",
+      "50.0 Liters"
+    ],
+    "a": "25.0 Liters",
+    "e": "The water-cement ratio is strictly a ratio by weight. Therefore, Weight of Water = 0.50 × Weight of Cement = 0.50 × 50 kg = 25.0 kg. Since the physical density of pure water is precisely 1 kg/Liter, this perfectly equals exactly 25.0 Liters of water."
+  },
+
+
+  {
+    "id": 21,
+    "q": "In subsoil exploration, the Rock Quality Designation (RQD) is a critical index for assessing rock mass quality. It is calculated by summing the lengths of all intact rock core pieces that strictly exceed a minimum length of:",
+    "o": [
+      "50 mm (5 cm)",
+      "100 mm (10 cm)",
+      "150 mm (15 cm)",
+      "200 mm (20 cm)"
+    ],
+    "a": "100 mm (10 cm)",
+    "e": "RQD is mathematically defined as the total length of intact, sound core pieces that are strictly 100 mm (10 cm) or longer, divided by the total length of the core run, expressed as a percentage. It is a standard indicator of rock fracturing."
+  },
+  {
+    "id": 22,
+    "q": "During a Standard Penetration Test (SPT) in saturated fine sands below the water table, if the observed N-value exceeds 15, a 'Dilatancy Correction' must be applied. What is the precise empirical formula for this corrected N-value (N')?",
+    "o": [
+      "N' = 15 + 0.5 × (N - 15)",
+      "N' = 15 + 1.0 × (N - 15)",
+      "N' = 15 - 0.5 × (N - 15)",
+      "N' = 0.5 × N + 15"
+    ],
+    "a": "N' = 15 + 0.5 × (N - 15)",
+    "e": "Fine saturated sands tend to dilate during shear, creating negative pore pressures that artificially increase the penetration resistance. To correct this overestimation, Terzaghi and Peck introduced the formula N' = 15 + 0.5 × (N - 15) for any N > 15."
+  },
+  {
+    "id": 23,
+    "q": "To determine the safe bearing capacity of soil directly in the field, a Plate Load Test is conducted. According to IS standard codes, what is the standard physical dimension of the square steel bearing plate used for generic testing?",
+    "o": [
+      "150 mm × 150 mm",
+      "300 mm × 300 mm",
+      "600 mm × 600 mm",
+      "1000 mm × 1000 mm"
+    ],
+    "a": "300 mm × 300 mm",
+    "e": "While larger plates (up to 750 mm) are used for special soils, the standard baseline test utilizes a rigid, perfectly square steel plate measuring exactly 300 mm × 300 mm (30 cm) with a minimum thickness of 25 mm to prevent bending."
+  },
+  {
+    "id": 24,
+    "q": "In the design of deep foundations, standard piling codes mandate a strict minimum center-to-center spacing between adjacent friction piles of diameter 'D' to ensure group efficiency. What is this minimum spacing?",
+    "o": [
+      "2.0 D",
+      "2.5 D",
+      "3.0 D",
+      "4.0 D"
+    ],
+    "a": "3.0 D",
+    "e": "To prevent the individual stress bulbs of adjacent friction piles from heavily overlapping and drastically reducing the overall load-bearing capacity of the pile group, the code strictly mandates a minimum center-to-center spacing of exactly 3.0 times the pile diameter."
+  },
+  {
+    "id": 25,
+    "q": "Conversely, for pure 'End-Bearing Piles' resting strictly on solid hard rock strata, the minimum center-to-center spacing is permitted to be reduced to:",
+    "o": [
+      "2.0 D",
+      "2.5 D",
+      "3.0 D",
+      "1.5 D"
+    ],
+    "a": "2.5 D",
+    "e": "Because end-bearing piles transfer their load directly through their tips to a hard stratum rather than through side friction, the overlap of stress bulbs is far less detrimental. Thus, the minimum permissible spacing is physically reduced to 2.5 times the pile diameter."
+  },
+  {
+    "id": 26,
+    "q": "When designing a simple unreinforced brick masonry foundation, the angle of load dispersion through the brickwork to the concrete base is universally assumed to be strictly:",
+    "o": [
+      "30° to the vertical",
+      "45° to the vertical",
+      "60° to the vertical",
+      "90° to the vertical"
+    ],
+    "a": "45° to the vertical",
+    "e": "In plain brick foundations, the load from the superstructure is safely assumed to spread outward and downward through the stepped brick courses at a strict angle of 45° to the vertical, ensuring the tension is minimized."
+  },
+  {
+    "id": 27,
+    "q": "In building shoring systems, 'Raking Shores' (inclined supports) are physically erected to prevent a wall from bulging or collapsing outwards. For maximum structural efficiency, the raker should ideally be inclined to the ground at an angle strictly between:",
+    "o": [
+      "15° and 30°",
+      "30° and 45°",
+      "45° and 75°",
+      "75° and 90°"
+    ],
+    "a": "45° and 75°",
+    "e": "An angle shallower than 45° takes up excessive ground space and loses vertical lifting capacity, while an angle steeper than 75° loses its horizontal pushing capacity. Thus, rakers are physically placed at an optimum angle between 45° and 75° (ideally 60°)."
+  },
+  {
+    "id": 28,
+    "q": "To effectively combat dampness, a standard horizontal Damp Proof Course (DPC) is structurally placed across all external and internal load-bearing walls. Building codes mandate this DPC must be physically located at a minimum height of:",
+    "o": [
+      "50 mm above the adjacent ground level",
+      "150 mm above the adjacent ground level",
+      "300 mm above the adjacent ground level",
+      "450 mm above the adjacent ground level"
+    ],
+    "a": "150 mm above the adjacent ground level",
+    "e": "To absolutely prevent rain splashes and natural ground moisture from bypassing the barrier, the DPC must be installed at the plinth level, strictly ensuring a minimum physical separation of exactly 150 mm (6 inches) vertically above the finished exterior ground level."
+  },
+  {
+    "id": 29,
+    "q": "In the construction of cavity walls for thermal insulation and damp prevention, standard practice dictates that the physical width of the hollow continuous cavity should mathematically be maintained between:",
+    "o": [
+      "25 mm to 40 mm",
+      "50 mm to 75 mm",
+      "100 mm to 150 mm",
+      "150 mm to 200 mm"
+    ],
+    "a": "50 mm to 75 mm",
+    "e": "A cavity smaller than 50 mm risks being accidentally bridged by mortar droppings (creating a moisture path), while a cavity wider than 75 mm physically weakens the composite structural action of the metal wall ties. Therefore, the strict range is 50 mm to 75 mm."
+  },
+  {
+    "id": 30,
+    "q": "In standard single scaffolding (bricklayer's scaffolding), the vertical members ('Standards') are physically pitched into the ground at a continuous horizontal spacing of approximately:",
+    "o": [
+      "1.0 to 1.5 meters",
+      "2.0 to 2.5 meters",
+      "3.0 to 4.0 meters",
+      "4.0 to 5.0 meters"
+    ],
+    "a": "2.0 to 2.5 meters",
+    "e": "To safely support the working load of laborers, bricks, and mortar without excessive sagging of the horizontal ledgers, the vertical standards are universally spaced at intervals strictly between 2.0 and 2.5 meters apart, parallel to the wall face."
+  },
+  {
+    "id": 31,
+    "q": "In standard staircase design, to prevent user fatigue and dizziness, building codes physically limit the maximum number of consecutive steps in a single continuous flight (without a landing) to strictly:",
+    "o": [
+      "8 steps",
+      "12 steps",
+      "15 steps",
+      "20 steps"
+    ],
+    "a": "12 steps",
+    "e": "Continuous climbing is exhausting. Most international and national architectural codes mandate that a single flight of stairs must never physically exceed 12 consecutive steps (up to 15 in rare exceptional cases) before introducing a horizontal resting landing."
+  },
+  {
+    "id": 32,
+    "q": "For basic safety and ergonomic clearance, what is the absolute minimum vertical headroom space explicitly mandated to be maintained at all points above a standard staircase flight?",
+    "o": [
+      "1.8 meters",
+      "2.1 meters",
+      "2.4 meters",
+      "2.7 meters"
+    ],
+    "a": "2.1 meters",
+    "e": "To ensure that tall individuals carrying objects can comfortably descend without striking their heads on the soffit of the flight above or the ceiling, standard codes strictly enforce a minimum uninterrupted vertical headroom of exactly 2.1 meters (approx. 7 feet)."
+  },
+  {
+    "id": 33,
+    "q": "In the volumetric batching of concrete constituents, exactly one standard commercial bag of Portland Cement weighs 50 kg. What is the theoretically precise physical volume of this bag?",
+    "o": [
+      "0.025 m³ (25.0 Liters)",
+      "0.0347 m³ (34.7 Liters)",
+      "0.050 m³ (50.0 Liters)",
+      "0.075 m³ (75.0 Liters)"
+    ],
+    "a": "0.0347 m³ (34.7 Liters)",
+    "e": "The standard bulk density of loosely packed cement is approximately 1440 kg/m³. Therefore, the volume of a 50 kg bag is mathematically calculated as Weight / Density = 50 / 1440 = 0.0347 m³, which perfectly equals 34.7 liters."
+  },
+  {
+    "id": 34,
+    "q": "In concrete technology, to ensure the chemical durability of the structural mix, the water physically utilized for mixing and curing must be clean and explicitly have a pH value strictly not less than:",
+    "o": [
+      "4.5",
+      "6.0",
+      "7.0",
+      "8.5"
+    ],
+    "a": "6.0",
+    "e": "Highly acidic water chemically disrupts the hydration process of cement compounds and severely accelerates the corrosion of embedded steel reinforcement. Therefore, IS 456 strictly mandates that the pH of the water used must absolutely not be less than 6.0."
+  },
+  {
+    "id": 35,
+    "q": "When testing the physical durability of coarse aggregates for concrete utilized in heavy-duty wearing surfaces (like highway pavements), the Los Angeles Abrasion Value must strictly NOT exceed:",
+    "o": [
+      "20%",
+      "30%",
+      "45%",
+      "50%"
+    ],
+    "a": "30%",
+    "e": "For standard structural concrete, the abrasion limit is 45% or 50%. However, for wearing surfaces subjected to physical grinding and heavy abrasion (pavements, industrial floors), the aggregates must be highly resilient, strictly limiting the Los Angeles abrasion value to a maximum of 30%."
+  },
+  {
+    "id": 36,
+    "q": "During sieve analysis for grading fine aggregates (sand), what specific numerical range of Fineness Modulus (FM) mathematically classifies the sample as strictly 'Fine Sand'?",
+    "o": [
+      "1.5 to 2.0",
+      "2.2 to 2.6",
+      "2.6 to 2.9",
+      "2.9 to 3.2"
+    ],
+    "a": "2.2 to 2.6",
+    "e": "Based on standard empirical grading zones, sand is classified by its FM. Fine sand strictly falls between 2.2 and 2.6, Medium sand between 2.6 and 2.9, and Coarse sand between 2.9 and 3.2. Sand with an FM below 2.2 is generally deemed too fine for standard concrete."
+  },
+  {
+    "id": 37,
+    "q": "In structural concrete mix design, if the characteristic compressive strength (fck) is 20 N/mm² and the standard deviation (σ) is strictly established as 4.0 N/mm², what is the mathematically calculated Target Mean Strength (fm)?",
+    "o": [
+      "20.0 N/mm²",
+      "24.0 N/mm²",
+      "26.6 N/mm²",
+      "30.0 N/mm²"
+    ],
+    "a": "26.6 N/mm²",
+    "e": "To ensure that not more than 5% of the test results fall below the characteristic strength, the mix is over-designed. The target mean strength is fm = fck + 1.65 × σ. Substituting values: fm = 20 + (1.65 × 4.0) = 20 + 6.6 = 26.6 N/mm²."
+  },
+  {
+    "id": 38,
+    "q": "According to standard construction practice and IS codes, what is the absolute minimum curing period required for Ordinary Portland Cement (OPC) concrete under normal dry weather conditions?",
+    "o": [
+      "3 days",
+      "7 days",
+      "10 days",
+      "14 days"
+    ],
+    "a": "7 days",
+    "e": "To ensure proper hydration and development of strength and impermeability, standard OPC concrete must be kept continuously moist for a strict minimum of 7 days. If mineral admixtures (fly ash/slag) are used, or weather is hot and dry, it is extended to 10-14 days."
+  },
+  {
+    "id": 39,
+    "q": "If concrete is tested precisely at 7 days of proper curing, its expected compressive strength is theoretically estimated to reach approximately what percentage of its full 28-day characteristic strength?",
+    "o": [
+      "30% to 40%",
+      "50% to 60%",
+      "65% to 70%",
+      "85% to 90%"
+    ],
+    "a": "65% to 70%",
+    "e": "Under normal curing temperatures, OPC concrete gains strength rapidly initially. At 3 days, it reaches roughly 40-50%. At precisely 7 days, the hydration of Alite (C3S) brings the strength reliably up to approximately 65% to 70% of its target 28-day strength."
+  },
+  {
+    "id": 40,
+    "q": "In stripping temporary timber formwork from vertical concrete structures (such as columns, thick walls, and large beam sides), what is the explicitly mandated minimum safe time before removal?",
+    "o": [
+      "16 to 24 hours",
+      "3 days",
+      "7 days",
+      "14 days"
+    ],
+    "a": "16 to 24 hours",
+    "e": "Vertical formwork supports only the lateral hydrostatic pressure of the wet concrete, not the dead weight of the structure itself. Once the concrete achieves initial set and becomes self-supporting (strictly 16 to 24 hours under normal temperatures), the vertical boards can be safely stripped."
+  },
+  {
+    "id": 41,
+    "q": "When executing high-quality exterior plastering on a brick wall to heavily waterproof and protect the facade, the standard construction methodology strictly requires the application to be done in two distinct coats with a total minimum thickness of:",
+    "o": [
+      "12 mm",
+      "20 mm",
+      "25 mm",
+      "30 mm"
+    ],
+    "a": "20 mm",
+    "e": "While interior plaster is typically 12 mm thick in a single coat, exterior plaster faces weather erosion and severe dampness. It is strictly executed in two coats (a base coat and a finishing coat) summing to a total protective thickness of 20 mm."
+  },
+  {
+    "id": 42,
+    "q": "For heavy-duty industrial floors or commercial garages, a highly abrasion-resistant 'Granolithic' cement concrete finish is strictly applied. What is the standard physical thickness specified for this top wearing layer?",
+    "o": [
+      "10 mm to 15 mm",
+      "25 mm to 40 mm",
+      "50 mm to 75 mm",
+      "100 mm"
+    ],
+    "a": "25 mm to 40 mm",
+    "e": "Granolithic topping uses exceptionally hard granite aggregates to resist extreme wear and tear. To prevent it from peeling or cracking off the base concrete under heavy loads, it is physically poured at a substantial thickness strictly between 25 mm and 40 mm."
+  },
+  {
+    "id": 43,
+    "q": "During the Slump Test for evaluating fresh concrete workability, a standard mix designed explicitly for pouring into massively large, unreinforced foundations (mass concrete) should yield a slump strictly within the physical range of:",
+    "o": [
+      "0 to 10 mm",
+      "25 to 50 mm",
+      "50 to 100 mm",
+      "100 to 150 mm"
+    ],
+    "a": "25 to 50 mm",
+    "e": "Mass concrete contains zero reinforcing steel to obstruct the aggregate, allowing the use of a very stiff, economical mix with a low water-cement ratio. The strictly recommended workability for this application is a low slump physically measuring between 25 mm and 50 mm."
+  },
+  {
+    "id": 44,
+    "q": "If a concrete mix is deemed 'low workability' (e.g., slump of 25 mm), and a highly precise Compacting Factor Test is performed on it in the laboratory, the mathematically derived Compacting Factor will typically range strictly between:",
+    "o": [
+      "0.70 to 0.75",
+      "0.80 to 0.85",
+      "0.90 to 0.95",
+      "0.95 to 1.00"
+    ],
+    "a": "0.80 to 0.85",
+    "e": "The Compacting Factor (ratio of partially compacted weight to fully compacted weight) is much more accurate than the slump test for dry mixes. A low workability mix physically corresponds to a strict compacting factor ratio of 0.80 to 0.85. Medium workability (slump 50-100mm) yields 0.90-0.92."
+  },
+  {
+    "id": 45,
+    "q": "To ensure long-term physical integrity without shrinking and cracking, standard Ordinary Portland Cement (OPC) is chemically formulated to strictly possess a specific gravity of roughly:",
+    "o": [
+      "2.65",
+      "2.85",
+      "3.15",
+      "4.00"
+    ],
+    "a": "3.15",
+    "e": "Because cement is manufactured by burning limestone and clay at extreme temperatures (clinkering), it produces highly dense chemical compounds (calcium silicates). The physical specific gravity of pure OPC is universally and strictly taken as 3.15 for volume batching calculations."
+  },
+  {
+    "id": 46,
+    "q": "In the chemical hydration process of standard cement, ensuring there is no premature 'flash setting' of the mixture is critical. The Initial Setting Time of OPC must mathematically strictly NEVER be less than:",
+    "o": [
+      "10 minutes",
+      "30 minutes",
+      "60 minutes",
+      "120 minutes"
+    ],
+    "a": "30 minutes",
+    "e": "To physically allow sufficient time for mixing, transporting, placing, and fully compacting the wet concrete into the forms before it begins to chemically harden and lose plasticity, codes strictly mandate the initial setting time of OPC must be ≥ 30 minutes."
+  },
+  {
+    "id": 47,
+    "q": "Conversely, to allow construction to proceed without excessive delays in formwork removal, the Final Setting Time of standard OPC must mathematically strictly NOT exceed:",
+    "o": [
+      "5 hours (300 minutes)",
+      "10 hours (600 minutes)",
+      "24 hours (1440 minutes)",
+      "48 hours"
+    ],
+    "a": "10 hours (600 minutes)",
+    "e": "Final setting time is the physical point where the cement paste has completely lost plasticity and attained enough rigidity to resist a standard Vicat needle puncture. For structural progress, this must strictly occur within 10 hours (600 minutes) of adding water."
+  },
+  {
+    "id": 48,
+    "q": "For standard Reinforced Cement Concrete (RCC) structural members, building codes dictate that the nominal maximum physical size of the Coarse Aggregate utilized should ideally strictly not exceed:",
+    "o": [
+      "10 mm",
+      "20 mm",
+      "40 mm",
+      "80 mm"
+    ],
+    "a": "20 mm",
+    "e": "If aggregates are too large, they will physically jam between the steel reinforcing bars, causing severe honeycombing and voids. For most standard beams, columns, and slabs, the maximum aggregate size is strictly restricted to 20 mm."
+  },
+  {
+    "id": 49,
+    "q": "To predict the long-term deflection behavior of concrete structures, engineers must mathematically account for shrinkage. For purely theoretical structural design in the absence of specific data, the total ultimate shrinkage strain of concrete is universally assumed to be strictly:",
+    "o": [
+      "0.0001",
+      "0.0003",
+      "0.0020",
+      "0.0035"
+    ],
+    "a": "0.0003",
+    "e": "Concrete inevitably shrinks as it dries over years. IS 456 specifies that for design purposes, if specific environmental humidity data is unavailable, the absolute total residual shrinkage strain value to be mathematically applied to the member is exactly 0.0003."
+  },
+  {
+    "id": 50,
+    "q": "In calculating the precise elastic deformation of structural elements, the theoretical Modulus of Elasticity of concrete (Ec) is heavily dependent on its characteristic compressive strength (fck). For M25 grade concrete, what is the mathematically calculated value of Ec?",
+    "o": [
+      "20,000 MPa",
+      "25,000 MPa",
+      "30,000 MPa",
+      "35,000 MPa"
+    ],
+    "a": "25,000 MPa",
+    "e": "The empirical relationship defined by IS 456 for the short-term static modulus of elasticity is Ec = 5000 × √fck. Substituting the concrete grade 25: Ec = 5000 × √25 = 5000 × 5 = exactly 25,000 N/mm² (or MPa)."
+  },
+
+
+  {
+    "id": 51,
+    "q": "In the Engineering News Record (ENR) formula used to physically estimate the safe load-carrying capacity of a driven pile, what is the mathematically constant value of 'c' (empirical constant) strictly utilized for a standard Drop Hammer?",
+    "o": [
+      "0.25 cm",
+      "2.50 cm",
+      "5.00 cm",
+      "7.50 cm"
+    ],
+    "a": "2.50 cm",
+    "e": "The ENR formula is Q_safe = (W × H) / [F × (S + c)]. For a single-acting steam hammer, 'c' is 0.25 cm. For a standard Drop Hammer, the empirical constant 'c' compensating for elastic compression losses is strictly taken as 2.50 cm (or 1 inch)."
+  },
+  {
+    "id": 52,
+    "q": "According to IS 456 standard specifications, what is the absolute minimum safe stripping time permitted for removing the soffit formwork (bottom boards) of a standard concrete slab, provided the vertical props are immediately replaced?",
+    "o": [
+      "24 hours",
+      "3 days",
+      "7 days",
+      "14 days"
+    ],
+    "a": "3 days",
+    "e": "While vertical wall formwork can be removed in 16-24 hours, the horizontal soffit formwork beneath a slab physically requires the concrete to bear its own self-weight safely. Codes strictly mandate waiting exactly 3 days before stripping the slab soffits, ensuring the props are left underneath."
+  },
+  {
+    "id": 53,
+    "q": "For standard structural masonry, what is the explicitly mandated minimum physical crushing strength of a First-Class standard burnt clay brick?",
+    "o": [
+      "3.5 N/mm²",
+      "5.0 N/mm²",
+      "7.5 N/mm²",
+      "10.5 N/mm²"
+    ],
+    "a": "10.5 N/mm²",
+    "e": "A first-class brick is universally required to exhibit sharp edges, a metallic ringing sound, and superior structural load-bearing capacity. Its minimum allowable compressive crushing strength is strictly defined as 10.5 N/mm² (approximately 105 kg/cm²)."
+  },
+  {
+    "id": 54,
+    "q": "To prevent excessive moisture absorption that degrades mortar bonds and causes dampness, a First-Class brick immersed in cold water for 24 hours must strictly NOT absorb water exceeding what percentage of its dry weight?",
+    "o": [
+      "10%",
+      "15%",
+      "20%",
+      "25%"
+    ],
+    "a": "20%",
+    "e": "Excessive porosity leads to severe weathering and dampness issues. Standard building codes mathematically restrict the physical 24-hour cold water absorption limit to exactly 20% by weight for First-Class bricks, and 22% for Second-Class bricks."
+  },
+  {
+    "id": 55,
+    "q": "During the chemical testing of Portland Cement, the Le-Chatelier apparatus is utilized to explicitly determine the physical 'Soundness' of the cement. The maximum permissible expansion measured for standard OPC is strictly limited to:",
+    "o": [
+      "2 mm",
+      "5 mm",
+      "10 mm",
+      "15 mm"
+    ],
+    "a": "10 mm",
+    "e": "Unsound cement contains excess uncombined free lime or magnesia, which chemically hydrates long after the concrete has set, causing massive internal expansion and cracking. The Le-Chatelier test physically measures this, strictly capping the allowable expansion at 10 mm."
+  },
+  {
+    "id": 56,
+    "q": "A structural concrete mix utilizes M25 grade concrete. According to standard empirical formulas, what is the mathematically calculated 'Flexural Tensile Strength' (Modulus of Rupture) of this concrete?",
+    "o": [
+      "2.50 MPa",
+      "3.15 MPa",
+      "3.50 MPa",
+      "5.00 MPa"
+    ],
+    "a": "3.50 MPa",
+    "e": "IS 456 provides the strict empirical formula for the flexural tensile strength (the physical stress at which the first microscopic tension crack appears): fcr = 0.7 × √fck. Substituting 25: fcr = 0.7 × √25 = 0.7 × 5 = exactly 3.50 MPa."
+  },
+  {
+    "id": 57,
+    "q": "In complex shoring operations to physically stabilize adjacent structures, what is the highly specific structural purpose of implementing 'Dead Shores'?",
+    "o": [
+      "To prevent horizontal overturning of tall walls",
+      "To temporarily support vertical loads while the lower physical part of the wall is completely removed or rebuilt",
+      "To provide safe lateral bracing across a trench excavation",
+      "To permanently underpin a sunken foundation"
+    ],
+    "a": "To temporarily support vertical loads while the lower physical part of the wall is completely removed or rebuilt",
+    "e": "Unlike raking or flying shores which primarily resist lateral forces, Dead Shores are strictly heavy vertical timber or steel posts. They are physically inserted through holes in a wall to safely bear the entire dead vertical load of the upper structure while the lower foundation or wall is removed and rebuilt."
+  },
+  {
+    "id": 58,
+    "q": "In subsoil exploration, the standard split-spoon sampler utilized in the Standard Penetration Test (SPT) is explicitly manufactured with standard geometric dimensions. What is its precise internal diameter?",
+    "o": [
+      "25.0 mm",
+      "35.0 mm",
+      "50.8 mm",
+      "75.0 mm"
+    ],
+    "a": "35.0 mm",
+    "e": "To ensure universal reproducibility of SPT N-values worldwide, the split-spoon sampler is strictly standardized. It physically possesses an outer diameter of exactly 50.8 mm (2 inches) and an internal diameter of exactly 35.0 mm (1-3/8 inches)."
+  },
+  {
+    "id": 59,
+    "q": "When construction space at ground level is entirely obstructed, or the building is exceedingly tall, which specialized form of scaffolding is physically projected out horizontally from the building's own openings to support the working platform?",
+    "o": [
+      "Double Scaffolding",
+      "Suspended Scaffolding",
+      "Needle (or Cantilever) Scaffolding",
+      "Trestle Scaffolding"
+    ],
+    "a": "Needle (or Cantilever) Scaffolding",
+    "e": "When vertical standards cannot be pitched on the ground, stout timber 'needles' are physically levered outward through holes in the wall, anchored inside the building, and cantilevered outside to fully support the exterior working platform."
+  },
+  {
+    "id": 60,
+    "q": "In standard brick masonry constructed with modular bricks (nominal physical size 190 mm × 90 mm × 90 mm), what is the mathematically calculated geometric thickness of a standard 'One-Brick Thick' load-bearing wall, including the standard mortar joint?",
+    "o": [
+      "100 mm",
+      "190 mm",
+      "200 mm",
+      "230 mm"
+    ],
+    "a": "200 mm",
+    "e": "A 'one-brick thick' wall physically spans the full length of one brick. The standard modular brick length is 190 mm. Adding the universally prescribed standard 10 mm mortar joint thickness results in a strict structural wall thickness of exactly 200 mm (roughly equivalent to a traditional 9-inch wall)."
+  },
+  {
+    "id": 61,
+    "q": "In staircase terminology, the heavy, robust vertical post physically situated exactly at the top, bottom, or turning point of a flight of stairs, functioning to anchor the handrails, is technically termed the:",
+    "o": [
+      "Baluster",
+      "Newel Post",
+      "Soffit",
+      "Stringer"
+    ],
+    "a": "Newel Post",
+    "e": "The 'Balusters' are the thin vertical rods supporting the handrail along the flight, while the 'Newel Post' is the single massive, structurally anchored pillar placed explicitly at the ends or corners of the flight to rigidly hold the entire railing system together."
+  },
+  {
+    "id": 62,
+    "q": "What is the primary chemical cause of the severe aesthetic and structural dampness defect known as 'Efflorescence' in newly constructed brick masonry walls?",
+    "o": [
+      "Excessive iron oxide in the clay",
+      "The presence of unslaked lime nodules",
+      "The presence of excess soluble salts (alkalies) in the brick clay or mortar water",
+      "Poorly graded sand used in the plastering"
+    ],
+    "a": "The presence of excess soluble salts (alkalies) in the brick clay or mortar water",
+    "e": "Efflorescence appears as a powdery white crystalline deposit on the brick face. It physically occurs when internal moisture dissolves excess soluble alkaline salts inside the brick or mortar, carries them to the surface, and evaporates, leaving the destructive salt crystals behind."
+  },
+  {
+    "id": 63,
+    "q": "In standard construction measurement and estimation (e.g., BOQ), the application of a basic Damp Proof Course (DPC) at the plinth level is physically measured and paid strictly in units of:",
+    "o": [
+      "Cubic Meters (m³)",
+      "Square Meters (m²)",
+      "Running Meters (Rm)",
+      "Kilograms (Kg)"
+    ],
+    "a": "Square Meters (m²)",
+    "e": "Because the standard physical thickness of a DPC (typically 25 mm to 40 mm) is strictly fixed and specified in the item description, the contractor is explicitly measured and paid based purely on the flat surface area covered, expressed in Square Meters (m²)."
+  },
+  {
+    "id": 64,
+    "q": "In concrete technology, the total magnitude of physical 'Drying Shrinkage' in a hardened concrete structure is mathematically most directly and heavily proportional to the:",
+    "o": [
+      "Percentage of coarse aggregate",
+      "Total quantity of water utilized per cubic meter of the mix",
+      "Total quantity of cement utilized per cubic meter of the mix",
+      "Time spent vibrating the concrete"
+    ],
+    "a": "Total quantity of water utilized per cubic meter of the mix",
+    "e": "Drying shrinkage physically occurs when the excess internal capillary water evaporates and leaves voids, causing the concrete matrix to contract. The absolute total volume of water initially added to the mix is the single dominant chemical and physical factor driving this shrinkage magnitude."
+  },
+  {
+    "id": 65,
+    "q": "For large-scale construction projects requiring highly mechanized concrete delivery via pumping (Pumped Concrete), what is the strictly mandated physical slump range required to prevent pipeline blockages?",
+    "o": [
+      "0 to 25 mm",
+      "25 to 50 mm",
+      "75 to 100 mm",
+      "150 to 200 mm"
+    ],
+    "a": "75 to 100 mm",
+    "e": "Concrete that is too dry physically jams the pump pipes, and concrete that is too wet physically segregates under pumping pressure, bleeding out the cement paste. Standard codes dictate a very strict optimal 'medium-high' workability slump ranging precisely from 75 mm to 100 mm for safe pumpability."
+  },
+  {
+    "id": 66,
+    "q": "In the chemical composition of standard Portland Cement, which specific Bogue's compound is explicitly and chemically responsible for the rapid early development of compressive strength (within the first 7 days)?",
+    "o": [
+      "Tricalcium Aluminate (C3A)",
+      "Tetracalcium Aluminoferrite (C4AF)",
+      "Tricalcium Silicate (C3S)",
+      "Dicalcium Silicate (C2S)"
+    ],
+    "a": "Tricalcium Silicate (C3S)",
+    "e": "Tricalcium Silicate (C3S), also known as Alite, hydrates extremely rapidly and is chemically responsible for providing the concrete's early physical strength and initial set. Higher C3S content makes Rapid Hardening Portland Cement."
+  },
+  {
+    "id": 67,
+    "q": "Conversely, which chemical compound in Portland Cement hydrates extremely slowly, generating low heat, and is physically responsible for providing the progressive, ultimate long-term strength (after 28 days to 1 year)?",
+    "o": [
+      "Tricalcium Aluminate (C3A)",
+      "Tetracalcium Aluminoferrite (C4AF)",
+      "Tricalcium Silicate (C3S)",
+      "Dicalcium Silicate (C2S)"
+    ],
+    "a": "Dicalcium Silicate (C2S)",
+    "e": "Dicalcium Silicate (C2S), known as Belite, hydrates incredibly slowly. It contributes virtually nothing to early strength but governs the gradual chemical densification of the matrix, resulting in superior ultimate long-term structural strength and chemical resistance."
+  },
+  {
+    "id": 68,
+    "q": "For a standard residential building, standard ergonomic architectural guidelines mathematically dictate that the physical width of a stair Tread (T) should optimally fall within the strict range of:",
+    "o": [
+      "150 mm to 200 mm",
+      "200 mm to 250 mm",
+      "250 mm to 300 mm",
+      "350 mm to 400 mm"
+    ],
+    "a": "250 mm to 300 mm",
+    "e": "A tread smaller than 250 mm physically forces the user's foot to hang off the edge, causing severe safety hazards during descent. Residential building codes mandate a comfortable, fully supportive tread width strictly between 250 mm (10 inches) and 300 mm (12 inches)."
+  },
+  {
+    "id": 69,
+    "q": "In structural foundation design, a massive continuous Raft (or Mat) foundation is technically and economically mandated when the sum of the required areas for individual isolated footings physically exceeds what exact percentage of the total building footprint area?",
+    "o": [
+      "25%",
+      "33%",
+      "50%",
+      "75%"
+    ],
+    "a": "50%",
+    "e": "When columns are heavily loaded or soil is exceedingly weak, isolated footings become massive. If their mathematically combined area physically overlaps and exceeds 50% of the building's total ground plan, it becomes structurally and economically superior to simply cast one single, massive Raft foundation."
+  },
+  {
+    "id": 70,
+    "q": "In aggregate grading analysis, if the particle size distribution curve is completely horizontal over a certain range, indicating that the sample physically lacks particles of one or more intermediate sizes entirely, the aggregate is technically termed:",
+    "o": [
+      "Well-graded aggregate",
+      "Uniformly-graded aggregate",
+      "Gap-graded aggregate",
+      "Poorly-graded aggregate"
+    ],
+    "a": "Gap-graded aggregate",
+    "e": "Gap-grading deliberately omits certain mid-sized particles. This creates physical 'gaps' in the matrix. While it reduces workability, it is sometimes intentionally used in specific architectural concretes to expose coarse aggregates, but structurally it is explicitly defined as a Gap-Graded mix."
+  },
+  {
+    "id": 71,
+    "q": "Concrete compaction is absolutely critical to structural integrity. A physically small lack of compaction resulting in merely 5% entrapped air voids mathematically reduces the ultimate compressive strength of the concrete by approximately:",
+    "o": [
+      "5%",
+      "10%",
+      "15%",
+      "30%"
+    ],
+    "a": "30%",
+    "e": "The strength-density relationship in concrete is highly non-linear. Studies rigorously prove that leaving just 5% of the physical volume as uncompacted air voids drastically drops the actual compressive strength by roughly 30%. A 10% void ratio can drop strength by 60%."
+  },
+  {
+    "id": 72,
+    "q": "During finishing works, a highly specific plastering defect characterized by small, localized swellings or physical popping of the plaster surface is technically termed 'Blistering'. This is almost exclusively chemically caused by:",
+    "o": [
+      "Excessive cement in the mix",
+      "Delayed hydration of unslaked lime nodules in the plaster",
+      "Applying the plaster in a single overly thick coat",
+      "Lack of proper curing water"
+    ],
+    "a": "Delayed hydration of unslaked lime nodules in the plaster",
+    "e": "If the quicklime used in plaster is not fully slaked (hydrated) before application, the unslaked nodules physically absorb moisture much later, expand violently in volume, and literally blow small conical holes (blisters or pops) completely out of the finished plaster surface."
+  },
+  {
+    "id": 73,
+    "q": "According to IS standard building codes governing safe foundation design, what is the absolute maximum permissible settlement explicitly allowed for a monolithic Raft foundation resting on standard plastic clay?",
+    "o": [
+      "25 mm",
+      "50 mm",
+      "75 mm to 100 mm",
+      "150 mm"
+    ],
+    "a": "75 mm to 100 mm",
+    "e": "Because a highly rigid raft foundation forces uniform settlement and completely mitigates differential (uneven) settlement (which causes building cracks), the code physically permits a much larger absolute total settlement on clayey soils, strictly allowing between 75 mm to 100 mm."
+  },
+  {
+    "id": 74,
+    "q": "In concrete formwork management, the physical removal of the soffit formwork located beneath smaller beams (spanning strictly up to 6.0 meters) can safely occur under IS codes after a minimum wait of:",
+    "o": [
+      "3 days",
+      "7 days",
+      "14 days",
+      "21 days"
+    ],
+    "a": "14 days",
+    "e": "Unlike simple slab soffits which can be stripped in 3 days, beam soffits bear much higher localized dead loads. The code mathematically mandates a strict 14-day minimum waiting period before the physical props can be permanently removed from beneath beams spanning up to 6 meters."
+  },
+  {
+    "id": 75,
+    "q": "In the standard design of a spread foundation for a load-bearing brick wall, the physical lateral offset (projection) of the lowermost concrete foundation block extending beyond the lowest brick course is strictly maintained at:",
+    "o": [
+      "50 mm (2 inches)",
+      "75 mm (3 inches)",
+      "150 mm (6 inches)",
+      "300 mm (12 inches)"
+    ],
+    "a": "150 mm (6 inches)",
+    "e": "To safely distribute the load without inducing severe bending or shear tension in the unreinforced concrete bed, the standard empirical design rule dictates that the physical concrete offset strictly extends 150 mm (roughly 6 inches) uniformly on both sides of the bottom brick step."
+  },
+  {
+    "id": 76,
+    "q": "To physically guarantee adequate workability and minimize voids in structural concrete, the geometric shape of the coarse aggregate is evaluated. The 'Flakiness Index' of the aggregate must strictly NOT exceed:",
+    "o": [
+      "10%",
+      "15%",
+      "30%",
+      "50%"
+    ],
+    "a": "30%",
+    "e": "Highly flaky (flat) or elongated aggregates physically lock together prematurely, destroying workability and creating severe voids underneath them. Standard concrete mix codes strictly cap the allowable combined Flakiness and Elongation Index, with flakiness generally prohibited from exceeding exactly 30% by weight."
+  },
+  {
+    "id": 77,
+    "q": "In standard construction, an 'Indian Patent Stone' (IPS) floor is essentially a plain cement concrete flooring. To strictly prevent massive shrinkage cracking, the floor must be cast in physical panels that do not individually exceed an area of:",
+    "o": [
+      "1.0 m²",
+      "2.0 to 3.0 m²",
+      "5.0 to 6.0 m²",
+      "10.0 m²"
+    ],
+    "a": "2.0 to 3.0 m²",
+    "e": "Because concrete floors have a high cement content and thin section, they shrink heavily. IPS flooring must be physically separated into independent rectangular panels utilizing glass or aluminum strips, with no single panel strictly exceeding 2 to 3 square meters in physical area."
+  },
+  {
+    "id": 78,
+    "q": "When installing Raking Shores to stabilize a long, dangerously leaning wall, standard structural practices mandate that the continuous horizontal spacing physically maintained between successive shores should be strictly:",
+    "o": [
+      "1.0 to 2.0 meters",
+      "3.0 to 4.5 meters",
+      "5.0 to 7.0 meters",
+      "8.0 to 10.0 meters"
+    ],
+    "a": "3.0 to 4.5 meters",
+    "e": "To ensure uniform physical support along the entire length of the compromised masonry without leaving vulnerable unsupported gaps, the heavy inclined rakers must be systematically pitched at regular intervals strictly spanning between 3.0 meters and 4.5 meters."
+  },
+  {
+    "id": 79,
+    "q": "In extreme subsoil dewatering scenarios where the excavation trench consists of highly cohesive, extremely low-permeability silty-clays, standard pumps and well points physically fail. Which highly specialized dewatering method is strictly required?",
+    "o": [
+      "Vacuum well point system",
+      "Deep well pump system",
+      "Electro-osmosis method",
+      "Chemical freezing method"
+    ],
+    "a": "Electro-osmosis method",
+    "e": "Water physically cannot flow through tight clays fast enough for standard pumps. Electro-osmosis involves driving metal electrodes into the clay and applying a direct DC electrical current. The positive water ions physically migrate towards the cathode well, forcefully draining the impermeable clay."
+  },
+  {
+    "id": 80,
+    "q": "In architectural floor plans, a purely non-load-bearing internal masonry wall constructed solely to physically separate interior spaces, and typically built with a physical thickness of exactly half-a-brick (approx. 100 mm), is strictly termed a:",
+    "o": [
+      "Parapet wall",
+      "Partition wall",
+      "Shear wall",
+      "Cavity wall"
+    ],
+    "a": "Partition wall",
+    "e": "Partition walls are physically designed to carry absolutely no structural loads other than their own self-weight. They are strictly space dividers. Because they carry no loads, they are built as thin as possible, typically exactly one-half brick (100 mm or 4.5 inches) thick to maximize usable floor area."
+  },
+
+
+  {
+    "id": 81,
+    "q": "During subsoil exploration, when retrieving 'undisturbed' soil samples for sensitive consolidation and shear strength testing, the 'Area Ratio' of the thin-walled sampling tube must strictly not exceed:",
+    "o": [
+      "10%",
+      "25%",
+      "40%",
+      "50%"
+    ],
+    "a": "10%",
+    "e": "The Area Ratio determines how much the soil is physically displaced and disturbed when the sampler is driven. For high-quality undisturbed samples, IS codes mandate that the Area Ratio must be kept as low as possible, strictly not exceeding 10%."
+  },
+  {
+    "id": 82,
+    "q": "In deep foundation engineering, 'Under-reamed Piles' (piles with one or more enlarged bulbs physically cast along their shaft) are explicitly designed and heavily utilized for which specific soil type?",
+    "o": [
+      "Highly dense, coarse gravels",
+      "Pure, unweathered bedrock",
+      "Expansive soils like Black Cotton Soil",
+      "Loose, dry desert sands"
+    ],
+    "a": "Expansive soils like Black Cotton Soil",
+    "e": "Expansive soils swell heavily when wet and shrink when dry, causing severe upward and downward movements. The bulbs of under-reamed piles physically anchor the pile deep in the stable zone, safely resisting both the massive uplift forces during swelling and settlement during shrinkage."
+  },
+  {
+    "id": 83,
+    "q": "In deep trench excavations, horizontal timber planks placed physically tight against the earthen trench walls to prevent collapse, which are themselves held in place by vertical walings and horizontal struts, are termed:",
+    "o": [
+      "Ledgers",
+      "Poling boards",
+      "Putlogs",
+      "Cleats"
+    ],
+    "a": "Poling boards",
+    "e": "In trench timbering, the actual boards physically in contact with and retaining the raw soil face are called Poling boards. They distribute the earth pressure to the walings, which transfer it to the cross-struts."
+  },
+  {
+    "id": 84,
+    "q": "When constructing a simple load-bearing brick masonry foundation, the absolute minimum physical thickness of the plain cement concrete (PCC) bed block laid directly on the soil must strictly not be less than:",
+    "o": [
+      "75 mm",
+      "100 mm",
+      "150 mm",
+      "300 mm"
+    ],
+    "a": "150 mm",
+    "e": "To safely distribute the superstructure load to the soil without cracking under bending or shear tension, building codes mandate that the PCC foundation bed must possess a minimum physical thickness of 150 mm (6 inches)."
+  },
+  {
+    "id": 85,
+    "q": "In the structural design of solid masonry retaining walls, what is the primary physical and mechanical function of providing 'Weep Holes' at regular intervals near the base?",
+    "o": [
+      "To reduce the total volume and cost of brickwork",
+      "To allow the backfill soil to safely expand outward",
+      "To provide necessary ventilation to the buried brickwork",
+      "To safely drain out accumulated groundwater and relieve hydrostatic pressure"
+    ],
+    "a": "To safely drain out accumulated groundwater and relieve hydrostatic pressure",
+    "e": "If water accumulates behind a retaining wall, it adds massive hydrostatic fluid pressure to the already existing lateral earth pressure, easily causing overturning failure. Weep holes safely bleed this water out, physically keeping the backfill drained and the pressure low."
+  },
+  {
+    "id": 86,
+    "q": "When estimating the thickness of standard brick masonry walls, a nominal 'One-and-a-Half Brick Thick' wall, built using standard modular bricks and mortar, has an exact physical thickness of:",
+    "o": [
+      "250 mm",
+      "290 mm",
+      "300 mm",
+      "350 mm"
+    ],
+    "a": "300 mm",
+    "e": "A one-and-a-half brick wall consists of one full brick length (190 mm) + one mortar joint (10 mm) + one brick width (90 mm) + final finishing allowance (10 mm). This precisely totals exactly 300 mm in physical thickness."
+  },
+  {
+    "id": 87,
+    "q": "In scaffolding terminology, the diagonal structural tubes that are physically clamped across the vertical standards and horizontal ledgers to provide rigid lateral stability against wind and sway are called:",
+    "o": [
+      "Transoms",
+      "Braces (Cross Bracing)",
+      "Putlogs",
+      "Base plates"
+    ],
+    "a": "Braces (Cross Bracing)",
+    "e": "Without diagonal members, a rectangular scaffolding frame is a physically unstable mechanism that can easily collapse sideways (racking). Diagonal 'Braces' strictly lock the geometry into rigid triangles, safely transmitting lateral sway loads to the ground."
+  },
+  {
+    "id": 88,
+    "q": "To permanently protect the foundation and basement of a structure from severe ground moisture, a highly flexible, impermeable continuous membrane is often applied. Which of the following is universally considered the most effective flexible DPC material?",
+    "o": [
+      "A rich 1:2 Cement Sand mortar layer",
+      "Dense plain cement concrete (PCC)",
+      "Mastic asphalt or Bitumen felt",
+      "Standard red clay bricks"
+    ],
+    "a": "Mastic asphalt or Bitumen felt",
+    "e": "While rigid DPCs (like dense concrete) can crack if the building settles slightly, flexible DPC materials like Mastic Asphalt or heavy-duty Bitumen felt physical stretch and remain 100% waterproof even if minor structural movements or micro-cracks occur."
+  },
+  {
+    "id": 89,
+    "q": "According to IS 456, to ensure the chemical durability of concrete and prevent disruption of hydration, what is the absolute maximum permissible limit of 'Organic Solids' in the water used for mixing concrete?",
+    "o": [
+      "200 mg/liter",
+      "400 mg/liter",
+      "2000 mg/liter",
+      "3000 mg/liter"
+    ],
+    "a": "200 mg/liter",
+    "e": "Organic impurities heavily retard the setting time and significantly reduce concrete strength. The code strictly limits organic solids to 200 mg/l, while allowing higher limits for inorganic salts (e.g., 2000 mg/l for suspended matter and 3000 mg/l for non-sulfate inorganic solids)."
+  },
+  {
+    "id": 90,
+    "q": "In the standard sieve analysis of concrete aggregates, which specific IS sieve size mathematically and formally defines the strict physical boundary between 'Coarse Aggregate' and 'Fine Aggregate' (Sand)?",
+    "o": [
+      "10.0 mm sieve",
+      "4.75 mm sieve",
+      "2.36 mm sieve",
+      "0.075 mm sieve"
+    ],
+    "a": "4.75 mm sieve",
+    "e": "Aggregates that physically do not pass through the 4.75 mm IS sieve are structurally classified as Coarse Aggregates (gravels/crushed stone). Particles that safely pass the 4.75 mm sieve but are retained on the 0.075 mm sieve are classified as Fine Aggregates (sand)."
+  },
+  {
+    "id": 91,
+    "q": "To guarantee durability against harsh environmental corrosion, IS 456 explicitly mandates that the absolute minimum grade of Reinforced Cement Concrete (RCC) utilized in 'Severe' exposure conditions (like coastal seawater environments) must strictly be:",
+    "o": [
+      "M20",
+      "M25",
+      "M30",
+      "M40"
+    ],
+    "a": "M30",
+    "e": "While M20 is the minimum for Mild conditions, 'Severe' exposure (immersion in seawater or exposure to severe rain) requires a much denser, less permeable concrete to protect the steel. The code strictly dictates M30 as the absolute minimum grade for such structural works."
+  },
+  {
+    "id": 92,
+    "q": "In standardized compressive strength testing, how does the mathematically evaluated crushing strength of a standard concrete cylinder (150 mm dia x 300 mm height) relate to the strength of a standard 150 mm concrete cube of the exact same mix?",
+    "o": [
+      "Cylinder strength is roughly 0.80 times the cube strength",
+      "Cylinder strength is exactly equal to the cube strength",
+      "Cylinder strength is roughly 1.25 times the cube strength",
+      "Cylinder strength is roughly 2.00 times the cube strength"
+    ],
+    "a": "Cylinder strength is roughly 0.80 times the cube strength",
+    "e": "Due to physical geometric differences and the varying influence of friction from the testing machine's steel platens (which heavily confines shorter specimens), the taller cylinder registers a slightly lower, more accurate internal strength, mathematically equating to approximately 0.80 times the cube's failure strength."
+  },
+  {
+    "id": 93,
+    "q": "For large, flat horizontal concrete surfaces such as highway pavements, airport runways, and massive floor slabs, which specific curing method is universally regarded as the most highly effective and efficient?",
+    "o": [
+      "Continuous steam curing",
+      "Spraying curing compounds",
+      "Ponding method",
+      "Covering with dry gunny bags"
+    ],
+    "a": "Ponding method",
+    "e": "Ponding involves physically building small clay dams around the slab perimeter and flooding the entire flat surface with 50 mm of water. This ensures 100% continuous, flawless hydration and simultaneously cools the massive slab against shrinkage-inducing thermal gradients."
+  },
+  {
+    "id": 94,
+    "q": "The standard Slump Test physically fails to accurately measure the workability of extremely dry, stiff concrete mixes (e.g., those used for road pavements). Which laboratory test is strictly recommended for such low-workability mixes?",
+    "o": [
+      "Flow Table Test",
+      "Vee-Bee Consistometer Test",
+      "Kelly Ball Penetration Test",
+      "Le-Chatelier Test"
+    ],
+    "a": "Vee-Bee Consistometer Test",
+    "e": "A very dry mix yields a 'zero slump', telling the engineer nothing about variations in its stiffness. The Vee-Bee test physically vibrates the stiff cone of concrete until it flattens into a cylinder, precisely measuring the time in 'Vee-Bee Seconds' to determine the exact workability."
+  },
+  {
+    "id": 95,
+    "q": "In ergonomic staircase construction, the small physical section of the horizontal tread that physically overhangs and projects out slightly beyond the vertical face of the riser below it is technically termed the:",
+    "o": [
+      "Soffit",
+      "Scotia",
+      "Nosing",
+      "Pitch"
+    ],
+    "a": "Nosing",
+    "e": "The 'Nosing' is the protruding front edge of the step. It physically widens the available foot space on the tread without requiring a longer horizontal stairwell footprint, greatly enhancing descent safety and comfort."
+  },
+  {
+    "id": 96,
+    "q": "In standard traditional floor construction, an 'Indian Patent Stone' (IPS) floor finish fundamentally consists of:",
+    "o": [
+      "Large polished natural marble slabs",
+      "A uniform layer of rich plain cement concrete (typically 1:1.5:3) finished perfectly smooth",
+      "Interlocking ceramic vitrified tiles",
+      "A mixture of colored cement and glass chips polished to a high gloss"
+    ],
+    "a": "A uniform layer of rich plain cement concrete (typically 1:1.5:3) finished perfectly smooth",
+    "e": "IPS is simply a continuous, highly durable, plain cement concrete flooring, typically 25 to 50 mm thick, laid over a base concrete and physically troweled to a tough, smooth finish. (The mix with glass/marble chips is 'Terrazzo')."
+  },
+  {
+    "id": 97,
+    "q": "When plastering highly uneven, rough stone masonry or severely damaged brickwork, the process is executed in multiple coats. The very first rough coat applied specifically to fill deep voids and provide a generally level base is technically called the:",
+    "o": [
+      "Finishing coat",
+      "Setting coat",
+      "Undercoat (or Rendering coat)",
+      "Floating coat"
+    ],
+    "a": "Undercoat (or Rendering coat)",
+    "e": "The undercoat (or rendering) physically corrects all the severe irregularities of the raw wall. It is intentionally left rough or physically scratched to provide a strong mechanical 'key' (bond) for the final, thin, perfectly smooth finishing coat."
+  },
+  {
+    "id": 98,
+    "q": "In formwork design, the highly specific temporary timber or steel structural framing constructed explicitly to physically support the curved intrados of a masonry or concrete arch during its construction is termed:",
+    "o": [
+      "Scaffolding",
+      "Shoring",
+      "Centering",
+      "Underpinning"
+    ],
+    "a": "Centering",
+    "e": "While 'formwork' refers to molds for standard beams and slabs, the specific curved wooden or steel supporting framework custom-built to safely carry the immense loads of an arch or dome until the structural 'keystone' is placed and the arch becomes self-supporting is strictly called 'Centering'."
+  },
+  {
+    "id": 99,
+    "q": "A critical quality control process in concrete placement involves the physical removal of entrapped air voids using mechanical vibrators. This specific physical process is strictly termed:",
+    "o": [
+      "Curing",
+      "Batching",
+      "Compaction",
+      "Screeding"
+    ],
+    "a": "Compaction",
+    "e": "Freshly poured concrete contains roughly 5% to 20% entrapped air by volume. The physical process of vigorously vibrating the wet mix to fluidize it, violently expelling these harmful air bubbles and physically packing the aggregates tightly together, is strictly defined as Compaction."
+  },
+  {
+    "id": 100,
+    "q": "To structurally guarantee adequate protection of reinforcing steel against environmental corrosion, IS 456 specifies nominal clear concrete covers. For a standard RCC slab subjected to 'Mild' exposure, what is the absolute minimum nominal cover required?",
+    "o": [
+      "15 mm",
+      "20 mm",
+      "40 mm",
+      "50 mm"
+    ],
+    "a": "20 mm",
+    "e": "The concrete physically shields the steel from oxygen and moisture. For standard slabs in non-corrosive, indoor 'Mild' conditions, the code strictly mandates a minimum nominal physical cover of exactly 20 mm (though it can be reduced to 15 mm ONLY if the main bar is under 12 mm diameter)."
+  }
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
+            btn.classList.add('wrong');
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>
+

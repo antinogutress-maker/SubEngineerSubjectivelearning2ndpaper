@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        .correct { background: rgba(0, 255, 136, 0.2) !important; border-color: #00FF88 !important; color: white !important; }
+        .correct .option-marker { background: #00FF88; color: black; }
+        .wrong { background: rgba(255, 51, 102, 0.2) !important; border-color: #FF3366 !important; color: white !important; }
+        .wrong .option-marker { background: #FF3366; color: white; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = [
+ 
+  {
+    "id": 1,
+    "q": "If the pressure of a liquid is increased from 10 MPa to 30 MPa, and its volume decreases by 1%, what is the bulk modulus of elasticity of the liquid?",
+    "o": [
+      "200 MPa",
+      "2000 MPa",
+      "4000 MPa",
+      "20 MPa"
+    ],
+    "a": "2000 MPa",
+    "e": "Bulk Modulus (K) = Change in Pressure (dp) / Volumetric Strain (-dV/V). K = (30 - 10) MPa / 0.01 = 20 / 0.01 = 2000 MPa."
+  },
+  {
+    "id": 2,
+    "q": "A vacuum gauge connected to a tank reads 30 kPa. If the local atmospheric pressure is 100 kPa, what is the absolute pressure within the tank?",
+    "o": [
+      "-30 kPa",
+      "70 kPa",
+      "100 kPa",
+      "130 kPa"
+    ],
+    "a": "70 kPa",
+    "e": "Absolute Pressure = Atmospheric Pressure - Vacuum Pressure. Therefore, Absolute Pressure = 100 kPa - 30 kPa = 70 kPa."
+  },
+  {
+    "id": 3,
+    "q": "In a hydraulic press, a force of 100 N is applied to a small piston of cross-sectional area 0.01 m². What load can be lifted by the large piston of area 0.5 m²?",
+    "o": [
+      "500 N",
+      "1000 N",
+      "2500 N",
+      "5000 N"
+    ],
+    "a": "5000 N",
+    "e": "According to Pascal's Law, pressure is transmitted equally: P1 = P2. So, F1/A1 = F2/A2. 100 / 0.01 = F2 / 0.5. Solving for F2 gives 5000 N."
+  },
+  {
+    "id": 4,
+    "q": "What is the value of the kinetic energy correction factor (α) for a fully developed laminar flow through a circular pipe?",
+    "o": [
+      "1.0",
+      "1.33",
+      "2.0",
+      "2.5"
+    ],
+    "a": "2.0",
+    "e": "For laminar flow in a circular pipe, the velocity distribution is parabolic, which mathematically results in a kinetic energy correction factor (α) exactly equal to 2.0."
+  },
+  {
+    "id": 5,
+    "q": "For a sharp-edged circular orifice, if the coefficient of velocity (Cv) is 0.98 and the coefficient of contraction (Cc) is 0.62, what is the coefficient of discharge (Cd)?",
+    "o": [
+      "0.607",
+      "0.620",
+      "0.980",
+      "1.580"
+    ],
+    "a": "0.607",
+    "e": "The coefficient of discharge is the product of the coefficient of velocity and the coefficient of contraction. Cd = Cv * Cc = 0.98 * 0.62 ≈ 0.607."
+  },
+  {
+    "id": 6,
+    "q": "In a rectangular notch, the discharge (Q) varies with the head (H) as H^(3/2). What is the exponential relationship for a V-notch (triangular notch)?",
+    "o": [
+      "Q ∝ H^(1/2)",
+      "Q ∝ H^(3/2)",
+      "Q ∝ H^(5/2)",
+      "Q ∝ H^(5/3)"
+    ],
+    "a": "Q ∝ H^(5/2)",
+    "e": "Due to its triangular geometry, the flow area increases more rapidly with head compared to a rectangle, making the discharge for a V-notch proportional to H^(5/2)."
+  },
+  {
+    "id": 7,
+    "q": "For a purely laminar flow in a circular pipe, how is the Darcy-Weisbach friction factor (f) related to the Reynolds number (Re)?",
+    "o": [
+      "f = 16 / Re",
+      "f = 64 / Re",
+      "f = 0.316 / Re^0.25",
+      "It is independent of Re"
+    ],
+    "a": "f = 64 / Re",
+    "e": "For laminar flow, the Darcy friction factor 'f' is mathematically derived as 64/Re. Note that the coefficient of friction (f') is 16/Re, where f = 4f'."
+  },
+  {
+    "id": 8,
+    "q": "What is the hydraulic radius of a circular pipe of diameter 'D' flowing exactly half-full?",
+    "o": [
+      "D/2",
+      "D/4",
+      "D/8",
+      "D/16"
+    ],
+    "a": "D/4",
+    "e": "Hydraulic radius (R) = Wetted Area (A) / Wetted Perimeter (P). For a half-full pipe: A = (πD²)/8 and P = (πD)/2. R = [(πD²)/8] / [(πD)/2] = D/4. (This is the same as a pipe flowing completely full)."
+  },
+  {
+    "id": 9,
+    "q": "When the water level on the downstream side of a weir rises above the crest elevation of the weir, the weir is classified as a:",
+    "o": [
+      "Broad-crested weir",
+      "Narrow-crested weir",
+      "Submerged (drowned) weir",
+      "Ogee weir"
+    ],
+    "a": "Submerged (drowned) weir",
+    "e": "A weir is submerged or drowned when the tailwater level exceeds the crest height, significantly reducing the discharge capacity compared to free-flow conditions."
+  },
+  {
+    "id": 10,
+    "q": "Which of the following is NOT a fundamental assumption made in the derivation of Bernoulli's equation?",
+    "o": [
+      "The fluid is ideal (zero viscosity)",
+      "The flow is steady",
+      "The fluid is compressible",
+      "The flow is irrotational"
+    ],
+    "a": "The fluid is compressible",
+    "e": "Bernoulli's equation is derived strictly under the assumption that the fluid is incompressible (density remains constant), along with steady, ideal, and irrotational flow assumptions."
+  },
+  
+  {
+    "id": 11,
+    "q": "If the dynamic viscosity of a fluid is 1 poise and its specific gravity is 1, what is its kinematic viscosity?",
+    "o": [
+      "0.1 stokes",
+      "1.0 stoke",
+      "10.0 stokes",
+      "100.0 stokes"
+    ],
+    "a": "1.0 stoke",
+    "e": "Kinematic viscosity (in stokes) is the ratio of dynamic viscosity (in poise) to density (in g/cm³). Since specific gravity is 1, density is 1 g/cm³. Thus, 1 poise / 1 g/cm³ = 1 stoke."
+  },
+  {
+    "id": 12,
+    "q": "What is the pressure intensity at a depth of 5 meters below the free surface of static water? (Assume g = 9.81 m/s²)",
+    "o": [
+      "9.81 kN/m²",
+      "24.52 kN/m²",
+      "49.05 kN/m²",
+      "98.10 kN/m²"
+    ],
+    "a": "49.05 kN/m²",
+    "e": "Pressure (P) = ρgh. For water, ρ = 1000 kg/m³. Therefore, P = 1000 * 9.81 * 5 = 49050 N/m² = 49.05 kN/m²."
+  },
+  {
+    "id": 13,
+    "q": "Pascal's law states that pressure applied to an enclosed fluid is transmitted undiminished in all directions. Which condition is strictly required for this to hold true?",
+    "o": [
+      "The fluid must be highly viscous",
+      "The fluid must be in steady motion",
+      "The fluid must be compressible",
+      "The fluid must be at rest"
+    ],
+    "a": "The fluid must be at rest",
+    "e": "Pascal's Law is valid only for a static fluid system where there are no shear stresses acting on the fluid particles."
+  },
+  {
+    "id": 14,
+    "q": "In Bernoulli's equation, which represents the energy of a flowing liquid, what does the term (P / ρg) stand for?",
+    "o": [
+      "Datum head",
+      "Velocity head",
+      "Pressure head",
+      "Total head"
+    ],
+    "a": "Pressure head",
+    "e": "Bernoulli's equation expresses total energy as the sum of elevation head (Z), velocity head (v²/2g), and pressure head (P/ρg or P/γ)."
+  },
+  {
+    "id": 15,
+    "q": "What is the theoretical discharge equation for a standard rectangular weir of length 'L' with a head 'H' over the crest?",
+    "o": [
+      "Q = 2/3 * Cd * L * √(2g) * H^(3/2)",
+      "Q = 8/15 * Cd * L * √(2g) * H^(5/2)",
+      "Q = Cd * L * H * √(2gH)",
+      "Q = 1/2 * Cd * L * √(2g) * H^2"
+    ],
+    "a": "Q = 2/3 * Cd * L * √(2g) * H^(3/2)",
+    "e": "By integrating the flow over the depth of the rectangular notch, the theoretical discharge is derived as Q = (2/3) * Cd * L * √(2g) * H^(3/2)."
+  },
+  {
+    "id": 16,
+    "q": "Why is a triangular notch (V-notch) generally preferred over a rectangular notch for measuring low discharges?",
+    "o": [
+      "It requires a smaller coefficient of discharge",
+      "It provides a higher measurable head for a given small discharge",
+      "It completely eliminates the effect of velocity of approach",
+      "It has a lower head loss"
+    ],
+    "a": "It provides a higher measurable head for a given small discharge",
+    "e": "In a V-notch, the flow area decreases rapidly as the head decreases. This means even a very small discharge produces a measurable head, increasing accuracy."
+  },
+  {
+    "id": 17,
+    "q": "Which of the following describes the fundamental difference in the driving force between pipe flow and open channel flow?",
+    "o": [
+      "Pipe flow is driven by gravity, open channel flow by pressure.",
+      "Pipe flow is driven by pressure difference, open channel flow by gravity.",
+      "Both are driven strictly by gravity.",
+      "Pipe flow is driven by surface tension, open channel flow by viscosity."
+    ],
+    "a": "Pipe flow is driven by pressure difference, open channel flow by gravity.",
+    "e": "Open channel flow has a free surface at atmospheric pressure and is driven by the gravity component along the bed slope, whereas full-pipe flow is driven by hydraulic pressure gradients."
+  },
+  {
+    "id": 18,
+    "q": "Water flows through a pipe of diameter 0.2 m and length 50 m. If the friction factor (f) is 0.04 and velocity is 2 m/s, what is the head loss due to friction using the Darcy-Weisbach equation? (Assume g = 10 m/s² for simplicity)",
+    "o": [
+      "1.0 m",
+      "1.5 m",
+      "2.0 m",
+      "4.0 m"
+    ],
+    "a": "2.0 m",
+    "e": "Using Darcy's equation: hf = (f * L * v²) / (2 * g * d). Substituting the values: hf = (0.04 * 50 * 2²) / (2 * 10 * 0.2) = (2 * 4) / 4 = 2.0 m."
+  },
+  
+  {
+    "id": 19,
+    "q": "A fluid has a specific weight of 7.848 kN/m3. What is its mass density? (Assume g = 9.81 m/s2)",
+    "o": [
+      "80 kg/m3",
+      "800 kg/m3",
+      "1000 kg/m3",
+      "784.8 kg/m3"
+    ],
+    "a": "800 kg/m3",
+    "e": "Specific weight (w) = mass density (ρ) * acceleration due to gravity (g). Therefore, ρ = w / g = 7848 N/m3 / 9.81 m/s2 = 800 kg/m3."
+  },
+  {
+    "id": 20,
+    "q": "For a vertical rectangular plane surface of height 'h' submerged in water with its top edge exactly touching the free liquid surface, at what depth is the center of pressure located?",
+    "o": [
+      "h/2",
+      "h/3",
+      "2h/3",
+      "3h/4"
+    ],
+    "a": "2h/3",
+    "e": "The center of pressure for a vertically submerged rectangular surface touching the free surface is located at 2/3 of its total height from the top edge."
+  },
+  {
+    "id": 21,
+    "q": "Which of the following pressure measurements cannot be accurately obtained using a simple piezometer tube?",
+    "o": [
+      "Low liquid pressures",
+      "Moderate liquid pressures",
+      "Gauge pressures of water",
+      "Gas pressures and high liquid pressures"
+    ],
+    "a": "Gas pressures and high liquid pressures",
+    "e": "A piezometer cannot measure gas pressures because a gas does not form a free surface. It is also impractical for high liquid pressures as it would require an excessively long glass tube."
+  },
+  {
+    "id": 22,
+    "q": "Water is flowing in a pipe with a velocity of 4 m/s. What is the velocity head of the flowing water? (Assume g = 9.81 m/s2)",
+    "o": [
+      "0.407 m",
+      "0.815 m",
+      "1.630 m",
+      "8.000 m"
+    ],
+    "a": "0.815 m",
+    "e": "Velocity head is given by the formula v^2 / 2g. Plugging in the values: (4 * 4) / (2 * 9.81) = 16 / 19.62 = 0.815 m."
+  },
+  {
+    "id": 23,
+    "q": "At the vena contracta of a jet flowing through an orifice, which of the following statements is true?",
+    "o": [
+      "The velocity of the fluid is minimum.",
+      "The cross-sectional area of the jet is maximum.",
+      "The streamlines are parallel to each other.",
+      "The pressure is significantly higher than atmospheric pressure."
+    ],
+    "a": "The streamlines are parallel to each other.",
+    "e": "The vena contracta is the section of the jet where the fluid streamlines become fully parallel, the cross-sectional area is minimum, and the velocity is maximum."
+  },
+  {
+    "id": 24,
+    "q": "If there is an error of 1% in measuring the head (H) over a rectangular notch, what will be the corresponding percentage error in the calculated discharge (Q)?",
+    "o": [
+      "1.0%",
+      "1.5%",
+      "2.5%",
+      "3.0%"
+    ],
+    "a": "1.5%",
+    "e": "For a rectangular notch, Q is proportional to H^(3/2). By differentiating, dQ/Q = 1.5 * (dH/H). Therefore, a 1% error in head causes a 1.5% error in discharge."
+  },
+  {
+    "id": 25,
+    "q": "To design the most economical rectangular open channel section, what should be the relationship between the hydraulic radius (R) and the depth of flow (y)?",
+    "o": [
+      "R = y",
+      "R = y/2",
+      "R = y/3",
+      "R = 2y"
+    ],
+    "a": "R = y/2",
+    "e": "For the most economical (most efficient) rectangular channel, the width must be twice the depth (b = 2y), which mathematically results in the hydraulic radius being exactly half the flow depth (R = y/2)."
+  },
+  {
+    "id": 26,
+    "q": "In a pipe flow system, if the diameter of the pipe is halved while maintaining the exact same discharge and friction factor, the head loss due to friction will increase by a factor of:",
+    "o": [
+      "2",
+      "4",
+      "16",
+      "32"
+    ],
+    "a": "32",
+    "e": "Expressing Darcy's equation in terms of discharge gives hf = (8 * f * L * Q^2) / (pi^2 * g * d^5). Since head loss is inversely proportional to d^5, halving the diameter (d/2) increases the head loss by 2^5, which is 32 times."
+  },
+  {
+    "id": 27,
+    "q": "A Cippoletti weir is a specific type of trapezoidal weir designed to simplify discharge calculations. What is the side slope of a Cippoletti weir?",
+    "o": [
+      "1 horizontal to 2 vertical",
+      "1 horizontal to 4 vertical",
+      "1 vertical to 4 horizontal",
+      "1 vertical to 2 horizontal"
+    ],
+    "a": "1 horizontal to 4 vertical",
+    "e": "A Cippoletti weir has side slopes of 1 horizontal to 4 vertical. This specific slope compensates for the loss of discharge due to end contractions, allowing it to be treated mathematically like a rectangular weir without end contractions."
+  },
+  {
+    "id": 28,
+    "q": "According to the principles of pipe flow, what is the generally accepted upper limit of the Reynolds number for the flow to remain strictly laminar in a circular pipe?",
+    "o": [
+      "500",
+      "2000",
+      "4000",
+      "10000"
+    ],
+    "a": "2000",
+    "e": "In a circular pipe, flow is classified as laminar when the Reynolds number (Re) is less than 2000. Transition flow occurs between 2000 and 4000, and turbulent flow strictly begins above 4000."
+  },
+  
+  {
+    "id": 29,
+    "q": "What is the capillary rise in a glass tube of 2 mm diameter immersed in water? (Assume surface tension = 0.0736 N/m, angle of contact = 0°, density = 1000 kg/m³, and g = 9.81 m/s²)",
+    "o": [
+      "7.5 mm",
+      "15.0 mm",
+      "30.0 mm",
+      "0.15 mm"
+    ],
+    "a": "15.0 mm",
+    "e": "Capillary rise (h) = (4σ cosθ) / (ρgd). Plugging in the values: h = (4 * 0.0736 * 1) / (1000 * 9.81 * 0.002) = 0.2944 / 19.62 = 0.015 m, which is 15.0 mm."
+  },
+  {
+    "id": 30,
+    "q": "The dynamic viscosity of a fluid is 10 Poise. What is its equivalent value in SI units (N-s/m² or Pa-s)?",
+    "o": [
+      "0.1 N-s/m²",
+      "1.0 N-s/m²",
+      "10.0 N-s/m²",
+      "100.0 N-s/m²"
+    ],
+    "a": "1.0 N-s/m²",
+    "e": "1 Poise in the CGS system is equal to 0.1 N-s/m² in the SI system. Therefore, 10 Poise = 10 * 0.1 = 1.0 N-s/m²."
+  },
+  {
+    "id": 31,
+    "q": "If the specific weight of a fluid is 9.81 kN/m³, what is its specific volume?",
+    "o": [
+      "1000 m³/kg",
+      "1.0 m³/kg",
+      "0.01 m³/kg",
+      "0.001 m³/kg"
+    ],
+    "a": "0.001 m³/kg",
+    "e": "Specific weight = 9810 N/m³, so mass density (ρ) = 9810 / 9.81 = 1000 kg/m³. Specific volume (v) is the reciprocal of density (1/ρ) = 1/1000 = 0.001 m³/kg."
+  },
+  {
+    "id": 32,
+    "q": "Water is subjected to an increase in pressure of 2 MPa, resulting in a 0.1% decrease in its volume. What is the bulk modulus of elasticity of the water?",
+    "o": [
+      "200 MPa",
+      "2000 MPa",
+      "20000 MPa",
+      "0.002 MPa"
+    ],
+    "a": "2000 MPa",
+    "e": "Bulk Modulus (K) = dp / (-dV/V). K = 2 MPa / (0.1 / 100) = 2 / 0.001 = 2000 MPa."
+  },
+  {
+    "id": 33,
+    "q": "A pipe tapers from a diameter of 200 mm at section 1 to 100 mm at section 2. If the velocity at section 1 is 2 m/s, what is the velocity at section 2?",
+    "o": [
+      "4 m/s",
+      "8 m/s",
+      "16 m/s",
+      "0.5 m/s"
+    ],
+    "a": "8 m/s",
+    "e": "By the continuity equation, A1V1 = A2V2. Since area is proportional to the square of the diameter, V2 = V1 * (D1/D2)² = 2 * (200/100)² = 2 * 4 = 8 m/s."
+  },
+  {
+    "id": 34,
+    "q": "The hydraulic grade line (HGL) represents the sum of which two energy components?",
+    "o": [
+      "Pressure head and velocity head",
+      "Datum head and velocity head",
+      "Datum head and pressure head",
+      "Total head minus datum head"
+    ],
+    "a": "Datum head and pressure head",
+    "e": "The Hydraulic Grade Line (HGL) is the sum of the datum (elevation) head and the pressure head. It always lies below the Total Energy Line (TEL) by a distance equal to the velocity head."
+  },
+  {
+    "id": 35,
+    "q": "What is the theoretical momentum correction factor (β) for a fully developed laminar flow in a circular pipe?",
+    "o": [
+      "1.00",
+      "1.33",
+      "2.00",
+      "0.50"
+    ],
+    "a": "1.33",
+    "e": "Due to the parabolic velocity distribution in laminar pipe flow, the momentum correction factor (β) evaluates to 4/3, or approximately 1.33."
+  },
+  {
+    "id": 36,
+    "q": "A Pitot-static tube placed in a flow of water registers a stagnation pressure head of 5 m and a static pressure head of 3.75 m. What is the approximate velocity of the flow? (Assume Cv = 1.0, g = 10 m/s²)",
+    "o": [
+      "4.0 m/s",
+      "5.0 m/s",
+      "8.6 m/s",
+      "10.0 m/s"
+    ],
+    "a": "5.0 m/s",
+    "e": "The dynamic head (h) = Stagnation head - Static head = 5.0 - 3.75 = 1.25 m. Velocity (v) = Cv * √(2gh) = 1.0 * √(2 * 10 * 1.25) = √25 = 5.0 m/s."
+  },
+  {
+    "id": 37,
+    "q": "According to Francis' formula, what is the effective length (L_eff) of a rectangular weir of length 'L' with two end contractions and a head 'H' over the crest?",
+    "o": [
+      "L - 0.1H",
+      "L - 0.2H",
+      "L - 0.1nH",
+      "L + 0.2H"
+    ],
+    "a": "L - 0.2H",
+    "e": "Francis' formula dictates that each end contraction reduces the effective length by 0.1H. For two end contractions (n=2), the effective length is L - 2*(0.1H) = L - 0.2H."
+  },
+  {
+    "id": 38,
+    "q": "For maximum discharge over a broad-crested weir, the critical depth of flow (hc) is equal to what fraction of the total available head (H)?",
+    "o": [
+      "1/2 H",
+      "2/3 H",
+      "3/4 H",
+      "3/8 H"
+    ],
+    "a": "2/3 H",
+    "e": "By differentiating the discharge equation with respect to head and setting it to zero, the condition for maximum discharge occurs when the critical flow depth is exactly 2/3 of the total upstream head."
+  },
+  {
+    "id": 39,
+    "q": "An Ogee weir is generally designed taking the geometric shape of the lower nappe of a fully ventilated liquid jet falling freely over a:",
+    "o": [
+      "Broad-crested weir",
+      "Cippoletti weir",
+      "Sharp-crested weir",
+      "Stepped weir"
+    ],
+    "a": "Sharp-crested weir",
+    "e": "The profile of an Ogee spillway is designed to conform to the natural parabolic trajectory (lower nappe) of water flowing over a fully ventilated sharp-crested weir to prevent negative pressure and cavitation."
+  },
+  {
+    "id": 40,
+    "q": "The total theoretical discharge through a trapezoidal notch is calculated as the sum of the discharges through:",
+    "o": [
+      "Two rectangular notches",
+      "A rectangular notch and a triangular notch",
+      "A triangular notch and a parabolic notch",
+      "Two triangular notches only"
+    ],
+    "a": "A rectangular notch and a triangular notch",
+    "e": "Geometrically, a trapezoidal notch can be split into a central rectangular notch and two halves of a triangular notch (which form one complete V-notch) at the sides."
+  },
+  {
+    "id": 41,
+    "q": "In a 90° V-notch, if the error in measuring the head (H) is 2%, what is the approximate percentage error in the calculated discharge (Q)?",
+    "o": [
+      "1.0%",
+      "3.0%",
+      "5.0%",
+      "2.0%"
+    ],
+    "a": "5.0%",
+    "e": "For a triangular notch, Q varies as H^(5/2). Therefore, the error in discharge dQ/Q = 2.5 * (dH/H). A 2% error in head results in 2.5 * 2% = 5% error in discharge."
+  },
+  {
+    "id": 42,
+    "q": "Under what condition is an orifice traditionally classified as a 'large orifice'?",
+    "o": [
+      "When the diameter is greater than 1 meter",
+      "When the available liquid head is less than 5 times the height of the orifice",
+      "When the coefficient of discharge exceeds 0.65",
+      "When it is fitted with an external mouthpiece"
+    ],
+    "a": "When the available liquid head is less than 5 times the height of the orifice",
+    "e": "An orifice is considered 'large' when the variation in pressure head from the top to the bottom edge is significant enough that using a single average head for discharge calculations causes significant error (typically when H < 5d)."
+  },
+  {
+    "id": 43,
+    "q": "What is the theoretical coefficient of contraction (Cc) for a Borda's mouthpiece (re-entrant mouthpiece) when it is running free?",
+    "o": [
+      "0.50",
+      "0.62",
+      "0.855",
+      "1.00"
+    ],
+    "a": "0.50",
+    "e": "By applying the momentum equation to the fluid approaching and exiting a Borda's mouthpiece running free (jet not touching the walls), the coefficient of contraction theoretically evaluates to exactly 0.5."
+  },
+  {
+    "id": 44,
+    "q": "For an external cylindrical mouthpiece running completely full, what is the approximate value of the coefficient of discharge (Cd)?",
+    "o": [
+      "0.50",
+      "0.62",
+      "0.855",
+      "0.98"
+    ],
+    "a": "0.855",
+    "e": "When an external mouthpiece runs full, the jet expands after the vena contracta to fill the tube. The head loss due to this sudden expansion reduces the theoretical velocity, resulting in a Cd of approximately 0.855."
+  },
+  {
+    "id": 45,
+    "q": "An orifice of area 0.01 m² is located under a constant head of 5 m. If the coefficient of discharge (Cd) is 0.6, what is the actual discharge? (Assume g = 10 m/s² for calculation ease)",
+    "o": [
+      "0.06 m³/s",
+      "0.10 m³/s",
+      "0.60 m³/s",
+      "1.00 m³/s"
+    ],
+    "a": "0.06 m³/s",
+    "e": "Actual Discharge (Q) = Cd * Area * √(2gH). Q = 0.6 * 0.01 * √(2 * 10 * 5) = 0.006 * √100 = 0.006 * 10 = 0.06 m³/s."
+  }
+
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // Shuffle questions and options
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => ({ t: txt, c: i === q.a }));
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.6'; });
+        btn.style.opacity = '1';
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            btn.classList.add('wrong');
+            all.forEach((b, i) => { if(q.shuffledOpts[i].c) b.classList.add('correct'); });
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>

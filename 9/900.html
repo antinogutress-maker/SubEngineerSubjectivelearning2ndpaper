@@ -1,0 +1,1247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = 
+  [
+  {
+    "id": 1,
+    "q": "What is the exact mathematical relationship between Duty (D) in hectares/cumec, Delta (Δ) in meters, and Base Period (B) in days for a specific crop?",
+    "o": [
+      "Δ = 8.64 D / B",
+      "Δ = 8.64 B / D",
+      "Δ = 864 B / D",
+      "Δ = B / (8.64 D)"
+    ],
+    "a": "Δ = 8.64 B / D",
+    "e": "By equating the total volume of water supplied over the base period (1 cumec × B days) to the total volume covering the area (D hectares × Δ depth), the standard relationship is derived strictly as Δ (in meters) = 8.64 × B / D."
+  },
+  {
+    "id": 2,
+    "q": "Among the various modern irrigation systems, which specific method universally physically achieves the absolute highest water application efficiency (often exceeding 90%)?",
+    "o": [
+      "Sprinkler irrigation",
+      "Furrow irrigation",
+      "Drip (Trickle) irrigation",
+      "Border flood irrigation"
+    ],
+    "a": "Drip (Trickle) irrigation",
+    "e": "Drip irrigation physically delivers water drop-by-drop directly to the root zone of the plant through emitters. This practically eliminates evaporation from the soil surface, prevents deep percolation, and eliminates runoff, yielding the highest possible efficiency."
+  },
+  {
+    "id": 3,
+    "q": "In agricultural water requirements, the very first watering given to a crop when the plant has grown a few centimeters high and physically requires a significant amount of water is technically termed:",
+    "o": [
+      "Pale watering",
+      "Kor watering",
+      "Delta watering",
+      "Base watering"
+    ],
+    "a": "Kor watering",
+    "e": "'Kor watering' is the crucial first watering applied when the crop is a few centimeters tall. The maximum single depth of water applied during the entire crop season is usually the Kor depth, and it governs the peak design discharge of the canal."
+  },
+  {
+    "id": 4,
+    "q": "The 'Consumptive Use' of water for a specific crop is physically and mathematically defined as the total exact depth of water completely consumed by:",
+    "o": [
+      "Evaporation from the soil alone",
+      "Transpiration by the plant leaves alone",
+      "The sum of Evaporation from the soil and Transpiration by the plant (Evapotranspiration)",
+      "The water required for leaching out soil salts"
+    ],
+    "a": "The sum of Evaporation from the soil and Transpiration by the plant (Evapotranspiration)",
+    "e": "Consumptive use (or Evapotranspiration, ET) is the total physical quantity of water used by the vegetative growth of a given area in transpiration from the plant leaves, plus the water evaporated from the adjacent bare soil surface."
+  },
+  {
+    "id": 5,
+    "q": "As irrigation water flows from the main canal headworks down to the farmer's agricultural field, transit losses (seepage and evaporation) physically occur. Consequently, the numerical value of the 'Duty' of water:",
+    "o": [
+      "Continuously decreases from the headworks to the field",
+      "Continuously increases from the headworks to the field",
+      "Remains completely constant throughout the canal network",
+      "Drops to exactly zero at the field"
+    ],
+    "a": "Continuously increases from the headworks to the field",
+    "e": "Duty = Area / Discharge. As water travels down the network, physical discharge (Q) decreases due to continuous transit losses. To irrigate a fixed 1-hectare area, a smaller Q actually arrives at the field. Since the denominator (Q) decreases, the calculated Duty mathematically increases. Thus, Duty at the field > Duty at the head."
+  },
+  {
+    "id": 6,
+    "q": "In unlined earthen irrigation canals, the vast majority of physical transit water losses are scientifically attributed to:",
+    "o": [
+      "Evaporation from the water surface",
+      "Seepage through the bed and banks of the canal",
+      "Transpiration by aquatic weeds",
+      "Overflow over the canal banks"
+    ],
+    "a": "Seepage through the bed and banks of the canal",
+    "e": "While some water evaporates, seepage (percolation through the porous earthen bed and banks) typically accounts for 90% to 95% of total canal losses in unlined channels, which is why concrete or geomembrane lining is highly critical for water conservation."
+  },
+  {
+    "id": 7,
+    "q": "According to R.G. Kennedy's classical silt theory for stable channels, the 'Critical Velocity' (Vo) that perfectly keeps the channel free from both silting and scouring is strictly a mathematical function of the:",
+    "o": [
+      "Bottom width of the channel bed (b)",
+      "Longitudinal bed slope (S)",
+      "Physical depth of flowing water (y)",
+      "Roughness coefficient (n)"
+    ],
+    "a": "Physical depth of flowing water (y)",
+    "e": "Kennedy observed that the supporting power of the upward eddies (which keep silt in suspension) is generated primarily from the channel bed. He derived the empirical equation Vo = c × y^n (specifically Vo = 0.55 × y^0.64), linking critical velocity solely to the depth of flow."
+  },
+  {
+    "id": 8,
+    "q": "In Manning's universal hydraulic formula for open channel flow [V = (1/n) × R^(2/3) × S^(1/2)], the specific empirical parameter 'n' physically represents the:",
+    "o": [
+      "Kinematic viscosity of the water",
+      "Hydraulic radius of the cross-section",
+      "Roughness characteristics of the channel bed and sides",
+      "Critical velocity ratio"
+    ],
+    "a": "Roughness characteristics of the channel bed and sides",
+    "e": "Manning's 'n' is the roughness coefficient. It physically quantifies the frictional resistance exerted by the specific material of the channel boundary (e.g., smooth concrete has a low 'n' around 0.013, while a weedy earthen canal has a high 'n' around 0.030)."
+  },
+  {
+    "id": 9,
+    "q": "According to Lacey's comprehensive Regime Theory for alluvial channels, a channel is strictly defined to be in a perfectly stable 'True Regime' state exclusively when it has naturally adjusted its:",
+    "o": [
+      "Velocity and depth only",
+      "Slope and width only",
+      "Width, depth, and bed slope to achieve equilibrium",
+      "Silt factor and wetted perimeter only"
+    ],
+    "a": "Width, depth, and bed slope to achieve equilibrium",
+    "e": "Lacey stated that an alluvial channel allowed to scour and deposit silt freely will eventually reach an ultimate stable 'regime' state. In this true regime, the channel has independently and perfectly adjusted its width, depth, and longitudinal slope to match the discharge and silt grade."
+  },
+  {
+    "id": 10,
+    "q": "What is the primary structural and operational difference that distinguishes a 'Barrage' from a standard 'Weir' in river diversion headworks?",
+    "o": [
+      "A barrage stores water for years, while a weir only diverts it.",
+      "A weir utilizes adjustable steel gates to control the pond level, while a barrage relies strictly on a high solid concrete crest.",
+      "A barrage relies primarily on adjustable steel gates across its entire width to control the pond level, keeping the solid crest very low.",
+      "A barrage is built exclusively on solid rock, whereas a weir is built on permeable sand."
+    ],
+    "a": "A barrage relies primarily on adjustable steel gates across its entire width to control the pond level, keeping the solid crest very low.",
+    "e": "In a weir, the water level is backed up mainly by a high solid obstruction (the crest) across the river. In a barrage, the solid crest is built very low (nearly flush with the riverbed), and the water level is actively and precisely controlled by massive mechanical gates."
+  },
+  {
+    "id": 11,
+    "q": "In the layout of a diversion headworks, the thick masonry or concrete wall constructed physically parallel to the direction of river flow, strictly separating the under-sluice pocket from the main weir bays, is termed the:",
+    "o": [
+      "Guide bank",
+      "Divide wall",
+      "Marginal bund",
+      "Fish ladder"
+    ],
+    "a": "Divide wall",
+    "e": "The Divide Wall runs parallel to the river flow. It physically isolates the calm, deep under-sluice pocket (in front of the canal head regulator) from the turbulent main weir section, allowing heavy silt to settle in the pocket so it can be scoured away."
+  },
+  {
+    "id": 12,
+    "q": "To safely physically prevent heavy bed-load silt from entering the main irrigation canal, a specialized structure is constructed strictly on the riverbed upstream of the canal head regulator. This structure is called a:",
+    "o": [
+      "Silt ejector (or Silt extractor)",
+      "Silt excluder",
+      "Silt deflector",
+      "Guide bank"
+    ],
+    "a": "Silt excluder",
+    "e": "A Silt Excluder is built directly in the river's under-sluice pocket *before* the water enters the canal. It physically excludes bottom silt. Conversely, a Silt Ejector (or extractor) is built *inside* the canal a few kilometers downstream to eject silt that has already entered."
+  },
+  {
+    "id": 13,
+    "q": "In hill irrigation layouts, a canal that is geometrically aligned roughly parallel to the natural contours of the terrain to maintain a gentle, uniform bed slope is formally classified as a:",
+    "o": [
+      "Ridge canal (Watershed canal)",
+      "Side-slope canal",
+      "Contour canal",
+      "Branch canal"
+    ],
+    "a": "Contour canal",
+    "e": "Because hilly terrain is steeply sloped, running a canal straight down would cause destructive, scouring velocities. A contour canal strictly hugs the hillside, winding along the contour lines to maintain a safe, very mild longitudinal slope."
+  },
+  {
+    "id": 14,
+    "q": "When a contour canal inevitably crosses a natural drainage valley or stream, a cross-drainage structure is mandated. If the canal is carried safely OVER the stream, and the stream's High Flood Level (HFL) remains completely BELOW the bottom of the canal bed, the structure is perfectly defined as an:",
+    "o": [
+      "Aqueduct",
+      "Syphon Aqueduct",
+      "Super passage",
+      "Level crossing"
+    ],
+    "a": "Aqueduct",
+    "e": "An Aqueduct is structurally analogous to a bridge for water. The canal flows freely in a trough over the stream, and the stream flows freely underneath at atmospheric pressure without its HFL ever touching the bottom of the canal trough."
+  },
+  {
+    "id": 15,
+    "q": "Conversely, if the natural drainage stream physically passes completely OVER the top of the irrigation canal, and the Full Supply Level (FSL) of the canal does NOT touch the bottom of the drainage trough, the structure is termed a:",
+    "o": [
+      "Syphon Aqueduct",
+      "Canal Syphon",
+      "Super passage",
+      "Inlet"
+    ],
+    "a": "Super passage",
+    "e": "A Super Passage is the exact reverse of an Aqueduct. The natural stream is carried in a physical trough over the canal. The canal flows freely underneath at atmospheric pressure, unimpeded by the structure above."
+  },
+  {
+    "id": 16,
+    "q": "In steep hill irrigation networks, when the natural ground slope is physically much steeper than the safe designed bed slope of the canal, engineers must safely drop the water level. The specialized structure built for this is a:",
+    "o": [
+      "Cross regulator",
+      "Canal escape",
+      "Canal fall (or Canal drop)",
+      "Head regulator"
+    ],
+    "a": "Canal fall (or Canal drop)",
+    "e": "To prevent the canal water from gaining destructive, scouring velocities on steep terrain, the canal is laid on a gentle slope until the ground drops away, at which point a 'Canal Fall' physically drops the water vertically and dissipates the kinetic energy in a stilling basin."
+  },
+  {
+    "id": 17,
+    "q": "In river training works, 'Groynes' (or Spurs) are structures built out from the riverbank into the flow. A groyne physically aligned pointing upstream (against the direction of flow) to safely push the water away from the bank is strictly called a:",
+    "o": [
+      "Attracting groyne",
+      "Repelling groyne",
+      "Deflecting groyne",
+      "Sedimenting groyne"
+    ],
+    "a": "Repelling groyne",
+    "e": "A Repelling groyne is physically angled upstream (typically 60° to 80° to the bank). As the water hits it, the flow is physically repelled and pushed violently towards the center of the river, creating a calm, silting zone near the bank to protect it from erosion."
+  },
+  {
+    "id": 18,
+    "q": "The primary physical and hydraulic purpose of constructing 'Guide Banks' (Bell's Bunds) upstream and downstream of a barrage or bridge on an alluvial river is to:",
+    "o": [
+      "Completely stop the river flow during the dry season",
+      "Confine the wide, meandering river into a straight, narrow, defined channel to pass safely through the structure without outflanking it",
+      "Trap all the suspended silt before it reaches the structure",
+      "Increase the width of the river to reduce velocity"
+    ],
+    "a": "Confine the wide, meandering river into a straight, narrow, defined channel to pass safely through the structure without outflanking it",
+    "e": "Alluvial rivers meander wildly and spread over vast floodplains. To build a bridge or barrage economically, the river must be squeezed. Guide banks are massive earthen embankments heavily armored with stone that forcibly funnel the wandering river straight through the artificial structure."
+  },
+  {
+    "id": 19,
+    "q": "A severe negative consequence of intensive surface irrigation without adequate subsurface drainage is 'Waterlogging'. This condition is strictly and physically defined as:",
+    "o": [
+      "The temporary flooding of crops during heavy rainfall",
+      "The physical rise of the groundwater table up into the crop root zone, displacing air and suffocating the plants",
+      "The complete drying out and cracking of the topsoil",
+      "The heavy accumulation of fresh surface water in the canal network"
+    ],
+    "a": "The physical rise of the groundwater table up into the crop root zone, displacing air and suffocating the plants",
+    "e": "Continuous seepage from unlined canals and over-irrigation physically fills the underground aquifers. When the water table rises into the root zone (typically within 1.5 to 2.0 meters of the surface), it completely drives out soil oxygen, preventing root respiration and rendering the land barren."
+  },
+  {
+    "id": 20,
+    "q": "In the design of canal cross-section geometry, the 'Freeboard' is explicitly and physically defined as the vertical distance between the:",
+    "o": [
+      "Canal bed and the Full Supply Level (FSL)",
+      "Full Supply Level (FSL) and the top edge of the canal bank",
+      "Canal bed and the top edge of the canal bank",
+      "Original ground level and the Full Supply Level (FSL)"
+    ],
+    "a": "Full Supply Level (FSL) and the top edge of the canal bank",
+    "e": "Freeboard is a strict safety margin provided to prevent the canal water from physically overtopping the banks and causing catastrophic washouts during sudden surges, heavy wave action, or operational errors. It is the exact vertical distance from the maximum designed water surface (FSL) to the top of the earthen bank."
+  },
+
+
+  {
+    "id": 21,
+    "q": "Before formally sowing the seeds for a new crop, the preliminary watering physically applied to dry agricultural land to ensure adequate soil moisture for initial germination is technically termed:",
+    "o": [
+      "Kor watering",
+      "Paleo watering",
+      "Leaching",
+      "Base watering"
+    ],
+    "a": "Paleo watering",
+    "e": "Paleo (or Palewa) irrigation is strictly the very first physical application of water to a completely dry field prior to sowing or planting, ensuring the soil possesses sufficient moisture to trigger the seeds to sprout."
+  },
+  {
+    "id": 22,
+    "q": "In defining agricultural water requirements, the exact quantity of soil moisture that is physically and chemically available for a plant's root system to absorb is mathematically the difference between:",
+    "o": [
+      "Saturation capacity and Field capacity",
+      "Field capacity and Permanent wilting point",
+      "Permanent wilting point and Ultimate wilting point",
+      "Total porosity and Specific retention"
+    ],
+    "a": "Field capacity and Permanent wilting point",
+    "e": "Field capacity is the maximum water held against gravity. The permanent wilting point is the extreme tension where roots can no longer physically extract water. The moisture between these two exact physical limits is the 'Available Moisture'."
+  },
+  {
+    "id": 23,
+    "q": "For standard crop water requirement calculations in the Indian subcontinent, what are the typically assumed average empirical 'Kor depths' for Rice and Wheat respectively?",
+    "o": [
+      "13.5 cm for Rice and 19.0 cm for Wheat",
+      "19.0 cm for Rice and 13.5 cm for Wheat",
+      "25.0 cm for Rice and 10.0 cm for Wheat",
+      "19.0 cm for Rice and 19.0 cm for Wheat"
+    ],
+    "a": "19.0 cm for Rice and 13.5 cm for Wheat",
+    "e": "The Kor depth represents the maximum single depth of watering required during the crop's peak early growth stage. Empirically, Rice physically demands a massive 19.0 cm depth, whereas Wheat requires a strictly shallower 13.5 cm depth."
+  },
+  {
+    "id": 24,
+    "q": "In R.G. Kennedy's classical silt theory for stable canals, he introduced the 'Critical Velocity Ratio' (m). What specific physical parameter does this coefficient strictly account for?",
+    "o": [
+      "The hydraulic roughness of the canal bed",
+      "The longitudinal slope of the terrain",
+      "The physical grade, size, and character of the silt particles in the water",
+      "The rate of evaporation from the surface"
+    ],
+    "a": "The physical grade, size, and character of the silt particles in the water",
+    "e": "Kennedy's base formula (Vo = 0.55 × y^0.64) was derived for the specific silt of the Upper Bari Doab canal. To make the formula universally applicable to different rivers carrying physically coarser or finer silt, he introduced the modifier 'm' (Vo = m × 0.55 × y^0.64)."
+  },
+  {
+    "id": 25,
+    "q": "When calculating the physical velocity of open channel flow using Manning's universal formula, the parameter 'Hydraulic Radius' (R) is mathematically and strictly defined as:",
+    "o": [
+      "The total depth of the flowing water",
+      "The cross-sectional area of flow divided by the top width of the water surface",
+      "The cross-sectional area of flow divided by the wetted perimeter",
+      "The top width of the water surface divided by the wetted perimeter"
+    ],
+    "a": "The cross-sectional area of flow divided by the wetted perimeter",
+    "e": "The Hydraulic Radius (R = A / P) physically represents the ratio of the total water cross-section (A) to the solid boundary length creating friction against the water (Wetted Perimeter, P). It is the fundamental geometric factor in open channel hydraulics."
+  },
+  {
+    "id": 26,
+    "q": "To maximize hydraulic efficiency and minimize excavation costs, the 'Most Economical Cross-Section' for an unlined trapezoidal earthen canal is geometrically achieved when its physical shape exactly matches:",
+    "o": [
+      "A complete semi-circle",
+      "Half of a regular square",
+      "Half of a regular hexagon",
+      "A perfect parabola"
+    ],
+    "a": "Half of a regular hexagon",
+    "e": "A channel is hydraulically most efficient when its wetted perimeter is minimized. For a trapezoidal cross-section, complex calculus proves that the absolute minimum perimeter for a given area occurs strictly when the section physically forms exactly one-half of a regular hexagon."
+  },
+  {
+    "id": 27,
+    "q": "In the structural layout of a river diversion headworks, the solid masonry crest of the 'Under-sluices' (scouring sluices) is physically constructed at an elevation that is strictly:",
+    "o": [
+      "Higher than the crest of the main weir",
+      "Exactly at the same level as the crest of the main weir",
+      "Lower than the crest of the main weir",
+      "Above the High Flood Level (HFL) of the river"
+    ],
+    "a": "Lower than the crest of the main weir",
+    "e": "The under-sluices are placed immediately in front of the canal head regulator. Their crest is kept physically lower than the main weir to maintain a deep, calm channel that attracts the dry-season flow towards the canal, allowing heavy silt to settle so it can be safely flushed away."
+  },
+  {
+    "id": 28,
+    "q": "To safely facilitate the upstream migration of fish past a massive river diversion weir or barrage, a 'Fish Ladder' is constructed. To allow fish to swim against the current without exhaustion, the water velocity inside the ladder must strictly not exceed:",
+    "o": [
+      "1.0 to 1.5 m/s",
+      "2.0 to 3.0 m/s",
+      "4.0 to 5.0 m/s",
+      "6.0 m/s"
+    ],
+    "a": "2.0 to 3.0 m/s",
+    "e": "Fish physically cannot sustain swimming against highly turbulent, high-velocity currents for long periods. Fish ladders utilize physical baffles to slow the water down, strictly capping the maximum velocity between 2.0 to 3.0 m/s to provide safe passage."
+  },
+  {
+    "id": 29,
+    "q": "What is the primary structural and hydraulic function of the 'Canal Head Regulator' at an irrigation headworks?",
+    "o": [
+      "To completely stop the river flow and create a reservoir",
+      "To safely bypass massive floodwaters away from the structure",
+      "To regulate the exact discharge entering the main canal and physically block heavy river bed-silt",
+      "To generate hydroelectric power from the diverted water"
+    ],
+    "a": "To regulate the exact discharge entering the main canal and physically block heavy river bed-silt",
+    "e": "The Canal Head Regulator consists of adjustable steel gates located exactly where the canal physically originates from the river. It strictly meters the required volume of water into the canal while its raised crest physically blocks heavy rolling bed-silt from entering."
+  },
+  {
+    "id": 30,
+    "q": "In River Training engineering, an alluvial river constantly shifts, creating deep, looping physical curves. The mathematical ratio of the curved, actual channel length to the direct, straight axial length of the river valley is formally termed its:",
+    "o": [
+      "Sinuosity",
+      "Meander Ratio",
+      "Tortuosity",
+      "Regime Factor"
+    ],
+    "a": "Tortuosity",
+    "e": "Tortuosity (or sinuosity index) mathematically quantifies exactly how 'curvy' or winding a river is. A perfectly straight river has a tortuosity of 1.0. As the river meanders and loops back on itself, this physical ratio increases significantly."
+  },
+  {
+    "id": 31,
+    "q": "While Sprinkler Irrigation is highly efficient for undulating terrain, standard agricultural engineering guidelines strictly prohibit its use in geographical regions primarily experiencing:",
+    "o": [
+      "Highly permeable, sandy soils",
+      "Steep, irregular topography",
+      "High, continuous wind velocities and extremely high temperatures",
+      "Deeply rooted tree crops"
+    ],
+    "a": "High, continuous wind velocities and extremely high temperatures",
+    "e": "High winds physically blow the fine water spray away, utterly destroying the uniform distribution pattern. Simultaneously, extremely high temperatures cause a massive percentage of the airborne water droplets to physically evaporate before they ever reach the soil."
+  },
+  {
+    "id": 32,
+    "q": "At the critical agricultural limit known as the 'Permanent Wilting Point', the remaining moisture is held so tightly to the soil particles that plant roots cannot extract it. The physical soil moisture tension at this exact point reaches approximately:",
+    "o": [
+      "0.1 to 0.3 atmospheres",
+      "1 to 3 atmospheres",
+      "7 to 15 atmospheres",
+      "50 to 100 atmospheres"
+    ],
+    "a": "7 to 15 atmospheres",
+    "e": "Water at Field Capacity is held at a low tension of roughly 1/3 atmosphere, making it physically easy for roots to drink. As the soil dries, tension spikes. At the permanent wilting point, the physical tension strictly hits 7 to 15 atmospheres, completely overpowering the plant's suction."
+  },
+  {
+    "id": 33,
+    "q": "To mathematically evaluate the physical water losses occurring purely during transit through a massive canal network, engineers strictly calculate the 'Water Conveyance Efficiency'. This is defined as the mathematical ratio of:",
+    "o": [
+      "Water safely stored in the crop root zone to water delivered to the field",
+      "Water delivered exactly at the field head to the water diverted into the canal from the river",
+      "Water utilized beneficially by the crop to water diverted from the river",
+      "Crop yield produced to the total volume of water consumed"
+    ],
+    "a": "Water delivered exactly at the field head to the water diverted into the canal from the river",
+    "e": "Conveyance efficiency strictly measures pipeline/canal transit losses (seepage and evaporation). It physically isolates the performance of the delivery infrastructure without accounting for how efficiently the farmer actually applies the water to the crops."
+  },
+  {
+    "id": 34,
+    "q": "A specialized cross-drainage structure must be built when a natural stream and an irrigation canal physically intersect. If both water bodies intersect at practically the exact same bed elevation, the structure is strictly defined as a:",
+    "o": [
+      "Super passage",
+      "Syphon Aqueduct",
+      "Level crossing",
+      "Canal Syphon"
+    ],
+    "a": "Level crossing",
+    "e": "When elevations physically match, the two water bodies are allowed to directly mix. A 'Level Crossing' structure is built, utilizing regulators on both the canal and the stream to physically route the water and safely discharge the excess stream floodwater downstream."
+  },
+  {
+    "id": 35,
+    "q": "In extremely flat terrains like the Gangetic plains, it is physically impossible to maintain steep canal slopes. To safely lose excess elevation, a specific type of canal fall featuring a vertical impact wall without any sloping glacis is utilized. This is called a:",
+    "o": [
+      "Ogee Fall",
+      "Rapid Fall",
+      "Sarda type fall (Vertical drop fall)",
+      "Baffle Fall"
+    ],
+    "a": "Sarda type fall (Vertical drop fall)",
+    "e": "The Sarda fall physically drops the water completely vertically into a depressed water cushion or directly onto the downstream floor. It relies strictly on the turbulence of the vertical impact to dissipate kinetic energy, making it highly economical for small drops."
+  },
+  {
+    "id": 36,
+    "q": "To safely protect highly valuable low-lying agricultural plains or cities from catastrophic river flooding, massive earthen embankments are constructed parallel to the riverbanks, but set back a significant distance from the main channel. These are formally termed:",
+    "o": [
+      "Guide banks",
+      "Groynes or Spurs",
+      "Marginal Bunds (or Levees)",
+      "Divide walls"
+    ],
+    "a": "Marginal Bunds (or Levees)",
+    "e": "Unlike guide banks which violently squeeze the river at a specific bridge structure, Marginal Bunds (Levees) run parallel to the river for miles. They physically contain the massive floodwaters within a defined, artificially widened flood plain, safely keeping the water out of adjacent inhabited areas."
+  },
+  {
+    "id": 37,
+    "q": "The 'Water Application Efficiency' explicitly evaluates the farmer's physical watering technique on the field. It is mathematically defined as the ratio of the volume of water:",
+    "o": [
+      "Physically stored in the root zone to the volume of water actually delivered to the field",
+      "Delivered to the field to the water diverted from the river",
+      "Consumed by transpiration to the water applied",
+      "Lost to deep percolation to the water applied"
+    ],
+    "a": "Physically stored in the root zone to the volume of water actually delivered to the field",
+    "e": "Application efficiency strictly measures how much of the water that physically arrived at the farm was actually safely pushed into the soil root zone, completely isolating and penalizing physical losses like surface runoff and useless deep percolation."
+  },
+  {
+    "id": 38,
+    "q": "If an agricultural crop's total growing duration (Base Period, B) is mathematically extended, while the absolute total depth of water it requires (Delta, Δ) remains completely constant, the numerical value of the Canal Duty (D) in hectares/cumec will mathematically:",
+    "o": [
+      "Decrease proportionally",
+      "Increase proportionally",
+      "Remain exactly the same",
+      "Drop to zero"
+    ],
+    "a": "Increase proportionally",
+    "e": "From the formula D = 8.64 × B / Δ. If Delta (Δ) is constant, Duty (D) is strictly directly proportional to the Base Period (B). A longer base period means the required water volume is physically spread over more days, allowing a much smaller continuous discharge (1 cumec) to safely irrigate a much larger area."
+  },
+  {
+    "id": 39,
+    "q": "In which specific surface irrigation methodology is the entire agricultural field physically subdivided into a series of long, parallel, narrow strips strictly separated by low earthen ridges to guide a thin sheet of water downhill?",
+    "o": [
+      "Check basin irrigation",
+      "Furrow irrigation",
+      "Border flood irrigation",
+      "Free flooding"
+    ],
+    "a": "Border flood irrigation",
+    "e": "In Border strip irrigation, the field is physically partitioned by low levees (borders). A thin, wide sheet of water is released at the upper end and physically flows slowly down the strip, infiltrating the soil uniformly as it advances."
+  },
+  {
+    "id": 40,
+    "q": "In complex cross-drainage works, if a natural drainage stream passes completely OVER an irrigation canal, and the Full Supply Level (FSL) of the canal physically touches or exceeds the bottom of the drainage trough, the structure is strictly defined as a:",
+    "o": [
+      "Super passage",
+      "Aqueduct",
+      "Syphon Aqueduct",
+      "Canal Syphon"
+    ],
+    "a": "Canal Syphon",
+    "e": "A Super Passage allows the canal to flow freely underneath. But if the canal's water level (FSL) is physically higher than the clearance space, the canal water is forced to dip down and physically flow under immense hydrostatic pressure (syphonic action) beneath the stream bed."
+  },
+  {
+    "id": 41,
+    "q": "To safely dispose of sudden, dangerous surplus water from an irrigation canal due to a heavy localized rainstorm or an operational failure downstream, which specialized physical safety structure is explicitly built into the canal banks?",
+    "o": [
+      "Cross regulator",
+      "Canal escape",
+      "Head regulator",
+      "Silt ejector"
+    ],
+    "a": "Canal escape",
+    "e": "A Canal Escape acts as the physical safety valve of the canal network. If the water level dangerously spikes, threatening to physically overtop and wash out the earthen banks, the escape structure safely dumps the excess water into an adjacent natural drainage channel."
+  },
+  {
+    "id": 42,
+    "q": "In Gerald Lacey's comprehensive Regime Theory for stable alluvial channels, he mathematically defined the 'Silt Factor' (f) based strictly on the average physical diameter of the bed particles (d in mm). The exact empirical formula is:",
+    "o": [
+      "f = 4.75 × √(d)",
+      "f = 1.76 × √(d)",
+      "f = 1.20 × d",
+      "f = 0.55 × √(d)"
+    ],
+    "a": "f = 1.76 × √(d)",
+    "e": "Lacey proved that the physical size of the sediment heavily dictates the stable geometry of the channel. He empirically derived the fundamental relationship for the Silt Factor as strictly f = 1.76 × √(d), where 'd' is the mean particle diameter in millimeters."
+  },
+  {
+    "id": 43,
+    "q": "In the geometric design of unlined earthen irrigation canals, a critical safety margin must be provided above the maximum water level. For standard minor canals carrying a discharge between 1 to 5 cumecs, standard engineering codes dictate a strict minimum physical freeboard of:",
+    "o": [
+      "0.15 meters",
+      "0.30 meters",
+      "0.50 meters",
+      "1.00 meters"
+    ],
+    "a": "0.50 meters",
+    "e": "Freeboard physically protects the canal from catastrophic bank overtopping due to waves or sudden flow surges. Standard design codes strictly specify a 0.50-meter freeboard for medium/minor canals, increasing to 0.75m or 1.0m for massive main canals."
+  },
+  {
+    "id": 44,
+    "q": "At a major river diversion headworks, the Divide Wall explicitly creates a deep, relatively calm pool of water immediately upstream of the canal head regulator. This highly specific physical zone is technically termed the:",
+    "o": [
+      "Stilling basin",
+      "Fish pocket",
+      "Silt pocket (or Under-sluice pocket)",
+      "Guide bank zone"
+    ],
+    "a": "Silt pocket (or Under-sluice pocket)",
+    "e": "The Divide Wall blocks the turbulent main river flow, creating a tranquil 'Silt Pocket' physically right in front of the canal entrance. This completely calm water forces heavy, rolling bed-load sediment to drop to the bottom, where the under-sluices can physically scour it away."
+  },
+  {
+    "id": 45,
+    "q": "To safely protect the deep structural foundations of Guide Banks or Groynes from catastrophic collapse during massive flood scouring, a flexible cover of heavy loose stones is physically laid horizontally on the riverbed at the toe of the slope. This is strictly termed the:",
+    "o": [
+      "Pitching face",
+      "Launching apron",
+      "Cut-off wall",
+      "Sheet pile"
+    ],
+    "a": "Launching apron",
+    "e": "During massive floods, the riverbed physically scours away deeply at the base of the structure. The loose stones of the 'Launching Apron' physically collapse and slide down (launch) into this scour hole, automatically armoring the newly exposed face and preventing the main embankment from washing away."
+  },
+  {
+    "id": 46,
+    "q": "While Canal Duty (D) measures land irrigated per unit discharge, the overall operational performance of an irrigation canal over an entire season is evaluated using the 'Capacity Factor'. This is mathematically defined as the strict ratio of the:",
+    "o": [
+      "Area irrigated to the volume of water supplied",
+      "Mean average discharge flowing in the canal to its maximum designed full-supply discharge capacity",
+      "Base period to the crop period",
+      "Actual area irrigated to the culturable command area"
+    ],
+    "a": "Mean average discharge flowing in the canal to its maximum designed full-supply discharge capacity",
+    "e": "A canal physically runs at maximum capacity only during peak demand periods. For the rest of the season, it runs partially full or is closed. The Capacity Factor perfectly mathematically gauges this utilization rate by dividing the average physical discharge by the absolute maximum design discharge."
+  },
+  {
+    "id": 47,
+    "q": "In standard agricultural terminology utilized in the Indian subcontinent, the agricultural cropping season physically driven by the summer monsoon rains, heavily cultivating high-water crops like Rice, is strictly designated as the:",
+    "o": [
+      "Rabi season",
+      "Zaid season",
+      "Kharif season",
+      "Paleo season"
+    ],
+    "a": "Kharif season",
+    "e": "The 'Kharif' season physically spans the hot, wet monsoon months from roughly June to October. It is completely dominated by crops like Rice, Maize, and Cotton. The subsequent dry winter season (October to March) is strictly defined as the 'Rabi' season (Wheat, Barley)."
+  },
+  {
+    "id": 48,
+    "q": "Soil physically holds moisture in three primary states. Which specific physical category of soil moisture is exclusively held against the pull of gravity by surface tension, and is the absolute most important source of water readily available for plant root absorption?",
+    "o": [
+      "Gravitational water",
+      "Capillary water",
+      "Hygroscopic water",
+      "Chemical water"
+    ],
+    "a": "Capillary water",
+    "e": "Gravitational water drains away instantly. Hygroscopic water is bonded so tightly to soil particles by molecular forces that roots cannot physically extract it. 'Capillary water' is perfectly held in the soil pores by surface tension, easily extractable, and vital for all plant survival."
+  },
+  {
+    "id": 49,
+    "q": "In minor cross-drainage works, if a very small, insignificant natural surface drain intersects a massive irrigation canal, the drain's water is physically allowed to mix directly into the canal through an opening in the bank. This specific structure is simply termed an:",
+    "o": [
+      "Aqueduct",
+      "Inlet",
+      "Escape",
+      "Level crossing"
+    ],
+    "a": "Inlet",
+    "e": "When the incoming natural drainage volume is physically negligible and completely silt-free, it is highly uneconomical to build an entire overpass or underpass. An 'Inlet' structure simply allows the small drainage to physically drop straight into the canal and flow with the irrigation water."
+  },
+  {
+    "id": 50,
+    "q": "While Drip (Trickle) irrigation systems are structurally the most water-efficient worldwide, they suffer from one massive operational vulnerability. To physically prevent the microscopic emitter nozzles from completely clogging, which critical component must be strictly installed?",
+    "o": [
+      "A high-pressure booster pump",
+      "A high-efficiency physical filtration unit at the system head",
+      "A massive overhead storage tank",
+      "Heavy duty stainless steel pipes"
+    ],
+    "a": "A high-efficiency physical filtration unit at the system head",
+    "e": "Drip emitters physically dispense water through extremely tiny micro-pores. Even microscopic suspended silt, sand, or algae present in the water will instantly physically jam these pores. A robust, multi-stage physical filtration unit is absolutely mandatory to prevent total system failure."
+  },
+
+
+
+  {
+    "id": 51,
+    "q": "A distributary canal commands a Culturable Command Area (CCA) of 1000 hectares. If the strictly calculated Duty for the crop at the head of the distributary is 1000 hectares/cumec, what is the required design discharge?",
+    "o": [
+      "1.0 cumec",
+      "10.0 cumecs",
+      "100.0 cumecs",
+      "0.1 cumec"
+    ],
+    "a": "1.0 cumec",
+    "e": "Discharge Q = Area / Duty. Q = 1000 ha / 1000 ha/cumec = 1.0 cumec."
+  },
+  {
+    "id": 52,
+    "q": "Which of the following irrigation methods is explicitly designed for crops planted in distinct rows, such as potatoes, maize, and sugarcane, where water physically flows only in narrow channels between the rows?",
+    "o": [
+      "Border strip irrigation",
+      "Check basin irrigation",
+      "Furrow irrigation",
+      "Sprinkler irrigation"
+    ],
+    "a": "Furrow irrigation",
+    "e": "In furrow irrigation, water strictly flows through narrow trenches (furrows) dug between the crop rows. Water seeps laterally into the ridges where the roots are, keeping the plant stems dry and saving massive amounts of water compared to flooding."
+  },
+  {
+    "id": 53,
+    "q": "To physically measure the exact amount of water lost strictly due to Evapotranspiration (Consumptive Use) from a growing crop in a controlled field setting, which specialized scientific instrument is universally utilized?",
+    "o": [
+      "Tensiometer",
+      "Lysimeter",
+      "Hygrometer",
+      "Infiltrometer"
+    ],
+    "a": "Lysimeter",
+    "e": "A Lysimeter is a buried physical tank filled with soil and planted with the crop. By rigorously measuring the exact volume of water added and the exact volume draining out the bottom, the water strictly consumed by evapotranspiration is precisely calculated."
+  },
+  {
+    "id": 54,
+    "q": "In the mathematical evaluation of 'Irrigation Efficiencies', the 'Water Storage Efficiency' is strictly defined as the ratio of the volume of water:",
+    "o": [
+      "Stored in the root zone to the water delivered to the field",
+      "Needed to bring the root zone soil strictly to field capacity to the water actually stored in the root zone",
+      "Actually stored in the root zone to the water theoretically needed to bring the root zone to field capacity",
+      "Diverted from the river to the water stored"
+    ],
+    "a": "Actually stored in the root zone to the water theoretically needed to bring the root zone to field capacity",
+    "e": "Storage efficiency mathematically evaluates how completely the farmer filled the available soil moisture deficit. It is the ratio of water physically stored in the root zone to the theoretical water required to perfectly fill the root zone up to its field capacity."
+  },
+  {
+    "id": 55,
+    "q": "In Khosla's Theory for the design of a weir or barrage built on a permeable alluvial foundation, the highly critical parameter known as the 'Exit Gradient' is mathematically deemed to be safe strictly if it is:",
+    "o": [
+      "Greater than the critical exit gradient",
+      "Less than the critical exit gradient by a designated factor of safety",
+      "Exactly equal to 1.0",
+      "Exactly equal to the specific gravity of the soil"
+    ],
+    "a": "Less than the critical exit gradient by a designated factor of safety",
+    "e": "The critical exit gradient physically causes the soil particles to boil up (piping failure). Khosla proved that for structural safety, the actual mathematically calculated exit gradient at the downstream end must be strictly restricted to a safe fraction (e.g., 1/5 to 1/6) of the critical value."
+  },
+  {
+    "id": 56,
+    "q": "In the cross-sectional geometry of an unlined earthen irrigation canal, horizontal step-like flat terraces physically provided at ground level between the top edge of the canal cutting and the inner toe of the spoil bank are strictly termed:",
+    "o": [
+      "Berms",
+      "Dowels",
+      "Freeboards",
+      "Ramps"
+    ],
+    "a": "Berms",
+    "e": "Berms physically protect the canal banks from severe erosion and sloughing. They strictly provide a horizontal buffer space, increasing the physical distance between the flowing water and the heavy earthen spoil banks deposited during excavation."
+  },
+  {
+    "id": 57,
+    "q": "According to standard unlined canal design principles, what is the universally accepted strict empirical formula relating the side slopes of an earthen channel to the soil type?",
+    "o": [
+      "1H : 1V for all soils",
+      "0.5H : 1V for soft clays and 2H : 1V for stiff clays",
+      "1.5H : 1V for average loamy soils (in cutting)",
+      "Vertical slopes for all sandy soils"
+    ],
+    "a": "1.5H : 1V for average loamy soils (in cutting)",
+    "e": "The angle of repose dictates the safe physical side slope. For average loamy agricultural soils, an excavation (cutting) is safely maintained at a strict 1.5 Horizontal to 1.0 Vertical slope. Loose sands require much flatter slopes (2H:1V or 3H:1V)."
+  },
+  {
+    "id": 58,
+    "q": "When designing a massive barrage on a wide alluvial river, the physical difference in elevation between the maximum High Flood Level (HFL) upstream of the barrage and the normal HFL downstream of the barrage prior to construction is technically termed:",
+    "o": [
+      "Head loss",
+      "Afflux",
+      "Hydraulic jump",
+      "Freeboard"
+    ],
+    "a": "Afflux",
+    "e": "Afflux is the strict physical rise in the river's high water level extending upstream, exclusively caused by the structural obstruction of the barrage piers and crest constructed across the riverbed."
+  },
+  {
+    "id": 59,
+    "q": "In standard Hill Irrigation engineering (like in the topography of Nepal), a specialized hydraulic structure designed to safely drop the canal water over a very steep rocky cliff or terrace, utilizing a completely closed vertical or highly inclined pipe, is termed a:",
+    "o": [
+      "Sarda fall",
+      "Chute spillway",
+      "Pipe drop (or Drop pipe)",
+      "Ogee fall"
+    ],
+    "a": "Pipe drop (or Drop pipe)",
+    "e": "In hilly terrain, constructing elaborate concrete stepped falls is often economically and physically impossible on near-vertical cliffs. A closed 'Pipe Drop' (often utilizing tough HDPE pipes) safely and securely transports the water down the severe elevation drop without causing catastrophic slope erosion."
+  },
+  {
+    "id": 60,
+    "q": "In river training and bank protection works, 'Permeable Groynes' (or permeable spurs) are explicitly constructed to:",
+    "o": [
+      "Violently and completely deflect the entire river current to the opposite bank",
+      "Act as a solid, watertight concrete barrier against floods",
+      "Physically slow down the water velocity near the bank, forcing the heavy suspended silt to safely deposit and build up the bank",
+      "Generate hydroelectric power"
+    ],
+    "a": "Physically slow down the water velocity near the bank, forcing the heavy suspended silt to safely deposit and build up the bank",
+    "e": "Permeable groynes (like tree groynes or bamboo screens) do not completely block the water. They physically dampen the kinetic energy of the flow passing through them. The sluggish velocity forces the water to drop its sediment, naturally reclaiming the eroded bank."
+  },
+  {
+    "id": 61,
+    "q": "For agricultural crops, the 'Base Period' is mathematically and physically defined strictly as the time interval between the:",
+    "o": [
+      "Sowing of the seeds and the final harvesting of the crop",
+      "First watering before sowing (Paleo) and the final watering before harvesting",
+      "Sowing of the seeds and the first watering (Kor watering)",
+      "Time the crop emerges from the soil until the flowers bloom"
+    ],
+    "a": "First watering before sowing (Paleo) and the final watering before harvesting",
+    "e": "While the 'Crop Period' spans from physical sowing to harvesting, the 'Base Period' is strictly an irrigation term. It measures the exact duration the canal must supply water, starting from the very first physical watering (Paleo/Kor) to the absolute last watering before the harvest."
+  },
+  {
+    "id": 62,
+    "q": "In the mathematical calculation of crop water requirements, what is the universally accepted approximate Delta (Δ) requirement for the physical growth of Sugarcane over its long base period?",
+    "o": [
+      "30 cm to 40 cm",
+      "60 cm to 80 cm",
+      "120 cm to 150 cm",
+      "250 cm to 300 cm"
+    ],
+    "a": "120 cm to 150 cm",
+    "e": "Sugarcane is a massive, perennial cash crop with a base period exceeding 300 days. Due to massive evapotranspiration over this long duration, its total physical water depth requirement (Delta) is extremely high, strictly averaging 120 cm to 150 cm."
+  },
+  {
+    "id": 63,
+    "q": "In estimating the transit losses in a long earthen irrigation canal, the physical loss due to pure Evaporation from the exposed water surface is generally observed to be what proportion of the total transit losses?",
+    "o": [
+      "Less than 10%",
+      "Exactly 50%",
+      "Roughly 75%",
+      "Greater than 90%"
+    ],
+    "a": "Less than 10%",
+    "e": "While the sun heavily evaporates water from the surface, the physical volume lost is mathematically tiny compared to the massive volume that percolates into the ground. Seepage accounts for 90-95% of the total loss, leaving Evaporation strictly responsible for less than 10%."
+  },
+  {
+    "id": 64,
+    "q": "In hydraulic design using Chezy's fundamental formula V = C × √(RS), what are the exact physical dimensions of the Chezy's coefficient 'C'?",
+    "o": [
+      "Dimensionless (L^0 T^0)",
+      "L^(1/2) T^(-1)",
+      "L^(1/3) T^(-1)",
+      "L T^(-2)"
+    ],
+    "a": "L^(1/2) T^(-1)",
+    "e": "V has dimensions L T^(-1). R is length (L), S is dimensionless. Therefore, √(RS) has dimensions L^(1/2). For the equation to balance (L T^(-1) = C × L^(1/2)), the coefficient 'C' must mathematically possess the physical dimensions of L^(1/2) T^(-1)."
+  },
+  {
+    "id": 65,
+    "q": "In the layout of a massive river diversion headworks, the 'Pond Level' is specifically and mathematically defined as the:",
+    "o": [
+      "Water level in the canal during the dry season",
+      "Minimum water level in the river before the barrage was built",
+      "Physical water surface elevation maintained in the river immediately upstream of the barrage required to safely feed the canal at its Full Supply Level (FSL)",
+      "Highest flood level ever recorded"
+    ],
+    "a": "Physical water surface elevation maintained in the river immediately upstream of the barrage required to safely feed the canal at its Full Supply Level (FSL)",
+    "e": "The primary purpose of the barrage gates is to artificially back up the river water. The 'Pond Level' is the strict minimum elevation this backup must reach to physically push the designed full discharge into the canal head regulator under the required driving head."
+  },
+  {
+    "id": 66,
+    "q": "In Hill Irrigation systems, a 'Proportioning Distributor' (or Sancho) is a highly specialized, rigidly constructed masonry structure designed explicitly to:",
+    "o": [
+      "Filter out heavy boulders and silt",
+      "Drop the water safely down a vertical cliff",
+      "Automatically and physically divide the flowing canal water into two or more specific fractional discharges regardless of flow fluctuations",
+      "Measure the exact velocity of the water"
+    ],
+    "a": "Automatically and physically divide the flowing canal water into two or more specific fractional discharges regardless of flow fluctuations",
+    "e": "In community-managed hill irrigation, water must be fairly shared. A proportioning distributor utilizes a carefully leveled, sharp-crested wooden or concrete weir physically divided by thin splitter walls. If the flow halves, the physical fraction going to each branch mathematically remains exactly the same."
+  },
+  {
+    "id": 67,
+    "q": "To safely and physically measure the continuous discharge of a small open irrigation channel in the field without causing massive head loss, which hydraulic structure is universally considered the most accurate and practical?",
+    "o": [
+      "A massive concrete gravity dam",
+      "A Parshall Flume",
+      "A vertical Sarda Fall",
+      "A highly constricted syphon"
+    ],
+    "a": "A Parshall Flume",
+    "e": "A Parshall Flume physically constricts the channel width and drops the bed slightly, forcing the water through 'critical depth'. By mathematically measuring the water depth at just one specific point upstream of the throat, the exact discharge is precisely read from a standard chart with very minimal permanent head loss."
+  },
+  {
+    "id": 68,
+    "q": "In River Training engineering, the mathematical parameter 'Meander Length' (Ml) of a highly tortuous river is strictly defined as the physical straight-line axial distance between:",
+    "o": [
+      "The outer banks of two successive loops",
+      "The crests of two consecutive river bends pointing in the exact same direction",
+      "The deepest scouring points in the riverbed",
+      "The source of the river and its mouth"
+    ],
+    "a": "The crests of two consecutive river bends pointing in the exact same direction",
+    "e": "The meander length represents one complete physical wavelength of the river's winding path. It is explicitly measured as the straight, direct axial distance from the peak (crest) of one loop to the peak of the very next loop that curves in the exact same direction."
+  },
+  {
+    "id": 69,
+    "q": "According to Bligh's classical Creep Theory for seepage under a barrage foundation, the percolating water strictly follows the physical outline of the concrete base. The 'Creep Length' (L) is mathematically defined as the:",
+    "o": [
+      "Direct straight-line distance from the upstream toe to the downstream toe",
+      "Total sum of all vertical path lengths plus all horizontal path lengths physically in contact with the structure's base",
+      "Only the vertical path lengths driven by sheet piles",
+      "Only the horizontal path length of the concrete floor"
+    ],
+    "a": "Total sum of all vertical path lengths plus all horizontal path lengths physically in contact with the structure's base",
+    "e": "Bligh assumed water 'creeps' along the exact physical contact profile between the concrete and the soil. The total creep length is strictly the simple arithmetic sum of every vertical drop, horizontal run, and vertical rise the water must physically traverse from upstream to downstream."
+  },
+  {
+    "id": 70,
+    "q": "What was the major physical and mathematical flaw in Bligh's Creep Theory that strictly led A.N. Khosla to develop his advanced theory of independent variables?",
+    "o": [
+      "Bligh assumed water flows faster in clay than in sand",
+      "Bligh mathematically gave equal weight to both horizontal and vertical creep lengths regarding their effectiveness in reducing uplift pressure",
+      "Bligh completely ignored the existence of sheet piles",
+      "Bligh assumed the river was perfectly dry"
+    ],
+    "a": "Bligh mathematically gave equal weight to both horizontal and vertical creep lengths regarding their effectiveness in reducing uplift pressure",
+    "e": "Khosla rigorously proved through electrical analogy and mathematics that vertical cut-offs (sheet piles) are far more effective at killing seepage pressure than horizontal floors. Bligh's strict 1:1 weighting was physically inaccurate and led to unsafe designs."
+  },
+  {
+    "id": 71,
+    "q": "In the operation of an irrigation canal system, the 'Time Factor' is mathematically defined as the strict ratio of the:",
+    "o": [
+      "Total base period to the total crop period",
+      "Number of days the canal physically ran to the total number of days in the irrigation period",
+      "Actual area irrigated to the culturable command area",
+      "Discharge at the head to the discharge at the tail"
+    ],
+    "a": "Number of days the canal physically ran to the total number of days in the irrigation period",
+    "e": "Canals are physically rotated (turned on and off) to manage limited water. The Time Factor mathematically quantifies this. If a canal period is 30 days, but it physically runs for only 15 days, its strict Time Factor is 15/30 = 0.5."
+  },
+  {
+    "id": 72,
+    "q": "Which localized physical method is universally adopted in modern agriculture to rapidly reclaim an irrigation field that has become severely barren and 'Alkaline' (high in Sodium salts)?",
+    "o": [
+      "Adding massive quantities of Portland cement",
+      "Applying chemical Gypsum to the soil followed by heavy leaching with fresh water",
+      "Planting deep-rooted trees",
+      "Covering the field with plastic sheets to prevent evaporation"
+    ],
+    "a": "Applying chemical Gypsum to the soil followed by heavy leaching with fresh water",
+    "e": "Alkaline soils (sodic soils) destroy soil structure. Chemical Gypsum (Calcium Sulfate) is physically applied. The Calcium physically replaces the harmful Sodium on the clay particles. Heavy fresh water is then applied to completely leach the displaced sodium deep below the root zone."
+  },
+  {
+    "id": 73,
+    "q": "In standard irrigation terminology, the 'Culturable Command Area' (CCA) of a canal network mathematically explicitly EXCLUDES which of the following physical areas?",
+    "o": [
+      "Fields currently left fallow (unplanted) by farmers",
+      "Vast tracts of fertile but currently un-irrigated agricultural land",
+      "Uncultivable physical areas like rocky outcrops, swamps, villages, and paved roads lying within the gross boundary",
+      "Orchards and fruit gardens"
+    ],
+    "a": "Uncultivable physical areas like rocky outcrops, swamps, villages, and paved roads lying within the gross boundary",
+    "e": "The Gross Command Area (GCA) encompasses everything within the canal's physical boundary. The CCA strictly subtracts all areas where agriculture is physically or legally impossible (villages, roads, barren rocks), leaving only the area that can potentially be cultivated."
+  },
+  {
+    "id": 74,
+    "q": "When a massive earthen dam is constructed for irrigation storage, a specific physical zone inside the dam body is constructed using highly impermeable clay. This central vertical or inclined core is strictly designed to:",
+    "o": [
+      "Bear the entire structural weight of the dam",
+      "Provide a smooth surface for vehicles to drive on",
+      "Physically act as an absolute watertight barrier to prevent heavy seepage through the dam body",
+      "Filter the water before it reaches the turbines"
+    ],
+    "a": "Physically act as an absolute watertight barrier to prevent heavy seepage through the dam body",
+    "e": "Earthen dams are inherently porous. To prevent catastrophic seepage and piping failure, a highly compacted, impermeable 'Clay Core' is physically built into the center, forcing the phreatic line down and keeping the downstream face perfectly dry."
+  },
+  {
+    "id": 75,
+    "q": "In the physical layout of a massive canal network, what is the correct hierarchical order of the canals as water physically flows from the river to the farmer's field?",
+    "o": [
+      "Main Canal -> Branch Canal -> Distributary -> Minor -> Watercourse",
+      "Branch Canal -> Main Canal -> Watercourse -> Minor -> Distributary",
+      "Main Canal -> Distributary -> Branch Canal -> Minor -> Watercourse",
+      "Minor -> Distributary -> Branch Canal -> Main Canal -> Watercourse"
+    ],
+    "a": "Main Canal -> Branch Canal -> Distributary -> Minor -> Watercourse",
+    "e": "The Main Canal takes off from the barrage. It splits into Branch Canals, which split into Distributaries (Major and Minor). The Minors finally physically discharge water through an outlet into the farmer's private Watercourse (field channel)."
+  },
+  {
+    "id": 76,
+    "q": "For designing the structural thickness of the concrete floor of a diversion weir, the absolute maximum 'Uplift Pressure' from subsurface seepage occurs physically when the river is:",
+    "o": [
+      "Flowing at its absolute Maximum High Flood Level (HFL)",
+      "Completely dry downstream and the upstream pond is held perfectly at the maximum Pond Level",
+      "Flowing steadily at its average annual discharge",
+      "Completely frozen over in winter"
+    ],
+    "a": "Completely dry downstream and the upstream pond is held perfectly at the maximum Pond Level",
+    "e": "Uplift pressure mathematically depends on the differential head between upstream and downstream. The absolute worst-case scenario occurs when the upstream gates hold water at the highest Pond Level, while the downstream riverbed is physically bone dry (zero counter-weight water)."
+  },
+  {
+    "id": 77,
+    "q": "To physically and safely stabilize steep, eroding riverbanks in Hill Irrigation regions, 'Gabion Walls' are heavily utilized instead of rigid concrete walls because Gabions possess the crucial structural property of being:",
+    "o": [
+      "Highly rigid and brittle",
+      "Completely watertight and impermeable to seepage",
+      "Physically flexible and highly permeable to groundwater flow",
+      "Lighter than water and able to float"
+    ],
+    "a": "Physically flexible and highly permeable to groundwater flow",
+    "e": "Gabions are wire mesh baskets filled with loose stones. In unstable hill terrain, they safely deform and settle without breaking (flexibility), and their voids allow trapped groundwater to freely pour out (permeability), physically preventing the catastrophic buildup of hydrostatic pressure behind the wall."
+  },
+  {
+    "id": 78,
+    "q": "A 'Syphon Aqueduct' physically differs structurally from a standard Aqueduct primarily because in a Syphon Aqueduct, the natural drainage stream:",
+    "o": [
+      "Flows over the top of the irrigation canal",
+      "Is physically forced to flow under hydrostatic pressure (syphonic action) because its High Flood Level (HFL) is higher than the bottom of the canal trough",
+      "Is completely diverted into a different river valley",
+      "Mixes completely with the canal water"
+    ],
+    "a": "Is physically forced to flow under hydrostatic pressure (syphonic action) because its High Flood Level (HFL) is higher than the bottom of the canal trough",
+    "e": "In a standard Aqueduct, the stream flows freely at atmospheric pressure below the trough. If there isn't enough clearance and the stream's HFL touches the trough, the stream bed is physically dropped, forcing the stream to flow under severe pressure (syphon effect) beneath the canal."
+  },
+  {
+    "id": 79,
+    "q": "In calculating the 'Intensity of Irrigation' for a specific canal system, this mathematical parameter strictly defines the:",
+    "o": [
+      "Total depth of water applied per day",
+      "Percentage of the Culturable Command Area (CCA) proposed to be physically irrigated during a specific crop season",
+      "Speed at which water physically infiltrates the soil",
+      "Total number of irrigations required for one crop"
+    ],
+    "a": "Percentage of the Culturable Command Area (CCA) proposed to be physically irrigated during a specific crop season",
+    "e": "A canal is rarely designed to irrigate 100% of the land simultaneously due to water scarcity and crop rotation. The Intensity of Irrigation strictly dictates what physical percentage of the total CCA will actually receive water during the Kharif or Rabi season."
+  },
+  {
+    "id": 80,
+    "q": "When a massive main irrigation canal physically requires to be completely emptied for urgent structural repairs or routine desilting, the water is safely drained out using a specialized structure called a:",
+    "o": [
+      "Canal Fall",
+      "Cross Regulator",
+      "Canal Escape (or Scour Sluice)",
+      "Silt Excluder"
+    ],
+    "a": "Canal Escape (or Scour Sluice)",
+    "e": "A Canal Escape is a physical gate structure built into the bank of the canal, connecting to a natural drainage. When opened, it completely and safely dumps the massive volume of water in the canal, allowing engineers physical access to the dry canal bed for maintenance."
+  }
+
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
+            btn.classList.add('wrong');
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>
+

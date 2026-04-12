@@ -276,7 +276,7 @@
     <!-- SETUP SCREEN -->
     <div id="screen-setup" class="screen active-screen">
         <div class="clay-card">
-            <h2>Welcome to Gen Z Revision</h2>
+            <h2>Welcome to Gen-Z Revision Method</h2>
             <div class="warning-text" id="login-error" style="display: none;"></div>
             
             <p>Enter details to create your account.</p>
@@ -302,7 +302,7 @@
                 <option value="Other">Other</option>
             </select>
 
-            <input type="number" id="age" class="clay-input" placeholder="Age (15-45)" min="15" max="45" required>
+            <input type="number" id="age" class="clay-input" placeholder="Age (18-40)" min="18" max="40" required>
             
             <button id="login-btn" class="clay-btn" onclick="handleLogin()">START LEARNING</button>
         </div>
@@ -316,7 +316,7 @@
                 <div class="edit-badge">✏️</div>
             </div>
 
-            <h4 style="color: var(--accent-pink); margin-top: 5px;">Let's Make learning and Revision More Engaging and Effective <br>Gen-Z method</h4>
+            <h4 style="color: var(--accent-pink); margin-top: 5px;">Our Goal: To Make Your Memorization and Revision More interactive and interesting <br>Gen-Z method <br> <br>Not To forget in Exam Hall </h4>
             
             <div class="animated-announcement">
                  Daily Updates: New Visual Animations of Exam Centric Topics<br>For Fast and Deep Memorization
@@ -327,16 +327,16 @@
             <div id="timer-display">Loading...</div>
 
             <div class="grid-container">
-                <button class="clay-btn full-width-btn" onclick="openSubject(0, 'Old Loksewa First Paper Collections')">📚 Old Loksewa First Paper Collections</button>
+                <button class="clay-btn full-width-btn" onclick="openSubject(0, 'Old Loksewa First Paper Collections')">📚 Old Loksewa First Paper Solutions [Free]</button>
                 
                 <!-- NEW SECOND PAPER PORTAL -->
-                <button class="clay-btn full-width-btn second-paper-btn" onclick="switchScreen('screen-second-paper')">📚 Second Paper Question Collections</button>
+                <button class="clay-btn full-width-btn second-paper-btn" onclick="switchScreen('screen-second-paper')">📚 Second Paper Question Collections [Free]</button>
                 
-                <button class="clay-btn free-subject" onclick="openSubject(1, 'Surveying')">Surveying</button>
-                <button class="clay-btn free-subject" onclick="openSubject(2, 'Construction Materials')">Construction Materials</button>
-                
+                <!-- Updated FREE SUBJECTS -->
+                <button class="clay-btn free-subject" onclick="openSubject(1, 'Surveying')">Surveying [Free]</button>
+                <button class="clay-btn free-subject" onclick="openSubject(2, 'Construction Materials')">Construction Materials [Free]</button>
                 <button class="clay-btn" onclick="openSubject(3, 'Mechanics of Structure')">Mechanics of Structure</button>
-                <button class="clay-btn" onclick="openSubject(4, 'Hydraulics')">Hydraulics</button>
+                <button class="clay-btn free-subject" onclick="openSubject(4, 'Hydraulics')">Hydraulics [Free]</button>
                 <button class="clay-btn" onclick="openSubject(5, 'Soil Mechanics')">Soil Mechanics</button>
                 <button class="clay-btn" onclick="openSubject(6, 'Structural Design')">Structural Design</button>
                 <button class="clay-btn" onclick="openSubject(7, 'Building Construction Tech')">Building Construction</button>
@@ -344,11 +344,10 @@
                 <button class="clay-btn" onclick="openSubject(9, 'Irrigation Engineering')">Irrigation Engineering</button>
                 <button class="clay-btn" onclick="openSubject(10, 'Highway Engineering')">Highway Engineering</button>
                 <button class="clay-btn" onclick="openSubject(11, 'Estimating and Costing')">Estimating & Costing</button>
-                <button class="clay-btn free-subject" onclick="openSubject(12, 'Construction Management')">Construction Management</button>
-
-                </div>
-
-                <div class="full-width animated-announcement" style="margin-top: 25px;">
+                <button class="clay-btn" onclick="openSubject(12, 'Construction Management')">Construction Management</button>
+            </div>
+            
+            <div class="full-width animated-announcement" style="margin-top: 25px;">
                 Except Above Topics, यदि तपाईंहरूलाई कुनै प्रश्नको Answer याद गर्न समय लाग्छ वा परीक्षा हलमा बिर्सिने खाल को प्रश्न छन भने हामीलाई प्रश्न पठाउनुहोस् ।  
                 हामी त्यस Boring उत्तरलाई Interesting तरिकाले Visual, Audio, Animation मार्फत Deep रूपमा Memorization र Clear बनाइदिनेछौं <br> Whatsapp Number : 9865637898
             </div>
@@ -359,8 +358,10 @@
                 यदि तपाईंले Bottom मा Sub topics फेला पार्नुभएन भने, top right side को 3 dots मा Click गरेर Desktop Site turn on गर्नुहोस् र Desktop site Enable (tick) गर्नुहोस्।    <br><br> You can Turn on OR off Desktop site as per Your need.. if any Confusion Whatsapp Number : 9865637898
             </div>
             <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 25px; width: 100%;">
-    <img src="1.png" alt="Promo 1" style="width: 100%; border-radius: 15px; box-shadow: var(--clay-shadow-out); object-fit: cover;">
-                
+                <img src="1.png" alt="Promo 1" style="width: 100%; border-radius: 15px; box-shadow: var(--clay-shadow-out); object-fit: cover;">
+                <img src="2.png" alt="Promo 2" style="width: 100%; border-radius: 15px; box-shadow: var(--clay-shadow-out); object-fit: cover;">
+                <img src="3.png" alt="Promo 3" style="width: 100%; border-radius: 15px; box-shadow: var(--clay-shadow-out); object-fit: cover;">
+                <img src="4.png" alt="Promo 4" style="width: 100%; border-radius: 15px; box-shadow: var(--clay-shadow-out); object-fit: cover;">
             </div>
         </div>
     </div>
@@ -402,19 +403,20 @@
     <div id="payment-modal" class="screen">
         <div class="clay-card">
             <h3>Subject Locked! Unlock Premium</h3>
-            <h2 style="color: #ff4757;"><del>Rs 500</del> ✂️ Rs. 198 Only!</h2>
+            <h2 style="color: #ff4757;"><del>Rs 500</del> ✂️ Rs. 189 Only!</h2>
             
             <div style="margin: 20px 0;">
                 <p style="color:#2ecc71; font-weight:bold; margin: 5px 0;">🚀 High Quality Content</p>
-                <p style="color:#ff6b6b; font-weight:bold; margin: 5px 0;">🧠 Deep Learning & Memorization</p>
-                <p style="color:#48dbfb; font-weight:bold; margin: 5px 0;">🎮 Gamified Interactive Quizzes</p>
+                <p style="color:#ff6b6b; font-weight:bold; margin: 5px 0;">🧠 Permanent Learning & Deep Memorization</p>
+                <p style="color:#48dbfb; font-weight:bold; margin: 5px 0;">🎮 Gamified Interactive Sessions</p>
                 <p style="color:#ff9f43; font-weight:bold; margin: 5px 0;">🎧 Crisp Audio Explanations</p>
+                <p style="color:#2ecc71; font-weight:bold; margin: 5px 0;">💡 लोकसेवा Exam Hall मा बिर्सिन नदिन</p>
             </div>
 
             <img src="esewa-qr.png" alt="QR CODE" style="width: 250px; height: 250px; background: #ddd; margin: 15px auto; border-radius: 10px; display: block; object-fit: contain;">
             
             <div style="max-width: 400px; margin: 0 auto;">
-                <a href="https://wa.me/qr/4KGVE6QVMCTON1" target="_blank" style="text-decoration: none;">
+                <a href="https://wa.me/qr/O7FO3PRTOUFGO1" target="_blank" style="text-decoration: none;">
                     <button class="clay-btn whatsapp-btn">📲 Send Screenshot via WhatsApp</button>
                 </a>
                 <p style="font-size: 0.8em; color: #888; margin-top: 15px;">Admin will instantly unlock your account after receiving the screenshot.</p>
@@ -442,9 +444,9 @@
 
         // TARGETED SUBTOPICS FOR RAINBOW TEXT
         const coloredTopics = [
-            "1.6.1", "1.5.2", "1.5.1", "1.4.6", "1.4.3", "1.3.2", "1.3.3", "1.2.3",
+            "0.1.1", "0.1.2", "0.1.3", "0.1.4", "0.1.5", "0.1.6", "0.1.7", "0.1.8", "0.1.9", "0.2.0", "0.2.1", "0.2.2", "0.2.3", "1.6.1", "1.5.2", "1.5.1", "1.4.6", "1.4.3", "1.3.2", "1.3.3", "1.2.3",
             "12.5.4", "12.5.3", "12.5.2", "12.4.4", "12.4.1", "12.3.8", "12.3.6", "12.3.1", 
-            "12.1.3", "12.1.2", "2.1.1", "2.2.2", "2.4.1", "2.4.2", "2.5.2", "3.1.2", 
+            "12.1.3", "12.1.2", "2.1.1", "2.2.2", "2.2.3", "2.4.1", "2.4.2", "2.5.2", "3.1.2", 
             "3.2.2", "4.1.3", "4.2.1", "4.4.1", "5.1.2", "5.2.1", "5.2.2", "5.3.2", 
             "5.3.3", "5.4.1", "5.5.3", "5.6.1", "6.1.2", "6.2.3", "6.3.2", "6.4.1", 
             "6.4.3", "7.1.2", "7.1.3", "7.1.4", "7.2.2", "7.4.2", "7.4.7", "7.5.3", 
@@ -582,14 +584,13 @@
                 const result = await response.json();
                 
                 if (result.status === "exists") {
-                    errorDiv.innerHTML = result.message + " <br><br> <a href='https://wa.me/qr/4KGVE6QVMCTON1' target='_blank' style='color:#1e90ff'>Click here to message Admin</a>";
+                    errorDiv.innerHTML = result.message + " <br><br> <a href='https://wa.me/qr/O7FO3PRTOUFGO1' target='_blank' style='color:#1e90ff'>Click here to message Admin</a>";
                     errorDiv.style.display = 'block';
                     btn.innerText = "START LEARNING";
                 } else if (result.status === "success") {
                     localStorage.setItem("userPhone", phone);
                     localStorage.setItem("userName", name);
                     localStorage.setItem("userQual", qual);
-                    localStorage.setItem("trialStart", Date.now().toString()); 
                     loadProfile();
                     switchScreen('screen-home');
                 } else {
@@ -611,21 +612,13 @@
         }
 
         function checkTimerUI() {
-            const trialStart = parseInt(localStorage.getItem('trialStart') || '0');
-            const trialDuration = 6 * 60 * 1000; // 3 mins
-            const now = Date.now();
-            const timeElapsed = now - trialStart;
             const display = document.getElementById('timer-display');
 
             if(localStorage.getItem('paidAccessValid') === 'true') {
-                display.innerText = "💎 Premium Active";
-                display.style.color = "#1dd1a1";
-            } else if (timeElapsed < trialDuration) {
-                let minsLeft = Math.ceil((trialDuration - timeElapsed) / 60000);
-                display.innerText = `⏳ All Core Subjects Free: ${minsLeft} minutes left`;
+                display.innerText = "💎 Premium Active - All Subjects Unlocked";
                 display.style.color = "#1dd1a1";
             } else {
-                display.innerText = "❌ Trial Ended. Old Loksewa & Free Subjects Unlocked.";
+                display.innerText = "🔒 Free Subjects Only. Upgrade for Full Access.";
                 display.style.color = "#ff4757";
             }
         }
@@ -711,22 +704,10 @@
         }
 
         // ==========================================
-        // NEW: SECOND PAPER & OLD PAPER LOGIC (Shared Inverse Lock)
+        // NEW: SECOND PAPER LOGIC (Now COMPLETELY FREE FOREVER)
         // ==========================================
         async function openSecurePaper(fileName) {
-            // Apply 6-minute inverse lock logic (locked first 3 mins, then free forever)
-            const trialStart = parseInt(localStorage.getItem('trialStart') || '0');
-            const trialDuration = 6 * 60 * 1000;
-            const timeElapsed = Date.now() - trialStart;
-
-            if (localStorage.getItem("paidAccessValid") !== "true") {
-                if (timeElapsed < trialDuration) {
-                    alert("⏳ Second Paper Collections are locked during the initial 6-minute trial. They will become permanently FREE afterwards!");
-                    return;
-                }
-            }
-
-            // Load Secure HTML
+            // Load Secure HTML directly (No lock)
             const viewer = document.getElementById('secure-viewer-overlay');
             const iframe = document.getElementById('secure-iframe');
             viewer.style.display = 'block';
@@ -744,37 +725,20 @@
 
 
         // ==========================================
-        // LIGHTNING FAST ACCESS CHECK (3 minute Logic)
+        // FAST ACCESS CHECK (NO TIMER)
         // ==========================================
         async function handleAccessLockCheckFast() {
             if (localStorage.getItem("paidAccessValid") === "true") {
                 return true; 
             }
 
-            const trialStart = parseInt(localStorage.getItem('trialStart') || '0');
-            const trialDuration = 6 * 60 * 1000; // 3 minutes
-            const now = Date.now();
-            const timeElapsed = now - trialStart;
-
-            // SUBJECT 0 LOGIC: Locked initially, FREE after 3 mins
-            if (currentSubjectId === 0) {
-                if (timeElapsed < trialDuration) {
-                    alert("⏳ Old Loksewa Papers are locked during the initial 6-minute trial. They will become permanently FREE afterwards!");
-                    switchScreen('screen-topics');
-                    return false;
-                }
-                return true; // Freely open after 3 mins!
-            }
-
-            // ALL OTHER SUBJECTS
-            const isAlwaysFree = [1, 2, 12].includes(currentSubjectId);
+            // FREE SUBJECTS: 0 (Old Loksewa), 1 (Surveying), 2 (Materials), 4 (Hydraulics)
+            const isAlwaysFree = [0, 1, 2, 4].includes(currentSubjectId);
+            
+            // These 4 are completely free unconditionally
             if (isAlwaysFree) return true;
 
-            if (timeElapsed < trialDuration) {
-                return true; // All Core subjects are free for first 3 mins
-            }
-
-            // Core subjects locked after 3 mins
+            // Everything else locked immediately
             switchScreen('payment-modal');
             return false;
         }
@@ -859,5 +823,4 @@
     </script>
 </body>
 </html>
-
 

@@ -1,0 +1,1438 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = 
+  [
+  {
+    "id": 1,
+    "q": "The primary and most fundamental objective of construction management is to successfully complete the project within the strictly defined limits of:",
+    "o": [
+      "Time, cost, and specified quality",
+      "Maximum labor utilization and minimum machinery",
+      "The client's absolute lowest possible budget",
+      "The fastest possible timeframe regardless of budget"
+    ],
+    "a": "Time, cost, and specified quality",
+    "e": "Construction management revolves entirely around the 'Iron Triangle' (or Triple Constraint). Every management decision is explicitly aimed at perfectly balancing the schedule (time), the budget (cost), and the technical specifications (quality)."
+  },
+  {
+    "id": 2,
+    "q": "In a standard construction project hierarchy, which specific organizational structure provides the most direct, unbroken line of command and is ideally suited for small, simple projects?",
+    "o": [
+      "Matrix organization",
+      "Functional organization",
+      "Line organization",
+      "Staff organization"
+    ],
+    "a": "Line organization",
+    "e": "Line organization (or military organization) is the simplest form. Authority flows in a strict, vertical straight line from the top executive directly down to the lowest worker, ensuring rapid decision-making and absolute discipline on small sites."
+  },
+  {
+    "id": 3,
+    "q": "On a public works construction site, what is the primary, daily administrative responsibility of the officially assigned Sub-Engineer (Overseer)?",
+    "o": [
+      "Sanctioning the total project budget",
+      "Drafting the legal conditions of the contract",
+      "Taking precise physical measurements of executed works and recording them in the Measurement Book",
+      "Hiring the contractor's daily labor force"
+    ],
+    "a": "Taking precise physical measurements of executed works and recording them in the Measurement Book",
+    "e": "The Sub-Engineer acts as the primary field representative. Their most critical financial and technical duty is explicitly measuring the exact quantities of work physically completed on-site and accurately logging them into the Measurement Book for contractor payment."
+  },
+  {
+    "id": 4,
+    "q": "If a Sub-Engineer identifies a contractor utilizing substandard materials that explicitly violate the technical specifications, their immediate strict procedural duty is to:",
+    "o": [
+      "Formally halt the specific work and immediately report the severe violation to the Assistant Engineer or Executive Engineer",
+      "Terminate the entire contract immediately",
+      "Deduct the cost of the materials from their own pocket",
+      "Ignore it if it doesn't affect the project deadline"
+    ],
+    "a": "Formally halt the specific work and immediately report the severe violation to the Assistant Engineer or Executive Engineer",
+    "e": "While the Sub-Engineer has the authority to reject bad materials and halt defective work, they do not have the legal authority to terminate contracts or impose massive financial penalties. They must immediately escalate the explicit violation to their superior engineers."
+  },
+  {
+    "id": 5,
+    "q": "In a traditional construction execution model, the formal, legally binding contractual relationship strictly exists between which two primary parties?",
+    "o": [
+      "The Engineer and the Contractor",
+      "The Owner and the Contractor",
+      "The Owner and the Sub-contractors",
+      "The Engineer and the Sub-contractors"
+    ],
+    "a": "The Owner and the Contractor",
+    "e": "The construction contract is a strict legal agreement signed exclusively between the Owner (the client paying for the work) and the Main Contractor. The Engineer acts as a third-party administrator and agent of the Owner, but is not a signatory to the construction contract itself."
+  },
+  {
+    "id": 6,
+    "q": "In the standard Tripartite relationship (Owner-Contractor-Engineer), what is the strict professional and ethical role of the Consulting Engineer?",
+    "o": [
+      "To maximize the contractor's profit margin",
+      "To legally represent the contractor in disputes",
+      "To act as the impartial technical agent of the Owner, ensuring the Contractor executes the work strictly according to the design",
+      "To finance the physical construction materials"
+    ],
+    "a": "To act as the impartial technical agent of the Owner, ensuring the Contractor executes the work strictly according to the design",
+    "e": "The Engineer designs the project and is hired by the Owner to impartially supervise the site. Their explicit duty is to ensure total compliance with the blueprints and specifications, approving payments only for structurally sound, correct work."
+  },
+  {
+    "id": 7,
+    "q": "A 'Site Layout Plan' is a highly critical preliminary management drawing. Its fundamental purpose is to explicitly map out the optimal physical locations for:",
+    "o": [
+      "The permanent architectural floor plans of the building",
+      "Temporary facilities, material storage yards, labor camps, and heavy equipment placement",
+      "The city's municipal water and sewer lines",
+      "The contractor's corporate headquarters"
+    ],
+    "a": "Temporary facilities, material storage yards, labor camps, and heavy equipment placement",
+    "e": "A site layout plan does not show the permanent structure's details. It strictly maps the temporary logistics: where to physically place the cranes, cement godowns, site offices, and access roads to ensure maximum operational efficiency and safety during construction."
+  },
+  {
+    "id": 8,
+    "q": "To minimize handling costs and prevent the physical degradation of materials, the cement storage godown indicated on a site layout plan must strictly be located:",
+    "o": [
+      "Outside the project boundary to save space",
+      "As close as safely possible to the concrete mixing plant and heavily protected from ground dampness",
+      "Right next to the labor camp dormitories",
+      "In the exact center of the proposed building footprint"
+    ],
+    "a": "As close as safely possible to the concrete mixing plant and heavily protected from ground dampness",
+    "e": "Cement is highly sensitive to moisture and extremely heavy to transport. To optimize the cycle time of concrete production, the godown must be physically located adjacent to the batching plant and elevated to prevent any capillary dampness from ruining the stock."
+  },
+  {
+    "id": 9,
+    "q": "In organizing construction labor, a 'Piece-Work' labor system physically compensates the workers based strictly upon:",
+    "o": [
+      "The total number of hours they remain on the site",
+      "A fixed monthly salary regardless of output",
+      "The exact physical quantity of work they successfully produce, regardless of the time taken",
+      "The amount of material they successfully save"
+    ],
+    "a": "The exact physical quantity of work they successfully produce, regardless of the time taken",
+    "e": "Piece-work (or piece-rate) strictly ties payment to physical output (e.g., paying a mason per 100 bricks laid). It heavily incentivizes rapid production, but requires incredibly strict supervision to ensure the workers do not sacrifice quality for speed."
+  },
+  {
+    "id": 10,
+    "q": "Statistical analysis of severe construction site accidents universally proves that the vast majority of fatal injuries are fundamentally caused by:",
+    "o": [
+      "Defective raw materials breaking",
+      "Unpredictable natural disasters (Acts of God)",
+      "Unsafe physical acts by workers and unsafe working conditions, such as unprotected falls from heights",
+      "Errors in the architectural blueprints"
+    ],
+    "a": "Unsafe physical acts by workers and unsafe working conditions, such as unprotected falls from heights",
+    "e": "Over 80% of construction accidents are entirely preventable. They stem directly from human error (unsafe acts like removing safety guards or working while intoxicated) and hazardous environments (unsafe conditions like missing guardrails or deep, unsupported trenches)."
+  },
+  {
+    "id": 11,
+    "q": "To strictly ensure basic worker safety and mitigate injury severity, standard construction management protocols universally mandate the compulsory use of PPE. What does PPE explicitly stand for?",
+    "o": [
+      "Project Protection Equipment",
+      "Personal Protective Equipment",
+      "Primary Preventive Engineering",
+      "Personnel Payment Estimation"
+    ],
+    "a": "Personal Protective Equipment",
+    "e": "PPE physically includes hard hats, steel-toed boots, high-visibility vests, safety harnesses, and safety glasses. It is the absolute last line of physical defense explicitly designed to protect the individual worker from severe impact or injury."
+  },
+  {
+    "id": 12,
+    "q": "Which specific type of construction contract is universally considered the most fair, poses the least risk to the owner regarding overpayment, and is strictly utilized for the vast majority of government public works?",
+    "o": [
+      "Lump-Sum Contract",
+      "Cost-Plus-Percentage Contract",
+      "Item Rate Contract (Unit Price Contract)",
+      "Turnkey Contract"
+    ],
+    "a": "Item Rate Contract (Unit Price Contract)",
+    "e": "In an Item Rate Contract, the contractor bids a specific price per unit (e.g., per cubic meter of concrete). The owner explicitly pays only for the exact, physically measured quantities actually executed on site, perfectly balancing the financial risk."
+  },
+  {
+    "id": 13,
+    "q": "In a 'Lump-Sum Contract', the contractor explicitly agrees to execute the entire project for one fixed total price. This contract type is strictly suitable ONLY when:",
+    "o": [
+      "The complete scope of work, detailed architectural drawings, and all specifications are absolutely finalized and unchanging",
+      "The project is highly experimental and subject to massive design changes",
+      "The total quantities of earthwork are completely unknown",
+      "The project involves emergency disaster relief"
+    ],
+    "a": "The complete scope of work, detailed architectural drawings, and all specifications are absolutely finalized and unchanging",
+    "e": "Because the price is rigidly fixed, any variation or missing detail causes severe legal disputes. A lump-sum contract works safely only if the contractor can perfectly calculate every single cost beforehand based on 100% complete and flawless blueprints."
+  },
+  {
+    "id": 14,
+    "q": "In construction management, what is the precise, one-sentence definition of executing work via 'Force account' (or Departmental execution)?",
+    "o": [
+      "Execution of construction works strictly by hiring an international contractor for mega projects.",
+      "Execution of construction works directly by the client's own department using their own hired daily labor and procured materials, completely bypassing the employment of an external contractor.",
+      "Execution of works where the military forces are deployed to build infrastructure.",
+      "Execution of works using a fixed lump-sum payment method."
+    ],
+    "a": "Execution of construction works directly by the client's own department using their own hired daily labor and procured materials, completely bypassing the employment of an external contractor.",
+    "e": "Force account fundamentally eliminates the middleman (the contractor). The government or client takes on the role of the builder, physically hiring the masons, buying the cement, and managing the site directly through their own engineers."
+  },
+  {
+    "id": 15,
+    "q": "In a construction contract, what is the strict, one-sentence definition of 'Day works'?",
+    "o": [
+      "Payment made to a contractor exclusively for works completed during daylight hours.",
+      "Payment made to a contractor for miscellaneous, unforeseen works based entirely on the actual daily hours of labor and exact quantities of materials used, plus a percentage for profit.",
+      "The penalty imposed on a contractor for every single day the project is delayed.",
+      "The specific schedule mapping the daily progress of the critical path."
+    ],
+    "a": "Payment made to a contractor for miscellaneous, unforeseen works based entirely on the actual daily hours of labor and exact quantities of materials used, plus a percentage for profit.",
+    "e": "When an odd, unforeseen job arises that cannot be physically measured or priced by standard BOQ items (e.g., cleaning up a sudden landslide), the contractor is explicitly paid 'Day works'—reimbursed for the exact hours their men worked and materials consumed, plus a fixed markup."
+  },
+  {
+    "id": 16,
+    "q": "What is the fundamental legal and financial purpose of requiring 'Bid Security' (Earnest Money Deposit) from competing contractors during the tendering process?",
+    "o": [
+      "To physically pay for the printing of the tender documents",
+      "To explicitly ensure the bidder is serious and to mathematically guarantee they will not suddenly withdraw their bid before the formal contract is signed",
+      "To cover the final cost of construction materials",
+      "To pay the salaries of the client's site engineers"
+    ],
+    "a": "To explicitly ensure the bidder is serious and to mathematically guarantee they will not suddenly withdraw their bid before the formal contract is signed",
+    "e": "If a contractor submits the lowest bid and then carelessly backs out, the client suffers massive delays and financial loss. The Bid Security is a strict financial hostage; if the winning contractor refuses to sign, their deposit is entirely forfeited."
+  },
+  {
+    "id": 17,
+    "q": "According to standard public procurement rules, the Bid Security (Earnest Money) amount is mathematically fixed at approximately what percentage of the total estimated project cost?",
+    "o": [
+      "0.5% to 1.0%",
+      "2.0% to 3.0%",
+      "10.0%",
+      "20.0%"
+    ],
+    "a": "2.0% to 3.0%",
+    "e": "Standard procurement acts universally stipulate that the Earnest Money Deposit must strictly be 2% to 3% of the estimated project value. It is high enough to deter frivolous bidding, but low enough not to severely cripple a legitimate contractor's cash flow."
+  },
+  {
+    "id": 18,
+    "q": "The formal public advertisement published in national newspapers explicitly inviting eligible contractors to submit competitive bids for a proposed project is technically termed the:",
+    "o": [
+      "Letter of Acceptance (LOA)",
+      "Notice Inviting Tender (NIT)",
+      "Variation Order",
+      "Administrative Sanction"
+    ],
+    "a": "Notice Inviting Tender (NIT)",
+    "e": "The NIT is the formal, legal starting point of procurement. It explicitly broadcasts the project details, estimated cost, deadlines, and eligibility criteria to the open market, formally requesting sealed bids from interested firms."
+  },
+  {
+    "id": 19,
+    "q": "During the strict tender evaluation process, a contractor's sealed bid may be legally rejected outright (deemed 'non-responsive') if it physically lacks which absolute mandatory accompanying document?",
+    "o": [
+      "The detailed site layout plan",
+      "The names of the individual laborers",
+      "The valid Bid Security (Earnest Money) instrument",
+      "The final as-built drawings"
+    ],
+    "a": "The valid Bid Security (Earnest Money) instrument",
+    "e": "A bid submitted without the exact required Bid Security (like a bank guarantee) is legally invalid. The procurement committee is strictly forbidden from opening or evaluating its financial offer, and it is instantly rejected as non-responsive."
+  },
+  {
+    "id": 20,
+    "q": "If a contractor fails to physically complete the construction project within the legally stipulated contract time, the owner is explicitly entitled to deduct harsh financial penalties formally termed:",
+    "o": [
+      "Retention Money",
+      "Liquidated Damages",
+      "Mobilization Recovery",
+      "Performance Security"
+    ],
+    "a": "Liquidated Damages",
+    "e": "Liquidated Damages are a pre-agreed, strict mathematical penalty (e.g., 0.05% of the contract price per day of delay) physically deducted from the contractor's final bill to explicitly compensate the owner for the lost use of the delayed facility."
+  },
+  {
+    "id": 21,
+    "q": "During physical construction, a small percentage of the contractor's monthly running payment is systematically withheld and kept in a 'Retention Fund'. The primary legal purpose of this fund is to:",
+    "o": [
+      "Pay the architect's final fees",
+      "Financially guarantee that the contractor will promptly rectify any structural defects discovered during the Defect Liability Period",
+      "Cover the cost of unforeseen price escalations",
+      "Provide a bonus to the client"
+    ],
+    "a": "Financially guarantee that the contractor will promptly rectify any structural defects discovered during the Defect Liability Period",
+    "e": "After the project is finished, a 'Defect Liability Period' (usually 1 year) begins. If the roof leaks or tiles crack, the contractor must fix them. The Retention Money (usually 5%) is held completely hostage until this period safely expires."
+  },
+  {
+    "id": 22,
+    "q": "A 'Variation Order' (or Change Order) is a highly critical formal, legally binding document strictly issued by the Engineer to explicitly authorize:",
+    "o": [
+      "The payment of the final bill",
+      "A physical addition, deletion, or structural alteration to the originally contracted scope of work",
+      "The termination of the contract",
+      "The extension of the project timeline due to rain"
+    ],
+    "a": "A physical addition, deletion, or structural alteration to the originally contracted scope of work",
+    "e": "A contract is a rigid legal document. If the client suddenly wants an extra room built, or changes the flooring from tile to marble, the Engineer must issue a formal Variation Order to legally change the scope and adjust the payment quantities."
+  },
+  {
+    "id": 23,
+    "q": "In strict construction supervision, what is the explicitly intended purpose of conducting a 'Slump Test' on every single newly arrived transit mixer of ready-mix concrete?",
+    "o": [
+      "To measure the final 28-day crushing strength of the concrete",
+      "To quickly and physically verify the uniform workability and water content of the wet concrete before it is poured",
+      "To check the specific gravity of the coarse aggregates",
+      "To determine the setting time of the cement"
+    ],
+    "a": "To quickly and physically verify the uniform workability and water content of the wet concrete before it is poured",
+    "e": "The site engineer must ensure the contractor hasn't illicitly added extra water to make pouring easier (which destroys strength). The Slump Test is a rapid, 2-minute physical field test strictly confirming the wet mix possesses the exact approved workability."
+  },
+  {
+    "id": 24,
+    "q": "To ensure absolute quality control and structural safety, the Site Engineer must physically inspect and formally approve the placement of reinforcement steel strictly before authorizing which crucial irreversible operation?",
+    "o": [
+      "The excavation of the foundation trenches",
+      "The mixing of the concrete",
+      "The pouring of the wet cement concrete",
+      "The stripping of the wooden formwork"
+    ],
+    "a": "The pouring of the wet cement concrete",
+    "e": "Once concrete is poured, the steel is permanently buried. If the steel is missing, misplaced, or tied incorrectly, the building will catastrophically fail. The engineer must explicitly issue a 'Pour Card' clearance ONLY after rigorously verifying the dry steel against the blueprints."
+  },
+  {
+    "id": 25,
+    "q": "In the standard lifecycle of a government public works project, the very first formal stage where the user department explicitly accepts the absolute necessity of the project and officially allocates the budget is termed:",
+    "o": [
+      "Technical Sanction",
+      "Administrative Approval",
+      "Financial Appropriation",
+      "Tender Award"
+    ],
+    "a": "Administrative Approval",
+    "e": "Before any engineering work begins, the parent department (e.g., Ministry of Health wanting a hospital) must officially state they need the building and have the money for it. This executive policy decision is strictly termed Administrative Approval."
+  },
+  {
+    "id": 26,
+    "q": "Following Administrative Approval, the competent engineering authority strictly reviews the detailed estimates, structural designs, and mathematical calculations to ensure physical safety and accuracy. This formal engineering approval is explicitly termed:",
+    "o": [
+      "Administrative Approval",
+      "Technical Sanction",
+      "Notice Inviting Tender",
+      "Variation Order"
+    ],
+    "a": "Technical Sanction",
+    "e": "Technical Sanction is strictly the legal guarantee by the Chief Engineer that the blueprints are structurally sound, the rate analysis is mathematically correct, and the detailed estimate is flawless, authorizing the project to proceed to the bidding phase."
+  },
+  {
+    "id": 27,
+    "q": "In public works site accounting, a 'Muster Roll' is a highly critical financial document strictly utilized exclusively for maintaining the records and calculating the wages of:",
+    "o": [
+      "The permanent government engineering staff",
+      "The main contractor's sub-contractors",
+      "Casual daily-wage laborers physically hired directly by the department for departmental works",
+      "The suppliers of raw materials"
+    ],
+    "a": "Casual daily-wage laborers physically hired directly by the department for departmental works",
+    "e": "When executing 'Force Account' (departmental) works, the government acts as the contractor. The Muster Roll is the strict, legal attendance register and payroll sheet utilized to track the exact days worked and physically disburse cash wages to the hired manual laborers."
+  },
+  {
+    "id": 28,
+    "q": "To strictly prevent severe financial fraud and ghost-worker scams, standard accounting rules mandate that the daily attendance marked in a Muster Roll must frequently be physically verified and countersigned by:",
+    "o": [
+      "The laborers themselves",
+      "A higher-ranking inspecting officer during surprise site visits",
+      "The local material supplier",
+      "The project architect"
+    ],
+    "a": "A higher-ranking inspecting officer during surprise site visits",
+    "e": "To ensure the lower site staff are not faking attendance records to steal cash, higher-level engineers (like the SDO or Executive Engineer) must explicitly conduct surprise field inspections, physically count the laborers, and initial the Muster Roll to guarantee its authenticity."
+  },
+  {
+    "id": 29,
+    "q": "In construction accounting, the 'Measurement Book' (MB) is universally considered the absolute most fundamental and legally binding financial record. Its strict purpose is to explicitly record:",
+    "o": [
+      "The exact physical dimensions and calculated quantities of all works executed on-site for the purpose of contractor payment",
+      "The daily weather conditions and site visitor logs",
+      "The structural calculations of the building frame",
+      "The personal details of the contractor's staff"
+    ],
+    "a": "The exact physical dimensions and calculated quantities of all works executed on-site for the purpose of contractor payment",
+    "e": "Every single penny paid to a contractor must be justified by an exact physical measurement. The MB is the strict, audited ledger where the engineer writes the exact Length, Breadth, and Height of every excavated trench and poured slab to calculate the payable volume."
+  },
+  {
+    "id": 30,
+    "q": "Because the Measurement Book is a highly sensitive, audited financial document, any mathematical or written error made within it must strictly be corrected by:",
+    "o": [
+      "Tearing the page out and writing a new one",
+      "Using white correction fluid or heavily overwriting the numbers",
+      "Neatly crossing out the incorrect entry with a single line and writing the correct value above it, fully initialed and dated by the authorized officer",
+      "Leaving the error and adjusting the final bill total"
+    ],
+    "a": "Neatly crossing out the incorrect entry with a single line and writing the correct value above it, fully initialed and dated by the authorized officer",
+    "e": "Erasing, overwriting, or tearing pages out of an MB is strictly illegal and implies severe financial fraud. Errors must remain physically visible; they are crossed out with a single line, corrected, and explicitly authenticated with a signature to maintain a perfect audit trail."
+  },
+  {
+    "id": 31,
+    "q": "When an item of work is physically completed, mathematically measured in the MB, and the contractor is successfully paid for it, the engineer must strictly draw a diagonal line across the page and explicitly write:",
+    "o": [
+      "\"Completed Work\"",
+      "\"Paid\" or \"Passed for Payment\" to permanently prevent double billing",
+      "\"Approved by Engineer\"",
+      "\"Void\""
+    ],
+    "a": "\"Paid\" or \"Passed for Payment\" to permanently prevent double billing",
+    "e": "To absolutely ensure that a corrupt contractor or careless engineer does not accidentally or intentionally bill the exact same measurements again in the next month's invoice, the specific MB pages are strictly and permanently cancelled out with the word 'Paid'."
+  },
+  {
+    "id": 32,
+    "q": "In advanced project scheduling, the 'Critical Path' mapped through a network diagram is mathematically and strictly defined as the specific continuous sequence of connected activities that dictates the:",
+    "o": [
+      "Absolute shortest possible time in which the entire project can physically be completed",
+      "Path containing the most expensive materials",
+      "Sequence of activities that requires the most labor",
+      "Path with the maximum amount of slack or float time"
+    ],
+    "a": "Absolute shortest possible time in which the entire project can physically be completed",
+    "e": "The Critical Path is the physically longest duration path through the network. Because all these activities must be done sequentially, the total time of this path strictly defines the absolute fastest possible completion date for the entire project."
+  },
+  {
+    "id": 33,
+    "q": "Any physical delay or time overrun occurring in an activity located strictly ON the Critical Path will inherently and mathematically result in:",
+    "o": [
+      "The activity moving off the critical path",
+      "No effect on the project, as float time absorbs it",
+      "An equal and exact delay in the final completion date of the entire project",
+      "A reduction in the total project cost"
+    ],
+    "a": "An equal and exact delay in the final completion date of the entire project",
+    "e": "Critical Path activities possess exactly zero 'Float' (zero spare time). If pouring the critical foundation is delayed by exactly 3 days, the mathematical reality is that the entire building will finish exactly 3 days late, unless future activities are heavily crashed."
+  },
+  {
+    "id": 34,
+    "q": "In public procurement, 'National Competitive Bidding' (NCB) is a strict procedural method explicitly designed to solicit competitive tender offers exclusively from:",
+    "o": [
+      "Global multinational construction firms",
+      "Contractors who are legally registered and operating strictly within the host country",
+      "A single, pre-selected government contractor",
+      "Only local contractors from the specific municipality"
+    ],
+    "a": "Contractors who are legally registered and operating strictly within the host country",
+    "e": "NCB is utilized for medium-sized projects. It strictly restricts bidding to domestic firms to promote national industry, utilizing the local currency and local language, physically locking out massive international conglomerates."
+  },
+  {
+    "id": 35,
+    "q": "When a mega-project requires highly specialized construction equipment or complex technology that is physically completely unavailable domestically, the procurement authority must strictly initiate:",
+    "o": [
+      "National Competitive Bidding (NCB)",
+      "Direct Contracting (Single Source)",
+      "International Competitive Bidding (ICB)",
+      "Force Account execution"
+    ],
+    "a": "International Competitive Bidding (ICB)",
+    "e": "For massive infrastructure like underground metro tunnels or suspension bridges requiring foreign expertise, ICB is strictly mandated. It opens the bidding globally, publishes documents in English, and allows payment in foreign currencies to attract specialized global firms."
+  },
+  {
+    "id": 36,
+    "q": "In large-scale earthmoving construction operations, optimizing equipment efficiency is critical. The physical 'Cycle Time' of a heavy dump truck is mathematically defined as the strict sum of the times taken for:",
+    "o": [
+      "Loading the material, hauling it to the site, dumping it, and physically returning empty to the loader",
+      "Starting the engine and parking it at the end of the day",
+      "Refueling and maintenance checks",
+      "Digging the earth from the trench"
+    ],
+    "a": "Loading the material, hauling it to the site, dumping it, and physically returning empty to the loader",
+    "e": "To calculate exactly how many trucks are needed to keep an excavator busy, engineers strictly calculate the physical Cycle Time: the total minutes required for one single truck to complete one full, continuous loop of Load-Haul-Dump-Return."
+  },
+  {
+    "id": 37,
+    "q": "To minimize massive equipment depreciation and prevent idle financial losses, construction managers strictly aim to maximize the 'Utilization Factor'. This is mathematically defined as the ratio of:",
+    "o": [
+      "The machine's purchase price to its salvage value",
+      "Actual productive physical working hours to the total available working hours in a shift",
+      "The fuel consumed to the distance traveled",
+      "The weight of earth moved to the capacity of the bucket"
+    ],
+    "a": "Actual productive physical working hours to the total available working hours in a shift",
+    "e": "If a bulldozer is on site for a 10-hour shift, but spends 4 hours broken down or waiting for trucks, its Utilization Factor is only 60%. Managers strictly optimize logistics to push this factor as close to 100% as physically possible."
+  },
+  {
+    "id": 38,
+    "q": "The 'Gantt Chart' (or basic Bar Chart) is the simplest and historically most universally utilized project scheduling tool. It graphically represents construction activities by plotting:",
+    "o": [
+      "The total financial cost of each activity against its quantity",
+      "The physical duration of each activity as a horizontal bar against a strict linear timeline calendar",
+      "The geographical layout of the site",
+      "The hierarchy of the engineering staff"
+    ],
+    "a": "The physical duration of each activity as a horizontal bar against a strict linear timeline calendar",
+    "e": "A Bar Chart provides an instant visual summary. The Y-axis lists the activities (e.g., Excavation, Foundation), and the X-axis is time (days/months). A physical horizontal bar explicitly shows exactly when an activity starts, how long it lasts, and when it ends."
+  },
+  {
+    "id": 39,
+    "q": "Despite its extreme simplicity and visual clarity, what is the absolute most severe mathematical and operational limitation of utilizing a basic Bar Chart for managing highly complex construction projects?",
+    "o": [
+      "It cannot show the total length of the project",
+      "It requires highly advanced computer software to draw",
+      "It completely fails to explicitly show the precise sequential interdependencies and logical physical relationships between different activities",
+      "It cannot be understood by site foremen"
+    ],
+    "a": "It completely fails to explicitly show the precise sequential interdependencies and logical physical relationships between different activities",
+    "e": "If a bar chart shows 'Wiring' and 'Plastering' happening in the same week, it physically cannot explicitly show that wiring *must* finish before plastering starts. Network diagrams (CPM/PERT) were explicitly invented to solve this critical logical flaw by linking activities with arrows."
+  },
+  {
+    "id": 40,
+    "q": "In CPM network diagrams, an activity that completely consumes zero time and zero physical resources, but is strictly drawn as a dashed arrow purely to maintain correct logical precedence relationships, is formally termed a:",
+    "o": [
+      "Critical activity",
+      "Float activity",
+      "Dummy activity",
+      "Concurrent activity"
+    ],
+    "a": "Dummy activity",
+    "e": "When two distinct activities share the same start and end nodes, or when complex logic dictates a dependency that cannot be drawn directly, a 'Dummy Activity' is inserted. It mathematically possesses 0 duration but strictly forces the network to obey the physical laws of construction sequence."
+  },
+
+
+  {
+    "id": 41,
+    "q": "In advanced project scheduling, how does the Program Evaluation and Review Technique (PERT) mathematically differ from the Critical Path Method (CPM) regarding task durations?",
+    "o": [
+      "PERT assumes all tasks take exactly 1 day.",
+      "PERT utilizes a single, deterministic time estimate for every activity.",
+      "PERT is strictly probabilistic, mathematically combining an optimistic, pessimistic, and most likely time estimate for every single activity.",
+      "PERT completely ignores time and explicitly focuses only on financial cost."
+    ],
+    "a": "PERT is strictly probabilistic, mathematically combining an optimistic, pessimistic, and most likely time estimate for every single activity.",
+    "e": "CPM is used for routine construction where times are physically known (deterministic). PERT is utilized for highly uncertain, unprecedented projects (like R&D or aerospace), mathematically calculating an 'expected time' based on three distinct probability estimates."
+  },
+  {
+    "id": 42,
+    "q": "Utilizing the PERT probabilistic model, the mathematical formula to calculate the 'Expected Time' (Te) of a highly uncertain activity is strictly defined as:",
+    "o": [
+      "(Optimistic + Pessimistic + Most Likely) / 3",
+      "(Optimistic + 4 × Most Likely + Pessimistic) / 6",
+      "(Optimistic + Pessimistic) / 2",
+      "(Most Likely + Pessimistic) / 4"
+    ],
+    "a": "(Optimistic + 4 × Most Likely + Pessimistic) / 6",
+    "e": "This specific weighted average formula heavily prioritizes the 'Most Likely' time (giving it a mathematical weight of 4), while factoring in the absolute best-case (optimistic) and worst-case (pessimistic) scenarios to derive a highly accurate expected duration."
+  },
+  {
+    "id": 43,
+    "q": "In the formal legal resolution of severe construction disputes without resorting to lengthy court litigation, a specific clause is embedded in the contract. This process involves a neutral third-party expert rendering a legally binding decision and is termed:",
+    "o": [
+      "Mediation",
+      "Arbitration",
+      "Conciliation",
+      "Variation"
+    ],
+    "a": "Arbitration",
+    "e": "The 'Arbitration Clause' is a strict legal mechanism. If the contractor and owner cannot physically agree on an issue (like payment for unforeseen rock excavation), an impartial Arbitrator reviews the technical facts and issues a strict, legally binding financial ruling."
+  },
+  {
+    "id": 44,
+    "q": "In massive public procurement, an initial phase called 'Pre-qualification' is frequently executed entirely before the actual financial bids are invited. The explicit primary purpose of this phase is to:",
+    "o": [
+      "Award the contract to the lowest bidder immediately",
+      "Strictly filter out incompetent firms by evaluating their past experience, financial capacity, and physical equipment before they are legally allowed to bid",
+      "Finalize the architectural blueprints",
+      "Collect the security deposit"
+    ],
+    "a": "Strictly filter out incompetent firms by evaluating their past experience, financial capacity, and physical equipment before they are legally allowed to bid",
+    "e": "Mega-projects require immense physical resources. Pre-qualification guarantees that only highly capable, financially stable contractors receive the complex tender documents, legally ensuring the client doesn't get stuck with a cheap but entirely incapable builder."
+  },
+  {
+    "id": 45,
+    "q": "During the formal execution of a Measurement Book (MB), standard engineering codes strictly mandate a universal, rigid mathematical order for recording physical dimensions. This exact sequence is:",
+    "o": [
+      "Height, Breadth, Length",
+      "Length, Breadth, Height or Depth",
+      "Breadth, Length, Height",
+      "Length, Height, Breadth"
+    ],
+    "a": "Length, Breadth, Height or Depth",
+    "e": "To ensure absolute uniformity and prevent any audit confusion across massive volumes of data, every single engineer is legally required to write measurements strictly in the geometric order of L × B × H (or Depth)."
+  },
+  {
+    "id": 46,
+    "q": "In construction safety protocols, deep trench excavations for foundations or pipelines become physically hazardous. Occupational safety codes strictly mandate physical shoring or sloping of the trench walls if the depth exceeds:",
+    "o": [
+      "0.50 meters",
+      "1.50 meters",
+      "3.00 meters",
+      "5.00 meters"
+    ],
+    "a": "1.50 meters",
+    "e": "Earth is immensely heavy. A sudden trench collapse can instantly crush and suffocate a worker. Standard safety laws strictly mandate that any trench physically exceeding 1.5 meters (approx. 5 feet) in depth must be structurally shored with timber/steel or safely sloped back."
+  },
+  {
+    "id": 47,
+    "q": "When drafting a Site Layout Plan, maximizing security and strict administrative control is vital. Therefore, the main Site Office and the primary weighing scales/weighbridges must physically be located:",
+    "o": [
+      "In the exact center of the site",
+      "Directly adjacent to the main access gate",
+      "Next to the labor dormitories",
+      "At the highest elevation point of the site"
+    ],
+    "a": "Directly adjacent to the main access gate",
+    "e": "Placing the site office and weighbridge precisely at the entrance legally and physically forces all incoming material trucks, visitors, and laborers to pass through a strict single point of control, completely eliminating unauthorized access and material theft."
+  },
+  {
+    "id": 48,
+    "q": "In CPM network terminology, the absolute maximum mathematical amount of time an activity can be physically delayed without delaying the early start of any immediately following successor activity is explicitly termed:",
+    "o": [
+      "Total Float",
+      "Interfering Float",
+      "Free Float",
+      "Independent Float"
+    ],
+    "a": "Free Float",
+    "e": "While 'Total Float' is the spare time without delaying the *entire project*, 'Free Float' is strictly the spare time a specific task has without physically pushing back the very next task in the sequence."
+  },
+  {
+    "id": 49,
+    "q": "For standard public works, the contractor generates monthly 'Running Account (RA) Bills' to receive progressive payments. The exact physical quantities claimed in these RA bills are legally derived strictly from the:",
+    "o": [
+      "Contractor's personal diary",
+      "Original Bill of Quantities (BOQ) estimates",
+      "Approved entries physically recorded and signed by the Sub-Engineer in the Measurement Book",
+      "Architect's site visit notes"
+    ],
+    "a": "Approved entries physically recorded and signed by the Sub-Engineer in the Measurement Book",
+    "e": "Running bills are not estimates. The contractor is only paid for work that has been physically completed, thoroughly verified, mathematically measured, and legally signed off by the supervising engineer strictly within the official Measurement Book."
+  },
+  {
+    "id": 50,
+    "q": "In massive industrial projects, the client may opt for an 'EPC Contract'. What does the acronym EPC strictly stand for in global construction management?",
+    "o": [
+      "Estimated Project Cost",
+      "Engineering, Procurement, and Construction",
+      "Execution, Planning, and Control",
+      "Environmental Protection Compliance"
+    ],
+    "a": "Engineering, Procurement, and Construction",
+    "e": "An EPC (or Turnkey) contract transfers maximum physical and mental burden to the contractor. The contractor is legally hired to completely design the structure (Engineering), buy every single piece of equipment (Procurement), and build it (Construction), handing over a finished, functioning facility."
+  },
+  {
+    "id": 51,
+    "q": "To legally maintain fairness in public procurement, if the client physically modifies a specification or extends the deadline after the tender has been officially published but before the bids are opened, they must explicitly issue a formal:",
+    "o": [
+      "Notice Inviting Tender",
+      "Letter of Acceptance",
+      "Corrigendum (or Addendum)",
+      "Variation Order"
+    ],
+    "a": "Corrigendum (or Addendum)",
+    "e": "A Corrigendum is a strict legal amendment to the original tender documents. It must be formally published to ensure every single competing contractor physically receives the exact same updated information before they finalize and seal their financial bids."
+  },
+  {
+    "id": 52,
+    "q": "In the strict legal 'Conditions of Contract', a highly specific clause is included to entirely absolve both the contractor and the owner from liability if the project is catastrophically delayed or destroyed by an unpredictable, unavoidable natural disaster (like a massive earthquake or war). This is the:",
+    "o": [
+      "Liquidated Damages clause",
+      "Arbitration clause",
+      "Force Majeure clause",
+      "Defect Liability clause"
+    ],
+    "a": "Force Majeure clause",
+    "e": "Force Majeure (Superior Force) acts as a strict legal shield. It explicitly lists \"Acts of God\" or severe political upheavals that are physically impossible to predict or prevent, ensuring neither party is unfairly penalized or sued for the resulting delays."
+  },
+  {
+    "id": 53,
+    "q": "During the formal procurement process, a highly unethical bidding practice occurs where a contractor intentionally bids astronomically high rates for early-stage works (like excavation) and very low rates for late-stage works (like painting) to extract massive cash early on. This is technically termed:",
+    "o": [
+      "Collusive bidding",
+      "Unbalanced bidding (Front-loading)",
+      "Predatory pricing",
+      "Cost-plus bidding"
+    ],
+    "a": "Unbalanced bidding (Front-loading)",
+    "e": "Front-loading is a dangerous financial manipulation. The contractor keeps their total bid price low to win the contract, but structures the individual rates so they receive 60% of the money for doing only 20% of the early physical work, posing a massive abandonment risk to the client."
+  },
+  {
+    "id": 54,
+    "q": "In construction project scheduling, the specific management technique explicitly utilized to mathematically smooth out the daily fluctuations in manpower or machinery requirements without delaying the project's final completion date is termed:",
+    "o": [
+      "Crashing the network",
+      "Resource Leveling",
+      "Fast-tracking",
+      "Forward pass computation"
+    ],
+    "a": "Resource Leveling",
+    "e": "Having 100 workers on Monday and 10 on Tuesday is logistically chaotic and expensive. Resource Leveling utilizes the mathematical 'Float' of non-critical activities, physically shifting them to quieter days to create a steady, highly efficient daily demand for labor and equipment."
+  },
+  {
+    "id": 55,
+    "q": "According to the rigid conditions of a standard construction contract, the 'Defect Liability Period' (during which the contractor is legally bound to repair any structural flaws at their own expense) officially commences strictly from the date of:",
+    "o": [
+      "The signing of the initial contract agreement",
+      "The physical start of the excavation",
+      "The formal issuance of the Certificate of Practical Completion by the Engineer",
+      "The final release of all retention money"
+    ],
+    "a": "The formal issuance of the Certificate of Practical Completion by the Engineer",
+    "e": "The clock on the Defect Liability Period does not start when the contractor simply leaves the site. It strictly and legally begins on the exact date the supervising Engineer formally certifies that the building is physically complete, safe, and ready for the client to occupy."
+  },
+  {
+    "id": 60,
+    "q": "In high-value, highly technical public procurement, the 'Two-Envelope System' is strictly utilized to ensure unbiased evaluation. Under this system, what are the explicit contents of the two separate sealed envelopes submitted by the contractor?",
+    "o": [
+      "Envelope 1: Bid Security; Envelope 2: Company Profile",
+      "Envelope 1: Technical Proposal; Envelope 2: Financial Proposal (Price Bid)",
+      "Envelope 1: Structural Drawings; Envelope 2: Architectural Drawings",
+      "Envelope 1: Material Rates; Envelope 2: Labor Rates"
+    ],
+    "a": "Envelope 1: Technical Proposal; Envelope 2: Financial Proposal (Price Bid)",
+    "e": "To completely prevent cheap but incompetent contractors from swaying the decision, the committee opens the Technical envelope first. Only if the contractor physically proves their engineering competence and passes the technical threshold is their second envelope (the Financial Price Bid) legally allowed to be opened."
+  },
+  {
+    "id": 61,
+    "q": "In the specific context of contract types, a 'Percentage Rate Contract' requires the competing contractors to explicitly bid by quoting:",
+    "o": [
+      "A fixed, single lump-sum amount for the entire project",
+      "Specific individual financial rates for every single item of work listed in the BOQ",
+      "A single percentage strictly 'Above', 'Below', or 'At Par' with the client's officially published Schedule of Rates",
+      "The percentage of total profit they demand over the actual raw material costs"
+    ],
+    "a": "A single percentage strictly 'Above', 'Below', or 'At Par' with the client's officially published Schedule of Rates",
+    "e": "The government already calculates a massive, detailed estimate based on standard rates. Instead of filling out hundreds of item prices, the contractor simply bids a single mathematical figure, stating they will execute the entire project for, say, 5% Below the government's estimated baseline."
+  },
+  {
+    "id": 62,
+    "q": "To safely execute construction operations, a 'Milestone Chart' is frequently used as a direct upgrade to the basic Bar Chart. A Milestone explicitly represents:",
+    "o": [
+      "The daily cost of the project",
+      "A continuous activity that spans the entire duration of the project",
+      "A specific, highly significant point in time marking the physical completion of a major phase of work (e.g., 'Roof Slab Poured')",
+      "The physical distance between the site and the material quarry"
+    ],
+    "a": "A specific, highly significant point in time marking the physical completion of a major phase of work (e.g., 'Roof Slab Poured')",
+    "e": "While a bar represents duration, a milestone is a zero-duration point in time. It acts as a strict, highly visible operational target for management to quickly verify if the project is physically on track without getting bogged down in minor daily tasks."
+  },
+  {
+    "id": 63,
+    "q": "In construction safety and site planning, standard fire safety codes explicitly mandate that portable fire extinguishers must be physically mounted at easily accessible locations, with the maximum travel distance to the nearest extinguisher strictly not exceeding:",
+    "o": [
+      "5 meters",
+      "15 meters",
+      "50 meters",
+      "100 meters"
+    ],
+    "a": "15 meters",
+    "e": "Fires on construction sites spread explosively through timber, chemicals, and debris. Safety codes universally dictate a strict spatial distribution, demanding that a worker must never have to physically run more than roughly 15 meters (50 feet) to reach emergency fire suppression equipment."
+  },
+  {
+    "id": 64,
+    "q": "In construction project management, the fundamental difference between 'Quality Control' (QC) and 'Quality Assurance' (QA) is that QC is strictly a:",
+    "o": [
+      "Process-oriented system focused on preventing defects before they happen",
+      "Product-oriented system physically focused on inspecting and testing the actual finished work to identify and reject defects",
+      "Financial audit of the contractor's bills",
+      "Legal review of the contract documents"
+    ],
+    "a": "Product-oriented system physically focused on inspecting and testing the actual finished work to identify and reject defects",
+    "e": "Quality Assurance (QA) is a proactive management system (using the right processes to prevent errors). Quality Control (QC) is strictly reactive; it involves the physical, mathematical testing (like crushing concrete cubes) to verify the finished product explicitly meets the structural specifications."
+  },
+  {
+    "id": 65,
+    "q": "When a public works project requires specialized design and complex intellectual expertise rather than physical construction (e.g., hiring an architectural firm), the procurement process explicitly relies on soliciting:",
+    "o": [
+      "Request for Quotations (RFQ)",
+      "Request for Proposals (RFP)",
+      "Notice Inviting Tender (NIT)",
+      "Force Account orders"
+    ],
+    "a": "Request for Proposals (RFP)",
+    "e": "For hiring consultants, the cheapest price is rarely the best choice. An RFP explicitly asks competing engineering firms to submit a detailed technical 'Proposal' showing how they will solve the complex design problem, heavily prioritizing intellectual quality over lowest cost."
+  },
+  {
+    "id": 66,
+    "q": "During the formal execution of departmental works using a 'Muster Roll', standard financial auditing rules strictly prohibit the inclusion and payment of which specific category of personnel on this roll?",
+    "o": [
+      "Unskilled daily-wage diggers",
+      "Skilled daily-wage masons and carpenters",
+      "Permanent, regular salaried government employees of the department",
+      "Daily-wage watchmen and guards"
+    ],
+    "a": "Permanent, regular salaried government employees of the department",
+    "e": "The Muster Roll is exclusively a legal payroll ledger for casual, daily-wage laborers physically hired strictly for that specific project. Permanent government staff receive formal monthly salaries through completely separate treasury payrolls, and adding them to a Muster Roll is a severe financial crime."
+  },
+  {
+    "id": 67,
+    "q": "In standard construction scheduling, the mathematical process of intentionally and physically reducing the duration of critical path activities by injecting massive additional resources (overtime, extra machinery) at an increased cost is strictly termed:",
+    "o": [
+      "Resource Leveling",
+      "Fast-tracking",
+      "Crashing the network",
+      "Smoothing"
+    ],
+    "a": "Crashing the network",
+    "e": "When a project is severely behind schedule or must finish early, managers 'Crash' it. They mathematically calculate the 'Cost Slope' of critical activities and systematically pump money into the cheapest critical tasks (like paying double-shifts) to violently compress the physical timeline."
+  },
+  {
+    "id": 68,
+    "q": "According to the legal 'Conditions of Contract', if a massive discrepancy physically exists between the written dimensions explicitly stated in the Bill of Quantities (BOQ) and the lines drawn on the Architectural Blueprints, which document strictly takes legal precedence?",
+    "o": [
+      "The Architectural Blueprints",
+      "The Bill of Quantities (BOQ)",
+      "The verbal instruction of the Site Engineer",
+      "The contractor's own estimate"
+    ],
+    "a": "The Bill of Quantities (BOQ)",
+    "e": "In the strict legal hierarchy of contract documents, text and explicitly listed numerical quantities completely override graphical drawings. If the blueprint shows a 3m wall but the priced BOQ specifies a 4m wall, the written BOQ is the absolute legal basis for execution and payment."
+  },
+  {
+    "id": 69,
+    "q": "To legally ensure a contractor has adequate immediate cash flow to physically mobilize heavy equipment, build labor camps, and start the project without borrowing heavily, the client may explicitly provide a:",
+    "o": [
+      "Performance Security",
+      "Retention Fund",
+      "Mobilization Advance",
+      "Liquidated Damage"
+    ],
+    "a": "Mobilization Advance",
+    "e": "Starting a mega-project requires massive immediate capital. The client legally provides a 'Mobilization Advance' (typically 10% to 15% of the contract value) upfront. To protect the client, this cash advance is strictly secured against a Bank Guarantee and is systematically recovered from subsequent running bills."
+  },
+  {
+    "id": 70,
+    "q": "In the physical management of a construction site, to strictly prevent the massive deterioration of steel reinforcement bars from severe rusting and soil contamination before they are used, they must be stored:",
+    "o": [
+      "Directly on the excavated bare soil to absorb ground moisture",
+      "Inside the cement storage godown",
+      "Physically elevated above ground level on timber or concrete supports and ideally covered with tarpaulins",
+      "Submerged in a water tank"
+    ],
+    "a": "Physically elevated above ground level on timber or concrete supports and ideally covered with tarpaulins",
+    "e": "Steel physically rusts rapidly when exposed to soil moisture and rain, which severely degrades its structural bond with concrete. Management protocols strictly mandate stacking steel horizontally on raised physical platforms (dunnage) to ensure absolute isolation from corrosive ground dampness."
+  },
+
+
+  {
+    "id": 71,
+    "q": "In complex, multi-disciplinary construction environments, a 'Matrix Organization' is frequently utilized. Its fundamental structural characteristic is that it explicitly mathematically blends:",
+    "o": [
+      "Government oversight with private financing",
+      "Strict vertical functional management with horizontal project-based management, meaning workers report to two bosses",
+      "Manual laborers with automated machinery",
+      "The roles of the Architect and the Contractor into one single entity"
+    ],
+    "a": "Strict vertical functional management with horizontal project-based management, meaning workers report to two bosses",
+    "e": "A matrix organization physically combines a traditional functional structure (like an engineering department) with a projectized structure. A structural engineer physically works on 'Project A' reporting to the Project Manager, but also still reports vertically to the Chief Structural Engineer."
+  },
+  {
+    "id": 72,
+    "q": "On a formalized public works construction site, the 'Site Order Book' is an absolutely critical legal document. What is its explicit, strict purpose?",
+    "o": [
+      "To record the daily attendance of the contractor's laborers",
+      "To serve as the official, legally binding written record of all technical instructions and defect notices issued by the Supervising Engineer to the Contractor",
+      "To order raw materials from external suppliers",
+      "To log the daily weather conditions and site visitors"
+    ],
+    "a": "To serve as the official, legally binding written record of all technical instructions and defect notices issued by the Supervising Engineer to the Contractor",
+    "e": "Verbal instructions hold zero legal weight in court. If the Engineer commands the contractor to demolish a defective column or alter a mix ratio, it must be explicitly written in the Site Order Book and countersigned by the contractor's agent to be legally enforceable."
+  },
+  {
+    "id": 73,
+    "q": "In the standard public procurement cycle, what explicitly happens to the 'Bid Security' (Earnest Money Deposit) submitted by the unsuccessful competing contractors?",
+    "o": [
+      "It is permanently forfeited to the government treasury",
+      "It is physically handed over to the winning contractor as a mobilization advance",
+      "It is strictly refunded to them immediately after the final contract is formally signed with the winning bidder",
+      "It is held hostage until the entire project is completed"
+    ],
+    "a": "It is strictly refunded to them immediately after the final contract is formally signed with the winning bidder",
+    "e": "The Bid Security explicitly ensures bidders do not back out. Once the lowest evaluated bidder safely signs the formal legal agreement and submits their massive Performance Security, the safety deposits of all the losing bidders are promptly and legally released back to them."
+  },
+  {
+    "id": 74,
+    "q": "Before formally signing the contract agreement, the winning contractor is legally mandated to submit a 'Performance Security' (or Performance Bond). This is strictly mathematically defined as:",
+    "o": [
+      "Exactly 2% to 3% of the estimated cost",
+      "Typically 5% to 10% of the total accepted contract value, serving as a massive financial guarantee of successful completion",
+      "A fixed sum of exactly 100,000 Rupees",
+      "Exactly 50% of the first running bill"
+    ],
+    "a": "Typically 5% to 10% of the total accepted contract value, serving as a massive financial guarantee of successful completion",
+    "e": "While Bid Security (2-3%) ensures they sign the contract, the Performance Security (5-10%) explicitly guarantees they will physically build the project. If the contractor abandons the site halfway, the client legally cashes this massive bond to hire a new builder."
+  },
+  {
+    "id": 75,
+    "q": "In massive, multi-year infrastructure contracts, a 'Price Escalation Clause' is strictly embedded in the agreement. Its fundamental economic and legal purpose is to explicitly protect the:",
+    "o": [
+      "Client from paying for defective work",
+      "Contractor from bankruptcy due to massive, unforeseen market inflation in the physical costs of raw materials (like steel and cement) and labor wages",
+      "Engineer from professional liability lawsuits",
+      "Sub-contractors from delayed payments by the main contractor"
+    ],
+    "a": "Contractor from bankruptcy due to massive, unforeseen market inflation in the physical costs of raw materials (like steel and cement) and labor wages",
+    "e": "Over a 4-year dam project, the price of steel might violently double. A fixed-price contract would instantly bankrupt the contractor. The Price Escalation Clause utilizes strict national economic indices to mathematically adjust the contractor's payments to fairly reflect actual market inflation."
+  },
+  {
+    "id": 76,
+    "q": "In construction scheduling, the 'Line of Balance' (LOB) technique is a highly specialized graphical method explicitly and strictly utilized for optimizing the management of:",
+    "o": [
+      "Highly complex, single-unit unique projects like a nuclear power plant",
+      "Massive, highly repetitive construction operations, such as building 500 identical houses in a massive colony",
+      "Small scale repair and maintenance works",
+      "Purely intellectual architectural design phases"
+    ],
+    "a": "Massive, highly repetitive construction operations, such as building 500 identical houses in a massive colony",
+    "e": "The Line of Balance (LOB) physically plots 'Number of Units' against 'Time'. It is explicitly designed to ensure that continuous, repetitive trades (like the foundation crew, followed by the bricklayers, followed by the roofers) move seamlessly from house to house without physically crashing into each other or waiting idle."
+  },
+  {
+    "id": 77,
+    "q": "During the formal tendering process for mega-projects, the client explicitly organizes a 'Pre-Bid Meeting' a few weeks before the deadline. The strict administrative and legal purpose of this event is to:",
+    "o": [
+      "Open the financial envelopes and declare the winner",
+      "Physically sign the final contract agreement",
+      "Allow competing contractors to formally ask questions, clarify technical doubts, and visit the physical site before they seal their final financial bids",
+      "Collect the performance security"
+    ],
+    "a": "Allow competing contractors to formally ask questions, clarify technical doubts, and visit the physical site before they seal their final financial bids",
+    "e": "To prevent massive legal disputes later over misunderstood blueprints, the client gathers all bidders. Contractors ask physical and technical questions. The client officially publishes the answers as a formal 'Addendum', explicitly ensuring every bidder understands the exact scope perfectly."
+  },
+  {
+    "id": 78,
+    "q": "In construction inventory management, the mathematical concept of 'Economic Order Quantity' (EOQ) is strictly calculated to perfectly minimize the combined total cost of:",
+    "o": [
+      "Labor wages and machine fuel",
+      "Material purchase price and physical transportation distance",
+      "Ordering the materials (paperwork/transport) and physically holding/storing the materials in the site inventory",
+      "Taxes and insurance premiums"
+    ],
+    "a": "Ordering the materials (paperwork/transport) and physically holding/storing the materials in the site inventory",
+    "e": "Ordering 100 times a year costs massive transport fees. Ordering everything at once costs massive storage fees and risks cement expiring. The EOQ is a strict calculus derivative that mathematically pinpoints the exact order size where ordering costs and holding costs perfectly intersect at their absolute minimum."
+  },
+  {
+    "id": 79,
+    "q": "In modern mega-infrastructure procurement, the 'BOT' contract model is universally utilized to entirely shift the financial burden away from the government. What does BOT explicitly stand for?",
+    "o": [
+      "Buy, Own, Trade",
+      "Build, Operate, Transfer",
+      "Bid, Organize, Terminate",
+      "Borrow, Oversee, Tax"
+    ],
+    "a": "Build, Operate, Transfer",
+    "e": "In a BOT contract (like a massive toll highway), a private firm uses its own money to 'Build' the road, 'Operates' it for 30 years to recover their cost plus profit strictly by charging public tolls, and then legally 'Transfers' the fully functioning asset back to the government for free."
+  },
+  {
+    "id": 80,
+    "q": "To prevent severe financial fraud in public works, standard codes legally mandate a strict hierarchy for verifying the Measurement Book (MB). While the Sub-Engineer measures 100% of the work, the Executive Engineer (XEN) is strictly required to personally 'Test-Check':",
+    "o": [
+      "0% of the measurements",
+      "Exactly 10% of the total physical measurements, with a heavy focus on expensive or hidden items",
+      "Exactly 50% of the measurements",
+      "100% of the measurements"
+    ],
+    "a": "Exactly 10% of the total physical measurements, with a heavy focus on expensive or hidden items",
+    "e": "The XEN cannot measure everything. To maintain fear of getting caught, the XEN must randomly and explicitly verify exactly 10% of the physical measurements in the field (especially hidden things like foundation steel) before legally authorizing the massive payment."
+  },
+  {
+    "id": 81,
+    "q": "When paying daily-wage laborers via a Departmental Muster Roll, if a laborer is physically absent on the specific day the cash is distributed, standard accounting codes strictly dictate that their unpaid wages must be immediately transferred to a:",
+    "o": [
+      "Contractor's profit account",
+      "Formal 'Register of Unpaid Wages' to be held securely until they return to claim it",
+      "Contingency fund",
+      "Charity donation"
+    ],
+    "a": "Formal 'Register of Unpaid Wages' to be held securely until they return to claim it",
+    "e": "Cash cannot be left floating around the site office, nor can it be pocketed by the supervisor. It must be strictly and legally entered into an audited 'Register of Unpaid Wages' and deposited safely back into the treasury until the laborer physically signs for it."
+  },
+  {
+    "id": 82,
+    "q": "Following the Administrative Approval of a project, the formal act of explicitly allocating the actual hard cash from the government treasury to physically fund the construction for that specific fiscal year is technically termed:",
+    "o": [
+      "Technical Sanction",
+      "Expenditure Sanction (or Appropriation of Funds)",
+      "Notice Inviting Tender",
+      "Mobilization Advance"
+    ],
+    "a": "Expenditure Sanction (or Appropriation of Funds)",
+    "e": "Administrative Approval means \"we want this building.\" Technical Sanction means \"the engineering design is safe.\" Expenditure Sanction is the strict financial decree from the Finance Ministry stating \"the actual cash is now physically deposited in the project account and can be legally spent.\""
+  },
+  {
+    "id": 83,
+    "q": "During strict site supervision, if a batch of concrete is poured and subsequently fails the 28-day cylinder crushing test, the Quality Assurance engineer must immediately and formally issue a:",
+    "o": [
+      "Variation Order",
+      "Non-Conformance Report (NCR)",
+      "Letter of Acceptance",
+      "Muster Roll"
+    ],
+    "a": "Non-Conformance Report (NCR)",
+    "e": "An NCR is a severe, highly formalized legal document. It explicitly states that a specific physical element of the project has failed to meet the strict technical specifications. The contractor must formally reply to the NCR detailing exactly how they will physically demolish or repair the defect."
+  },
+  {
+    "id": 84,
+    "q": "In construction material management, 'ABC Analysis' is explicitly utilized to prioritize inventory control. Under this strict mathematical classification, 'Class A' items represent materials that:",
+    "o": [
+      "Are utilized in the absolute highest physical volume (like sand and water)",
+      "Constitute a very small physical percentage of the inventory (e.g., 10%) but account for the vast majority of the total financial cost (e.g., 70%)",
+      "Are completely obsolete and ready for disposal",
+      "Have the absolute shortest physical shelf life"
+    ],
+    "a": "Constitute a very small physical percentage of the inventory (e.g., 10%) but account for the vast majority of the total financial cost (e.g., 70%)",
+    "e": "ABC Analysis strictly controls money, not volume. Class A items (like heavy structural steel or imported elevators) are few in number but massively expensive, demanding extreme daily security and strict procurement control to prevent catastrophic financial loss."
+  },
+  {
+    "id": 85,
+    "q": "When 'Crashing' a CPM network to finish a project early, engineers mathematically calculate the 'Cost Slope' to find the cheapest activity to speed up. The exact formula for Cost Slope is strictly:",
+    "o": [
+      "(Crash Time - Normal Time) / (Crash Cost - Normal Cost)",
+      "(Crash Cost - Normal Cost) / (Normal Time - Crash Time)",
+      "(Normal Cost) / (Crash Time)",
+      "(Crash Cost × Normal Time) / 100"
+    ],
+    "a": "(Crash Cost - Normal Cost) / (Normal Time - Crash Time)",
+    "e": "The Cost Slope explicitly defines exactly how much extra money it costs to shorten an activity by exactly 1 day. It is the mathematical ratio of the extra financial cost incurred divided by the physical time saved."
+  },
+  {
+    "id": 86,
+    "q": "While Liquidated Damages are strictly deducted from the contractor for delaying the project, global construction contracts (like FIDIC) explicitly cap this severe financial penalty to prevent bankrupting the firm. The absolute maximum limit is almost universally capped at:",
+    "o": [
+      "2% of the final contract price",
+      "5% of the final contract price",
+      "10% of the final contract price",
+      "50% of the final contract price"
+    ],
+    "a": "10% of the final contract price",
+    "e": "If a contractor delays endlessly, the daily penalties accrue. However, standard legal frameworks strictly cap the maximum cumulative Liquidated Damages at exactly 10% of the total contract value. If the delay pushes the penalty beyond 10%, the client legally terminates the contract entirely."
+  },
+  {
+    "id": 87,
+    "q": "In site management, to prevent massive financial loss due to the expiration of perishable materials like Portland cement (which degrades rapidly by absorbing atmospheric moisture), the storekeeper must strictly enforce which fundamental logistical protocol?",
+    "o": [
+      "Last In, First Out (LIFO)",
+      "First In, First Out (FIFO)",
+      "Highest Cost, First Out (HCFO)",
+      "Random Selection"
+    ],
+    "a": "First In, First Out (FIFO)",
+    "e": "Cement has a strict physical shelf life (strength drops significantly after 3 months). The FIFO protocol legally and physically mandates that the oldest bags of cement placed in the back of the godown must be explicitly used first, before the freshly delivered bags are touched."
+  },
+  {
+    "id": 88,
+    "q": "To ensure absolute structural safety for workers operating at high elevations on a building facade, occupational safety laws explicitly mandate the use of physical safety nets or personal fall arrest systems (safety harnesses) if the unprotected working height strictly exceeds:",
+    "o": [
+      "0.50 meters",
+      "1.00 meter",
+      "1.80 to 2.00 meters",
+      "5.00 meters"
+    ],
+    "a": "1.80 to 2.00 meters",
+    "e": "A fall from even a single story can be fatal. International safety codes (like OSHA) and strict site management rules universally demand that any worker exposed to an unprotected physical drop exceeding roughly 1.8 to 2.0 meters (6 feet) must be tied off with a harness or protected by guardrails."
+  },
+  {
+    "id": 89,
+    "q": "According to strict standard labor laws governing construction sites to prevent physical exploitation and dangerous exhaustion, the standard regular working shift for a manual laborer is legally capped at:",
+    "o": [
+      "6 hours per day, 36 hours per week",
+      "8 hours per day, 48 hours per week",
+      "10 hours per day, 60 hours per week",
+      "12 hours per day, 72 hours per week"
+    ],
+    "a": "8 hours per day, 48 hours per week",
+    "e": "To ensure workers have adequate physical recovery time and do not cause fatal accidents due to exhaustion, international labor laws rigidly cap standard time at 8 hours a day (for 6 days a week = 48 hours). Any physical labor required beyond this limit must be legally compensated at double the normal wage rate (Overtime)."
+  },
+  {
+    "id": 90,
+    "q": "In construction safety management, after a severe storm, high winds, or heavy rainfall, the absolute first mandatory administrative action before allowing laborers to resume work on the building facade is to:",
+    "o": [
+      "Pay them their wages for the missed days",
+      "Have a competent supervisor physically and thoroughly inspect the entire scaffolding structure for loosened clamps, shifting base plates, and structural instability",
+      "Immediately pour the concrete slab",
+      "Order more cement"
+    ],
+    "a": "Have a competent supervisor physically and thoroughly inspect the entire scaffolding structure for loosened clamps, shifting base plates, and structural instability",
+    "e": "Scaffolding is a highly vulnerable, temporary physical structure. Severe weather violently shakes the tubes, loosens the mechanical couplers, and washes out the earth under the base plates. A strict, logged safety inspection is legally required before any human is allowed back onto the elevated platforms."
+  },
+  {
+    "id": 91,
+    "q": "During the very first physical site clearance and preparation phase (Site Layout), standard environmental and agricultural engineering practices strictly mandate that the top 150 mm of the natural soil must be:",
+    "o": [
+      "Mixed with cement to form a solid base",
+      "Excavated, pushed into a massive pile, and burned",
+      "Carefully stripped, physically stockpiled in a designated safe area, and preserved for final site landscaping and planting",
+      "Used as backfill directly under the structural foundations"
+    ],
+    "a": "Carefully stripped, physically stockpiled in a designated safe area, and preserved for final site landscaping and planting",
+    "e": "The top 150mm (Topsoil) is incredibly rich in organic nutrients and took centuries to form. It is structurally terrible for bearing loads but absolutely vital for plants. Site plans strictly demand it be scraped off and saved explicitly for dressing the gardens and lawns when the project finishes."
+  },
+  {
+    "id": 92,
+    "q": "In a construction contract, the absolute primary and most fundamental legal obligation of the 'Owner' (Client) before the contractor can even physically commence the execution of the works is to:",
+    "o": [
+      "Buy all the heavy machinery for the contractor",
+      "Provide complete, unencumbered physical access and legal possession of the project site to the contractor",
+      "Hire all the daily wage laborers",
+      "Approve the final as-built drawings"
+    ],
+    "a": "Provide complete, unencumbered physical access and legal possession of the project site to the contractor",
+    "e": "If the site is blocked by legal land disputes, squatters, or uncleared utilities, the contractor physically cannot start. The contract explicitly dictates that the Owner must hand over a clean, legally unencumbered site on the strict start date, or face massive financial claims for delaying the contractor's idle machinery."
+  },
+  {
+    "id": 93,
+    "q": "When a severe financial dispute between the Owner and Contractor goes to formal 'Arbitration', the final, legally binding written decision handed down by the arbitrator is technically and legally termed the:",
+    "o": [
+      "Variation Order",
+      "Verdict",
+      "Award",
+      "Settlement"
+    ],
+    "a": "Award",
+    "e": "In the strict legal terminology of alternative dispute resolution, a judge in a court gives a 'Judgment' or 'Verdict', but an Arbitrator in a construction dispute explicitly issues an 'Arbitral Award'. This document holds massive legal power and can be strictly enforced by national courts to seize assets."
+  },
+  {
+    "id": 94,
+    "q": "To ensure the immediate, uninterrupted daily operation of a departmental construction site without navigating massive bureaucratic delays for tiny purchases (like buying a box of nails or repairing a flat tire), the Sub-Engineer is explicitly issued a:",
+    "o": [
+      "Blank government cheque",
+      "Permanent Imprest (Petty Cash) account",
+      "Personal credit card",
+      "Letter of Credit"
+    ],
+    "a": "Permanent Imprest (Petty Cash) account",
+    "e": "The 'Imprest' is a strict, small, fixed cash fund physically kept in the site office safe. The Sub-Engineer uses it instantly for minor, urgent physical expenses. At the end of the month, they strictly submit the receipts to the treasury, and the exact spent amount is replenished to restore the fixed balance."
+  },
+  {
+    "id": 95,
+    "q": "In the specific legal context of construction contracts, a 'Target Contract' (or Target Cost Contract) is explicitly structured to physically and financially incentivize the contractor by:",
+    "o": [
+      "Paying them a massive fixed salary regardless of performance",
+      "Sharing the mathematical financial savings with them if they complete the project below the estimated target cost, but penalizing them if they exceed it",
+      "Allowing them to completely ignore the technical specifications",
+      "Letting them choose their own completion date"
+    ],
+    "a": "Sharing the mathematical financial savings with them if they complete the project below the estimated target cost, but penalizing them if they exceed it",
+    "e": "A Target Contract creates a strict financial partnership. The client and contractor agree on a realistic 'Target Cost'. If the contractor works highly efficiently and physically finishes the building for less money, the savings are mathematically split (e.g., 50/50), driving extreme efficiency."
+  },
+  {
+    "id": 96,
+    "q": "When managing the financial depreciation of heavy construction machinery (like a massive crane), the 'Straight Line Method' is mathematically the simplest. However, which mathematical method more accurately reflects the harsh physical reality that a machine loses massive value in its very first few years of heavy use?",
+    "o": [
+      "Sinking Fund Method",
+      "Declining Balance Method (Constant Percentage Method)",
+      "Sum-of-the-Years-Digits Method",
+      "Quantity Survey Method"
+    ],
+    "a": "Declining Balance Method (Constant Percentage Method)",
+    "e": "Heavy machinery degrades violently when new. The Declining Balance Method mathematically applies a fixed percentage (e.g., 20%) to the *current* book value every year. 20% of a brand new $100,000 crane is a massive $20,000 drop in year one, perfectly mirroring actual physical resale value reality."
+  },
+  {
+    "id": 97,
+    "q": "To physically keep a construction company solvent and operational day-to-day, the contractor must explicitly maintain sufficient 'Working Capital'. In strict financial terms, Working Capital is mathematically defined as:",
+    "o": [
+      "The total value of all massive heavy machinery owned",
+      "Current Assets mathematically minus Current Liabilities",
+      "The total amount of the bank loan",
+      "The final profit at the end of the year"
+    ],
+    "a": "Current Assets mathematically minus Current Liabilities",
+    "e": "Working capital is the absolute lifeblood of the site. It is the accessible cash (Current Assets like cash in bank and pending RA bills) minus immediate debts (Current Liabilities like unpaid cement suppliers and labor wages). If this mathematical number drops below zero, the site physically halts."
+  },
+  {
+    "id": 98,
+    "q": "When explicitly developing a Gantt Chart (Bar Chart) to schedule a building project, the absolute fundamental prerequisite required before a single horizontal time-bar can be physically drawn is:",
+    "o": [
+      "Knowing the final exact profit margin of the contractor",
+      "Explicitly breaking down the entire project into highly specific, manageable, and physically distinct activities (like 'Pouring Foundation' or 'Erecting Columns')",
+      "Hiring all the daily wage laborers",
+      "Securing the final completion certificate"
+    ],
+    "a": "Explicitly breaking down the entire project into highly specific, manageable, and physically distinct activities (like 'Pouring Foundation' or 'Erecting Columns')",
+    "e": "You cannot schedule a vague concept like 'Build Hospital'. The manager must perform a strict Work Breakdown Structure (WBS), explicitly fracturing the massive project into tiny, physical, measurable activities. Only then can the duration of each specific activity be estimated and drawn as a bar."
+  },
+  {
+    "id": 99,
+    "q": "In massive public works contracts, how is the 'Mobilization Advance' safely and legally recovered from the contractor over the physical duration of the project?",
+    "o": [
+      "The contractor writes a single massive check at the very end of the project.",
+      "It is completely forgiven as a bonus if the work is good.",
+      "It is strictly and mathematically deducted on a pro-rata basis from the contractor's subsequent monthly Running Account (RA) bills.",
+      "It is deducted exclusively from the final security deposit."
+    ],
+    "a": "It is strictly and mathematically deducted on a pro-rata basis from the contractor's subsequent monthly Running Account (RA) bills.",
+    "e": "The client gives the contractor cash upfront to start. To safely get this money back, the client's accountant explicitly deducts a strict mathematical percentage (e.g., 15%) from every single monthly payment the contractor earns for physical work, ensuring the advance is 100% recovered before the project finishes."
+  },
+  {
+    "id": 100,
+    "q": "At the absolute final conclusion of a construction project, during the formal physical handover to the Owner, the Contractor and Engineer must strictly compile and submit a highly specialized set of blueprints known as 'As-Built Drawings'. What is their explicit purpose?",
+    "o": [
+      "To mathematically show the initial estimated cost of the building",
+      "To explicitly and physically document the exact, final, true dimensions and locations of all elements as they were actually constructed on-site, including all authorized deviations from the original design",
+      "To show the 3D aesthetic rendering of the facade",
+      "To strictly log the daily attendance of the workforce"
+    ],
+    "a": "To explicitly and physically document the exact, final, true dimensions and locations of all elements as they were actually constructed on-site, including all authorized deviations from the original design",
+    "e": "During 3 years of physical construction, pipes get moved, walls shift slightly, and foundations are deepened due to site realities. The original 'Design Drawings' are no longer accurate. 'As-Built Drawings' strictly map the physical reality of the finished building, which is absolute critical for future maintenance and renovation."
+  }
+
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
+            btn.classList.add('wrong');
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>
+

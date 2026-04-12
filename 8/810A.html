@@ -1,0 +1,1247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = 
+  [
+  {
+    "id": 1,
+    "q": "The most critical objective of any public water supply scheme is to provide the community with water that is strictly:",
+    "o": [
+      "Pure and chemically distilled",
+      "Wholesome, safe, and free from pathogenic bacteria",
+      "Highly rich in all natural dissolved minerals",
+      "Available only during peak morning hours"
+    ],
+    "a": "Wholesome, safe, and free from pathogenic bacteria",
+    "e": "A public water supply cannot provide 100% chemically pure water (which is corrosive and tasteless). The primary objective is to supply 'wholesome' water—water that is palatable, safe, and completely free from disease-causing (pathogenic) microorganisms."
+  },
+  {
+    "id": 2,
+    "q": "In groundwater hydrology, a geological formation that is highly porous and highly permeable, capable of yielding significant quantities of water to wells, is formally classified as an:",
+    "o": [
+      "Aquiclude",
+      "Aquifuge",
+      "Aquitard",
+      "Aquifer"
+    ],
+    "a": "Aquifer",
+    "e": "An 'Aquifer' (like sand and gravel) holds water and easily transmits it. An 'Aquiclude' (like clay) holds water but does not transmit it. An 'Aquifuge' (like solid granite) neither holds nor transmits water."
+  },
+  {
+    "id": 3,
+    "q": "According to standard public health engineering practices, the structural design period typically adopted for a municipal water distribution pipe network is:",
+    "o": [
+      "5 to 10 years",
+      "15 years",
+      "30 years",
+      "50 to 100 years"
+    ],
+    "a": "30 years",
+    "e": "Distribution networks are buried under roads and are extremely disruptive and expensive to replace. Therefore, they are designed to accommodate the projected population growth for a standard design period of 30 years."
+  },
+  {
+    "id": 4,
+    "q": "When calculating the required capacity of water supply infrastructure, the 'Maximum Daily Demand' is empirically estimated to be what exact mathematical factor of the 'Average Daily Demand'?",
+    "o": [
+      "1.2 times",
+      "1.5 times",
+      "1.8 times",
+      "2.7 times"
+    ],
+    "a": "1.8 times",
+    "e": "Water demand fluctuates seasonally and daily. Standard engineering codes dictate that the system must be designed to handle the peak day of the year, which is mathematically estimated as 180% (or 1.8 times) the annual average daily demand."
+  },
+  {
+    "id": 5,
+    "q": "To determine the required balancing capacity (storage capacity) of a service reservoir to handle fluctuating hourly demands against a constant pumping rate, engineers strictly utilize the:",
+    "o": [
+      "Hardy Cross method",
+      "Mass Curve method",
+      "Equivalent Pipe method",
+      "Rational method"
+    ],
+    "a": "Mass Curve method",
+    "e": "A mass curve (Rippl's mass diagram) plots cumulative water supply and cumulative water demand against time. The maximum vertical ordinate difference between the supply line and the demand curve exactly yields the required balancing storage volume."
+  },
+  {
+    "id": 6,
+    "q": "In a long, undulating water transmission main, which specific type of valve is explicitly installed at all the lowest physical depressions (valleys) along the alignment?",
+    "o": [
+      "Air relief valve",
+      "Scour valve (Blow-off valve)",
+      "Sluice valve",
+      "Reflux valve"
+    ],
+    "a": "Scour valve (Blow-off valve)",
+    "e": "Scour valves (or drain valves) are placed exactly at the lowest points of a pipeline to physically drain the entire section of the pipe for maintenance and to flush out accumulated silt and sedimentary deposits."
+  },
+  {
+    "id": 7,
+    "q": "To safely protect a water pumping station from the catastrophic effects of sudden water hammer caused by a pump failure, which valve is strictly installed on the rising main?",
+    "o": [
+      "Reflux valve (Check valve)",
+      "Butterfly valve",
+      "Air valve",
+      "Gate valve"
+    ],
+    "a": "Reflux valve (Check valve)",
+    "e": "A reflux valve (also known as a check valve or non-return valve) strictly allows water to flow in only one direction. If the pump suddenly stops, it instantly snaps shut, physically preventing the massive column of water from reversing and smashing into the pump."
+  },
+  {
+    "id": 8,
+    "q": "In pipeline fitting and plumbing, a 'Reducer' is a specialized mechanical fitting explicitly utilized to:",
+    "o": [
+      "Change the direction of flow by 90 degrees",
+      "Completely block the end of a pipeline",
+      "Connect two continuous pipes of strictly different diameters",
+      "Relieve excess hydraulic pressure"
+    ],
+    "a": "Connect two continuous pipes of strictly different diameters",
+    "e": "A reducer (which can be concentric or eccentric) is physically designed to transition the flow smoothly from a larger diameter pipe to a smaller diameter pipe (or vice versa) without causing excessive turbulence."
+  },
+  {
+    "id": 9,
+    "q": "In the mechanics of water purification, the highly efficient biological layer that physically forms on the top surface of a Slow Sand Filter and consumes pathogenic bacteria is technically termed the:",
+    "o": [
+      "Zoogleal film",
+      "Schmutzdecke",
+      "Biochemical Oxygen layer",
+      "Activated sludge blanket"
+    ],
+    "a": "Schmutzdecke",
+    "e": "The 'Schmutzdecke' (dirty skin) is a biologically active film composed of algae, plankton, and bacteria that forms on the top few centimeters of a slow sand filter. It is the primary mechanism that physically and biologically purifies the water."
+  },
+  {
+    "id": 10,
+    "q": "When comparing filtration mechanics, the standard rate of filtration for a conventional Rapid Sand Filter is approximately how many times greater than that of a standard Slow Sand Filter?",
+    "o": [
+      "2 to 5 times",
+      "10 to 15 times",
+      "30 to 40 times",
+      "100 to 200 times"
+    ],
+    "a": "30 to 40 times",
+    "e": "A Slow Sand Filter processes roughly 100 to 200 liters per hour per square meter (L/h/m²). A Rapid Sand Filter processes roughly 3000 to 6000 L/h/m², making it strictly 30 to 40 times faster due to larger sand grains and backwashing mechanics."
+  },
+  {
+    "id": 11,
+    "q": "When designing a sanitary sewer system for a town, the total volume of sanitary sewage generated is empirically estimated to be exactly what percentage of the total water supplied to the community?",
+    "o": [
+      "40% to 50%",
+      "75% to 80%",
+      "95% to 100%",
+      "120% (including infiltration)"
+    ],
+    "a": "75% to 80%",
+    "e": "Not all water supplied enters the sewer; some is lost to gardening, evaporation, leakage, and consumption. Standard environmental engineering design dictates that exactly 75% to 80% of the public water supply reliably returns as sanitary wastewater."
+  },
+  {
+    "id": 12,
+    "q": "In the hydraulic design of sanitary gravity sewers, the 'Self-Cleansing Velocity' must be strictly achieved at least once a day. The fundamental physical purpose of this velocity is to:",
+    "o": [
+      "Prevent the sewer pipes from bursting under pressure",
+      "Ensure that solid organic and inorganic matter does not permanently settle and choke the pipe",
+      "Prevent the generation of highly explosive methane gases",
+      "Increase the dissolved oxygen content in the sewage"
+    ],
+    "a": "Ensure that solid organic and inorganic matter does not permanently settle and choke the pipe",
+    "e": "Sewage contains suspended solids (feces, grit). If the flow velocity drops too low, these solids physically settle out, putrefy, and eventually block the sewer. A self-cleansing velocity ensures sufficient kinetic energy to scour the bottom and keep solids moving."
+  },
+  {
+    "id": 13,
+    "q": "According to standard sanitation design codes, what is the generally recommended minimum self-cleansing velocity strictly required for a standard sanitary sewer?",
+    "o": [
+      "0.30 m/s",
+      "0.60 to 0.90 m/s",
+      "1.50 to 2.00 m/s",
+      "3.00 m/s"
+    ],
+    "a": "0.60 to 0.90 m/s",
+    "e": "To successfully scour away settling inorganic grit and organic solids, standard design guidelines mandate a minimum physical flow velocity of 0.60 meters per second to 0.90 meters per second when flowing at peak or half-full conditions."
+  },
+  {
+    "id": 14,
+    "q": "A conventional household Septic Tank fundamentally functions as a combined unit performing which two exact physical and biological processes?",
+    "o": [
+      "Aerobic oxidation and filtration",
+      "Primary sedimentation and anaerobic sludge digestion",
+      "Chemical coagulation and flocculation",
+      "Disinfection and evaporation"
+    ],
+    "a": "Primary sedimentation and anaerobic sludge digestion",
+    "e": "A septic tank slows the sewage flow allowing heavy solids to physically settle to the bottom (Sedimentation). In the oxygen-deprived bottom layer, specialized bacteria break down and reduce the volume of the organic matter over time (Anaerobic Digestion)."
+  },
+  {
+    "id": 15,
+    "q": "According to standard IS and building codes for the geometric design of Septic Tanks, what is the absolute minimum physical width permitted to ensure proper flow dynamics?",
+    "o": [
+      "0.50 meters",
+      "0.75 meters",
+      "1.00 meters",
+      "1.50 meters"
+    ],
+    "a": "0.75 meters",
+    "e": "To prevent immediate short-circuiting of raw sewage from the inlet to the outlet and to allow sufficient space for manual cleaning/desludging, codes strictly dictate that the internal width of a septic tank must never be less than 0.75 meters."
+  },
+  {
+    "id": 16,
+    "q": "For the theoretical volumetric design of a household septic tank, the 'Detention Period' (the time sewage physically remains inside the tank) is optimally assumed to strictly fall within the range of:",
+    "o": [
+      "1 to 2 hours",
+      "12 to 36 hours (ideally 24 hours)",
+      "3 to 5 days",
+      "10 to 15 days"
+    ],
+    "a": "12 to 36 hours (ideally 24 hours)",
+    "e": "Unlike rapid municipal settling tanks, a septic tank requires a long, calm detention time to ensure absolute settling of fine solids and separation of floating grease. The standard design assumption strictly targets a 24-hour liquid detention period (ranging from 12 to 36 hours)."
+  },
+  {
+    "id": 17,
+    "q": "In designing the inlet and outlet pipe geometries of a septic tank, standard practice dictates that a 'Tee-fitting' or baffle wall must be used. What is its fundamental physical purpose?",
+    "o": [
+      "To aerate the incoming sewage",
+      "To physically prevent the floating scum layer from being disturbed or escaping into the soak pit",
+      "To increase the flow velocity inside the tank",
+      "To perfectly filter the effluent"
+    ],
+    "a": "To physically prevent the floating scum layer from being disturbed or escaping into the soak pit",
+    "e": "A thick crust of grease and fat (scum) floats on the surface. Tee-fittings direct incoming sewage below the surface so it doesn't break the crust, and they draw outgoing effluent from the clear liquid zone below, physically preventing the scum from clogging the downstream soak pit."
+  },
+  {
+    "id": 18,
+    "q": "In rural water supply engineering for hilly terrains (like rural Nepal), which specific water source is almost universally preferred due to its extreme reliability, natural purity, and ability to be fed purely by gravity?",
+    "o": [
+      "Deep borewells requiring submerged pumps",
+      "Protected natural spring sources located at higher elevations",
+      "Direct extraction from large, flat slow-moving rivers",
+      "Rainwater harvesting ponds"
+    ],
+    "a": "Protected natural spring sources located at higher elevations",
+    "e": "Springs provide naturally filtered, high-quality groundwater. By capping a spring at an elevation physically higher than the village, engineers can design a robust, zero-energy gravity-fed water supply system, eliminating the maintenance nightmares of mechanical pumps in remote areas."
+  },
+  {
+    "id": 19,
+    "q": "Which widely adopted empirical hydraulic formula is explicitly utilized by water supply engineers for calculating the precise frictional head loss in long pressure pipe networks?",
+    "o": [
+      "Manning's Formula",
+      "Hazen-Williams Formula",
+      "Chezy's Formula",
+      "Stokes' Law"
+    ],
+    "a": "Hazen-Williams Formula",
+    "e": "While Manning's formula is excellent for open-channel and sewer gravity flow, the Hazen-Williams equation is empirically designed specifically for water flowing under full pressure in closed pipes, relying on a specific pipe roughness coefficient (C-value)."
+  },
+  {
+    "id": 20,
+    "q": "When selecting pipe materials for a massive, high-pressure municipal water transmission main, which specific material is historically and structurally most favored for its extreme physical durability, high tensile strength, and resistance to impact?",
+    "o": [
+      "Polyvinyl Chloride (PVC)",
+      "High-Density Polyethylene (HDPE)",
+      "Ductile Iron (DI)",
+      "Asbestos Cement (AC)"
+    ],
+    "a": "Ductile Iron (DI)",
+    "e": "For critical, large-diameter transmission mains subjected to massive internal hydrostatic pressure, water hammer, and heavy external traffic loads, Ductile Iron is the universally preferred standard. It bends without breaking (unlike brittle Cast Iron) and handles far more stress than plastics."
+  },
+
+  {
+    "id": 21,
+    "q": "The Peak Hourly Demand is mathematically estimated as exactly what factor of the Annual Average Hourly Demand?",
+    "o": [
+      "1.5 times",
+      "1.8 times",
+      "2.7 times",
+      "3.0 times"
+    ],
+    "a": "2.7 times",
+    "e": "Maximum daily demand is 1.8 times the average daily demand. The maximum hourly demand on that maximum day is 1.5 times the average hourly demand of that maximum day. Therefore, 1.5 × 1.8 = 2.7 times the annual average hourly demand."
+  },
+  {
+    "id": 22,
+    "q": "In a standard Slow Sand Filter, the 'Effective Size' (D10) of the filter sand media strictly falls within the range of:",
+    "o": [
+      "0.20 to 0.30 mm",
+      "0.35 to 0.55 mm",
+      "0.60 to 0.80 mm",
+      "1.00 to 2.00 mm"
+    ],
+    "a": "0.20 to 0.30 mm",
+    "e": "Slow sand filters rely on very fine sand to achieve high bacteriological purification efficiency through the Schmutzdecke. The effective size (D10) is strictly 0.20 to 0.30 mm, whereas rapid sand filters utilize coarser sand (0.35 to 0.55 mm)."
+  },
+  {
+    "id": 23,
+    "q": "The Uniformity Coefficient (Cu) for the sand media utilized in a Rapid Sand Filter is mathematically strictly maintained between:",
+    "o": [
+      "1.3 to 1.7",
+      "1.8 to 2.5",
+      "2.5 to 3.5",
+      "3.5 to 5.0"
+    ],
+    "a": "1.3 to 1.7",
+    "e": "A lower Cu indicates a highly uniform sand size, which is structurally critical in rapid sand filters to ensure uniform bed expansion during backwashing and to prevent the physical stratification of distinct layers. The standard range is strictly 1.3 to 1.7."
+  },
+  {
+    "id": 24,
+    "q": "According to standard building codes, what is the absolute minimum liquid capacity specified for a domestic septic tank serving a small household?",
+    "o": [
+      "500 Liters",
+      "1000 Liters",
+      "1500 Liters",
+      "2000 Liters"
+    ],
+    "a": "1000 Liters",
+    "e": "To ensure a physically sufficient detention time for settling and anaerobic sludge digestion, even in the smallest residential installations, sanitation codes strictly mandate an absolute minimum liquid capacity of exactly 1000 Liters (1.0 cubic meter)."
+  },
+  {
+    "id": 25,
+    "q": "In the geometric design of a standard rectangular septic tank, the recommended ratio of internal length to internal width strictly falls within the range of:",
+    "o": [
+      "1:1 to 1.5:1",
+      "2:1 to 3:1",
+      "4:1 to 5:1",
+      "5:1 to 6:1"
+    ],
+    "a": "2:1 to 3:1",
+    "e": "To forcefully prevent the hydraulic short-circuiting of raw sewage and ensure maximum physical distance and settlement time between the inlet turbulence and the outlet pipe, the length is strictly designed to be 2 to 3 times the internal width."
+  },
+  {
+    "id": 26,
+    "q": "In a septic tank, what is the explicitly recommended minimum 'Freeboard' (the vertical distance between the top liquid level and the inner roof of the tank)?",
+    "o": [
+      "100 mm",
+      "300 mm",
+      "500 mm",
+      "600 mm"
+    ],
+    "a": "300 mm",
+    "e": "A minimum freeboard of exactly 300 mm is strictly mandated to safely accommodate the thick accumulation of floating scum and to safely store explosive anaerobic sewer gases (methane and hydrogen sulfide) before they can safely vent."
+  },
+  {
+    "id": 27,
+    "q": "Which type of valve is explicitly and routinely installed at regular intervals along straight sections of a municipal water distribution network to physically isolate pipeline segments for maintenance?",
+    "o": [
+      "Air relief valve",
+      "Sluice valve (Gate valve)",
+      "Scour valve",
+      "Butterfly valve"
+    ],
+    "a": "Sluice valve (Gate valve)",
+    "e": "Sluice valves, or gate valves, act as the primary isolation mechanisms. They are kept fully open during normal operations to strictly minimize head loss and are closed tight to physically isolate specific grid sections during repairs."
+  },
+  {
+    "id": 28,
+    "q": "In hydrogeology, a highly compacted geological formation (like sandy clay) that holds a significant amount of water but transmits it extremely slowly is formally termed an:",
+    "o": [
+      "Aquifer",
+      "Aquitard",
+      "Aquiclude",
+      "Aquifuge"
+    ],
+    "a": "Aquitard",
+    "e": "An 'Aquitard' physically retards (slows down) the flow of groundwater. While it may contain a vast quantity of water, it yields it at a very slow, commercially insignificant rate compared to a highly permeable aquifer."
+  },
+  {
+    "id": 29,
+    "q": "The fundamental mathematical relationship governing the storage capacity of an unconfined aquifer states that Total Porosity (n) is strictly equal to the sum of:",
+    "o": [
+      "Specific Yield and Specific Retention",
+      "Specific Capacity and Specific Yield",
+      "Permeability and Specific Retention",
+      "Transmissivity and Specific Capacity"
+    ],
+    "a": "Specific Yield and Specific Retention",
+    "e": "When an aquifer is drained by gravity, the volume of water that freely flows out is the 'Specific Yield', and the volume held back against gravity by capillary forces is the 'Specific Retention'. Their mathematical sum strictly equals the total physical Porosity."
+  },
+  {
+    "id": 30,
+    "q": "To physically prevent the dangerous accumulation and potential explosion of sewer gases, sanitary gravity sewers are strictly designed to flow:",
+    "o": [
+      "100% full under pressure",
+      "Partially full (typically 0.5 to 0.8 of the pipe diameter)",
+      "In a perfectly dry state",
+      "With exactly 2 meters of freeboard"
+    ],
+    "a": "Partially full (typically 0.5 to 0.8 of the pipe diameter)",
+    "e": "Sewers must absolutely never run completely full. Flowing partially full leaves a continuous horizontal air space above the sewage, allowing toxic and highly explosive gases to safely ventilate and flow out through manholes and house vents."
+  },
+  {
+    "id": 31,
+    "q": "In the hydraulic design of concrete sewers, what is the generally adopted Maximum Permissible Velocity (Non-scouring velocity) to physically prevent the abrasive erosion of the pipe invert?",
+    "o": [
+      "0.90 m/s",
+      "1.50 m/s",
+      "2.50 to 3.00 m/s",
+      "5.00 m/s"
+    ],
+    "a": "2.50 to 3.00 m/s",
+    "e": "While a minimum velocity prevents solid settling (approx. 0.6 m/s), excessive velocity causes the grit and sand carried in the sewage to act like sandpaper, physically eroding the concrete pipe invert. The safe upper limit is strictly capped between 2.50 to 3.00 m/s."
+  },
+  {
+    "id": 32,
+    "q": "To safely protect a shallow groundwater well from bacteriological contamination originating from a nearby pit latrine, public health codes strictly mandate a minimum physical horizontal separation distance of at least:",
+    "o": [
+      "5 meters",
+      "15 meters",
+      "50 meters",
+      "100 meters"
+    ],
+    "a": "15 meters",
+    "e": "Pathogens from a pit latrine can physically travel through the groundwater table. A strict minimum horizontal separation of exactly 15 meters (often increased to 30m in highly permeable soils) is required to allow the natural soil matrix to filter out and kill the bacteria."
+  },
+  {
+    "id": 33,
+    "q": "The standard Biochemical Oxygen Demand (BOD5) test, universally utilized to measure the organic pollution strength of wastewater, is strictly conducted at a controlled incubator temperature of 20°C for a period of:",
+    "o": [
+      "2 days",
+      "3 days",
+      "5 days",
+      "7 days"
+    ],
+    "a": "5 days",
+    "e": "The standard BOD test physically measures the precise amount of dissolved oxygen consumed by aerobic microorganisms over exactly 5 days at 20°C. This specific time period consistently captures the vast majority of the carbonaceous organic matter digestion."
+  },
+  {
+    "id": 34,
+    "q": "'Infiltration Galleries' are horizontal perforated conduits constructed in shallow, permeable riverbed aquifers. To intercept the maximum possible volume of groundwater, they must be physically aligned:",
+    "o": [
+      "Perfectly parallel to the direction of groundwater flow",
+      "Exactly perpendicular to the direction of groundwater flow",
+      "At a 45-degree angle to the riverbank",
+      "Vertically downwards like a tube well"
+    ],
+    "a": "Exactly perpendicular to the direction of groundwater flow",
+    "e": "To physically maximize the interception cross-section of the flowing subsurface aquifer, infiltration galleries are laid out horizontally at a strict 90-degree right angle (perpendicular) to the natural direction of the subsurface groundwater movement."
+  },
+  {
+    "id": 35,
+    "q": "Kuichling's empirical formula is widely utilized to mathematically estimate the required Fire Demand (Q) in liters per minute for a municipality. If 'P' is the population in thousands, the exact formula is:",
+    "o": [
+      "Q = 3182 × P",
+      "Q = 3182 × √P",
+      "Q = 100 × P",
+      "Q = 4637 × √P [1 - 0.01√P]"
+    ],
+    "a": "Q = 3182 × √P",
+    "e": "Kuichling's classical formula strictly estimates the fire demand of an urban area based entirely on the square root of the population (in thousands), yielding the mathematically precise equation Q = 3182 √P (measured in L/min)."
+  },
+  {
+    "id": 36,
+    "q": "In the chemical coagulation process of water treatment, 'Alum' (Aluminum Sulfate) is universally utilized. For Alum to physically form a heavy, gelatinous floc, the raw water must strictly possess a natural minimum level of:",
+    "o": [
+      "Acidity",
+      "Alkalinity",
+      "Salinity",
+      "Turbidity"
+    ],
+    "a": "Alkalinity",
+    "e": "Alum reacts chemically with the natural bicarbonate alkalinity present in the water to form Aluminum Hydroxide (the actual sticky floc mass). If the water strictly lacks sufficient alkalinity, artificial alkalinity (like lime) must be dosed for the reaction to occur."
+  },
+  {
+    "id": 37,
+    "q": "The presence of a 'Drop Manhole' in a sanitary sewer system is structurally mandated when a smaller branch sewer physically joins a deeper main sewer, and the vertical difference in their invert elevations strictly exceeds:",
+    "o": [
+      "0.20 meters",
+      "0.45 meters",
+      "0.60 meters",
+      "1.50 meters"
+    ],
+    "a": "0.60 meters",
+    "e": "If raw sewage free-falls from a height strictly greater than 0.60 meters, it causes severe splashing, violently releases highly toxic gases, and physically scours the manhole floor. A drop manhole utilizes a vertical drop pipe to safely guide the sewage down to the lower invert."
+  },
+  {
+    "id": 38,
+    "q": "In a pressurized water transmission main, specialized 'Air Relief Valves' must be physically installed at which specific geometric locations along the pipeline profile?",
+    "o": [
+      "At all the lowest valley points",
+      "At all the highest peak (summit) points",
+      "Exactly every 100 meters horizontally",
+      "Immediately before the scour valves"
+    ],
+    "a": "At all the highest peak (summit) points",
+    "e": "Dissolved air in the water naturally comes out of solution and physically accumulates at the highest physical summits of the pipeline. If not safely expelled by air relief valves, these air pockets will cause 'air binding' and completely block the water flow."
+  },
+  {
+    "id": 39,
+    "q": "Standard environmental engineering practice explicitly dictates that the structural design period for a modern Water Treatment Plant (excluding the distribution pipes and dams) is typically optimized for:",
+    "o": [
+      "5 years",
+      "15 years",
+      "30 years",
+      "50 years"
+    ],
+    "a": "15 years",
+    "e": "While buried pipes are rigidly designed for 30 years and dams for 50 years due to the difficulty of replacement, water treatment plants contain rapidly wearing mechanical and electrical components. Therefore, their physical capacity is strictly optimized for a 15-year horizon."
+  },
+  {
+    "id": 40,
+    "q": "In remote rural water supply schemes where sophisticated chemical dosing is impossible, the simplest, cheapest, and most universally reliable method for disinfecting a community well is the direct application of:",
+    "o": [
+      "Liquid Ozone",
+      "Ultraviolet (UV) radiation",
+      "Bleaching powder (Calcium Hypochlorite)",
+      "Potassium Permanganate"
+    ],
+    "a": "Bleaching powder (Calcium Hypochlorite)",
+    "e": "Bleaching powder safely releases free chlorine when dissolved in water, highly effectively destroying pathogens. It is physically easy to transport as a dry powder, simple to store, and requires absolutely zero electrical or mechanical infrastructure to apply in remote rural settings."
+  },
+
+
+  {
+    "id": 41,
+    "q": "According to standard public health engineering codes for towns and cities fully equipped with a complete water carriage (full flushing) sewage system, the standard domestic daily water demand is precisely defined as:",
+    "o": [
+      "135 lpcd",
+      "150 lpcd",
+      "200 lpcd",
+      "225 lpcd"
+    ],
+    "a": "200 lpcd",
+    "e": "For lower-income groups or towns without a full flushing system, 135 liters per capita per day (lpcd) is standard. However, for a fully developed town with a complete flushing sanitary system, the baseline domestic demand is strictly upgraded to exactly 200 lpcd."
+  },
+  {
+    "id": 42,
+    "q": "In determining the absolute maximum required capacity of a municipal water supply transmission and pumping system, the 'Coincident Draft' is mathematically defined as the simultaneous sum of:",
+    "o": [
+      "Maximum daily demand and maximum hourly demand",
+      "Average daily demand and fire demand",
+      "Maximum daily demand and fire demand",
+      "Maximum hourly demand and fire demand"
+    ],
+    "a": "Maximum daily demand and fire demand",
+    "e": "A water system must be robust enough to handle a severe fire occurring on the absolute hottest, highest-demand day of the year. Thus, the Coincident Draft strictly equals the Maximum Daily Demand plus the calculated Fire Demand."
+  },
+  {
+    "id": 43,
+    "q": "The standard structural design period for massive, high-capital water supply infrastructure, specifically concrete or earthen impounding storage dams, is universally optimized for a minimum of:",
+    "o": [
+      "15 years",
+      "30 years",
+      "50 years",
+      "100 years"
+    ],
+    "a": "50 years",
+    "e": "While pumps are designed for 15 years and pipe networks for 30 years, massive civil structures like storage dams are incredibly difficult and expensive to upgrade or replace. They are strictly designed for a 50-year structural and demographic horizon."
+  },
+  {
+    "id": 44,
+    "q": "In pipeline hydraulic design, to minimize frictional head loss while physically preventing the long-term deposition of suspended solids, the normal flow velocity in municipal water distribution pipes is optimally maintained within the strict range of:",
+    "o": [
+      "0.30 to 0.60 m/s",
+      "0.90 to 1.50 m/s",
+      "1.50 to 2.50 m/s",
+      "2.50 to 3.50 m/s"
+    ],
+    "a": "0.90 to 1.50 m/s",
+    "e": "Velocities below 0.90 m/s allow silt and sediment to settle in the pipes. Velocities above 1.50 m/s cause severe frictional head loss, noise, and massive water hammer stresses during valve closures. The safe optimal range is strictly 0.90 to 1.50 m/s."
+  },
+  {
+    "id": 45,
+    "q": "For standard domestic plumbing networks, to ensure residential appliances function correctly without physically blowing out internal seals or bursting flexible hoses, the maximum residual water pressure head at the consumer's tap should generally not exceed:",
+    "o": [
+      "10 to 15 meters",
+      "20 to 30 meters",
+      "40 to 50 meters",
+      "70 to 80 meters"
+    ],
+    "a": "40 to 50 meters",
+    "e": "A minimum head of 10-15m is needed to reach upper floors. However, pressures exceeding 50 meters (roughly 5 kg/cm²) exert immense physical stress on domestic plumbing joints and rubber seals, causing leaks and violent water hammer."
+  },
+  {
+    "id": 46,
+    "q": "In a Rapid Sand Filter, the continuous filtration process must be physically halted and the backwashing process mandatorily initiated when the total frictional head loss across the clogged sand bed reaches exactly:",
+    "o": [
+      "0.5 to 1.0 meters",
+      "1.2 to 1.5 meters",
+      "2.5 to 3.0 meters",
+      "4.5 to 5.0 meters"
+    ],
+    "a": "2.5 to 3.0 meters",
+    "e": "As impurities physically clog the sand pores, the resistance to downward flow increases, generating 'head loss'. Once this loss reaches a critical limit of 2.5 to 3.0 meters, negative pressure (air binding) occurs within the bed, mandating immediate backwashing."
+  },
+  {
+    "id": 47,
+    "q": "During the mechanical backwashing cycle of a Rapid Sand Filter, high-velocity water is pumped upwards, physically lifting and expanding the sand bed to scour away trapped dirt. The optimal percentage of this physical bed expansion is strictly designed to be:",
+    "o": [
+      "5% to 10%",
+      "20% to 50%",
+      "60% to 80%",
+      "100% to 150%"
+    ],
+    "a": "20% to 50%",
+    "e": "The upward hydraulic force must be strong enough to suspend the sand grains (fluidization) so they aggressively rub against each other and release dirt, requiring an expansion of exactly 20% to 50% of its original depth, without washing the sand out of the filter."
+  },
+  {
+    "id": 48,
+    "q": "In the structural and hydraulic design of a domestic septic tank, public health engineering codes strictly mandate that the absolute minimum liquid depth (water depth) inside the tank must never be less than:",
+    "o": [
+      "0.50 meters",
+      "0.75 meters",
+      "1.00 meter",
+      "1.50 meters"
+    ],
+    "a": "1.00 meter",
+    "e": "A minimum physical depth of exactly 1.00 meter (typically ranging up to 1.80 meters) is strictly required to ensure adequate vertical separation space for the heavy sludge at the bottom, the clear liquid zone in the middle, and the floating scum layer at the top."
+  },
+  {
+    "id": 49,
+    "q": "According to empirical sludge accumulation data utilized globally for septic tank design, the average physical volume of digested sludge accumulated per capita per year is typically assumed to be strictly:",
+    "o": [
+      "10 Liters",
+      "30 Liters",
+      "60 Liters",
+      "100 Liters"
+    ],
+    "a": "30 Liters",
+    "e": "Over time, raw solids digest and compact into dense sludge. For design calculations regarding how frequently a tank must be pumped out (desludged), engineers strictly allocate a sludge accumulation volume of precisely 30 Liters per person per year."
+  },
+  {
+    "id": 50,
+    "q": "In rural water supply projects, particularly in developing and hilly regions like rural Nepal, the standard baseline domestic water demand design criterion for communities served strictly by public standposts (tap stands) is precisely:",
+    "o": [
+      "25 lpcd",
+      "45 lpcd",
+      "65 lpcd",
+      "135 lpcd"
+    ],
+    "a": "45 lpcd",
+    "e": "Without piped indoor plumbing or flush toilets, rural consumption is physically limited by the effort required to carry water. National rural water supply guidelines strictly adopt exactly 45 liters per capita per day (lpcd) for public standpost systems."
+  },
+  {
+    "id": 51,
+    "q": "The 'Specific Capacity' of a groundwater well, which physically measures its true hydraulic performance and efficiency, is mathematically defined and expressed in standard units of:",
+    "o": [
+      "Discharge per unit of time (e.g., m³/hr)",
+      "Drawdown per unit of time (e.g., m/hr)",
+      "Discharge per unit of drawdown (e.g., m³/hr/m)",
+      "Total volume per unit area (e.g., m³/m²)"
+    ],
+    "a": "Discharge per unit of drawdown (e.g., m³/hr/m)",
+    "e": "Specific capacity indicates exactly how much water a well yields for every 1 meter of physical drop in the water level (drawdown) during pumping. It is the strict ratio of Discharge (Q) divided by Drawdown (s)."
+  },
+  {
+    "id": 52,
+    "q": "In hydrogeology, a 'Deep Well' is structurally and functionally distinguished from a 'Shallow Well' not purely by its physical depth in meters, but strictly because the deep well:",
+    "o": [
+      "Utilizes a submersible mechanical pump rather than a hand pump",
+      "Is always greater than 50 meters in depth",
+      "Physically rests upon and draws water strictly from below an impervious geological layer (aquitard/aquiclude)",
+      "Yields perfectly pure distilled water"
+    ],
+    "a": "Physically rests upon and draws water strictly from below an impervious geological layer (aquitard/aquiclude)",
+    "e": "A shallow well taps into the uppermost, unconfined aquifer and is highly susceptible to surface contamination. A deep well is physically drilled through at least one impermeable rock or clay layer, tapping into a confined, highly protected aquifer below."
+  },
+  {
+    "id": 53,
+    "q": "In calculating the Peak Flow for a sanitary sewer network, the 'Peak Factor' mathematically scales up the average flow. For a small residential population of less than 50,000 persons, the Peak Factor is universally adopted as:",
+    "o": [
+      "1.5",
+      "2.0",
+      "2.5",
+      "3.0"
+    ],
+    "a": "3.0",
+    "e": "Smaller populations exhibit highly synchronized domestic routines (e.g., everyone waking up and using the bathroom simultaneously), causing massive, sharp spikes in sewage flow. Thus, a high Peak Factor of exactly 3.0 is strictly utilized for design."
+  },
+  {
+    "id": 54,
+    "q": "In water treatment, the specific chemical dosage process explicitly designed to neutralize the negative electrical charges on microscopic suspended colloidal particles, allowing them to physically collide and stick together, is strictly termed:",
+    "o": [
+      "Flocculation",
+      "Coagulation",
+      "Sedimentation",
+      "Disinfection"
+    ],
+    "a": "Coagulation",
+    "e": "Colloidal clay particles naturally carry negative electrical charges and physically repel each other, keeping them suspended indefinitely. 'Coagulation' is the rapid chemical addition (like Alum) that neutralizes these charges. 'Flocculation' is the subsequent slow physical stirring to build the flocs."
+  },
+  {
+    "id": 55,
+    "q": "To physically prevent the entrainment of fish and massive amounts of heavy submerged debris, the entrance flow velocity of raw water passing through the physical bar screens of a river intake structure is strictly limited to a maximum of:",
+    "o": [
+      "0.15 to 0.30 m/s",
+      "0.60 to 0.90 m/s",
+      "1.00 to 1.50 m/s",
+      "2.00 to 2.50 m/s"
+    ],
+    "a": "0.15 to 0.30 m/s",
+    "e": "If the intake suction velocity is too high, fish and heavy debris are forcefully pinned against the screens, blocking the flow entirely. To allow fish to safely swim away against the suction, the entrance velocity is strictly kept very low, between 0.15 and 0.30 m/s."
+  },
+  {
+    "id": 56,
+    "q": "In sanitary sewer pipe design, the 'Crown' of the pipe refers to the highest physical internal point of the pipe cross-section, while the lowest internal physical point where the wastewater actually flows is technically and formally termed the:",
+    "o": [
+      "Soffit",
+      "Obvert",
+      "Invert",
+      "Haunch"
+    ],
+    "a": "Invert",
+    "e": "The 'Invert' strictly designates the lowest point on the internal physical surface of a sewer pipe or channel. Sewer gradients and elevations are universally designed and laid out strictly based on their invert levels."
+  },
+  {
+    "id": 57,
+    "q": "When laying out a sanitary gravity sewer network, standard public health engineering codes strictly dictate that a physical Manhole must be provided at:",
+    "o": [
+      "Every 500 meters along a straight run",
+      "Every change in grade, direction, diameter, and at all intersections",
+      "The exact mid-point of every street segment",
+      "Only the lowest terminal point of the network"
+    ],
+    "a": "Every change in grade, direction, diameter, and at all intersections",
+    "e": "Sewer pipes must be laid in perfectly straight lines and perfectly uniform gradients between manholes. Any physical deviation in direction, slope, or pipe size disrupts flow and requires a manhole to allow for inspection and unblocking."
+  },
+  {
+    "id": 58,
+    "q": "In designing a gravity-fed rural water transmission main traversing steep, mountainous terrain, 'Break Pressure Tanks' (BPTs) are explicitly and physically introduced along the pipeline profile to:",
+    "o": [
+      "Store excess water for the dry season",
+      "Filter out heavy sediment and sand",
+      "Safely reduce extreme hydrostatic pressure to exactly zero, preventing the downhill pipes from bursting",
+      "Increase the flow velocity in the pipes"
+    ],
+    "a": "Safely reduce extreme hydrostatic pressure to exactly zero, preventing the downhill pipes from bursting",
+    "e": "In steep drops, the static water pressure builds up immensely, far exceeding the physical bursting strength of standard HDPE or PVC pipes. A BPT physically opens the flow to the atmosphere, instantly dropping the accumulated hydrostatic head to zero."
+  },
+  {
+    "id": 59,
+    "q": "For the highly space-efficient operation of a modern municipal water treatment plant, the specialized structure known as a 'Clariflocculator' structurally and physically combines which two distinct water treatment processes into one single circular unit?",
+    "o": [
+      "Aeration and Filtration",
+      "Flocculation and Sedimentation",
+      "Coagulation and Disinfection",
+      "Filtration and Softening"
+    ],
+    "a": "Flocculation and Sedimentation",
+    "e": "A Clariflocculator features an inner circular chamber equipped with slow-moving paddles for gentle Flocculation (building the flocs). The water then flows seamlessly into the much larger, quieter outer annular chamber where Sedimentation (settling of the flocs) physically occurs."
+  },
+  {
+    "id": 60,
+    "q": "In the geometric structural design of the outlet baffle (or tee-fitting) of a standard septic tank, to physically prevent the floating scum layer from escaping into the soak pit, the baffle must strictly penetrate downwards into the liquid to a depth of:",
+    "o": [
+      "Exactly 10% of the total liquid depth",
+      "Approximately 40% of the total liquid depth",
+      "Approximately 75% of the total liquid depth",
+      "Exactly 100% (touching the bottom)"
+    ],
+    "a": "Approximately 40% of the total liquid depth",
+    "e": "The outlet baffle must physically bypass the thick floating scum layer at the top, but it must not reach too deep or it will suck up the settled sludge from the bottom. Engineering codes specify it must strictly draw from the clearest middle zone, roughly 40% of the liquid depth down."
+  },
+
+  {
+    "id": 61,
+    "q": "In the design of a water distribution network, the main distribution pipes are physically and mathematically designed to strictly accommodate the:",
+    "o": [
+      "Maximum daily demand",
+      "Maximum hourly demand on the maximum day",
+      "Average daily demand plus fire demand",
+      "Annual average hourly demand"
+    ],
+    "a": "Maximum hourly demand on the maximum day",
+    "e": "The distribution network is the final delivery system to the consumers. To prevent severe pressure drops during peak usage, standard engineering codes dictate that distribution mains must be explicitly sized for the absolute peak flow, which is the Maximum Hourly Demand on the Maximum Day."
+  },
+  {
+    "id": 62,
+    "q": "For a town water supply, if the pumping rate from the treatment plant is perfectly uniform for 24 hours, the required balancing capacity of the service reservoir is exactly determined by the maximum cumulative difference between:",
+    "o": [
+      "The mass curve of supply and the mass curve of demand",
+      "The minimum daily demand and average daily demand",
+      "The fire demand and the coincident draft",
+      "The infiltration rate and the evaporation rate"
+    ],
+    "a": "The mass curve of supply and the mass curve of demand",
+    "e": "Using Rippl's Mass Diagram, plotting the cumulative volume of water supplied (a straight line for uniform pumping) against the cumulative volume of water demanded (a curved line) yields the balancing storage. The maximum vertical ordinate difference between these two physical lines dictates the exact tank capacity."
+  },
+  {
+    "id": 63,
+    "q": "Which specific mechanical valve is strictly installed at the extreme dead ends of a water distribution pipe network to physically remove stagnant water and accumulated sedimentary deposits?",
+    "o": [
+      "Sluice valve",
+      "Scour valve (Blow-off valve)",
+      "Air relief valve",
+      "Reflux valve"
+    ],
+    "a": "Scour valve (Blow-off valve)",
+    "e": "Dead ends in a gridiron or tree system collect stagnant water, rust, and dirt over time, degrading water quality. A Scour valve (or Blow-off valve) is physically placed at these terminal points and lowest depressions strictly to flush and drain the system."
+  },
+  {
+    "id": 64,
+    "q": "In domestic plumbing and pipe fittings, a specialized physical fitting explicitly utilized to permanently close the open, internally threaded end of a galvanized iron (GI) pipe is formally termed a:",
+    "o": [
+      "Cap",
+      "Plug",
+      "Nipple",
+      "Union"
+    ],
+    "a": "Plug",
+    "e": "A 'Plug' physically features external (male) threads and is screwed into an internally threaded fitting to block it. A 'Cap' features internal (female) threads and is screwed over an externally threaded pipe end."
+  },
+  {
+    "id": 65,
+    "q": "In the operational mechanics of a Rapid Sand Filter, the severe hydraulic phenomenon known as 'Air Binding' strictly occurs due to:",
+    "o": [
+      "Excessive positive water pressure above the sand bed",
+      "Negative pressure (vacuum) development inside the filter bed releasing dissolved gases",
+      "Excessively large sand grains allowing air to enter from the top",
+      "High temperatures causing the water to physically boil"
+    ],
+    "a": "Negative pressure (vacuum) development inside the filter bed releasing dissolved gases",
+    "e": "As the filter clogs, frictional head loss increases heavily. If the head loss exceeds the static water head above the sand, the pressure inside the bed drops below atmospheric pressure (a vacuum). This physically forces dissolved air out of the water, forming bubbles that violently blind the filter."
+  },
+  {
+    "id": 66,
+    "q": "In sanitary engineering, the physical quantity of 'Infiltration' entering a gravity sewer network mathematically strictly depends upon the:",
+    "o": [
+      "Population density of the contributing area",
+      "Depth of the sewer invert below the groundwater table and the total length of the sewer",
+      "Biological oxygen demand (BOD) of the raw sewage",
+      "Number of domestic house connections"
+    ],
+    "a": "Depth of the sewer invert below the groundwater table and the total length of the sewer",
+    "e": "Infiltration is groundwater physically seeping into the sewer through defective joints and cracks. The magnitude of this seepage is strictly governed by the external hydrostatic pressure (depth below the water table) and the total surface area of joints exposed (length and diameter of the sewer)."
+  },
+  {
+    "id": 67,
+    "q": "In a sanitary sewer, if the physical flow velocity drops significantly below the designed 'Self-Cleansing Velocity' (e.g., dropping below 0.40 m/s), the immediate physical consequence is:",
+    "o": [
+      "The sewer pipe will burst under extreme pressure",
+      "Deposition of solid organic and inorganic matter on the pipe invert",
+      "Immediate generation of massive methane explosions",
+      "The concrete pipe will corrode chemically instantly"
+    ],
+    "a": "Deposition of solid organic and inorganic matter on the pipe invert",
+    "e": "The self-cleansing velocity (minimum 0.60 to 0.90 m/s) provides the kinetic energy required to keep solids suspended. If velocity drops, heavy inorganic grit and organic feces physically settle out, putrefy, and eventually block the sewer invert entirely."
+  },
+  {
+    "id": 68,
+    "q": "For a standard Ventilated Improved Pit (VIP) latrine, what is the explicitly physical function of the tall vertical ventilation pipe fitted with a fly screen at the top?",
+    "o": [
+      "To supply oxygen to the bottom for aerobic sludge digestion",
+      "To physically flush out the pit with collected rainwater",
+      "To continuously draw out foul odors and physically trap disease-carrying flies inside the pit",
+      "To structurally support the latrine's roof superstructure"
+    ],
+    "a": "To continuously draw out foul odors and physically trap disease-carrying flies inside the pit",
+    "e": "The sun heats the dark vent pipe, creating a physical updraft that pulls fresh air down through the squat hole and exhausts odors high above. Flies entering the pit are attracted to the light at the top of the pipe but are physically trapped and killed by the screen."
+  },
+  {
+    "id": 69,
+    "q": "When designing the physical geometric dimensions of a household septic tank, the rate of sludge accumulation is empirically and safely assumed to be roughly:",
+    "o": [
+      "5 to 10 liters per capita per year",
+      "20 to 30 liters per capita per year",
+      "50 to 75 liters per capita per year",
+      "100 to 150 liters per capita per year"
+    ],
+    "a": "20 to 30 liters per capita per year",
+    "e": "Over time, raw solids digest anaerobically and compact into dense sludge at the bottom of the tank. For volume design calculations regarding desludging intervals, engineers strictly allocate an accumulation volume of precisely 20 to 30 liters per person per year."
+  },
+  {
+    "id": 70,
+    "q": "An 'Artesian Spring' (or Artesian Well) physically occurs and flows continuously strictly when the groundwater is confined under massive pressure between two impervious layers, and the ground surface geometrically drops below the:",
+    "o": [
+      "Mean sea level",
+      "Piezometric surface of the confined aquifer",
+      "Aquitard bedrock level",
+      "Zone of capillary aeration"
+    ],
+    "a": "Piezometric surface of the confined aquifer",
+    "e": "The piezometric surface is the imaginary physical height to which water from a confined aquifer would rise due to its own internal hydrostatic pressure. If the natural ground surface dips below this imaginary line, the water physically erupts out of the ground under its own pressure."
+  },
+  {
+    "id": 71,
+    "q": "The physical structural design period for water treatment plant units (such as clarifiers, mixing basins, and filter beds) is universally recommended by standard engineering codes to be strictly:",
+    "o": [
+      "5 years",
+      "15 years",
+      "30 years",
+      "50 years"
+    ],
+    "a": "15 years",
+    "e": "While buried pipes are rigidly designed for 30 years and dams for 50 years, water treatment plants contain rapidly wearing mechanical and electrical components and can be upgraded in modules. Therefore, their physical capacity is strictly optimized for a 15-year demographic horizon."
+  },
+  {
+    "id": 72,
+    "q": "To mathematically calculate the hydraulic friction head loss in a long, circular water transmission pipe flowing completely full, the universally adopted Darcy-Weisbach formula strictly states that head loss is directly proportional to the:",
+    "o": [
+      "Square root of the flow velocity",
+      "Flow velocity",
+      "Square of the flow velocity",
+      "Cube of the flow velocity"
+    ],
+    "a": "Square of the flow velocity",
+    "e": "The Darcy-Weisbach equation is h_f = (f * L * V^2) / (2 * g * D). It explicitly demonstrates that the frictional head loss is mathematically directly proportional to the square of the flow velocity (V^2)."
+  },
+  {
+    "id": 73,
+    "q": "In the physical design of gravity-flow rural water supply transmission networks in steep mountainous regions, what specialized masonry or concrete structure is strictly introduced to physically break excessive hydrostatic pressure?",
+    "o": [
+      "Intake chamber",
+      "Break Pressure Tank (BPT)",
+      "Sedimentation basin",
+      "Concrete thrust block"
+    ],
+    "a": "Break Pressure Tank (BPT)",
+    "e": "In steep downhill drops, static water pressure builds up immensely, far exceeding the physical bursting strength of standard HDPE pipes (typically 6 to 10 kg/cm2). A BPT physically discharges the water into an open tank at atmospheric pressure, instantly dropping the hydrostatic head to zero."
+  },
+  {
+    "id": 74,
+    "q": "The physical 'Sludge Digestion' process occurring at the dark, oxygen-deprived bottom of a household septic tank is biologically executed entirely by:",
+    "o": [
+      "Aerobic bacteria",
+      "Anaerobic bacteria",
+      "Facultative algae",
+      "Zoogleal film"
+    ],
+    "a": "Anaerobic bacteria",
+    "e": "Because the septic tank is sealed and buried, and oxygen is rapidly depleted by the sewage, the breakdown of the settled organic solids strictly relies on anaerobic bacteria (bacteria that thrive in the absolute absence of free oxygen), producing methane gas."
+  },
+  {
+    "id": 75,
+    "q": "In a pressurized water transmission main, a 'Pressure Relief Valve' is explicitly and physically installed to protect the pipeline strictly against:",
+    "o": [
+      "Air binding and vacuum collapse",
+      "Excessive water hammer or sudden hydraulic surge pressures",
+      "Backflow of contaminated groundwater",
+      "Sediment accumulation and corrosion"
+    ],
+    "a": "Excessive water hammer or sudden hydraulic surge pressures",
+    "e": "Sudden valve closures or pump failures send massive shockwaves (water hammer) through the pipe. A pressure relief valve is spring-loaded to instantly physically open and discharge water the exact moment the internal pressure spikes above a safe preset limit, protecting the pipe from shattering."
+  },
+  {
+    "id": 76,
+    "q": "When physically joining two continuous lengths of galvanized iron (GI) pipes of the exact same diameter where neither pipe can be physically rotated or turned, the strictly required mechanical fitting is a:",
+    "o": [
+      "Socket",
+      "Nipple",
+      "Union",
+      "Reducer"
+    ],
+    "a": "Union",
+    "e": "A socket requires turning at least one pipe. A 'Union' consists of three physical parts, including a central spinning nut that draws the two pipe ends tightly together. This allows a leak-proof connection without physically rotating either of the fixed pipe segments."
+  },
+  {
+    "id": 77,
+    "q": "The physical presence of 'Infiltration' in a sanitary sewer system mathematically refers to the explicitly unintended entry of:",
+    "o": [
+      "Rainwater from roof drains and street gutters",
+      "Industrial chemical wastewater",
+      "Groundwater seeping in through defective pipe joints and cracks",
+      "High-pressure public water supply leakage"
+    ],
+    "a": "Groundwater seeping in through defective pipe joints and cracks",
+    "e": "In sanitary engineering, 'Inflow' refers to surface water (rain from manholes/roofs) entering the sewer. 'Infiltration' is strictly defined as subsurface groundwater physically seeping into the sewer network through cracked pipes and poorly sealed joints."
+  },
+  {
+    "id": 78,
+    "q": "To physically prevent the abrasive scouring and erosion of the concrete invert in a sanitary gravity sewer, the absolute maximum permissible flow velocity must strictly NOT exceed:",
+    "o": [
+      "0.60 to 0.90 m/s",
+      "1.20 to 1.50 m/s",
+      "2.50 to 3.00 m/s",
+      "5.00 to 6.00 m/s"
+    ],
+    "a": "2.50 to 3.00 m/s",
+    "e": "While a minimum velocity of 0.6 m/s prevents settling, excessive velocity causes the grit and sand carried in the sewage to act like sandpaper, physically eroding the concrete pipe invert. The safe upper limit (non-scouring velocity) is strictly capped between 2.50 to 3.00 m/s."
+  },
+  {
+    "id": 79,
+    "q": "In the physical design of a twin-pit pour-flush latrine, the two pits are strictly utilized alternately. Once the first pit is completely full and physically sealed, the anaerobic digestion process requires a minimum resting period to safely neutralize pathogens before manual emptying. This resting period is strictly:",
+    "o": [
+      "1 to 3 months",
+      "6 months",
+      "12 to 18 months (or 1 to 1.5 years)",
+      "5 years"
+    ],
+    "a": "12 to 18 months (or 1 to 1.5 years)",
+    "e": "When the first pit is full, the flow is diverted to the second pit. The first pit is sealed. Over a strict minimum resting period of 12 to 18 months, the anaerobic bacteria fully digest the waste, completely destroying pathogens (like Ascaris eggs), turning the dangerous sludge into safe, dry, odorless compost."
+  },
+  {
+    "id": 80,
+    "q": "In a Rapid Sand Filter, the 'Under-drainage System' (a physical network of perforated pipes at the bottom) serves a dual structural purpose: collecting the filtered water downwards, and strictly:",
+    "o": [
+      "Injecting chlorine gas for final disinfection",
+      "Distributing the high-pressure backwash water uniformly upwards through the sand bed",
+      "Mechanically scraping the Schmutzdecke layer",
+      "Aerating the raw incoming water"
+    ],
+    "a": "Distributing the high-pressure backwash water uniformly upwards through the sand bed",
+    "e": "The primary structural and hydraulic function of the under-drain manifold and laterals in a Rapid Sand Filter is to collect clear water during filtration, and crucially, to forcefully and uniformly inject clean water upwards during the backwash cycle to fluidize and clean the sand."
+  }
+
+
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
+            btn.classList.add('wrong');
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>
+

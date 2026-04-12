@@ -1,0 +1,884 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = 
+  [
+  {
+    "id": 1,
+    "q": "According to standard public works accounting procedures, a completely new 'Revised Estimate' must strictly and legally be prepared if the actual sanctioned original estimate is anticipated to be exceeded by more than what exact percentage?",
+    "o": [
+      "2.5%",
+      "5.0%",
+      "10.0%",
+      "15.0%"
+    ],
+    "a": "5.0%",
+    "e": "Financial codes strictly mandate that if the total cost of the project is expected to exceed the original sanctioned administrative approval by more than exactly 5.0% due to price escalations or quantity variations, a formal Revised Estimate must be structurally prepared and re-sanctioned."
+  },
+  {
+    "id": 2,
+    "q": "In preliminary estimation, the 'Cubical Content Method' calculates the cost by multiplying the total volume of the building by a local rate. Geometrically, how is the physical height of the building determined for this specific volume calculation?",
+    "o": [
+      "From the bottom of the foundation trench to the top of the roof",
+      "From the ground level to the bottom of the roof slab",
+      "From the top of the floor level to the ceiling level",
+      "From the top of the floor level to the exact midpoint of the roof (for pitched roofs) or top of the flat roof"
+    ],
+    "a": "From the top of the floor level to the exact midpoint of the roof (for pitched roofs) or top of the flat roof",
+    "e": "The total physical volume for the Cubical Content Estimate is strictly the product of the external plinth area and the height. This geometric height is universally measured from the top of the finished floor level to the top of a flat roof, or exactly halfway up the height of a sloped pitched roof."
+  },
+  {
+    "id": 3,
+    "q": "In standard methods of measurement for construction works (such as IS 1200), the physical laying of a standard 2.5 cm thick Damp Proof Course (DPC) is universally quantified and paid strictly in units of:",
+    "o": [
+      "Running meters (m)",
+      "Square meters (m²)",
+      "Cubic meters (m³)",
+      "Kilograms (kg)"
+    ],
+    "a": "Square meters (m²)",
+    "e": "Because the physical thickness of the DPC (typically 25 mm or 40 mm) is strictly fixed and explicitly specified in the item description, the volume calculation is unnecessary. The contractor is measured and paid based purely on the flat, two-dimensional surface area covered, in Square Meters (m²)."
+  },
+  {
+    "id": 4,
+    "q": "When measuring the quantities of woodwork for doors and windows in a standard Bill of Quantities (BOQ), how are the wooden frames (Choukhats) and the wooden shutters physically measured respectively?",
+    "o": [
+      "Frames in m², Shutters in m³",
+      "Frames in m³, Shutters in m²",
+      "Both strictly in Running meters",
+      "Both strictly in Square meters"
+    ],
+    "a": "Frames in m³, Shutters in m²",
+    "e": "Heavy wooden frames possess significant and variable volume, so they are explicitly measured in cubic meters (m³). Conversely, standard door/window shutters have a highly specified, uniform thickness, so they are quantified strictly by their surface area in square meters (m²)."
+  },
+  {
+    "id": 5,
+    "q": "According to standard measurement codes, minor architectural projections like continuous skirting, cornices, and decorative wall copings are universally measured and quantified strictly in units of:",
+    "o": [
+      "Running meters (m)",
+      "Square meters (m²)",
+      "Cubic meters (m³)",
+      "Numbers (Count)"
+    ],
+    "a": "Running meters (m)",
+    "e": "Because these architectural elements possess a fixed, uniform cross-sectional profile along their entire length, calculating their area or volume is redundant. They are explicitly estimated and paid for strictly based on their continuous linear length in Running Meters (m)."
+  },
+  {
+    "id": 6,
+    "q": "In the formal preparation of a Detailed Estimate, what is the exact mathematical percentage of the total estimated cost universally set aside to physically cover 'Contingencies' (unforeseen incidental expenses)?",
+    "o": [
+      "1.0% to 1.5%",
+      "3.0% to 5.0%",
+      "7.5% to 10.0%",
+      "15.0%"
+    ],
+    "a": "3.0% to 5.0%",
+    "e": "Contingencies are explicitly provisioned to financially absorb minor, completely unpredicted expenses that inevitably arise during physical construction execution. Standard accounting rules strictly allocate exactly 3.0% to 5.0% of the total estimated base cost for this safeguard."
+  },
+  {
+    "id": 7,
+    "q": "To legally and financially cover the salaries of temporary site staff directly employed for the specific project (like guards, watchmen, and site supervisors), an allowance termed 'Work-Charged Establishment' is provided. This is strictly calculated as:",
+    "o": [
+      "1.0% of the estimated cost",
+      "1.5% to 2.0% of the estimated cost",
+      "5.0% of the estimated cost",
+      "10.0% of the estimated cost"
+    ],
+    "a": "1.5% to 2.0% of the estimated cost",
+    "e": "The Work-Charged Establishment fund explicitly guarantees the payment of temporary staff hired exclusively to physically oversee and secure the specific project site. Public works departments universally allocate exactly 1.5% to 2.0% of the total estimate strictly for this purpose."
+  },
+  {
+    "id": 8,
+    "q": "In estimating the exact physical material quantities for standard cement concrete, the total dry volume of the mixed raw materials (cement, sand, and coarse aggregate) is mathematically assumed to be what factor of the final wet compacted volume?",
+    "o": [
+      "1.10 to 1.15 times",
+      "1.25 to 1.30 times",
+      "1.52 to 1.54 times",
+      "2.00 times"
+    ],
+    "a": "1.52 to 1.54 times",
+    "e": "When water is physically added to the dry mix, the fine particles completely collapse into the physical voids between the coarse aggregate, shrinking the overall volume. To produce 1.0 m³ of dense wet concrete, you must mathematically begin with approximately 1.52 to 1.54 m³ of completely dry ingredients."
+  },
+  {
+    "id": 9,
+    "q": "For the absolute structural calculation of material requirements, exactly how many standard modular bricks (with a nominal size of 200 mm × 100 mm × 100 mm including the 10 mm mortar joint) are physically required to construct exactly 1.0 cubic meter of brick masonry?",
+    "o": [
+      "400 bricks",
+      "450 bricks",
+      "500 bricks",
+      "550 bricks"
+    ],
+    "a": "500 bricks",
+    "e": "The mathematical nominal volume of one single modular brick with its surrounding mortar joint is strictly 0.2m × 0.1m × 0.1m = 0.002 m³. Therefore, the exact physical number of bricks required for 1.0 m³ is mathematically 1.0 / 0.002 = precisely 500 bricks."
+  },
+  {
+    "id": 10,
+    "q": "During the rigorous physical Rate Analysis of brick masonry, the actual dry volume of cement-sand mortar required to bond exactly 1.0 cubic meter of standard brickwork is empirically assumed to be approximately:",
+    "o": [
+      "0.10 to 0.15 cubic meters",
+      "0.30 cubic meters (30%)",
+      "0.45 cubic meters",
+      "0.60 cubic meters"
+    ],
+    "a": "0.30 cubic meters (30%)",
+    "e": "Because standard bricks are imperfect and absorb water, and physical frog filling and joint thickness require massive amounts of paste, it is empirically standardized that explicitly 30% of the total physical volume of the masonry (i.e., 0.30 m³ per 1.0 m³ of brickwork) is consumed strictly by the wet mortar."
+  },
+  {
+    "id": 11,
+    "q": "In the formal preparation of a strict Rate Analysis for any given construction item, what is the universally adopted standard mathematical percentage added to the total prime cost (materials + labor + tools) to represent the 'Contractor's Profit'?",
+    "o": [
+      "5.0%",
+      "10.0%",
+      "15.0%",
+      "20.0%"
+    ],
+    "a": "10.0%",
+    "e": "The Contractor's Profit is explicitly intended to financially reward the contractor for their organizational effort, risk, and business capital investment. Standard public works rate schedules globally fix this profit margin perfectly at exactly 10.0% of the total base execution cost."
+  },
+  {
+    "id": 12,
+    "q": "In addition to the Contractor's Profit, standard Rate Analysis mathematically incorporates a strict percentage surcharge to directly compensate the contractor for the cost of pumping, storing, and applying water on the site. This 'Water Charge' is strictly evaluated at:",
+    "o": [
+      "1.0% to 1.5%",
+      "3.0%",
+      "5.0%",
+      "7.5%"
+    ],
+    "a": "1.0% to 1.5%",
+    "e": "Vast quantities of water are physically consumed in mixing concrete, curing masonry, and domestic use by laborers. The financial estimate strictly mandates an additional explicit surcharge, almost universally codified at 1.0% to 1.5% of the total cost, to cover all physical water expenditures."
+  },
+  {
+    "id": 13,
+    "q": "In formal tender bidding documentation, the critical document known as the 'Bill of Quantities' (BOQ) is structurally defined as an exhaustive tabular statement containing the:",
+    "o": [
+      "Architectural floor plans and structural reinforcement details",
+      "Complete itemized list of all work items with their exact estimated quantities, but strictly without the final priced rates filled in by the estimator",
+      "Legal contractual terms and conditions of the penalty clauses",
+      "Names of all the laborers and engineers assigned to the project"
+    ],
+    "a": "Complete itemized list of all work items with their exact estimated quantities, but strictly without the final priced rates filled in by the estimator",
+    "e": "The BOQ explicitly details exactly *what* must be built and in *what physical quantity*, item by item. It is issued blank (unpriced) to the competing contractors, who then mathematically fill in their own specific monetary rates against each quantity to calculate their total bid."
+  },
+  {
+    "id": 14,
+    "q": "When calculating the earthwork volumes for massive highway embankments, the standard basic horizontal distance the excavated earth must be physically transported from the cutting to the filling site without incurring extra haulage charges is officially termed the 'Lead'. What is the standard physical baseline Lead distance?",
+    "o": [
+      "10.0 meters",
+      "30.0 meters",
+      "50.0 meters",
+      "100.0 meters"
+    ],
+    "a": "30.0 meters",
+    "e": "Standard rate schedules explicitly define the base cost of earthwork to include moving the dirt horizontally by a fixed 'Lead'. If the contractor physically transports the earth beyond this strict baseline of exactly 30.0 meters, they are legally entitled to extra financial compensation."
+  },
+  {
+    "id": 15,
+    "q": "Similarly, the baseline 'Lift'—the standard maximum vertical height the excavated earth must physically be lifted out of a deep trench or onto a high embankment without triggering an extra payment claim—is strictly defined as:",
+    "o": [
+      "1.0 meter",
+      "1.5 meters",
+      "2.5 meters",
+      "3.0 meters"
+    ],
+    "a": "1.5 meters",
+    "e": "The physical effort required to lift dirt vertically against gravity is massive. Standard estimating norms dictate a fundamental baseline 'Lift' of strictly 1.5 meters. For every physical 1.5-meter vertical increment above this, an extra explicit lifting rate must be paid to the contractor."
+  },
+  {
+    "id": 16,
+    "q": "In construction project management, if a severe direct contradiction arises in the field between the physical dimensions drawn on the official architectural blueprints and the written text in the legal contract documentation, which source holds absolute structural and legal priority?",
+    "o": [
+      "The Blueprint Drawings",
+      "The Detailed Specifications",
+      "The Preliminary Estimate",
+      "The verbal instructions of the site supervisor"
+    ],
+    "a": "The Detailed Specifications",
+    "e": "The 'Detailed Specifications' form the strict, unyielding legal backbone of the contract, explicitly detailing the exact quality, methodology, and standards of the physical work. In any legal dispute or dimensional conflict, the written Specification absolutely overrides the graphic Drawings."
+  },
+  {
+    "id": 17,
+    "q": "In Real Estate Valuation engineering, the exact theoretical estimated monetary value of a building property strictly at the very end of its physical utility period, completely dismantled and sold piece-by-piece as raw junk material, is explicitly termed its:",
+    "o": [
+      "Salvage value",
+      "Scrap value",
+      "Book value",
+      "Market value"
+    ],
+    "a": "Scrap value",
+    "e": "Scrap value physically represents the worth of the raw, dismantled rubble (bricks, steel, timber). It is typically estimated mathematically as exactly 10% of the total original cost of construction, after subtracting the physical cost of the demolition."
+  },
+  {
+    "id": 18,
+    "q": "Conversely, what is the specific technical term utilized to define the estimated financial value of an old property or machine at the end of its useful lifespan if it is explicitly sold entirely intact, completely without being physically dismantled?",
+    "o": [
+      "Scrap value",
+      "Salvage value",
+      "Capitalized value",
+      "Obsolescence value"
+    ],
+    "a": "Salvage value",
+    "e": "Salvage value explicitly assumes the asset is kept completely whole. For instance, an old, intact wooden door sold second-hand holds its 'Salvage value'. If that exact same door is smashed to pieces and sold strictly as firewood, it yields its lower 'Scrap value'."
+  },
+  {
+    "id": 19,
+    "q": "In complex financial valuation, a structurally sound and perfectly usable modern building can still rapidly suffer a massive drop in its market value simply because its architectural design, aesthetic style, or utility has become totally outdated. This strict economic phenomenon is defined as:",
+    "o": [
+      "Physical Depreciation",
+      "Depletion",
+      "Obsolescence",
+      "Sinking devaluation"
+    ],
+    "a": "Obsolescence",
+    "e": "Obsolescence is strictly an economic and technological loss of value, not a physical one. A perfectly strong, functioning building loses massive value because new technologies, fashion trends, or urban shifts make it totally undesirable (obsolete) to modern buyers."
+  },
+  {
+    "id": 20,
+    "q": "To mathematically prepare for the eventual replacement of a building at the exact end of its physical lifespan, an owner must explicitly set aside a fixed annual sum of money from their rental income into an interest-bearing account. This dedicated financial accumulation is strictly termed a:",
+    "o": [
+      "Capitalized fund",
+      "Sinking fund",
+      "Depreciation reserve",
+      "Contingency fund"
+    ],
+    "a": "Sinking fund",
+    "e": "A 'Sinking Fund' is a strict mathematical mechanism. By depositing a calculated sum every single year at a compound interest rate, the absolute total accumulated amount will perfectly equal the original construction cost (minus scrap value) exactly on the day the building becomes useless."
+  },
+  {
+    "id": 21,
+    "q": "In calculating the gradual deterioration of an asset, the 'Straight Line Method' of mathematical depreciation explicitly and strictly assumes that the property physically loses its value by:",
+    "o": [
+      "A constantly decreasing percentage every year",
+      "A constantly increasing fixed amount every year",
+      "An absolutely constant, mathematically equal fixed financial amount every single year",
+      "A value completely proportional to current market inflation"
+    ],
+    "a": "An absolutely constant, mathematically equal fixed financial amount every single year",
+    "e": "The Straight Line Method mathematically assumes the physical wear and tear is perfectly uniform. The Annual Depreciation = (Original Cost - Scrap Value) / Life in years. Therefore, the exact same monetary value is strictly deducted from the asset's worth every single year."
+  },
+  {
+    "id": 22,
+    "q": "In valuation mathematics, the highly critical multiplier known as 'Years Purchase' (YP) is explicitly utilized to calculate the Capitalized Value of a property. How is this YP multiplier mathematically defined?",
+    "o": [
+      "The total life of the building multiplied by the interest rate",
+      "100 strictly divided by the prevailing annual rate of interest",
+      "The net annual rent divided by 100",
+      "The total gross income multiplied by the sinking fund factor"
+    ],
+    "a": "100 strictly divided by the prevailing annual rate of interest",
+    "e": "Years Purchase strictly represents the exact capital sum that must be invested today at a specific interest rate to yield an annual income of exactly 1 Rupee. Mathematically, YP = 100 / Rate of Interest (e.g., at 5% interest, YP = 100/5 = 20)."
+  },
+  {
+    "id": 23,
+    "q": "The 'Capitalized Value' of a property is a fundamental metric in real estate. It is strictly and mathematically computed by multiplying the property's Net Annual Income by its:",
+    "o": [
+      "Expected physical lifespan",
+      "Sinking fund factor",
+      "Years Purchase (YP)",
+      "Annual rate of depreciation"
+    ],
+    "a": "Years Purchase (YP)",
+    "e": "The Capitalized Value reveals exactly how much bulk money a buyer should pay today to acquire the building's income stream. It is strictly the mathematical product of the Net Annual Income generated by the property multiplied by the calculated Years Purchase."
+  },
+  {
+    "id": 24,
+    "q": "For standard public accounting purposes, the 'Book Value' of a physical asset in any specific year is formally and mathematically defined strictly as:",
+    "o": [
+      "Its current prevailing market auction price",
+      "Its total original capital cost of construction without any deductions",
+      "Its original capital cost strictly minus all accumulated mathematical depreciation up to that exact year",
+      "Its scrap value plus the sinking fund"
+    ],
+    "a": "Its original capital cost strictly minus all accumulated mathematical depreciation up to that exact year",
+    "e": "The Book Value is the theoretical worth shown strictly on the financial ledgers. It physically goes down every year. It represents the original price mathematically stripped of all calculated depreciation charges up to the current date, completely ignoring actual market price fluctuations."
+  },
+  {
+    "id": 25,
+    "q": "In calculating Labor Productivity (Task Work) for standard Rate Analysis estimates, what is the physically expected average daily output of exactly one skilled mason executing standard brick masonry in the superstructure utilizing cement mortar?",
+    "o": [
+      "0.50 cubic meters",
+      "1.00 to 1.25 cubic meters",
+      "2.50 to 3.00 cubic meters",
+      "5.00 cubic meters"
+    ],
+    "a": "1.00 to 1.25 cubic meters",
+    "e": "Task Work empirically defines the absolute physical volume of work a skilled laborer can complete in an 8-hour shift. For a bricklayer working safely and accurately on a superstructure wall, standard estimating codes universally peg the output at exactly 1.0 to 1.25 m³ per day."
+  },
+  {
+    "id": 26,
+    "q": "When conducting detailed estimates for massive earthwork excavations, the physical operation of completely clearing the site by cutting down all brushwood, dense shrubs, and small jungle vegetation before digging begins is standardly quantified strictly in units of:",
+    "o": [
+      "Running meters (m)",
+      "Square meters (m²)",
+      "Cubic meters (m³)",
+      "Weight (Kilograms)"
+    ],
+    "a": "Square meters (m²)",
+    "e": "Jungle clearance is purely a surface-level preparation activity. Because the physical thickness/volume of the brushwood is highly variable and impossible to measure structurally, the contractor is explicitly paid based strictly on the flat ground surface area cleared, in Square Meters (m²)."
+  },
+  {
+    "id": 27,
+    "q": "To safeguard the client against defective workmanship or materials failing shortly after construction, the client legally retains a small percentage of the contractor's monthly payment until the project's defect liability period is over. This withheld fund is strictly termed:",
+    "o": [
+      "Earnest money",
+      "Security deposit (or Retention money)",
+      "Mobilization advance",
+      "Contingency reserve"
+    ],
+    "a": "Security deposit (or Retention money)",
+    "e": "While 'Earnest Money' is submitted *before* bidding to prove serious intent, the 'Security Deposit' (usually 5% to 10%) is continuously and strictly deducted from the running bills during physical construction, acting as a powerful legal guarantee against faulty work."
+  },
+  {
+    "id": 28,
+    "q": "In standard masonry Rate Analysis, assuming absolutely zero physical wastage, how many exact bags of standard Portland cement (weighing 50 kg each) are strictly contained within exactly 1.0 cubic meter of dry cement volume?",
+    "o": [
+      "20.0 bags",
+      "24.5 bags",
+      "28.8 bags",
+      "35.0 bags"
+    ],
+    "a": "28.8 bags",
+    "e": "The standard physical volume of one 50 kg bag of cement is approximately 0.0347 m³. Mathematically, dividing exactly 1.0 m³ by the volume of one bag (1.0 / 0.0347) strictly yields 28.818 bags. Estimators universally utilize 28.8 bags to represent 1.0 m³."
+  },
+  {
+    "id": 29,
+    "q": "During the formal abstract of cost preparation, the 'Abstract Estimate' itself explicitly and formally serves to:",
+    "o": [
+      "Detail the exact architectural dimensions of every single room",
+      "Specify the brand and chemical quality of the cement to be utilized",
+      "Summarize the total calculated quantities from the measurement sheet, multiply them strictly by their respective approved rates, and determine the grand total financial cost",
+      "List the daily attendance of the site laborers"
+    ],
+    "a": "Summarize the total calculated quantities from the measurement sheet, multiply them strictly by their respective approved rates, and determine the grand total financial cost",
+    "e": "The Detailed Estimate has two distinct phases. Phase 1 is the 'Details of Measurement' (calculating physical quantities L×B×H). Phase 2 is the 'Abstract of Estimated Cost', which explicitly lists those final quantities, mathematically multiplies them by the unit rates, and adds the percentages for contingencies/profit to finalize the grand total."
+  },
+  {
+    "id": 30,
+    "q": "According to the rigid rules of structural measurement in IS 1200, the physical area of standard rectangular door and window openings must be mathematically deducted from the total wall area when calculating plastering or brickwork. However, very small openings are strictly ignored and NOT deducted if their physical area does not mathematically exceed:",
+    "o": [
+      "0.10 square meters",
+      "0.50 square meters",
+      "1.00 square meters",
+      "2.00 square meters"
+    ],
+    "a": "0.50 square meters",
+    "e": "To avoid highly tedious and negligible calculations, estimating codes strictly dictate a mathematical threshold. Small ventilation holes, minor pipe sleeves, or tiny windows whose total geometric physical area is exactly 0.50 m² (or less) are universally ignored and not deducted from the total wall measurement."
+  },
+
+
+  {
+    "id": 31,
+    "q": "For obtaining the initial administrative approval from the competent authority to sanction funds for a proposed government project, which specific type of estimate is strictly prepared?",
+    "o": [
+      "Detailed estimate",
+      "Revised estimate",
+      "Preliminary (Approximate) estimate",
+      "Supplementary estimate"
+    ],
+    "a": "[Preliminary (Approximate) estimate]",
+    "e": "A Preliminary or Approximate estimate provides a rough cost to the sanctioning authority to evaluate the financial viability of the project before investing heavy resources into detailed surveys and precise structural drawings."
+  },
+  {
+    "id": 32,
+    "q": "In preparing a Plinth Area Estimate, the physically measured plinth area must strictly EXCLUDE the geometric area of which of the following?",
+    "o": [
+      "Covered porches",
+      "Internal shafts for sanitary pipes exceeding 2.0 square meters",
+      "Habitable rooms",
+      "Lift wells"
+    ],
+    "a": "[Internal shafts for sanitary pipes exceeding 2.0 square meters]",
+    "e": "While the plinth area includes the external walls and usable floors, standard estimating codes explicitly dictate that internal open courtyards and large sanitary or ventilation shafts exceeding 2.0 square meters must be physically deducted from the total plinth measurement."
+  },
+  {
+    "id": 33,
+    "q": "According to the rigid rules of IS 1200 for civil works measurement, the physical earthwork executed for surface excavation (where the depth of cutting is strictly less than 15 cm) is quantified and paid for in units of:",
+    "o": [
+      "Cubic meters",
+      "Square meters",
+      "Running meters",
+      "Percentage of Cubic meters"
+    ],
+    "a": "[Square meters]",
+    "e": "Earthwork is typically measured in cubic meters. However, if the excavation involves simply scraping or leveling the topsoil where the physical depth does not mathematically exceed 15 cm (150 mm), it is strictly quantified by its flat two-dimensional surface area in Square Meters."
+  },
+  {
+    "id": 34,
+    "q": "In standard structural estimation, the temporary timber or steel framework provided to support wet concrete, known as Centering and Shuttering (Formwork), is universally physically measured in:",
+    "o": [
+      "Cubic meters",
+      "Square meters",
+      "Running meters",
+      "Lump sum"
+    ],
+    "a": "[Square meters]",
+    "e": "Formwork is a surface-contact material. Because the physical volume of the timber or steel does not determine the cost, the contractor is measured and paid strictly based on the exact two-dimensional surface area of the wet concrete it physically supports, expressed in Square Meters."
+  },
+  {
+    "id": 35,
+    "q": "A 'Supplementary Estimate' is legally and technically prepared and submitted for sanctioning strictly under which specific operational condition?",
+    "o": [
+      "When the original sanctioned cost is exceeded by more than 5%",
+      "When there is a material deviation from the original architectural drawings",
+      "When totally new, additional works are required that were completely omitted from the original sanctioned estimate",
+      "When the contractor demands higher rates"
+    ],
+    "a": "[When totally new, additional works are required that were completely omitted from the original sanctioned estimate]",
+    "e": "If completely new structural elements or additions are demanded during execution that were not part of the original project scope, a 'Supplementary Estimate' is strictly drafted. A 'Revised Estimate' is for cost overruns on the original items."
+  },
+  {
+    "id": 36,
+    "q": "In the mathematical calculation of reinforcement steel for RC structures, a highly reliable and universally adopted empirical formula to quickly calculate the exact physical weight of a standard steel bar per meter of length is:",
+    "o": [
+      "D^2 / 100 kg/m",
+      "D^2 / 162 kg/m",
+      "D^2 / 200 kg/m",
+      "D^3 / 162 kg/m"
+    ],
+    "a": "[D^2 / 162 kg/m]",
+    "e": "Assuming the specific physical density of mild steel is exactly 7850 kg/m3, the mathematical weight of a 1-meter long cylindrical bar evaluates to approximately D^2 / 162.2. For rapid field estimation, this is strictly rounded and adopted as D^2 / 162 kg/m (where D is the bar diameter in millimeters)."
+  },
+  {
+    "id": 37,
+    "q": "During the physical Rate Analysis of cement concrete, what is the universally accepted strict empirical allowance mathematically added to explicitly cover the cost of 'Tools and Plants' (T&P)?",
+    "o": [
+      "1.0% to 1.5%",
+      "3.0% to 5.0%",
+      "10.0%",
+      "15.0%"
+    ],
+    "a": "[1.0% to 1.5%]",
+    "e": "Minor tools, concrete mixers, and physical equipment suffer wear and tear. Standard rate analysis mathematically allocates exactly 1.0% to 1.5% of the total prime cost (materials plus labor) explicitly to financially compensate the contractor for Tools and Plants (T&P)."
+  },
+  {
+    "id": 38,
+    "q": "For the detailed volumetric calculation of mortar required for 100 square meters of 12 mm thick internal cement plastering, the theoretical dry volume of the mortar mix is mathematically estimated to be roughly:",
+    "o": [
+      "1.20 cubic meters",
+      "1.50 cubic meters",
+      "2.00 cubic meters",
+      "3.00 cubic meters"
+    ],
+    "a": "[2.00 cubic meters]",
+    "e": "The exact wet volume is 100 x 0.012 = 1.20 m3. To mathematically account for filling uneven brick joints and depressions (add 20-30%) and then converting the wet compacted paste to loose dry ingredients (add 25%), the total dry volume required is strictly estimated at approximately 2.00 cubic meters."
+  },
+  {
+    "id": 39,
+    "q": "In public procurement and tendering, an 'Open Specification' is technically defined as a written contractual specification that explicitly:",
+    "o": [
+      "Strictly names a single, specific brand of material to be used",
+      "Allows any physical product or material to be utilized as long as it successfully meets the required minimum technical performance standards",
+      "Leaves the choice of material entirely up to the laborers",
+      "Has no legal binding power"
+    ],
+    "a": "[Allows any physical product or material to be utilized as long as it successfully meets the required minimum technical performance standards]",
+    "e": "A 'Closed Specification' forces the contractor to buy one exact physical brand. An 'Open Specification' strictly defines the required chemical and physical properties, allowing the contractor to competitively source any brand that mathematically and physically meets those exact minimum criteria."
+  },
+  {
+    "id": 40,
+    "q": "To accurately determine the financial tax liability of a property, municipal authorities structurally perform a specific type of valuation explicitly known as:",
+    "o": [
+      "Book valuation",
+      "Ratable value assessment",
+      "Scrap valuation",
+      "Salvage valuation"
+    ],
+    "a": "[Ratable value assessment]",
+    "e": "Municipalities mathematically calculate the 'Ratable Value' (or Net Annual Letting Value) of a building. This strictly represents the theoretical reasonable rent the property could physically generate in a year, minus standard deductions for structural maintenance, and forms the strict legal basis for municipal property taxation."
+  },
+  {
+    "id": 41,
+    "q": "In structural estimating, the 'Center Line Method' provides a highly rapid technique for calculating total wall lengths. However, at every physical 'L-shaped' corner junction of the walls, how is the geometric center line measurement handled?",
+    "o": [
+      "Half the wall thickness is deducted",
+      "Full wall thickness is deducted",
+      "No mathematical deduction is made; the center line length remains unchanged",
+      "Twice the wall thickness is added"
+    ],
+    "a": "[No mathematical deduction is made; the center line length remains unchanged]",
+    "e": "At a simple L-shaped corner (where two walls meet), the geometric extra volume calculated on the outer physical corner perfectly cancels out the geometric missing volume on the inner corner. Therefore, absolutely zero mathematical deductions are required at L-junctions in the Center Line Method."
+  },
+  {
+    "id": 42,
+    "q": "Conversely, when utilizing the Center Line Method, at every 'T-shaped' cross-wall junction (where a partition wall structurally meets a main wall), the exact mathematical deduction applied to the total center line length is:",
+    "o": [
+      "Zero",
+      "Exactly half the thickness of the meeting wall",
+      "Exactly the full thickness of the meeting wall",
+      "One and a half times the wall thickness"
+    ],
+    "a": "[Exactly half the thickness of the meeting wall]",
+    "e": "At a physical T-junction, the geometric center lines cross. The physical volume of the intersection is mathematically counted twice. To perfectly correct this structural overlap, exactly half the physical thickness (t/2) of the intersecting wall must be strictly subtracted for every single T-junction."
+  },
+  {
+    "id": 43,
+    "q": "In valuation engineering, the specific financial process of systematically paying off a debt or physically writing off the capitalized cost of an intangible asset (like a lease or patent) through mathematically equal periodic payments over its lifespan is strictly termed:",
+    "o": [
+      "Depreciation",
+      "Obsolescence",
+      "Amortization",
+      "Annuity"
+    ],
+    "a": "[Amortization]",
+    "e": "While 'Depreciation' physically applies to tangible, decaying structural assets (like buildings and machinery), 'Amortization' is the strict financial and accounting term explicitly utilized for the gradual, mathematical writing off of the cost of intangible assets or long-term financial loans."
+  },
+  {
+    "id": 44,
+    "q": "Which standard method of mathematically calculating physical depreciation structurally assumes that the property loses its value by a strictly constant, fixed percentage of its existing book value at the beginning of every single year?",
+    "o": [
+      "Straight Line Method",
+      "Constant Percentage Method (Declining Balance Method)",
+      "Sinking Fund Method",
+      "Quantity Survey Method"
+    ],
+    "a": "[Constant Percentage Method (Declining Balance Method)]",
+    "e": "The Constant Percentage Method mathematically dictates that the depreciation is heaviest in the early years (when the book value is high) and gradually decreases. This structurally mirrors the true physical wear and tear of mechanical equipment, which degrades heavily when new."
+  },
+  {
+    "id": 45,
+    "q": "In the standard IS 1200 measurement rules for construction works, the physical supply and installation of standard barbed wire fencing is universally quantified and paid for strictly in units of:",
+    "o": [
+      "Square meters",
+      "Cubic meters",
+      "Kilograms",
+      "Running meters"
+    ],
+    "a": "[Running meters]",
+    "e": "Standard barbed wire fencing or wire mesh fencing is physically installed in continuous linear stretches. Because the height and strand count are explicitly fixed in the item specification, it is strictly measured and financially quantified by its continuous linear length in Running Meters."
+  },
+  {
+    "id": 46,
+    "q": "In evaluating the detailed material consumption for Reinforced Cement Concrete (RCC) structural elements, standard estimation practices generally assume the physical volume of steel reinforcement to be roughly what percentage of the total concrete volume?",
+    "o": [
+      "0.1% to 0.5%",
+      "0.7% to 1.5%",
+      "3.0% to 5.0%",
+      "10% to 15%"
+    ],
+    "a": "[0.7% to 1.5%]",
+    "e": "While heavy columns may require up to 4%, average typical RCC elements (beams, slabs, foundations) mathematically consume steel physically occupying only about 0.7% to 1.5% of the total gross geometric volume of the concrete structure."
+  },
+  {
+    "id": 47,
+    "q": "In public works contracts, a highly critical document that strictly itemizes the exact sequence of physical operations, the specific quality of materials, and the exact workmanship standards legally demanded from the contractor is the:",
+    "o": [
+      "Bill of Quantities",
+      "Abstract of Cost",
+      "Detailed Specification",
+      "Measurement Book"
+    ],
+    "a": "[Detailed Specification]",
+    "e": "The 'Detailed Specification' is the strict legal narrative of the contract. It physically defines the exact chemical composition of materials, the required mixing ratios, and the precise mechanical methods of execution that the contractor is legally bound to follow."
+  },
+  {
+    "id": 48,
+    "q": "During physical Rate Analysis, 'Carriage' refers to the cost of transporting materials. The standard mathematical cost explicitly incorporates the 'Lead'. What does the term 'Lead' strictly represent?",
+    "o": [
+      "The vertical height materials must be lifted",
+      "The total weight of the material in metric tonnes",
+      "The direct horizontal physical distance from the source of the material to the construction site",
+      "The time taken by the transport vehicle"
+    ],
+    "a": "[The direct horizontal physical distance from the source of the material to the construction site]",
+    "e": "'Lead' is purely the strict horizontal linear distance the construction material must be physically transported. It dictates the haulage rate. ('Lift' is the corresponding term for vertical physical movement)."
+  },
+  {
+    "id": 49,
+    "q": "For the strict geometric measurement of physical plastering work, IS 1200 dictates that deductions for standard door and window openings must be handled mathematically. For large physical openings exceeding exactly 3.0 square meters in area, the deduction made is:",
+    "o": [
+      "No deduction is made",
+      "Deduction is made for one face of the wall only",
+      "Full deduction is made for both faces of the wall and the jambs/soffits are measured separately",
+      "Half deduction is made"
+    ],
+    "a": "[Full deduction is made for both faces of the wall and the jambs/soffits are measured separately]",
+    "e": "Small openings (<= 0.5 m2) are ignored. Medium openings (0.5 to 3.0 m2) have one face deducted. For massive physical openings exceeding strictly 3.0 m2, the full area is mathematically deducted from both faces of the wall, and the plastering of the inner jambs, sills, and soffits is physically measured and added back in."
+  },
+  {
+    "id": 50,
+    "q": "A fixed, mathematical series of uniform annual financial payments made by an owner to completely repay a structural loan or accumulate a specific capital sum by a future date is explicitly termed an:",
+    "o": [
+      "Amortization",
+      "Annuity",
+      "Obsolescence fund",
+      "Escrow"
+    ],
+    "a": "[Annuity]",
+    "e": "An 'Annuity' is the strict mathematical and financial term for a sequence of equal, regular periodic payments (usually annual) physically deposited or paid to clear a debt or accumulate a future targeted sum (like a sinking fund)."
+  }
+
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
+            btn.classList.add('wrong');
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>
+

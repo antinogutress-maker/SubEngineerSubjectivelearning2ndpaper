@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,10 +37,12 @@
         .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
         .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
         
-        .correct { background: rgba(0, 255, 136, 0.2) !important; border-color: #00FF88 !important; color: white !important; }
-        .correct .option-marker { background: #00FF88; color: black; }
-        .wrong { background: rgba(255, 51, 102, 0.2) !important; border-color: #FF3366 !important; color: white !important; }
-        .wrong .option-marker { background: #FF3366; color: white; }
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
         
         .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -93,7 +96,6 @@
 <script>
 // --- DATASET ---
 const DB = [
- 
   {
     "id": 1,
     "q": "If the pressure of a liquid is increased from 10 MPa to 30 MPa, and its volume decreases by 1%, what is the bulk modulus of elasticity of the liquid?",
@@ -214,7 +216,6 @@ const DB = [
     "a": "The fluid is compressible",
     "e": "Bernoulli's equation is derived strictly under the assumption that the fluid is incompressible (density remains constant), along with steady, ideal, and irrotational flow assumptions."
   },
-  
   {
     "id": 11,
     "q": "If the dynamic viscosity of a fluid is 1 poise and its specific gravity is 1, what is its kinematic viscosity?",
@@ -311,7 +312,6 @@ const DB = [
     "a": "2.0 m",
     "e": "Using Darcy's equation: hf = (f * L * v²) / (2 * g * d). Substituting the values: hf = (0.04 * 50 * 2²) / (2 * 10 * 0.2) = (2 * 4) / 4 = 2.0 m."
   },
-  
   {
     "id": 19,
     "q": "A fluid has a specific weight of 7.848 kN/m3. What is its mass density? (Assume g = 9.81 m/s2)",
@@ -432,7 +432,6 @@ const DB = [
     "a": "2000",
     "e": "In a circular pipe, flow is classified as laminar when the Reynolds number (Re) is less than 2000. Transition flow occurs between 2000 and 4000, and turbulent flow strictly begins above 4000."
   },
-  
   {
     "id": 29,
     "q": "What is the capillary rise in a glass tube of 2 mm diameter immersed in water? (Assume surface tension = 0.0736 N/m, angle of contact = 0°, density = 1000 kg/m³, and g = 9.81 m/s²)",
@@ -637,7 +636,6 @@ const DB = [
     "a": "0.06 m³/s",
     "e": "Actual Discharge (Q) = Cd * Area * √(2gH). Q = 0.6 * 0.01 * √(2 * 10 * 5) = 0.006 * √100 = 0.006 * 10 = 0.06 m³/s."
   }
-
 ];
 
 const PRAISE = {
@@ -686,9 +684,12 @@ const App = {
 
         if(!source.length) return alert("No questions available.");
 
-        // Shuffle questions and options
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
         App.state.quiz = source.map(q => {
-            let opts = q.o.map((txt, i) => ({ t: txt, c: i === q.a }));
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
             return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
         }).sort(() => Math.random() - 0.5);
 
@@ -727,16 +728,20 @@ const App = {
         });
     },
 
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
     check: (btn, opt, q) => {
         const all = document.querySelectorAll('.option-btn');
-        all.forEach(b => { b.onclick = null; b.style.opacity = '0.6'; });
-        btn.style.opacity = '1';
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
         
         const praise = document.getElementById('praise-txt');
         praise.classList.remove('animate-praise');
         void praise.offsetWidth; praise.classList.add('animate-praise');
 
         if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
             btn.classList.add('correct');
             App.state.score++;
             praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
@@ -744,8 +749,18 @@ const App = {
             
             App.removeMistake(q.id); // Remove from mistake bank if correct
         } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
             btn.classList.add('wrong');
-            all.forEach((b, i) => { if(q.shuffledOpts[i].c) b.classList.add('correct'); });
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
             praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
             praise.style.color = "#FF3366";
             
@@ -802,3 +817,4 @@ App.start(false);
 </script>
 </body>
 </html>
+

@@ -1,0 +1,1002 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bagmati 5th Mock Test 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* [COLOR PALETTE & CORE STYLES] */
+        :root { --primary: #FF3366; --secondary: #FF9933; --accent: #00E5FF; --glass-bg: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --text-color: #ffffff; --card-bg: rgba(15, 15, 30, 0.92); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--text-color); padding: 15px; overflow-x: hidden; }
+
+        .app-container { width: 100%; max-width: 650px; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(to right, #00E5FF, #B400FB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .btn { background: linear-gradient(90deg, #00E5FF, #B400FB); border: none; color: white; padding: 16px; width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); min-height: 50px; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid var(--glass-border); box-shadow: none; margin-top: 10px; color: white; }
+        
+        .personal-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .review-badge { background: #FF3366; color: white; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: none; }
+        
+        .animate-praise { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* [SMOOTH LOADING ANIMATION] */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; }
+        .timer-badge { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+        
+        .option-btn { width: 100%; padding: 18px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; text-align: left; color: #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; -webkit-user-select: none; user-select: none; }
+        .option-marker { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; }
+        
+        /* UPDATED: Solid bright backgrounds for correct and wrong options */
+        .correct { background: #00FF88 !important; border-color: #00FF88 !important; color: #000000 !important; }
+        .correct .option-marker { background: #ffffff; color: #000000; }
+        
+        .wrong { background: #FF3366 !important; border-color: #FF3366 !important; color: #ffffff !important; }
+        .wrong .option-marker { background: #ffffff; color: #FF3366; }
+        
+        .explanation-box { margin-top: 20px; padding: 15px; background: rgba(180, 0, 251, 0.15); border-left: 4px solid var(--secondary); border-radius: 8px; font-size: 0.9rem; display: none; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; border: 5px solid var(--primary); margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        
+        .hidden { display: none !important; }
+        #opts-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <div id="view-quiz" class="hidden fade-in">
+        <div class="personal-header">
+            <span id="review-badge" class="review-badge">Review Mode</span>
+            <div id="praise-txt" style="font-size: 1.2rem; font-weight: 700; color: white;">Good Luck!</div>
+        </div>
+
+        <div class="info-bar">
+            <span>Q: <span id="q-idx">1</span> / <span id="q-total">50</span></span>
+            <span class="timer-badge" id="timer">45:00</span>
+        </div>
+
+        <div id="q-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="opts-list"></div>
+            <div class="explanation-box" id="exp-box"></div>
+        </div>
+
+        <button class="btn hidden" id="btn-next" onclick="App.next()">Next Question</button>
+    </div>
+
+    <div id="view-result" class="hidden fade-in" style="text-align: center;">
+        <h2>Quiz Completed!</h2>
+        <div class="score-circle">
+            <span class="score-val" id="res-score">0</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; color: #aaa;">Correct</span>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <h3 id="res-pct" style="color: var(--primary);">0% Accuracy</h3>
+        </div>
+        <button class="btn" onclick="App.start(false)">Restart Test</button>
+        <button class="btn btn-outline" id="btn-review" onclick="App.start(true)" style="display: none; border-color: var(--primary); color: white;">Review Mistakes</button>
+        <a href="https://chat.whatsapp.com/GpMpVmBo71RBZqLOf1l4PM?mode=gi_t" target="_blank" class="btn btn-outline">Join Study Group</a>
+    </div>
+</div>
+
+<script>
+// --- DATASET ---
+const DB = 
+  [
+  {
+    "id": 1,
+    "q": "According to the fundamental principles of material mechanics, Hooke's Law strictly holds good only up to the:",
+    "o": [
+      "Yield point",
+      "Elastic limit",
+      "Limit of proportionality",
+      "Ultimate stress point"
+    ],
+    "a": "Limit of proportionality",
+    "e": "Hooke's Law states that stress is directly proportional to strain. This strictly applies only up to the limit of proportionality on the stress-strain curve, not the elastic limit (though they are very close in mild steel)."
+  },
+  {
+    "id": 2,
+    "q": "A metallic structural member has a Modulus of Elasticity (E) of 200 GPa and a Poisson's ratio (μ) of 0.25. What is its Bulk Modulus (K)?",
+    "o": [
+      "80 GPa",
+      "100 GPa",
+      "133.33 GPa",
+      "160 GPa"
+    ],
+    "a": "133.33 GPa",
+    "e": "The relationship between E, K, and μ is given by E = 3K(1 - 2μ). Substituting the values: 200 = 3K(1 - 2 × 0.25) ⇒ 200 = 3K(0.5) ⇒ 200 = 1.5K ⇒ K = 200 / 1.5 = 133.33 GPa."
+  },
+  {
+    "id": 3,
+    "q": "Mathematically, the rate of change of shear force (dV/dx) along the length of a loaded beam is exactly equal to the:",
+    "o": [
+      "Bending moment",
+      "Deflection of the beam",
+      "Slope of the elastic curve",
+      "Intensity of the applied load"
+    ],
+    "a": "Intensity of the applied load",
+    "e": "By differentiating the shear force equations, it is proven that dV/dx = -w, meaning the slope of the shear force diagram at any point is equal to the intensity of the uniformly distributed load at that point."
+  },
+  {
+    "id": 4,
+    "q": "For a beam subjected purely to a uniformly distributed load (UDL) over its entire span, what is the exact shape of the resulting Bending Moment Diagram (BMD)?",
+    "o": [
+      "Horizontal straight line",
+      "Inclined straight line",
+      "Parabolic curve",
+      "Cubic curve"
+    ],
+    "a": "Parabolic curve",
+    "e": "Integrating a constant UDL (w) gives a linear (inclined) Shear Force equation. Integrating the linear shear force gives a quadratic (second-degree) Bending Moment equation, which graphically forms a parabolic curve."
+  },
+  {
+    "id": 5,
+    "q": "A simply supported beam of length L = 6 m carries a central point load (W) of 20 kN. What is the maximum bending moment induced in the beam?",
+    "o": [
+      "30 kNm",
+      "60 kNm",
+      "120 kNm",
+      "15 kNm"
+    ],
+    "a": "30 kNm",
+    "e": "For a simply supported beam with a central point load, the maximum bending moment occurs precisely at the center under the load and is calculated as WL/4. M_max = (20 × 6) / 4 = 120 / 4 = 30 kNm."
+  },
+  {
+    "id": 6,
+    "q": "A cantilever beam of span 3 m carries a uniformly distributed load of 10 kN/m over its entire length. What is the maximum shear force and where does it act?",
+    "o": [
+      "15 kN at the free end",
+      "15 kN at the fixed end",
+      "30 kN at the fixed end",
+      "30 kN at the free end"
+    ],
+    "a": "30 kN at the fixed end",
+    "e": "The total load on the cantilever is w × L = 10 × 3 = 30 kN. The shear force accumulates from zero at the free end to a maximum value equal to the total load (30 kN) exactly at the fixed support."
+  },
+  {
+    "id": 7,
+    "q": "In structural mechanics, a 'Point of Contraflexure' is explicitly defined as the specific point on a beam where the:",
+    "o": [
+      "Shear force is zero",
+      "Bending moment is maximum",
+      "Bending moment changes its sign",
+      "Deflection is maximum"
+    ],
+    "a": "Bending moment changes its sign",
+    "e": "A point of contraflexure (or point of inflection) occurs where the bending moment diagram crosses the zero axis, indicating that the curvature of the beam changes from sagging (positive) to hogging (negative)."
+  },
+  {
+    "id": 8,
+    "q": "Which of the following is the strictly correct standard form of the Flexural Equation (Bending Equation)?",
+    "o": [
+      "M/y = σ/I = E/R",
+      "M/I = σ/y = E/R",
+      "I/M = y/σ = R/E",
+      "M/E = I/R = σ/y"
+    ],
+    "a": "M/I = σ/y = E/R",
+    "e": "The theory of simple bending is governed by the equation M/I = σ/y = E/R, where M is bending moment, I is moment of inertia, σ is bending stress, y is distance from neutral axis, E is Young's modulus, and R is the radius of curvature."
+  },
+  {
+    "id": 9,
+    "q": "In the derivation of the flexural equation, the fundamental assumption that 'plane sections before bending remain plane after bending' mathematically implies that:",
+    "o": [
+      "Stress is uniform across the cross-section",
+      "Strain is uniform across the cross-section",
+      "Strain is directly proportional to the distance from the neutral axis",
+      "The elastic limit of the material is not exceeded"
+    ],
+    "a": "Strain is directly proportional to the distance from the neutral axis",
+    "e": "If a cross-section remains perfectly planar (flat) after the beam curves, the geometric deformation (strain) varies linearly from zero at the neutral axis to a maximum at the extreme fibers."
+  },
+  {
+    "id": 10,
+    "q": "What is the Section Modulus (Z) of a solid rectangular beam cross-section with width 'b' and overall depth 'd'?",
+    "o": [
+      "bd² / 12",
+      "bd³ / 12",
+      "bd² / 6",
+      "b²d / 6"
+    ],
+    "a": "bd² / 6",
+    "e": "Section Modulus Z = I / y_max. For a rectangle, I = bd³ / 12 and y_max = d / 2. Therefore, Z = (bd³ / 12) / (d / 2) = bd² / 6."
+  },
+  {
+    "id": 11,
+    "q": "A rectangular concrete beam 200 mm wide and 400 mm deep is subjected to a transverse shear force of 80 kN. What is the absolute maximum shear stress developed in the section?",
+    "o": [
+      "1.0 MPa",
+      "1.5 MPa",
+      "2.0 MPa",
+      "3.0 MPa"
+    ],
+    "a": "1.5 MPa",
+    "e": "Average shear stress τ_avg = V / A = 80000 N / (200 × 400) mm² = 80000 / 80000 = 1.0 MPa. For a rectangular section, maximum shear stress occurs at the neutral axis and is exactly 1.5 × τ_avg. Thus, τ_max = 1.5 × 1.0 = 1.5 MPa."
+  },
+  {
+    "id": 12,
+    "q": "For a structural solid circular shaft subjected to a transverse shear force, the maximum shear stress is mathematically related to the average shear stress by the ratio:",
+    "o": [
+      "1.33 (or 4/3)",
+      "1.50 (or 3/2)",
+      "2.00",
+      "2.50"
+    ],
+    "a": "1.33 (or 4/3)",
+    "e": "By integrating the shear stress distribution across a circular geometry, the peak shear stress at the neutral axis is derived to be strictly 4/3 (or 1.33 times) the average shear stress (V/A)."
+  },
+  {
+    "id": 13,
+    "q": "In a standard symmetrical I-section steel beam subjected to a vertical shear force, where does the maximum shear stress physically occur?",
+    "o": [
+      "At the extreme top fiber of the upper flange",
+      "At the junction of the flange and the web",
+      "Exactly at the neutral axis of the web",
+      "At the extreme bottom fiber of the lower flange"
+    ],
+    "a": "Exactly at the neutral axis of the web",
+    "e": "The shear stress distribution across an I-section is parabolic in the web and flanges, but jumps dramatically at the flange-web junction. It always peaks exactly at the geometric center (neutral axis) of the web."
+  },
+  {
+    "id": 14,
+    "q": "According to the principles of Simple Bending, the internal bending stress (σ) distribution across the depth of a homogenous beam cross-section is:",
+    "o": [
+      "Uniform throughout the depth",
+      "Parabolic, being maximum at the neutral axis",
+      "Linear, being zero at the neutral axis and maximum at extreme fibers",
+      "Cubic, being zero at the extreme fibers"
+    ],
+    "a": "Linear, being zero at the neutral axis and maximum at extreme fibers",
+    "e": "From the flexural equation σ/y = M/I, the bending stress σ is directly proportional to the distance y from the neutral axis, creating a strictly linear stress profile (triangular stress blocks)."
+  },
+  {
+    "id": 15,
+    "q": "Based on Euler's theory for long columns (Struts), what is the formula for the critical buckling load (P_cr) of a column of length 'L' perfectly hinged (pinned) at both ends?",
+    "o": [
+      "π²EI / 4L²",
+      "π²EI / L²",
+      "2π²EI / L²",
+      "4π²EI / L²"
+    ],
+    "a": "π²EI / L²",
+    "e": "For a column with both ends hinged, the effective length (L_e) equals the actual length (L). Euler's fundamental critical load formula is P = π²EI / L_e², which becomes strictly π²EI / L²."
+  },
+  {
+    "id": 16,
+    "q": "If a structural steel strut is strictly fixed at one end and completely free at the other (like a flagpole), its 'effective length' (L_e) for calculating buckling resistance is:",
+    "o": [
+      "L / 2",
+      "0.707 L",
+      "L",
+      "2 L"
+    ],
+    "a": "2 L",
+    "e": "A fixed-free column has the weakest buckling resistance. It bends in a curve that is a quarter of a full sine wave. Therefore, its theoretical effective length (the length of an equivalent hinged-hinged column) is exactly twice its actual length (2L)."
+  },
+  {
+    "id": 17,
+    "q": "A critical fundamental assumption in Euler's simple strut theory is that the column strictly fails purely by:",
+    "o": [
+      "Direct crushing (yielding)",
+      "Transverse shear",
+      "Buckling (bending)",
+      "Torsional twisting"
+    ],
+    "a": "Buckling (bending)",
+    "e": "Euler's theory assumes the strut is perfectly straight, homogeneous, loaded perfectly axially, and is extremely long (high slenderness ratio) such that it will fail purely by elastic instability (buckling) long before crushing stresses are reached."
+  },
+  {
+    "id": 18,
+    "q": "The 'Slenderness Ratio' (SR) of a column, which strictly governs its susceptibility to buckling, is mathematically defined as the ratio of its effective length to its:",
+    "o": [
+      "Cross-sectional area",
+      "Moment of inertia",
+      "Least radius of gyration",
+      "Maximum lateral dimension"
+    ],
+    "a": "Least radius of gyration",
+    "e": "Slenderness Ratio = L_e / r_min, where r_min is the least radius of gyration (√(I_min/A)). Columns always naturally tend to buckle about their weakest axis, which corresponds to the minimum radius of gyration."
+  },
+  {
+    "id": 19,
+    "q": "In a structural beam, if the shear force crosses the reference zero line (changes sign from positive to negative or vice versa), the bending moment at that exact physical point will invariably be:",
+    "o": [
+      "Exactly zero",
+      "Mathematically maximum or minimum",
+      "Equal to the applied load",
+      "Infinitely large"
+    ],
+    "a": "Mathematically maximum or minimum",
+    "e": "Because shear force is the first derivative of the bending moment (dV/dx = -w and dM/dx = V), from calculus, setting the first derivative (V) to zero perfectly yields the local maximum or minimum value of the original function (M)."
+  },
+  {
+    "id": 20,
+    "q": "A 2 m long cantilever beam carries a uniformly varying load (UVL) that is zero at the free end and 30 kN/m at the fixed support. What is the exact total shear force at the fixed support?",
+    "o": [
+      "15 kN",
+      "30 kN",
+      "60 kN",
+      "45 kN"
+    ],
+    "a": "30 kN",
+    "e": "The total shear force at the fixed support is simply the total downward load. A UVL forms a triangle. Total load = Area of the loading triangle = 0.5 × base × height = 0.5 × 2 m × 30 kN/m = 30 kN."
+  },
+  {
+    "id": 21,
+    "q": "A prismatic bar of length 'L' and total weight 'W' hangs vertically downwards under its own self-weight. What is the absolute maximum axial stress developed in the bar?",
+    "o": [
+      "Zero",
+      "W / A",
+      "W / 2A",
+      "2W / A"
+    ],
+    "a": "W / A",
+    "e": "The maximum axial tensile stress due to self-weight strictly occurs at the top fixed support, where the entire total weight 'W' of the bar is acting over the cross-sectional area 'A'. The stress varies linearly to exactly zero at the free bottom end."
+  },
+  {
+    "id": 22,
+    "q": "A structural steel rod is perfectly restrained and clamped between two rigid, unyielding walls. If the ambient temperature is increased by ΔT, the thermal compressive stress developed in the rod is mathematically given by:",
+    "o": [
+      "αΔT / E",
+      "αΔTE",
+      "αE / ΔT",
+      "EΔT / α"
+    ],
+    "a": "αΔTE",
+    "e": "If the rod were free, it would expand by LαΔT. Because it is perfectly restricted, the walls force a compressive strain exactly equal to αΔT. By Hooke's Law (Stress = Strain × E), the induced thermal stress is strictly αΔTE."
+  },
+  {
+    "id": 23,
+    "q": "Which fundamental mechanical property strictly defines a structural material's capacity to absorb strain energy up to its elastic limit without undergoing any permanent deformation?",
+    "o": [
+      "Toughness",
+      "Resilience",
+      "Malleability",
+      "Ductility"
+    ],
+    "a": "Resilience",
+    "e": "Resilience is the strictly defined property of a material to absorb energy when deformed elastically and entirely release that energy upon unloading. 'Modulus of resilience' specifically quantifies the strain energy per unit volume up to the elastic limit."
+  },
+  {
+    "id": 24,
+    "q": "A simply supported beam is subjected purely to a concentrated turning moment (couple) 'M' applied exactly at its mid-span. What is the value of the internal shear force generated in the beam?",
+    "o": [
+      "Zero everywhere",
+      "Constant and equal to M/L everywhere",
+      "Varies linearly from zero to M/L",
+      "Varies parabolically across the span"
+    ],
+    "a": "Constant and equal to M/L everywhere",
+    "e": "A purely concentrated couple at the mid-span must be statically balanced by equal and opposite vertical support reactions of magnitude M/L. Consequently, the shear force remains perfectly constant at M/L throughout the entire length of the beam."
+  },
+  {
+    "id": 25,
+    "q": "If the Bending Moment Diagram (BMD) over a specific central portion of a loaded beam is a perfectly horizontal straight line, the shear force in that specific portion is mathematically:",
+    "o": [
+      "Maximum",
+      "Minimum but non-zero",
+      "Exactly zero",
+      "Uniformly varying"
+    ],
+    "a": "Exactly zero",
+    "e": "Based on the differential relationship between shear and moment (V = dM/dx), the shear force is the exact mathematical slope of the bending moment diagram. If the bending moment is constant (a horizontal line), its slope and derivative are strictly zero."
+  },
+  {
+    "id": 26,
+    "q": "A simply supported beam of span 'L' carries a uniformly varying load (triangular load) increasing from strictly zero at the left support to an intensity 'w' at the right support. What is the absolute maximum shear force in the beam?",
+    "o": [
+      "wL/2",
+      "wL/3",
+      "wL/4",
+      "wL/6"
+    ],
+    "a": "wL/3",
+    "e": "The total equivalent point load is the area of the triangle (wL/2) acting at 2L/3 from the left support. Taking moments, the reaction at the left (lighter) support evaluates to wL/6, and the right (heavier) support is wL/3. The maximum shear force equals the maximum reaction, which is wL/3."
+  },
+  {
+    "id": 27,
+    "q": "For cross-sections possessing identically equal physical areas, which of the following geometric profiles is structurally the most highly efficient and economical in resisting simple bending?",
+    "o": [
+      "Solid circular section",
+      "Solid square section",
+      "Symmetrical I-section",
+      "Solid rectangular section"
+    ],
+    "a": "Symmetrical I-section",
+    "e": "An I-section is incredibly efficient in bending because the vast majority of its material (the flanges) is physically located as far away from the neutral axis as possible, mathematically maximizing the Moment of Inertia (I) and Section Modulus (Z) for a given area."
+  },
+  {
+    "id": 28,
+    "q": "For a solid triangular beam cross-section of base 'b' and total height 'h' subjected to a vertical shear force 'V', the absolute maximum shear stress geometrically occurs at what specific depth from the base?",
+    "o": [
+      "h/2",
+      "h/3",
+      "2h/3",
+      "Exactly at the neutral axis"
+    ],
+    "a": "h/2",
+    "e": "While the geometric centroid (neutral axis) of a triangle lies at h/3 from the base, the integration of the shear stress formula (VQ/Ib) proves that the parabolic stress distribution peaks perfectly at the mid-depth (h/2 from the base), where τ_max = 1.5 × τ_avg."
+  },
+  {
+    "id": 29,
+    "q": "According to Euler's buckling theory, the critical buckling load for a column strictly fixed at both ends is how many times greater than that of an identical column perfectly hinged at both ends?",
+    "o": [
+      "2 times",
+      "4 times",
+      "8 times",
+      "16 times"
+    ],
+    "a": "4 times",
+    "e": "For hinged ends, P = π²EI / L². For fully fixed ends, the restricted buckling curve reduces the effective length to exactly half (L/2). Thus, the critical load P = π²EI / (L/2)² = 4π²EI / L², generating a capacity strictly 4 times greater."
+  },
+  {
+    "id": 30,
+    "q": "Rankine's empirical column formula is universally adopted in structural engineering practice precisely because it mathematically accounts for:",
+    "o": [
+      "Only pure elastic buckling failure in extremely long columns",
+      "Only pure plastic crushing failure in extremely short columns",
+      "Both pure crushing in short columns and elastic buckling in long columns",
+      "Only lateral eccentric loads on vertical struts"
+    ],
+    "a": "Both pure crushing in short columns and elastic buckling in long columns",
+    "e": "The Rankine-Gordon formula safely interpolates between pure crushing and pure buckling by mathematically combining the crushing load (P_c) and Euler's buckling load (P_E) via the reciprocal equation 1/P_R = 1/P_c + 1/P_E, making it safely valid for all column slenderness ratios."
+  },
+  {
+    "id": 31,
+    "q": "A solid circular steel bar of length 'L' and diameter 'D' elongates by 'ΔL' under a purely axial tensile force 'P'. If the diameter of the bar is doubled to '2D' while maintaining the exact same length and force, the new elongation becomes:",
+    "o": [
+      "ΔL / 2",
+      "ΔL / 4",
+      "2ΔL",
+      "4ΔL"
+    ],
+    "a": "ΔL / 4",
+    "e": "Elongation is inversely proportional to the cross-sectional area (δ = PL / AE). Since Area A = πD² / 4, doubling the diameter geometrically increases the cross-sectional area by a factor of exactly 4 (2²). Thus, the elongation strictly drops to one-fourth of its original value."
+  },
+  {
+    "id": 32,
+    "q": "When analyzing the flexure of a 'composite beam' (e.g., a flitched beam composed of securely bolted wood and steel), which internal physical parameter must mathematically remain identically equal for both materials at their shared interface?",
+    "o": [
+      "Internal bending stress",
+      "Modulus of Elasticity",
+      "Moment of Inertia",
+      "Longitudinal strain"
+    ],
+    "a": "Longitudinal strain",
+    "e": "The fundamental assumption of composite action is that the materials are perfectly bonded and act as a single unit without any relative slip. For this to physically hold true, the geometric deformation, and therefore the longitudinal strain, must be strictly identical at the interface."
+  },
+  {
+    "id": 33,
+    "q": "A simply supported beam of span 'L' carries two identically equal concentrated point loads 'W' placed symmetrically at a distance of 'L/3' from each support. What is the exact internal shear force strictly within the middle third portion of the beam?",
+    "o": [
+      "Constant and equal to W",
+      "Constant and equal to W/2",
+      "Exactly zero",
+      "Varies linearly from zero to W"
+    ],
+    "a": "Exactly zero",
+    "e": "Due to strict symmetry, the upward reactions at both supports are exactly W. The shear force diagram steps up to +W at the left support, abruptly steps down by W (to exactly zero) at the first load, and remains perfectly zero across the entire middle third until the second load is encountered."
+  },
+  {
+    "id": 34,
+    "q": "In the standard graphical convention for plotting Shear Force Diagrams, encountering a downward concentrated point load on a horizontal beam causes the plotted shear force diagram to strictly:",
+    "o": [
+      "Curve parabolically over the load's influence area",
+      "Slope uniformly downwards to the next load",
+      "Drop suddenly vertically by the exact magnitude of the applied load",
+      "Rise suddenly vertically by the exact magnitude of the applied load"
+    ],
+    "a": "Drop suddenly vertically by the exact magnitude of the applied load",
+    "e": "A point load creates an immediate, instantaneous mathematical discontinuity in the shear equation. Graphically moving left-to-right, a downward point load strictly manifests as a sudden vertical drop perfectly equal to the load's magnitude."
+  },
+  {
+    "id": 35,
+    "q": "If the physical width of a purely rectangular beam is halved and its depth is doubled, while maintaining the exact same span and loading profile, its newly developed maximum internal bending stress will be:",
+    "o": [
+      "Completely unchanged",
+      "Halved (0.5 times the original)",
+      "Doubled (2.0 times the original)",
+      "Four times the original"
+    ],
+    "a": "Halved (0.5 times the original)",
+    "e": "Bending stress σ = M / Z. Originally, Z_1 = bd² / 6. With new dimensions width = b/2 and depth = 2d, the new Z_2 = (b/2)(2d)² / 6 = (b/2)(4d²) / 6 = 2bd² / 6. Because the new Section Modulus is exactly doubled, the resulting bending stress is strictly halved."
+  },
+  {
+    "id": 36,
+    "q": "From a purely theoretical strut design perspective, which specific set of end conditions structurally guarantees the absolute highest critical buckling load capacity for a slender column of predefined length and cross-section?",
+    "o": [
+      "Both ends perfectly hinged (pinned)",
+      "One end perfectly fixed, the other end completely free",
+      "One end perfectly fixed, the other end perfectly hinged",
+      "Both ends perfectly fixed"
+    ],
+    "a": "Both ends perfectly fixed",
+    "e": "Fixing both ends rigidly prevents both lateral translation and rotational movement at the supports, physically forcing the column into a complex double-curvature buckling shape. This mathematically generates the shortest effective length (L/2) and the highest structural load capacity."
+  },
+  {
+    "id": 37,
+    "q": "A solid circular structural rod of length 'L' physically tapers uniformly from a diameter 'd_1' at one fixed end to a diameter 'd_2' at the other free end. Under a purely axial tensile load 'P', the total exact geometric elongation is mathematically formulated as:",
+    "o": [
+      "PL / (π E d_1 d_2)",
+      "4PL / (π E d_1 d_2)",
+      "PL / (4π E d_1 d_2)",
+      "4PL / (π E (d_1+d_2)²)"
+    ],
+    "a": "4PL / (π E d_1 d_2)",
+    "e": "By integrating the varying inverse cross-sectional area along the entire length of the tapering geometry, the exact total elongation is mathematically derived to be exactly 4PL / (π E d_1 d_2), substituting the constant D² found in a prismatic bar equation with the product of the two end diameters (d_1 d_2)."
+  },
+  {
+    "id": 38,
+    "q": "In a structurally solid circular cross-section subjected strictly to a transverse vertical shear force, the resulting shear stress profile forms a parabola. At what specific physical location on the cross-section does this shear stress equal exactly zero?",
+    "o": [
+      "At exactly half the radius (R/2)",
+      "At exactly the neutral axis",
+      "At exactly R / √2 from the center",
+      "At the extreme outer top and bottom fibers (distance R)"
+    ],
+    "a": "At the extreme outer top and bottom fibers (distance R)",
+    "e": "According to the fundamental shear stress formula τ = VQ / Ib, the first moment of area (Q) relative to the neutral axis strictly evaluates to zero at the extreme boundary fibers of any cross-sectional geometry. Consequently, the shear stress must physically vanish to zero at the outermost top and bottom boundaries."
+  },
+  {
+    "id": 39,
+    "q": "In the mechanics of engineering materials, the highly specific phenomenon where a material, subjected strictly to a constant and sustained stress state over an extended time period, slowly and permanently deforms is technically termed:",
+    "o": [
+      "Fatigue",
+      "Creep",
+      "Stress Relaxation",
+      "Kinematic Plasticity"
+    ],
+    "a": "Creep",
+    "e": "Creep is formally defined as the slow, progressive, and permanent time-dependent inelastic deformation of a material strictly under the action of a constant, sustained state of stress, commonly observed in concrete structures over decades or metallic structures at highly elevated temperatures."
+  },
+  {
+    "id": 40,
+    "q": "For any generic loaded beam, including overhanging profiles, the physical location where the Bending Moment curve reaches its absolute mathematical maximum or minimum strictly corresponds to the precise location where the Shear Force is:",
+    "o": [
+      "At its absolute mathematical maximum",
+      "Exactly zero or abruptly changes algebraic sign",
+      "Exactly equal to the nearest support reaction",
+      "At a minimum but non-zero constant value"
+    ],
+    "a": "Exactly zero or abruptly changes algebraic sign",
+    "e": "From fundamental calculus applied to beam theory, the local maxima or minima of a mathematical function strictly occur precisely where its first derivative is equal to zero. Since Shear Force is the strict first derivative of Bending Moment (dM/dx = V), the maximum bending moment inevitably occurs geometrically where the shear force passes through zero."
+  },
+  {
+    "id": 41,
+    "q": "A simply supported beam of 8 m span carries a single concentrated point load of 40 kN at exactly 2 m from the left support. What is the mathematically absolute maximum bending moment induced in the beam?",
+    "o": [
+      "40 kNm",
+      "60 kNm",
+      "80 kNm",
+      "120 kNm"
+    ],
+    "a": "60 kNm",
+    "e": "Using the standard formula for a point load applied eccentrically (Wab/L), where W = 40 kN, a = 2 m, b = 6 m, and L = 8 m. The maximum bending moment occurs exactly under the load and is M = (40 × 2 × 6) / 8 = 480 / 8 = 60 kNm."
+  },
+  {
+    "id": 42,
+    "q": "A rectangular timber beam 100 mm wide and 200 mm deep is subjected to a maximum bending moment of 4 kNm. What is the exact maximum flexural (bending) stress developed at the extreme fibers?",
+    "o": [
+      "3 MPa",
+      "6 MPa",
+      "9 MPa",
+      "12 MPa"
+    ],
+    "a": "6 MPa",
+    "e": "Section Modulus Z = bd²/6 = (100 × 200²) / 6 = 4,000,000 / 6 = 6.667 × 10⁵ mm³. Bending stress σ = M/Z = (4 × 10⁶ Nmm) / (6.667 × 10⁵ mm³) = 6 MPa."
+  },
+  {
+    "id": 43,
+    "q": "A straight steel rod 2 meters long and 500 mm² in cross-sectional area is subjected to a strictly axial tensile pull of 100 kN. If Young's Modulus (E) is 200 GPa, what is the exact physical elongation of the rod?",
+    "o": [
+      "1.0 mm",
+      "2.0 mm",
+      "4.0 mm",
+      "5.0 mm"
+    ],
+    "a": "2.0 mm",
+    "e": "Elongation δ = PL / AE. P = 100,000 N, L = 2000 mm, A = 500 mm², E = 200,000 MPa. δ = (100,000 × 2000) / (500 × 200,000) = 200,000,000 / 100,000,000 = 2.0 mm."
+  },
+  {
+    "id": 44,
+    "q": "For a structurally solid triangular cross-section of height 'h' subjected to a vertical shear force, what is the mathematical ratio of the shear stress strictly at the neutral axis to the average shear stress?",
+    "o": [
+      "1.33 (or 4/3)",
+      "1.50 (or 3/2)",
+      "2.00",
+      "2.66"
+    ],
+    "a": "1.33 (or 4/3)",
+    "e": "In a triangle, the absolute maximum shear stress is 1.5 × τ_avg occurring at h/2. However, at the geometric neutral axis (located at h/3 from the base), the theoretical shear stress is calculated to be strictly 1.33 × τ_avg (or 4/3)."
+  },
+  {
+    "id": 45,
+    "q": "According to the limits of simple strut theory, an extremely short column subjected to purely axial compression will structurally fail entirely and exclusively by:",
+    "o": [
+      "Elastic buckling",
+      "Lateral torsional buckling",
+      "Direct crushing (yielding of material)",
+      "Transverse shearing"
+    ],
+    "a": "Direct crushing (yielding of material)",
+    "e": "Short columns have very low slenderness ratios, meaning their buckling resistance is far higher than their material yield strength. Therefore, they will strictly fail by direct crushing long before any elastic buckling can geometrically occur."
+  },
+  {
+    "id": 46,
+    "q": "A simply supported beam of span 'L' is subjected to a single, concentrated pure bending couple 'M' applied exactly at its mid-span. The resulting Bending Moment Diagram (BMD) graphically forms:",
+    "o": [
+      "A uniform rectangle of height M",
+      "A symmetric parabola with maximum value M",
+      "Two adjacent identical triangles with a sudden vertical step of magnitude M at the center",
+      "A single continuous triangle peaking at the center"
+    ],
+    "a": "Two adjacent identical triangles with a sudden vertical step of magnitude M at the center",
+    "e": "A pure couple induces constant shear (M/L). The BMD starts at zero, slopes linearly to M/2 at the center, experiences an instantaneous vertical drop of exactly M (changing from +M/2 to -M/2), and then slopes back to zero."
+  },
+  {
+    "id": 47,
+    "q": "A steel railway track 10 m long is laid at 20°C with exactly a 2.0 mm expansion gap between rails. The temperature rises to 40°C. If α = 12 × 10⁻⁶/°C and E = 200 GPa, what is the precise compressive thermal stress induced?",
+    "o": [
+      "8 MPa",
+      "24 MPa",
+      "40 MPa",
+      "48 MPa"
+    ],
+    "a": "8 MPa",
+    "e": "Theoretical free expansion = LαΔT = 10,000 × 12 × 10⁻⁶ × 20 = 2.4 mm. Since a 2.0 mm gap exists, the restricted expansion is 2.4 - 2.0 = 0.4 mm. The prevented strain is 0.4 / 10,000 = 4 × 10⁻⁵. Thermal stress = E × strain = 200,000 × 4 × 10⁻⁵ = 8 MPa."
+  },
+  {
+    "id": 48,
+    "q": "If the Shear Force Diagram (SFD) for a specific loaded section of a horizontal beam is a uniform, inclined straight line, the external loading on that physical section must strictly consist of:",
+    "o": [
+      "No external load whatsoever",
+      "A series of concentrated point loads",
+      "A Uniformly Distributed Load (UDL)",
+      "A Uniformly Varying Load (UVL)"
+    ],
+    "a": "A Uniformly Distributed Load (UDL)",
+    "e": "Shear force is the integral of the load (V = ∫w dx). For the integral to yield an inclined straight line (a first-degree linear function), the original load 'w' must mathematically be a non-zero constant, which strictly defines a UDL."
+  },
+  {
+    "id": 49,
+    "q": "A standard steel strut has an effective length of 3.0 meters and a theoretically least radius of gyration of 15 mm. What is the exact calculated slenderness ratio of this column?",
+    "o": [
+      "50",
+      "100",
+      "200",
+      "450"
+    ],
+    "a": "200",
+    "e": "Slenderness Ratio = Effective Length (L_e) / least radius of gyration (r_min). SR = 3000 mm / 15 mm = 200. It is a dimensionless parameter that dictates buckling susceptibility."
+  },
+  {
+    "id": 50,
+    "q": "In the real-case stress-strain relationship for virtually all homogeneous isotropic engineering metals in the elastic region, Poisson's ratio (μ) strictly falls within the theoretical bounds of:",
+    "o": [
+      "0.00 to 0.15",
+      "0.25 to 0.33",
+      "0.40 to 0.50",
+      "0.50 to 1.00"
+    ],
+    "a": "0.25 to 0.33",
+    "e": "While theoretically bounded between -1 and 0.5, real isotropic engineering metals (like steel, aluminum, and cast iron) reliably exhibit a Poisson's ratio mathematically clustered between 0.25 and 0.33."
+  },
+  {
+    "id": 51,
+    "q": "A structural beam possesses a constant flexural rigidity (EI) of 2000 kNm². If it is subjected to a pure, uniform bending moment of 10 kNm, what is the exactly resulting radius of curvature of the elastic curve?",
+    "o": [
+      "20 meters",
+      "50 meters",
+      "100 meters",
+      "200 meters"
+    ],
+    "a": "200 meters",
+    "e": "From the fundamental flexural equation M/I = E/R, we can rearrange to solve for the radius: R = EI / M. Substituting the knowns: R = 2000 kNm² / 10 kNm = 200 meters."
+  },
+  {
+    "id": 52,
+    "q": "A solid rectangular wooden joist, exactly 150 mm wide and 300 mm deep, carries a maximum vertical shear force of 45 kN. What is the absolute maximum internal shear stress developed within the cross-section?",
+    "o": [
+      "0.5 MPa",
+      "1.0 MPa",
+      "1.5 MPa",
+      "2.0 MPa"
+    ],
+    "a": "1.5 MPa",
+    "e": "The average shear stress τ_avg = V/A = 45,000 N / (150 × 300) mm² = 45,000 / 45,000 = 1.0 MPa. For purely rectangular geometries, the maximum shear stress at the neutral axis is 1.5 × τ_avg = 1.5 × 1.0 = 1.5 MPa."
+  },
+  {
+    "id": 53,
+    "q": "According to the strain energy principles of internal loading, if a defined load 'W' is dropped to strictly create a sudden impact on a bar, the maximum internal stress produced is exactly how many times the stress that would be produced if the same load 'W' were applied gradually?",
+    "o": [
+      "1.5 times",
+      "2.0 times",
+      "3.0 times",
+      "4.0 times"
+    ],
+    "a": "2.0 times",
+    "e": "Equating the external work done by a sudden load (W × δ) to the internal strain energy stored (1/2 × P_equivalent × δ) proves that the equivalent internal force is strictly 2W, thereby generating exactly twice the static stress."
+  },
+  {
+    "id": 54,
+    "q": "For a standard cantilever beam of length 'L' carrying a single concentrated point load 'W' strictly at its free end, the graphical representation of the Bending Moment Diagram perfectly forms a:",
+    "o": [
+      "Rectangle with a uniform value of WL",
+      "Right-angled triangle with a maximum magnitude of WL at the fixed end",
+      "Parabola peaking at the fixed end",
+      "Triangle peaking exactly at the mid-span"
+    ],
+    "a": "Right-angled triangle with a maximum magnitude of WL at the fixed end",
+    "e": "The bending moment equation from the free end (origin) is M_x = -Wx. This is a strict linear equation of a straight line, zero at the free end and peaking linearly to a maximum negative magnitude of WL at the fixed support."
+  },
+  {
+    "id": 55,
+    "q": "The fundamental derivation of the Simple Bending Equation (M/I = σ/y) rests upon a critical material assumption. Which assumption ensures the formula is exclusively valid only in the linear elastic region?",
+    "o": [
+      "Plane sections remain plane after bending",
+      "The material is perfectly homogeneous, isotropic, and strictly obeys Hooke's Law",
+      "The radius of curvature is very small compared to the beam dimensions",
+      "The beam is initially curved before loading"
+    ],
+    "a": "The material is perfectly homogeneous, isotropic, and strictly obeys Hooke's Law",
+    "e": "While 'plane sections remain plane' proves that strain is linear, the direct leap from linear strain to linear stress physically requires the material to strictly obey Hooke's Law (Stress ∝ Strain), locking the theory into the elastic regime."
+  },
+  {
+    "id": 56,
+    "q": "Utilizing Euler's buckling formulas, what is the exact mathematical ratio of the critical buckling load of a column perfectly fixed at both ends to an identically sized column fixed at one end and perfectly hinged at the other (P_fixed-fixed / P_fixed-hinged)?",
+    "o": [
+      "1.414",
+      "2.0",
+      "4.0",
+      "0.5"
+    ],
+    "a": "2.0",
+    "e": "The critical load for fixed-fixed is 4π²EI / L². The critical load for fixed-hinged is 2π²EI / L². Dividing the former by the latter precisely yields a strict ratio of 2.0."
+  },
+  {
+    "id": 57,
+    "q": "For a standard simply supported horizontal beam of span 'L' carrying a Uniformly Distributed Load (UDL) of intensity 'w' over its entire length, the absolute maximum shear force physically occurs exactly at:",
+    "o": [
+      "The mid-span, with a magnitude of wL",
+      "The mid-span, with a magnitude of zero",
+      "Both supports, with a magnitude of wL/2",
+      "Both supports, with a magnitude of wL"
+    ],
+    "a": "Both supports, with a magnitude of wL/2",
+    "e": "Due to perfect symmetry, the total load wL is split equally between the two supports. Therefore, the support reactions are exactly wL/2 each. The shear force diagram steps up to +wL/2 at the left support and linearly decreases to -wL/2 at the right support."
+  },
+  {
+    "id": 58,
+    "q": "A solid unit cube of material is subjected to identical mutually perpendicular principal tensile stresses σ_x = σ_y = σ_z = p (a state of hydrostatic tension). The precise theoretical volumetric strain is formulated as:",
+    "o": [
+      "(p / E) × (1 - 2μ)",
+      "(3p / E) × (1 - 2μ)",
+      "(p / 3E) × (1 + μ)",
+      "(3p / E) × (1 + 2μ)"
+    ],
+    "a": "(3p / E) × (1 - 2μ)",
+    "e": "Volumetric strain e_v = e_x + e_y + e_z. The linear strain in any one direction is p/E - μ(p/E) - μ(p/E) = (p/E)(1 - 2μ). Since this strain is identical in all three axes, the total volumetric strain is strictly 3 × (p/E)(1 - 2μ)."
+  },
+  {
+    "id": 59,
+    "q": "In internal load analysis, what is the exact algebraic formulation for the total strain energy (U) structurally stored by purely axial elastic deformation in a prismatic bar of length 'L' and area 'A' under a static axial load 'P'?",
+    "o": [
+      "P L / AE",
+      "P² L / AE",
+      "P² L / 2AE",
+      "P L² / 2AE"
+    ],
+    "a": "P² L / 2AE",
+    "e": "Strain Energy U = 1/2 × P × ΔL. Substituting the elastic elongation ΔL = PL / AE yields U = 1/2 × P × (PL/AE), which rigorously simplifies to exactly P² L / 2AE."
+  },
+  {
+    "id": 60,
+    "q": "In the fundamental differential equation governing the elastic curve of bending beams (EI · d²y/dx² = M), the specific mathematical term 'd²y/dx²' represents the structurally exact:",
+    "o": [
+      "Slope of the beam (θ)",
+      "Curvature of the beam (1/R)",
+      "Vertical deflection (y)",
+      "Internal shear force (V)"
+    ],
+    "a": "Curvature of the beam (1/R)",
+    "e": "In the context of small deflections, the second derivative of the deflection function 'y' with respect to 'x' (d²y/dx²) perfectly mathematically approximates the physical curvature (1/R) of the beam's elastic profile."
+  }
+
+];
+
+const PRAISE = {
+    good: ["You are a Genius", "क्या बात है", "Amazing", "बहुत अच्छा", "Fantastic", "Excellent", "You are Awesome"],
+    bad: ["कोई बात नहीं", "Don't give up", " है राम ! ये क्या होगया", "You can do this" ]
+};
+
+const MISTAKES_KEY = "bagmati_mock_mistakes";
+
+const App = {
+    state: { quiz: [], curr: 0, score: 0, timer: null, isReview: false },
+
+    // Mistake Bank Functions
+    saveMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        if (!m.includes(id)) m.push(id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+    
+    removeMistake: (id) => {
+        let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+        m = m.filter(mid => mid !== id);
+        localStorage.setItem(MISTAKES_KEY, JSON.stringify(m));
+    },
+
+    getMistakesCount: () => {
+        return JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]").length;
+    },
+
+    start: (reviewMode) => {
+        App.state.curr = 0; 
+        App.state.score = 0; 
+        App.state.isReview = reviewMode;
+        
+        const flatDB = DB.flat ? DB.flat() : DB;
+        let source = [...flatDB];
+        
+        if(reviewMode) {
+            let m = JSON.parse(localStorage.getItem(MISTAKES_KEY) || "[]");
+            source = source.filter(q => m.includes(q.id));
+            if(source.length === 0) {
+                alert("Awesome! You have no mistakes left to review.");
+                return;
+            }
+        }
+
+        if(!source.length) return alert("No questions available.");
+
+        // UPDATED LOGIC: Handle correct answer matching whether it's an INDEX (number) or TEXT (string)
+        App.state.quiz = source.map(q => {
+            let opts = q.o.map((txt, i) => {
+                let isCorrect = typeof q.a === 'number' ? i === q.a : txt === q.a;
+                return { t: txt, c: isCorrect };
+            });
+            return { ...q, shuffledOpts: opts.sort(() => Math.random() - 0.5) };
+        }).sort(() => Math.random() - 0.5);
+
+        // UI toggles
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('review-badge').style.display = reviewMode ? 'inline-block' : 'none';
+        document.getElementById('praise-txt').innerText = reviewMode ? "Let's fix those mistakes!" : "Good Luck!";
+        document.getElementById('q-total').innerText = App.state.quiz.length;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewQuiz = document.getElementById('view-quiz');
+        viewQuiz.classList.remove('fade-in');
+        void viewQuiz.offsetWidth; 
+        viewQuiz.classList.add('fade-in');
+
+        App.timer(45 * 60);
+        App.render();
+    },
+
+    render: () => {
+        const q = App.state.quiz[App.state.curr];
+        document.getElementById('q-idx').innerText = App.state.curr + 1;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('exp-box').style.display = 'none';
+        document.getElementById('btn-next').classList.add('hidden');
+        
+        const list = document.getElementById('opts-list');
+        list.innerHTML = '';
+        q.shuffledOpts.forEach((opt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<div class="option-marker">${String.fromCharCode(65+i)}</div>${opt.t}`;
+            btn.onclick = () => App.check(btn, opt, q);
+            list.appendChild(btn);
+        });
+    },
+
+    // CHECK FUNCTION WITH BRIGHT BACKGROUNDS
+    check: (btn, opt, q) => {
+        const all = document.querySelectorAll('.option-btn');
+        
+        // Dim all options initially to show inactivity
+        all.forEach(b => { b.onclick = null; b.style.opacity = '0.5'; });
+        
+        const praise = document.getElementById('praise-txt');
+        praise.classList.remove('animate-praise');
+        void praise.offsetWidth; praise.classList.add('animate-praise');
+
+        if(opt.c) {
+            // User clicked the correct option
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+            App.state.score++;
+            praise.innerText = PRAISE.good[Math.floor(Math.random()*PRAISE.good.length)] + "!";
+            praise.style.color = "#00FF88";
+            
+            App.removeMistake(q.id); // Remove from mistake bank if correct
+        } else {
+            // User clicked the wrong option
+            btn.style.opacity = '1';
+            btn.classList.add('wrong');
+            
+            // Highlight the correct option
+            all.forEach((b, i) => { 
+                if(q.shuffledOpts[i].c) {
+                    b.classList.add('correct');
+                    b.style.opacity = '1'; // Bring opacity back to 100% for the correct option
+                } 
+            });
+            
+            praise.innerText = PRAISE.bad[Math.floor(Math.random()*PRAISE.bad.length)] + "!";
+            praise.style.color = "#FF3366";
+            
+            App.saveMistake(q.id); // Add to mistake bank if wrong
+        }
+
+        if(q.e) {
+            document.getElementById('exp-box').innerHTML = `<strong>Explanation:</strong> ${q.e}`;
+            document.getElementById('exp-box').style.display = 'block';
+        }
+        document.getElementById('btn-next').classList.remove('hidden');
+        setTimeout(() => document.getElementById('btn-next').scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+    },
+
+    next: () => {
+        App.state.curr++;
+        if(App.state.curr < App.state.quiz.length) App.render();
+        else App.finish();
+    },
+
+    timer: (sec) => {
+        if(App.state.timer) clearInterval(App.state.timer);
+        App.state.timer = setInterval(() => {
+            sec--;
+            let m = Math.floor(sec/60), s = sec%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(sec<=0) App.finish();
+        }, 1000);
+    },
+
+    finish: () => {
+        clearInterval(App.state.timer);
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+
+        // Show Review button only if mistakes exist
+        const hasMistakes = App.getMistakesCount() > 0;
+        document.getElementById('btn-review').style.display = hasMistakes ? 'flex' : 'none';
+
+        const pct = Math.round((App.state.score / App.state.quiz.length) * 100);
+        document.getElementById('res-score').innerText = App.state.score;
+        document.getElementById('res-pct').innerText = `${pct}% Accuracy`;
+        
+        // Remove fade-in to trigger it again cleanly
+        const viewResult = document.getElementById('view-result');
+        viewResult.classList.remove('fade-in');
+        void viewResult.offsetWidth; 
+        viewResult.classList.add('fade-in');
+    }
+};
+
+// Immediate start ensures a smooth, instant load without the "Loading..." text flash
+App.start(false);
+</script>
+</body>
+</html>
+

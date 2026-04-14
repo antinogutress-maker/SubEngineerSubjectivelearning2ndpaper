@@ -1,528 +1,509 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Darcy's Law Simulation | Soil Mechanics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Location of Weir/Barrage - Visual Memorization</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=KaTeX_Math:ital@1&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
         
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Hide scrollbar for a clean, app-like feel */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Smooth, satisfying scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 60px); /* Adjust for header */
+            padding-bottom: 30vh; 
         }
         
-        .math {
-            font-family: 'KaTeX_Math', serif;
-            font-style: italic;
+        .memory-card {
+            scroll-snap-align: start;
+            scroll-margin-top: 16px;
+            transform: translateZ(0);
         }
 
-        .slider-custom {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            border-radius: 5px;
-            background: #cbd5e1;
-            outline: none;
-        }
-
-        .slider-custom::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #2563eb;
-            cursor: pointer;
-            transition: 0.1s;
-        }
-
-        .slider-custom::-webkit-slider-thumb:hover {
-            background: #1d4ed8;
-            transform: scale(1.1);
-        }
-
-        canvas {
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
-            border-radius: 0.5rem;
-            background: #ffffff;
-        }
-
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        /* Canvas styling - Topo Grid */
+        .canvas-bg {
+            background: #0f172a;
+            background-image: 
+                linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
     </style>
 </head>
-<body class="text-slate-800 antialiased p-4 md:p-8">
+<body class="flex flex-col h-screen overflow-hidden">
 
-    <div class="max-w-7xl mx-auto space-y-6">
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-3 z-20 shrink-0 flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
+                Weir & Barrage Siting
+            </h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Irrigation Engineering</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-800 px-2 py-1 rounded-full border border-slate-700 shadow-inner">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+            <span class="text-[10px] font-mono text-slate-300">AUTO-LOOP</span>
+        </div>
+    </header>
+
+    <!-- MAIN SCROLL FEED -->
+    <main class="scroll-container w-full max-w-md mx-auto p-4 space-y-6" id="feed">
         
-        <!-- Header -->
-        <header class="text-center space-y-2">
-            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">Darcy's Law & Permeability Simulation</h1>
-            <p class="text-slate-600 font-medium">Constant Head Permeability Test Visualization</p>
-        </header>
-
-        <!-- Simulation Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Canvas Area (Takes up 2 columns on large screens) -->
-            <div class="lg:col-span-2 glass-panel rounded-xl p-4 flex flex-col relative overflow-hidden">
-                <div class="flex justify-between items-center mb-4 z-10">
-                    <h2 class="font-semibold text-lg flex items-center gap-2">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                        Physical Simulation
-                    </h2>
-                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-bold animate-pulse" id="flowStatus">Flowing Steady</span>
-                </div>
-                
-                <div class="relative w-full aspect-video bg-white rounded-lg border border-slate-200" id="canvasContainer">
-                    <canvas id="simCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
-                </div>
-                
-                <div class="mt-4 text-sm text-slate-500 text-center">
-                    <span class="font-bold text-blue-500">Blue lines</span> represent water flow vectors. The <span class="font-bold text-red-500">Red dashed line</span> represents the Hydraulic Grade Line (HGL).
-                </div>
+        <!-- Criterion 1: Straight Reach -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-blue-500/30 shadow-[0_10px_30px_-10px_rgba(59,130,246,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-straight" class="absolute inset-0 w-full h-full"></canvas>
             </div>
-
-            <!-- Controls & Live Data -->
-            <div class="glass-panel rounded-xl p-6 flex flex-col space-y-6">
-                
-                <div>
-                    <h2 class="font-semibold text-lg mb-4 border-b pb-2">Simulation Controls</h2>
-                    
-                    <!-- Soil Type -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Soil Type (Permeability, <span class="math">k</span>)</label>
-                        <select id="soilType" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
-                            <option value="1.0">Clean Gravel (k = 1.0 cm/s)</option>
-                            <option value="0.01" selected>Coarse Sand (k = 0.01 cm/s)</option>
-                            <option value="0.001">Fine Sand (k = 10⁻³ cm/s)</option>
-                            <option value="0.00001">Silt (k = 10⁻⁵ cm/s)</option>
-                        </select>
-                    </div>
-
-                    <!-- Head Difference Slider -->
-                    <div class="mb-4">
-                        <div class="flex justify-between text-sm mb-1">
-                            <label class="font-medium text-slate-700">Head Difference (<span class="math">&Delta;h</span>)</label>
-                            <span id="dhValue" class="font-bold text-blue-600">40 cm</span>
-                        </div>
-                        <input type="range" id="dhSlider" min="5" max="80" value="40" class="slider-custom">
-                    </div>
-
-                    <!-- Length Slider -->
-                    <div class="mb-4">
-                        <div class="flex justify-between text-sm mb-1">
-                            <label class="font-medium text-slate-700">Sample Length (<span class="math">L</span>)</label>
-                            <span id="lValue" class="font-bold text-blue-600">50 cm</span>
-                        </div>
-                        <input type="range" id="lSlider" min="20" max="100" value="50" class="slider-custom">
-                    </div>
-
-                    <!-- Area Slider -->
-                    <div class="mb-4">
-                        <div class="flex justify-between text-sm mb-1">
-                            <label class="font-medium text-slate-700">Cross-Sectional Area (<span class="math">A</span>)</label>
-                            <span id="aValue" class="font-bold text-blue-600">30 cm&sup2;</span>
-                        </div>
-                        <input type="range" id="aSlider" min="10" max="80" value="30" class="slider-custom">
-                    </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><i data-lucide="move-up" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-blue-400">1. Straight Reach</h2>
                 </div>
-
-                <!-- Live Results Dashboard -->
-                <div class="bg-blue-50 rounded-lg p-4 border border-blue-100 flex-grow">
-                    <h3 class="font-bold text-blue-900 mb-3 uppercase tracking-wider text-xs">Live Calculations</h3>
-                    
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center bg-white p-2 rounded border border-blue-50">
-                            <span class="text-sm text-slate-600">Hydraulic Gradient (<span class="math">i = &Delta;h/L</span>)</span>
-                            <span id="calcI" class="font-mono font-bold text-slate-800">0.80</span>
-                        </div>
-                        
-                        <div class="flex justify-between items-center bg-white p-2 rounded border border-blue-50">
-                            <span class="text-sm text-slate-600">Discharge Velocity (<span class="math">v = k&middot;i</span>)</span>
-                            <span id="calcV" class="font-mono font-bold text-slate-800">0.008 cm/s</span>
-                        </div>
-
-                        <div class="flex justify-between items-center bg-white p-2 rounded border border-blue-50 shadow-sm relative overflow-hidden">
-                            <div class="absolute left-0 top-0 w-1 h-full bg-blue-500"></div>
-                            <span class="text-sm text-slate-700 font-semibold pl-2">Total Discharge (<span class="math">Q</span>)</span>
-                            <span id="calcQ" class="font-mono font-bold text-blue-700 text-lg">0.24 cm&sup3;/s</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Theory Section -->
-        <div class="glass-panel rounded-xl p-8 mt-8">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="bg-blue-100 p-2 rounded-lg">
-                    <svg class="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                </div>
-                <h2 class="text-2xl font-bold text-slate-900">Darcy's Law <span class="text-base font-normal text-slate-500 ml-2">(Theory & Explanation - 5 Marks)</span></h2>
-            </div>
-            
-            <div class="prose prose-slate max-w-none text-slate-700 space-y-4">
-                <p class="text-lg font-medium text-slate-800 border-l-4 border-blue-500 pl-4 py-1 bg-slate-50">
-                    "For laminar flow conditions in a saturated soil mass, the macroscopic rate of flow (discharge velocity) is directly proportional to the hydraulic gradient."
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    The river should be straight upstream and downstream of the site. A <strong>meandering/curved</strong> river causes uneven flow, leading to heavy scouring on the outer bank and silt deposition on the inner bank.
                 </p>
+            </div>
+        </article>
 
-                <h3 class="font-bold text-lg mt-6 mb-2">Mathematical Expression:</h3>
-                <p>The law is mathematically expressed as:</p>
-                <div class="bg-white border border-slate-200 rounded-lg p-4 text-center text-xl shadow-sm">
-                    <span class="math">v = k &middot; i</span> &nbsp;&nbsp;&nbsp;&nbsp; or &nbsp;&nbsp;&nbsp;&nbsp; <span class="math">Q = k &middot; i &middot; A</span>
+        <!-- Criterion 2: Narrow Channel -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-narrow" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><i data-lucide="minimize-2" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-emerald-400">2. Narrow Channel</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    The river width should be as narrow as possible. A narrower cross-section dramatically <strong>reduces the length of the weir</strong>, saving massive amounts of concrete and minimizing overall construction costs.
+                </p>
+            </div>
+        </article>
+
+        <!-- Criterion 3: High Stable Banks -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-banks" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i data-lucide="mountain" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-amber-400">3. High, Stable Banks</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    The banks must be well-defined, high, and stable. A weir artificially raises the water level (Afflux). If the banks are low, the raised water will <strong>overtop (flank) the banks</strong> and flood surrounding areas.
+                </p>
+            </div>
+        </article>
+
+        <!-- Criterion 4: Strong Foundation -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-purple-500/30 shadow-[0_10px_30px_-10px_rgba(168,85,247,0.2)]">
+            <div class="h-48 relative canvas-bg border-b border-slate-800">
+                <canvas id="canvas-foundation" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i data-lucide="layers" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-purple-400">4. Strong Foundation Bed</h2>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    A solid rock or highly compacted soil bed is required. It provides high bearing capacity to support the massive concrete structure and prevents hazardous <strong>sub-surface seepage (piping failure)</strong>.
+                </p>
+            </div>
+        </article>
+
+        <!-- Final Needs Card (Text Only) -->
+        <article class="memory-card bg-slate-900 rounded-2xl overflow-hidden border border-rose-500/30 shadow-[0_10px_30px_-10px_rgba(244,63,94,0.2)]">
+            <div class="p-6">
+                <div class="flex items-center justify-center gap-3 mb-6 border-b border-slate-800 pb-4">
+                    <div class="p-2 bg-rose-500/20 text-rose-400 rounded-full"><i data-lucide="info" class="w-6 h-6"></i></div>
+                    <h2 class="text-xl font-extrabold text-rose-400">Needs of a Weir / Barrage</h2>
                 </div>
                 
-                <h3 class="font-bold text-lg mt-6 mb-2">Where:</h3>
-                <ul class="list-disc pl-6 space-y-1">
-                    <li><strong class="text-blue-700 math">Q</strong> = Total rate of flow or Discharge (Volume/time, e.g., cm&sup3;/s)</li>
-                    <li><strong class="text-blue-700 math">v</strong> = Discharge velocity or superficial velocity (Length/time, e.g., cm/s). <em>Note: This is the velocity assuming water flows through the entire cross-section, not just the pore spaces.</em></li>
-                    <li><strong class="text-blue-700 math">k</strong> = Coefficient of Permeability or Hydraulic Conductivity (Length/time, e.g., cm/s). It is a property of both the porous medium (soil) and the fluid.</li>
-                    <li><strong class="text-blue-700 math">i</strong> = Hydraulic Gradient (Dimensionless). Defined as the head loss (<span class="math">&Delta;h</span>) per unit length (<span class="math">L</span>) of flow path: <span class="math">i = &Delta;h / L</span>.</li>
-                    <li><strong class="text-blue-700 math">A</strong> = Total cross-sectional area of the soil mass perpendicular to the direction of flow (Area, e.g., cm&sup2;).</li>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
+                        <p class="text-sm text-slate-300"><strong>To raise the water level</strong> (create afflux) so that water can easily flow into the off-taking irrigation canal.</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
+                        <p class="text-sm text-slate-300"><strong>To regulate the intake</strong> of water into the canal, ensuring a consistent supply regardless of river fluctuations.</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</div>
+                        <p class="text-sm text-slate-300"><strong>To control silt entry</strong> into the canal by using under-sluices to flush heavy sediment downstream.</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">4</div>
+                        <p class="text-sm text-slate-300"><strong>To temporarily store water</strong> to meet immediate municipal, agricultural, or industrial demands during dry spells.</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">5</div>
+                        <p class="text-sm text-slate-300"><strong>To safely pass high flood discharges</strong> downstream without causing structural damage to the headworks.</p>
+                    </li>
                 </ul>
-
-                <h3 class="font-bold text-lg mt-6 mb-2 text-red-600">Limitations and Validity:</h3>
-                <p>Darcy's Law is fundamentally valid <strong>only for laminar flow</strong>. In soils, this condition is generally satisfied when the Reynolds number (<span class="math">R_e</span>) is less than 1. This holds true for almost all naturally occurring soils (clays, silts, sands) under typical hydraulic gradients. However, in very coarse gravels or rock fill subjected to high hydraulic gradients, the flow may become turbulent, and Darcy's law becomes invalid.</p>
             </div>
-        </div>
+        </article>
 
-    </div>
+    </main>
 
     <script>
-        // DOM Elements
-        const canvas = document.getElementById('simCanvas');
-        const ctx = canvas.getContext('2d');
-        const container = document.getElementById('canvasContainer');
-        
-        // Inputs
-        const dhSlider = document.getElementById('dhSlider');
-        const lSlider = document.getElementById('lSlider');
-        const aSlider = document.getElementById('aSlider');
-        const soilSelect = document.getElementById('soilType');
-        
-        // Outputs
-        const dhValue = document.getElementById('dhValue');
-        const lValue = document.getElementById('lValue');
-        const aValue = document.getElementById('aValue');
-        const calcI = document.getElementById('calcI');
-        const calcV = document.getElementById('calcV');
-        const calcQ = document.getElementById('calcQ');
+        lucide.createIcons();
 
-        // State Variables
-        let state = {
-            dh: parseFloat(dhSlider.value),
-            L: parseFloat(lSlider.value),
-            A: parseFloat(aSlider.value),
-            k: parseFloat(soilSelect.value),
-            i: 0,
-            v: 0,
-            Q: 0
+        // --- CANVAS SETUP --- //
+        const canvases = {
+            straight: document.getElementById('canvas-straight'),
+            narrow: document.getElementById('canvas-narrow'),
+            banks: document.getElementById('canvas-banks'),
+            foundation: document.getElementById('canvas-foundation')
         };
-
-        // Particles for water flow animation
-        let particles = [];
-        const MAX_PARTICLES = 150;
-
-        // Resize Canvas to fit container exactly
-        function resizeCanvas() {
-            const rect = container.getBoundingClientRect();
-            // Set actual size in memory (scaled to account for extra pixel density)
-            canvas.width = rect.width * window.devicePixelRatio;
-            canvas.height = rect.height * window.devicePixelRatio;
-            // Normalize coordinate system to use css pixels
-            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-            canvas.style.width = `${rect.width}px`;
-            canvas.style.height = `${rect.height}px`;
+        
+        const contexts = {};
+        for (const key in canvases) {
+            contexts[key] = canvases[key].getContext('2d');
         }
 
-        window.addEventListener('resize', () => {
-            resizeCanvas();
-            initParticles();
-        });
-
-        // Initialize Animation state
-        function updateState() {
-            state.dh = parseFloat(dhSlider.value);
-            state.L = parseFloat(lSlider.value);
-            state.A = parseFloat(aSlider.value);
-            state.k = parseFloat(soilSelect.value);
-
-            // Calculations
-            state.i = state.dh / state.L;
-            state.v = state.k * state.i;
-            state.Q = state.v * state.A;
-
-            // Update UI text
-            dhValue.innerHTML = `${state.dh} cm`;
-            lValue.innerHTML = `${state.L} cm`;
-            aValue.innerHTML = `${state.A} cm&sup2;`;
-            
-            calcI.innerHTML = state.i.toFixed(3);
-            
-            // Format v and Q dynamically based on size
-            if(state.v < 0.001 && state.v > 0) {
-                calcV.innerHTML = state.v.toExponential(2) + " cm/s";
-            } else {
-                calcV.innerHTML = state.v.toFixed(5) + " cm/s";
-            }
-
-            if(state.Q < 0.001 && state.Q > 0) {
-                calcQ.innerHTML = state.Q.toExponential(2) + " cm&sup3;/s";
-            } else {
-                calcQ.innerHTML = state.Q.toFixed(4) + " cm&sup3;/s";
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const rect = cvs.parentElement.getBoundingClientRect();
+                cvs.width = rect.width * dpr;
+                cvs.height = rect.height * dpr;
+                contexts[key].setTransform(1, 0, 0, 1, 0, 0); 
+                contexts[key].scale(dpr, dpr);
             }
         }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
 
-        // Particle System
-        class Particle {
-            constructor(startX, startY, width, height) {
-                this.boxX = startX;
-                this.boxY = startY;
-                this.boxW = width;
-                this.boxH = height;
-                this.reset();
-                this.x = startX + Math.random() * width; // Random initial position
-            }
-            
-            reset() {
-                this.x = this.boxX;
-                this.y = this.boxY + Math.random() * this.boxH;
-                this.length = 5 + Math.random() * 15;
-                this.opacity = 0.2 + Math.random() * 0.6;
-                this.speedOffset = 0.8 + Math.random() * 0.4;
-            }
-
-            update(visualSpeed) {
-                this.x += visualSpeed * this.speedOffset;
-                if (this.x > this.boxX + this.boxW) {
-                    this.reset();
-                }
-            }
-
-            draw(ctx) {
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y);
-                ctx.lineTo(Math.min(this.x + this.length, this.boxX + this.boxW), this.y);
-                ctx.strokeStyle = `rgba(59, 130, 246, ${this.opacity})`; // Blue-500
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-            }
+        // --- HELPERS --- //
+        function drawLabel(ctx, text, x, y, color='#fff', bg='rgba(15,23,42,0.8)') {
+            ctx.font = 'bold 10px Inter';
+            const w = ctx.measureText(text).width;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(x - w/2 - 6, y - 8, w + 12, 16, 4); ctx.fill();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
         }
 
-        function initParticles() {
-            particles = [];
-            // We'll initialize bounds dynamically in the draw loop since L and A change
-            for(let i=0; i<MAX_PARTICLES; i++) {
-                particles.push(new Particle(0,0,10,10)); // Dummy init, will be updated
-            }
+        function drawSplitScreen(ctx, w, h) {
+            ctx.strokeStyle = '#475569'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+            ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
+            ctx.setLineDash([]);
         }
 
-        // Main Drawing Loop
-        function draw() {
-            const width = canvas.width / window.devicePixelRatio;
-            const height = canvas.height / window.devicePixelRatio;
-            
-            ctx.clearRect(0, 0, width, height);
+        // --- ANIMATION RENDERERS --- //
 
-            // --- Layout Geometry ---
-            // Base line for the apparatus
-            const baseY = height * 0.85; 
+        // 1. Straight Reach (Meandering vs Straight)
+        function renderStraight(ctx, w, h, p) {
+            drawSplitScreen(ctx, w, h);
             
-            // Soil sample visual parameters
-            const minSampleWidth = 100;
-            const maxSampleWidth = width * 0.5;
-            const sampleWidth = minSampleWidth + ((state.L - 20) / 80) * (maxSampleWidth - minSampleWidth);
+            const pX = w/4;
+            const cX = (w/4)*3;
             
-            const minSampleHeight = 30;
-            const maxSampleHeight = height * 0.4;
-            const sampleHeight = minSampleHeight + ((state.A - 10) / 70) * (maxSampleHeight - minSampleHeight);
+            // --- LEFT: MEANDERING (WRONG) ---
+            ctx.save();
+            ctx.translate(pX, 0);
             
-            const sampleX = (width - sampleWidth) / 2;
-            const sampleY = baseY - sampleHeight;
-
-            // Reservoir parameters
-            const resWidth = 60;
-            const leftResX = sampleX - resWidth;
-            const rightResX = sampleX + sampleWidth;
-            
-            // Head parameters
-            const baseHeadHeight = 20; // Default right reservoir water level
-            const headScale = 2.5; // Pixels per cm of head
-            
-            const rightWaterY = sampleY - baseHeadHeight;
-            const leftWaterY = rightWaterY - (state.dh * headScale);
-
-            // --- Draw Soil Sample ---
-            // Soil background
-            ctx.fillStyle = '#e2d3ba'; // Sandy color
-            ctx.fillRect(sampleX, sampleY, sampleWidth, sampleHeight);
-            
-            // Soil texture (dots)
-            ctx.fillStyle = 'rgba(139, 69, 19, 0.2)';
-            const soilDotCount = Math.floor(sampleWidth * sampleHeight / 100);
-            // Use seeded random or static for texture so it doesn't flicker, but simple random is fine if cached.
-            // For performance, we'll just draw a pattern or static dots.
-            // To prevent flickering in animation frame, we don't draw random dots every frame.
-            
-            // Draw pipe borders
-            ctx.strokeStyle = '#334155'; // Slate-700
-            ctx.lineWidth = 3;
+            // Draw curving river
             ctx.beginPath();
-            // Top pipe line
-            ctx.moveTo(sampleX, sampleY);
-            ctx.lineTo(sampleX + sampleWidth, sampleY);
-            // Bottom pipe line
-            ctx.moveTo(sampleX, baseY);
-            ctx.lineTo(sampleX + sampleWidth, baseY);
-            ctx.stroke();
+            for(let y=0; y<=h; y+=5) {
+                const x = Math.sin(y * 0.05) * 30;
+                if(y===0) ctx.moveTo(x - 20, y); else ctx.lineTo(x - 20, y);
+            }
+            for(let y=h; y>=0; y-=5) {
+                const x = Math.sin(y * 0.05) * 30;
+                ctx.lineTo(x + 20, y);
+            }
+            ctx.fillStyle = '#0ea5e9'; ctx.fill();
 
-            // --- Draw Reservoirs ---
-            // Left Reservoir Container
+            // Weir at center
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(-35, h/2 - 5, 70, 10);
+            
+            // Scouring / Siltation
+            if (p % 1 > 0.5) {
+                // Scour (Red on outer bend)
+                ctx.fillStyle = 'rgba(239,68,68,0.7)';
+                ctx.beginPath(); ctx.arc(-25, h/2 + 25, 10, 0, Math.PI*2); ctx.fill();
+                // Silt (Brown on inner bend)
+                ctx.fillStyle = 'rgba(217,119,6,0.7)';
+                ctx.beginPath(); ctx.arc(20, h/2 - 25, 10, 0, Math.PI*2); ctx.fill();
+            }
+
+            drawLabel(ctx, "MEANDERING ❌", 0, 20, '#ef4444');
+            drawLabel(ctx, "Scour & Silt", 0, h - 20, '#ef4444');
+            ctx.restore();
+
+
+            // --- RIGHT: STRAIGHT (CORRECT) ---
+            ctx.save();
+            ctx.translate(cX, 0);
+            
+            // Draw straight river
+            ctx.fillStyle = '#0ea5e9';
+            ctx.fillRect(-25, 0, 50, h);
+            
+            // Weir at center
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(-35, h/2 - 5, 70, 10);
+
+            // Smooth Flow lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1;
+            const flowY = (p * h) % h;
+            for(let x=-15; x<=15; x+=15) {
+                ctx.beginPath(); ctx.moveTo(x, flowY); ctx.lineTo(x, flowY + 20); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x, (flowY+h/2)%h); ctx.lineTo(x, (flowY+h/2)%h + 20); ctx.stroke();
+            }
+
+            drawLabel(ctx, "STRAIGHT ✓", 0, 20, '#22c55e');
+            drawLabel(ctx, "Uniform Flow", 0, h - 20, '#22c55e');
+            ctx.restore();
+        }
+
+        // 2. Narrow Channel (Wide vs Narrow Cost comparison)
+        function renderNarrow(ctx, w, h, p) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Draw Hourglass river (Wide -> Narrow -> Wide)
+            ctx.fillStyle = '#0ea5e9';
             ctx.beginPath();
-            ctx.moveTo(leftResX, baseY - sampleHeight);
-            ctx.lineTo(leftResX, leftWaterY - 30);
-            ctx.moveTo(leftResX, baseY);
-            ctx.lineTo(leftResX, baseY + 10);
-            ctx.strokeStyle = '#334155';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(cx - 30, cy, 0, h); // Left bank
+            ctx.lineTo(w, h);
+            ctx.quadraticCurveTo(cx + 30, cy, w, 0); // Right bank
+            ctx.fill();
 
-            // Right Reservoir Container
+            // Water flow animation
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 2;
+            const waveY = (p * h) % h;
+            ctx.beginPath(); ctx.moveTo(w/2 - 20, waveY); ctx.lineTo(w/2 + 20, waveY); ctx.stroke();
+
+            // --- OPTION A: Build at Wide Section (Top) ---
+            const wideY = cy - 40;
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3; ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(30, wideY); ctx.lineTo(w - 30, wideY); ctx.stroke(); ctx.setLineDash([]);
+            
+            drawLabel(ctx, "WIDE = HIGH COST ❌", cx, wideY - 15, '#ef4444');
+            // Dimension line
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(30, wideY+5); ctx.lineTo(w-30, wideY+5); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(30, wideY+2); ctx.lineTo(30, wideY+8); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(w-30, wideY+2); ctx.lineTo(w-30, wideY+8); ctx.stroke();
+
+
+            // --- OPTION B: Build at Narrow Neck (Center) ---
+            const narrowY = cy + 20;
+            // Solid concrete weir
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(cx - 50, narrowY - 5, 100, 10);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(cx - 50, narrowY - 2, 100, 4);
+
+            drawLabel(ctx, "NARROW = LOW COST ✓", cx, narrowY + 20, '#22c55e');
+            // Dimension line
+            ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(cx-50, narrowY-10); ctx.lineTo(cx+50, narrowY-10); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx-50, narrowY-13); ctx.lineTo(cx-50, narrowY-7); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx+50, narrowY-13); ctx.lineTo(cx+50, narrowY-7); ctx.stroke();
+        }
+
+        // 3. High Stable Banks (Cross section: Low bank floods, High bank contains)
+        function renderBanks(ctx, w, h, p) {
+            drawSplitScreen(ctx, w, h);
+            
+            const pX = w/4;
+            const cX = (w/4)*3;
+            const cy = h/2 + 20;
+
+            // Rising water level
+            const riseP = Math.min(1, p * 2); // 0 to 1
+            const waterLevel = cy - 10 - (riseP * 40); // Base level to +40 afflux
+
+            // --- LEFT: LOW BANKS (Floods) ---
+            ctx.save(); ctx.translate(pX, 0);
+            
+            // Ground (Low Banks)
+            ctx.fillStyle = '#78716c';
+            ctx.beginPath(); ctx.moveTo(-100, cy - 20); ctx.lineTo(-40, cy - 20); // Bank left
+            ctx.lineTo(-20, cy + 40); ctx.lineTo(20, cy + 40); // Bed
+            ctx.lineTo(40, cy - 20); ctx.lineTo(100, cy - 20); ctx.lineTo(100, h); ctx.lineTo(-100, h); ctx.fill();
+
+            // Water
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.8)';
             ctx.beginPath();
-            ctx.moveTo(rightResX + resWidth, baseY - sampleHeight);
-            ctx.lineTo(rightResX + resWidth, rightWaterY - 30);
-            ctx.moveTo(rightResX + resWidth, baseY);
-            ctx.lineTo(rightResX + resWidth, baseY + 10);
-            ctx.stroke();
-
-            // Left Water Body
-            ctx.fillStyle = 'rgba(56, 189, 248, 0.5)'; // Sky blue transparent
-            ctx.fillRect(leftResX, leftWaterY, resWidth, baseY - leftWaterY);
-            
-            // Right Water Body
-            ctx.fillRect(rightResX, rightWaterY, resWidth, baseY - rightWaterY);
-            
-            // Left Water Surface Line
-            ctx.beginPath();
-            ctx.moveTo(leftResX, leftWaterY);
-            ctx.lineTo(leftResX + resWidth, leftWaterY);
-            ctx.strokeStyle = '#0ea5e9';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // Right Water Surface Line
-            ctx.beginPath();
-            ctx.moveTo(rightResX, rightWaterY);
-            ctx.lineTo(rightResX + resWidth, rightWaterY);
-            ctx.stroke();
-
-            // --- Draw Piezometers (Standpipes) ---
-            const piezoWidth = 10;
-            // Left Piezometer
-            ctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
-            ctx.fillRect(sampleX + 10, leftWaterY, piezoWidth, sampleY - leftWaterY);
-            ctx.strokeStyle = '#94a3b8';
-            ctx.strokeRect(sampleX + 10, leftWaterY - 20, piezoWidth, sampleY - leftWaterY + 20);
-            
-            // Right Piezometer
-            ctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
-            ctx.fillRect(sampleX + sampleWidth - 10 - piezoWidth, rightWaterY, piezoWidth, sampleY - rightWaterY);
-            ctx.strokeRect(sampleX + sampleWidth - 10 - piezoWidth, rightWaterY - 20, piezoWidth, sampleY - rightWaterY + 20);
-
-            // --- Draw Hydraulic Grade Line (HGL) ---
-            ctx.beginPath();
-            ctx.moveTo(sampleX + 10 + piezoWidth/2, leftWaterY);
-            ctx.lineTo(sampleX + sampleWidth - 10 - piezoWidth/2, rightWaterY);
-            ctx.strokeStyle = '#ef4444'; // Red-500
-            ctx.lineWidth = 2;
-            ctx.setLineDash([5, 5]);
-            ctx.stroke();
-            ctx.setLineDash([]); // Reset line dash
-
-            // --- Draw Delta H Indicator ---
-            const arrowX = leftResX - 20;
-            ctx.beginPath();
-            ctx.moveTo(arrowX, leftWaterY);
-            ctx.lineTo(arrowX, rightWaterY);
-            ctx.strokeStyle = '#334155';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-            
-            // Arrow heads
-            ctx.beginPath(); ctx.moveTo(arrowX-5, leftWaterY+5); ctx.lineTo(arrowX, leftWaterY); ctx.lineTo(arrowX+5, leftWaterY+5); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(arrowX-5, rightWaterY-5); ctx.lineTo(arrowX, rightWaterY); ctx.lineTo(arrowX+5, rightWaterY-5); ctx.stroke();
-            
-            // Text for Delta H
-            ctx.fillStyle = '#334155';
-            ctx.font = 'bold 14px Inter';
-            ctx.textAlign = 'right';
-            ctx.fillText('Δh', arrowX - 10, leftWaterY + (rightWaterY - leftWaterY)/2 + 5);
-
-            // Text for L
-            const lArrowY = baseY + 25;
-            ctx.beginPath();
-            ctx.moveTo(sampleX, lArrowY);
-            ctx.lineTo(sampleX + sampleWidth, lArrowY);
-            ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(sampleX+5, lArrowY-5); ctx.lineTo(sampleX, lArrowY); ctx.lineTo(sampleX+5, lArrowY+5); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(sampleX+sampleWidth-5, lArrowY-5); ctx.lineTo(sampleX+sampleWidth, lArrowY); ctx.lineTo(sampleX+sampleWidth-5, lArrowY+5); ctx.stroke();
-            
-            ctx.textAlign = 'center';
-            ctx.fillText('L', sampleX + sampleWidth/2, lArrowY + 20);
-
-            // Text for Area A
-            ctx.textAlign = 'left';
-            ctx.fillText('Area = A', sampleX + 10, sampleY + sampleHeight/2);
-
-            // --- Animate Flow Particles ---
-            // Map actual v to a visual speed that makes sense on screen.
-            // Since k varies by 10^5, direct mapping makes silt look stationary and gravel infinite.
-            // We use a logarithmic/clamped scale for visual pedagogy.
-            let logK = Math.log10(state.k); // Gravel: 0, Sand: -2, Fine: -3, Silt: -5
-            let visualBaseSpeed = (logK + 6) * 0.5; // Map to range roughly 0.5 to 3.0
-            
-            // Modulate visual speed by hydraulic gradient
-            let visualSpeed = visualBaseSpeed * (state.i * 2);
-            
-            // Adjust particle boxes if container changed
-            particles.forEach((p, index) => {
-                p.boxX = sampleX;
-                p.boxY = sampleY;
-                p.boxW = sampleWidth;
-                p.boxH = sampleHeight;
+            if (waterLevel < cy - 20) {
+                // Flooding over the banks!
+                ctx.moveTo(-100, waterLevel); ctx.lineTo(100, waterLevel);
+                ctx.lineTo(100, cy+40); ctx.lineTo(-100, cy+40);
+                ctx.fill();
                 
-                // Only show a fraction of particles based on Area to visually represent Q
-                if(index < state.A * 1.5) {
-                    p.update(visualSpeed);
-                    p.draw(ctx);
-                }
-            });
+                drawLabel(ctx, "FLANKING/FLOOD ❌", 0, cy + 10, '#ef4444');
+            } else {
+                // Contained
+                ctx.moveTo(-40 + (cy-20-waterLevel), waterLevel);
+                ctx.lineTo(40 - (cy-20-waterLevel), waterLevel);
+                ctx.lineTo(20, cy+40); ctx.lineTo(-20, cy+40);
+                ctx.fill();
+            }
 
-            // Loop
-            requestAnimationFrame(draw);
+            drawLabel(ctx, "LOW BANKS", 0, 20, '#ef4444');
+            ctx.restore();
+
+
+            // --- RIGHT: HIGH BANKS (Contained) ---
+            ctx.save(); ctx.translate(cX, 0);
+            
+            // Ground (High Banks)
+            ctx.fillStyle = '#78716c';
+            ctx.beginPath(); ctx.moveTo(-100, cy - 70); ctx.lineTo(-40, cy - 70); // High Bank left
+            ctx.lineTo(-20, cy + 40); ctx.lineTo(20, cy + 40); // Bed
+            ctx.lineTo(40, cy - 70); ctx.lineTo(100, cy - 70); ctx.lineTo(100, h); ctx.lineTo(-100, h); ctx.fill();
+
+            // Water (Always Contained)
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.8)';
+            ctx.beginPath();
+            // Map slope to find width at water level
+            const slopeX = 20 + ((cy + 40 - waterLevel) / 110) * 20; 
+            ctx.moveTo(-slopeX, waterLevel);
+            ctx.lineTo(slopeX, waterLevel);
+            ctx.lineTo(20, cy+40); ctx.lineTo(-20, cy+40);
+            ctx.fill();
+
+            // Afflux marker
+            if (riseP === 1) {
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(0, cy - 10); ctx.lineTo(0, waterLevel); ctx.stroke();
+                drawLabel(ctx, "AFFLUX", 0, waterLevel + 15, '#fff', 'transparent');
+                drawLabel(ctx, "SAFE ✓", 0, cy + 10, '#22c55e');
+            }
+
+            drawLabel(ctx, "HIGH BANKS", 0, 20, '#22c55e');
+            ctx.restore();
         }
 
-        // Event Listeners
-        dhSlider.addEventListener('input', updateState);
-        lSlider.addEventListener('input', updateState);
-        aSlider.addEventListener('input', updateState);
-        soilSelect.addEventListener('change', updateState);
+        // 4. Strong Foundation (Loose Sand vs Bedrock)
+        function renderFoundation(ctx, w, h, p) {
+            drawSplitScreen(ctx, w, h);
+            
+            const pX = w/4;
+            const cX = (w/4)*3;
+            const cy = h/2;
 
-        // Init
-        resizeCanvas();
-        initParticles();
-        updateState();
-        draw();
+            // Load animation
+            const loadP = Math.min(1, p * 2);
+
+            // --- LEFT: LOOSE SAND (Fails) ---
+            ctx.save(); ctx.translate(pX, cy);
+            
+            // Soil Layers
+            ctx.fillStyle = '#fcd34d'; ctx.fillRect(-60, 20, 120, 60); // Loose Sand
+            
+            // Heavy Weir Structure
+            const sink = loadP === 1 ? 15 : 0; // Sinks into sand
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath(); ctx.moveTo(-30, 20 + sink); ctx.lineTo(0, -40 + sink); ctx.lineTo(30, 20 + sink); ctx.fill();
+
+            if (loadP === 1) {
+                // Downward load arrow
+                ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(0, -60 + sink); ctx.lineTo(0, -20 + sink); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-5, -25+sink); ctx.lineTo(0, -20+sink); ctx.lineTo(5, -25+sink); ctx.fill();
+                
+                // Seepage / Piping lines underneath
+                ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+                ctx.beginPath(); ctx.moveTo(-50, 25+sink); ctx.quadraticCurveTo(0, 60+sink, 50, 25+sink); ctx.stroke();
+                ctx.setLineDash([]);
+
+                drawLabel(ctx, "SETTLES / PIPING ❌", 0, 70, '#ef4444');
+            }
+
+            drawLabel(ctx, "LOOSE SAND", 0, -h/2 + 20, '#ef4444');
+            ctx.restore();
+
+
+            // --- RIGHT: BEDROCK (Stable) ---
+            ctx.save(); ctx.translate(cX, cy);
+            
+            // Soil Layers
+            ctx.fillStyle = '#475569'; ctx.fillRect(-60, 20, 120, 60); // Solid Rock
+            // Rock texture
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(-40, 30); ctx.lineTo(-20, 40); ctx.lineTo(-30, 50); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(20, 30); ctx.lineTo(40, 40); ctx.lineTo(30, 60); ctx.stroke();
+
+            // Heavy Weir Structure (Does not sink)
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath(); ctx.moveTo(-30, 20); ctx.lineTo(0, -40); ctx.lineTo(30, 20); ctx.fill();
+
+            if (loadP === 1) {
+                // Downward load vs Upward bearing capacity
+                ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(0, -60); ctx.lineTo(0, -20); ctx.stroke(); // Load
+                
+                // Reaction arrows from rock
+                ctx.beginPath(); ctx.moveTo(-15, 35); ctx.lineTo(-15, 20); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(15, 35); ctx.lineTo(15, 20); ctx.stroke();
+
+                drawLabel(ctx, "HIGH BEARING ✓", 0, 70, '#22c55e');
+            }
+
+            drawLabel(ctx, "SOLID BEDROCK", 0, -h/2 + 20, '#22c55e');
+            ctx.restore();
+        }
+
+        // --- MASTER ANIMATION LOOP --- //
+        const CYCLE_TIME = 4000; // 4 seconds loop
+
+        function animate(timestamp) {
+            const p = (timestamp % CYCLE_TIME) / CYCLE_TIME; 
+
+            for (const key in canvases) {
+                const cvs = canvases[key];
+                const ctx = contexts[key];
+                const w = cvs.width / (window.devicePixelRatio || 1);
+                const h = cvs.height / (window.devicePixelRatio || 1);
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                switch(key) {
+                    case 'straight': renderStraight(ctx, w, h, p); break;
+                    case 'narrow': renderNarrow(ctx, w, h, p); break;
+                    case 'banks': renderBanks(ctx, w, h, p); break;
+                    case 'foundation': renderFoundation(ctx, w, h, p); break;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start Loop
+        requestAnimationFrame(animate);
 
     </script>
 </body>
 </html>
-

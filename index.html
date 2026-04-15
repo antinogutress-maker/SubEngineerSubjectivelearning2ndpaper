@@ -336,7 +336,7 @@
                 <button class="clay-btn free-subject" onclick="openSubject(1, 'Surveying')">Surveying [Free]</button>
                 <button class="clay-btn free-subject" onclick="openSubject(2, 'Construction Materials')">Construction Materials [Free]</button>
                 <button class="clay-btn" onclick="openSubject(3, 'Mechanics of Structure')">Mechanics of Structure</button>
-                <button class="clay-btn free-subject" onclick="openSubject(4, 'Hydraulics')">Hydraulics [Free]</button>
+                <button class="clay-btn" onclick="openSubject(4, 'Hydraulics')">Hydraulics </button>
                 <button class="clay-btn" onclick="openSubject(5, 'Soil Mechanics')">Soil Mechanics</button>
                 <button class="clay-btn" onclick="openSubject(6, 'Structural Design')">Structural Design</button>
                 <button class="clay-btn" onclick="openSubject(7, 'Building Construction Tech')">Building Construction</button>
@@ -732,10 +732,10 @@
                 return true; 
             }
 
-            // FREE SUBJECTS: 0 (Old Loksewa), 1 (Surveying), 2 (Materials), 4 (Hydraulics)
-            const isAlwaysFree = [0, 1, 2, 4].includes(currentSubjectId);
+            // FREE SUBJECTS: 0 (Old Loksewa), 1 (Surveying), 2 (Materials)
+            const isAlwaysFree = [0, 1, 2].includes(currentSubjectId);
             
-            // These 4 are completely free unconditionally
+            // These 3 are completely free unconditionally
             if (isAlwaysFree) return true;
 
             // Everything else locked immediately

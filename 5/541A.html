@@ -1,0 +1,634 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Realistic Mohr-Coulomb Simulation</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+            color: #f8fafc; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nepali-text { font-family: 'Noto Sans Devanagari', sans-serif; }
+        
+        /* Mobile Touch Sliders */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; touch-action: none; margin: 8px 0; }
+        input[type=range]::-webkit-slider-thumb { 
+            -webkit-appearance: none; 
+            height: 24px; width: 24px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            margin-top: -8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5); 
+        }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; border-radius: 4px; }
+        
+        /* Slider Colors */
+        #sigma-slider::-webkit-slider-thumb { background: #38bdf8; }
+        #sigma-slider::-webkit-slider-runnable-track { background: #0c4a6e; }
+        
+        #c-slider::-webkit-slider-thumb { background: #a855f7; }
+        #c-slider::-webkit-slider-runnable-track { background: #4c1d95; }
+        
+        #phi-slider::-webkit-slider-thumb { background: #f59e0b; }
+        #phi-slider::-webkit-slider-runnable-track { background: #78350f; }
+
+        #tau-slider::-webkit-slider-thumb { background: #ef4444; border: 2px solid white;}
+        #tau-slider::-webkit-slider-runnable-track { background: #7f1d1d; }
+
+        .m-card { 
+            background: rgba(30, 41, 59, 0.9); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        
+        .canvas-container { position: relative; width: 100%; overflow: hidden; border-radius: 0.5rem; }
+        
+        /* Shaking animation for failure */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .failing { animation: shake 0.5s; }
+    </style>
+</head>
+<body class="p-2 sm:p-4 pb-12">
+
+    <div class="max-w-md mx-auto">
+        
+        <!-- Header -->
+        <header class="m-card text-center border-b-4 border-b-purple-500">
+            <h1 class="text-xl font-bold text-white leading-tight">Mohr-Coulomb Theory</h1>
+            <p class="text-xs text-slate-400 mt-1">Shear Strength of Soil Simulation</p>
+            <div class="mt-3 bg-slate-800 border border-slate-600 py-2 rounded-lg shadow-inner">
+                <p class="text-sm font-bold text-purple-400">
+                    \( \tau_f = c + \sigma \tan \phi \)
+                </p>
+            </div>
+        </header>
+
+        <!-- Live Dashboard -->
+        <div class="m-card bg-slate-800 border-l-4" id="status-card">
+            <div class="flex justify-between items-center mb-2 border-b border-slate-700 pb-2">
+                <span class="text-[11px] font-bold text-slate-400 uppercase">Soil Status</span>
+                <span id="status-text" class="text-xs font-black px-2 py-1 rounded bg-emerald-500/20 text-emerald-400">SAFE (ELASTIC)</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 text-center mb-1">
+                <div class="bg-slate-900 rounded-lg p-2 border border-slate-700">
+                    <p class="text-[10px] text-slate-400 font-bold mb-1">Shear Strength (\( \tau_f \))</p>
+                    <p id="out-tau-f" class="text-lg font-black text-emerald-400 font-mono">0.0 <span class="text-[9px]">kPa</span></p>
+                </div>
+                <div class="bg-slate-900 rounded-lg p-2 border border-slate-700 relative overflow-hidden" id="applied-box">
+                    <p class="text-[10px] text-slate-400 font-bold mb-1">Applied Shear (\( \tau \))</p>
+                    <p id="out-tau-app" class="text-lg font-black text-rose-400 font-mono">0.0 <span class="text-[9px]">kPa</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Soil Parameters Controls -->
+        <div class="m-card space-y-4">
+            <h2 class="text-[11px] font-bold text-slate-400 uppercase border-b border-slate-700 pb-1 mb-2">1. Set Soil Properties</h2>
+            
+            <!-- Normal Stress -->
+            <div>
+                <label class="flex justify-between text-[11px] font-bold text-slate-300">
+                    <span>Normal Stress (\( \sigma \)) - Vertical Load</span>
+                    <span id="val-sigma" class="text-sky-400">100 kPa</span>
+                </label>
+                <input type="range" id="sigma-slider" min="0" max="200" step="5" value="100">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Cohesion -->
+                <div>
+                    <label class="flex justify-between text-[11px] font-bold text-slate-300">
+                        <span>Cohesion (\( c \))</span>
+                    </label>
+                    <span id="val-c" class="text-purple-400 text-xs font-bold block mb-1">20 kPa (Clayey)</span>
+                    <input type="range" id="c-slider" min="0" max="100" step="5" value="20">
+                </div>
+
+                <!-- Friction Angle -->
+                <div>
+                    <label class="flex justify-between text-[11px] font-bold text-slate-300">
+                        <span>Friction (\( \phi \))</span>
+                    </label>
+                    <span id="val-phi" class="text-amber-400 text-xs font-bold block mb-1">30° (Sandy)</span>
+                    <input type="range" id="phi-slider" min="0" max="45" step="1" value="30">
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Control: Apply Shear -->
+        <div class="m-card border-2 border-rose-900 bg-rose-950/30">
+            <h2 class="text-[12px] font-bold text-rose-400 uppercase text-center mb-2">2. Apply Shear Force to Break Soil!</h2>
+            <div>
+                <label class="flex justify-between text-[11px] font-bold text-slate-300">
+                    <span>Push Top Box (Applied Shear \( \tau \))</span>
+                </label>
+                <input type="range" id="tau-slider" min="0" max="300" step="2" value="0" class="mt-2 w-full">
+                <p class="text-[9px] text-center text-rose-300 mt-2 opacity-80">Slide right to push the soil. Watch the boxes below.</p>
+            </div>
+        </div>
+
+        <!-- Visualizations -->
+        <div class="space-y-4">
+            
+            <!-- Microscopic Grain View -->
+            <div class="m-card">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Microscopic Interlock</h2>
+                    <span class="text-[9px] bg-slate-800 px-2 py-0.5 rounded text-slate-300 border border-slate-600">Zoom: 1000x</span>
+                </div>
+                <div class="canvas-container bg-slate-950 border border-slate-700 h-[130px] shadow-inner" id="micro-wrapper">
+                    <canvas id="microCanvas"></canvas>
+                </div>
+                <p class="text-[10px] text-center text-slate-400 mt-2 leading-tight">
+                    <span class="text-purple-400 font-bold">Purple Lines = Cohesive glue.</span><br>
+                    Notice grains lift up (Dilatancy) to overcome friction (\( \phi \)).
+                </p>
+            </div>
+
+            <!-- Macroscopic Direct Shear Box -->
+            <div class="m-card">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Direct Shear Test Box</h2>
+                </div>
+                <div class="canvas-container bg-slate-900 border border-slate-700 h-[180px]" id="macro-wrapper">
+                    <canvas id="macroCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Mathematical Graph -->
+            <div class="m-card">
+                <h2 class="text-[11px] font-bold mb-2 text-slate-400 uppercase tracking-wide text-center">Failure Envelope</h2>
+                <div class="relative w-full h-[220px] bg-slate-900 rounded-lg p-1 border border-slate-700">
+                    <canvas id="mcChart"></canvas>
+                </div>
+                <p class="text-[9px] text-center text-slate-500 mt-2">If the Red Dot crosses the Purple Line, the soil fails.</p>
+            </div>
+        </div>
+
+        <!-- 5-Mark Exam Guide (Loksewa Format) -->
+        <div class="bg-white text-slate-800 p-5 rounded-2xl shadow-xl mt-8 border-t-8 border-purple-600">
+            <div class="flex justify-between items-start mb-4 border-b border-slate-200 pb-3">
+                <h3 class="text-lg font-bold text-slate-900 leading-tight">Loksewa Exam Guide<br/><span class="text-xs text-slate-500 font-normal">Mohr-Coulomb Failure Theory</span></h3>
+                <span class="bg-slate-800 text-white font-bold px-2 py-1 rounded text-[10px] whitespace-nowrap shadow-sm">Marks: 5 to 10</span>
+            </div>
+            
+            <div class="space-y-4 text-[13px] leading-relaxed">
+                
+                <div>
+                    <h4 class="text-[11px] font-bold text-purple-700 uppercase tracking-wide bg-purple-50 px-2 py-1 rounded inline-block mb-1">English Medium</h4>
+                    <p class="mt-1"><strong>1. Statement:</strong> The Mohr-Coulomb theory states that the shear strength of a soil mass is not constant, but depends on the normal stress acting on the failure plane. Soil fails in shear due to a combination of internal friction and cohesion.</p>
+                    
+                    <p class="mt-2"><strong>2. Mathematical Equation:</strong></p>
+                    <div class="text-center text-lg font-bold text-slate-900 my-2">
+                        \( \tau_f = c + \sigma \tan \phi \)
+                    </div>
+                    <ul class="list-disc pl-4 space-y-1 text-xs text-slate-700">
+                        <li><strong>\( \tau_f \):</strong> Shear Strength (Resistance to sliding).</li>
+                        <li><strong>\( c \):</strong> Cohesion (Sticky bonds between clay particles). Independent of normal stress.</li>
+                        <li><strong>\( \sigma \):</strong> Normal Stress (Vertical load pressing grains together).</li>
+                        <li><strong>\( \phi \):</strong> Angle of Internal Friction (Resistance due to grain interlocking and surface roughness, mostly in sands).</li>
+                    </ul>
+
+                    <p class="mt-2"><strong>3. Physical Meaning:</strong> As seen in the simulation, applying normal stress (\( \sigma \)) presses grains together, increasing the friction (interlock). Cohesion (\( c \)) acts like glue. Failure occurs only when the applied shear force exceeds these combined resisting forces.</p>
+                </div>
+
+                <hr class="border-slate-200">
+
+                <div class="nepali-text text-[15px]">
+                    <h4 class="text-[11px] font-sans font-bold text-blue-700 uppercase tracking-wide bg-blue-50 px-2 py-1 rounded inline-block mb-1">नेपाली माध्यम</h4>
+                    <p class="mt-1"><strong>१. सिद्धान्त (Principle):</strong> मोहर-कुलम्ब सिद्धान्त अनुसार, माटोको सियर स्ट्रेन्थ (Shear Strength - चिप्लिने विरुद्धको क्षमता) स्थिर हुँदैन, यो फेल हुने सतहमा पर्ने नर्मल स्ट्रेस (Normal Stress) मा भर पर्छ। माटो सियरमा फेल हुनुको मुख्य कारण माटो भित्रको घर्षण (Friction) र कोहेसन (Cohesion - टाँसिने गुण) हो।</p>
+                    
+                    <p class="mt-2"><strong>२. सुत्र (Equation):</strong> \( \tau_f = c + \sigma \tan \phi \)</p>
+                    <ul class="list-disc pl-5 mt-1 space-y-1 text-sm text-slate-700">
+                        <li><strong>\( c \) (Cohesion):</strong> माटोका कणहरू बीचको टाँसिने बल (विशेष गरी क्ले/Clay मा)।</li>
+                        <li><strong>\( \sigma \) (Normal Stress):</strong> सतहमा पर्ने ठाडो भार।</li>
+                        <li><strong>\( \phi \) (Friction Angle):</strong> कणहरू बीचको आन्तरिक घर्षण कोण (विशेष गरी बालुवामा)।</li>
+                    </ul>
+
+                    <p class="mt-2 text-sm"><strong>३. महत्व:</strong> भार (\( \sigma \)) बढ्दा कणहरू बढी खाँदिन्छन् जसले गर्दा घर्षण (\( \sigma \tan \phi \)) बढ्छ र माटो बलियो हुन्छ। जब बाहिरी सियर फोर्सले यो कुल क्षमता (\( \tau_f \)) लाई जित्छ, तब मात्र माटो चिप्लिएर फेल हुन्छ (जस्तै पहिरो जानु)।</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Simulation Logic -->
+    <script>
+        // DOM Elements
+        const elSigma = document.getElementById('sigma-slider');
+        const elC = document.getElementById('c-slider');
+        const elPhi = document.getElementById('phi-slider');
+        const elTau = document.getElementById('tau-slider');
+        
+        const valSigma = document.getElementById('val-sigma');
+        const valC = document.getElementById('val-c');
+        const valPhi = document.getElementById('val-phi');
+
+        const outTauF = document.getElementById('out-tau-f');
+        const outTauApp = document.getElementById('out-tau-app');
+        
+        const statusText = document.getElementById('status-text');
+        const statusCard = document.getElementById('status-card');
+        const appliedBox = document.getElementById('applied-box');
+        
+        const macroCanvas = document.getElementById('macroCanvas');
+        const microCanvas = document.getElementById('microCanvas');
+        const macroWrapper = document.getElementById('macro-wrapper');
+        const microWrapper = document.getElementById('micro-wrapper');
+
+        // State Variables
+        let sigma = 100;
+        let c = 20;
+        let phi = 30;
+        let tauApp = 0;
+        let tauF = 0;
+        let isFailed = false;
+
+        // Chart Setup
+        const ctxChart = document.getElementById('mcChart').getContext('2d');
+        Chart.defaults.color = '#cbd5e1';
+        Chart.defaults.font.family = 'Inter';
+        Chart.defaults.font.size = 10;
+        
+        const mcChart = new Chart(ctxChart, {
+            type: 'line',
+            data: {
+                datasets: [
+                    { 
+                        label: 'Failure Envelope (τ_f)', 
+                        borderColor: '#a855f7', 
+                        backgroundColor: 'rgba(168, 85, 247, 0.1)', 
+                        borderWidth: 3, 
+                        pointRadius: 0, 
+                        data: [],
+                        fill: true
+                    },
+                    { 
+                        label: 'Current State (σ, τ)', 
+                        backgroundColor: '#ef4444', 
+                        borderColor: '#fff', 
+                        borderWidth: 2,
+                        pointRadius: 6, 
+                        data: [],
+                        type: 'scatter'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 0 }, 
+                scales: {
+                    y: { 
+                        type: 'linear', position: 'left', min: 0, max: 350,
+                        title: { display: true, text: 'Shear Stress τ (kPa)', color: '#f8fafc', font: {weight: 'bold'} },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    },
+                    x: { 
+                        position: 'bottom', min: 0, max: 250,
+                        title: { display: true, text: 'Normal Stress σ (kPa)', color: '#f8fafc', font: {weight: 'bold'} },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top', labels: { boxWidth: 10 } },
+                    tooltip: { enabled: false }
+                }
+            }
+        });
+
+        // Compute Physics
+        function updatePhysics() {
+            sigma = parseFloat(elSigma.value);
+            c = parseFloat(elC.value);
+            phi = parseFloat(elPhi.value);
+            tauApp = parseFloat(elTau.value);
+
+            // Mohr Coulomb Equation
+            let phiRad = phi * Math.PI / 180;
+            tauF = c + sigma * Math.tan(phiRad);
+
+            // Determine State
+            isFailed = (tauApp >= tauF);
+
+            // Update UI Labels
+            valSigma.innerText = `${sigma} kPa`;
+            
+            let soilType = c > 30 ? "(Clayey)" : c > 5 ? "(Silt/Loam)" : "(Sandy)";
+            valC.innerText = `${c} kPa ${soilType}`;
+            
+            let frictionType = phi > 35 ? "(Dense/Angular)" : phi > 20 ? "(Loose)" : "(Smooth)";
+            valPhi.innerText = `${phi}° ${frictionType}`;
+
+            outTauF.innerText = tauF.toFixed(1) + " kPa";
+            outTauApp.innerText = tauApp.toFixed(1) + " kPa";
+
+            // Status Styling
+            if(isFailed) {
+                statusText.innerText = "FAILED (SHEARED)";
+                statusText.className = "text-xs font-black px-2 py-1 rounded bg-rose-500 text-white";
+                statusCard.style.borderColor = "#f43f5e";
+                appliedBox.style.backgroundColor = "rgba(244, 63, 94, 0.2)";
+                macroWrapper.classList.add("failing");
+                microWrapper.classList.add("failing");
+            } else {
+                statusText.innerText = "SAFE (ELASTIC)";
+                statusText.className = "text-xs font-black px-2 py-1 rounded bg-emerald-500/20 text-emerald-400";
+                statusCard.style.borderColor = "#10b981";
+                appliedBox.style.backgroundColor = "#0f172a";
+                macroWrapper.classList.remove("failing");
+                microWrapper.classList.remove("failing");
+            }
+
+            // Update Chart
+            // Generate Envelope Line
+            let envData = [];
+            for(let x=0; x<=250; x+=50) {
+                envData.push({x: x, y: c + x * Math.tan(phiRad)});
+            }
+            mcChart.data.datasets[0].data = envData;
+            
+            // Current Point
+            mcChart.data.datasets[1].data = [{x: sigma, y: tauApp}];
+            // Change dot color based on failure
+            mcChart.data.datasets[1].backgroundColor = isFailed ? '#f43f5e' : '#10b981';
+            
+            mcChart.update();
+        }
+
+        // Render Canvas Visualizations
+        let time = 0;
+        function renderCanvases() {
+            time += 0.05;
+
+            // --- 1. Macroscopic Direct Shear Box ---
+            macroCanvas.width = macroCanvas.parentElement.clientWidth;
+            macroCanvas.height = macroCanvas.parentElement.clientHeight;
+            const ctxM = macroCanvas.getContext('2d');
+            const wM = macroCanvas.width;
+            const hM = macroCanvas.height;
+            
+            ctxM.clearRect(0, 0, wM, hM);
+
+            const boxW = wM * 0.6;
+            const boxH = 40;
+            const startX = (wM - boxW) / 2;
+            const centerY = hM / 2 + 10;
+
+            // Calculate Box Displacement
+            let displacement = 0;
+            if(!isFailed) {
+                displacement = (tauApp / tauF) * 5; // Slight elastic movement (max 5px)
+            } else {
+                displacement = 15 + ((tauApp - tauF) * 0.3); // Breaks and slides off
+            }
+
+            // Draw Lower Box (Fixed)
+            ctxM.fillStyle = '#475569'; // Steel color
+            ctxM.fillRect(startX, centerY, boxW, boxH);
+            ctxM.strokeStyle = '#94a3b8';
+            ctxM.lineWidth = 2;
+            ctxM.strokeRect(startX, centerY, boxW, boxH);
+            
+            // Soil in Lower Box
+            ctxM.fillStyle = '#854d0e'; // Soil brown
+            ctxM.fillRect(startX + 5, centerY, boxW - 10, boxH - 5);
+
+            // Draw Upper Box (Moving)
+            const upperX = startX + displacement;
+            ctxM.fillStyle = '#475569';
+            ctxM.fillRect(upperX, centerY - boxH, boxW, boxH);
+            ctxM.strokeRect(upperX, centerY - boxH, boxW, boxH);
+            
+            // Soil in Upper Box
+            ctxM.fillStyle = '#854d0e';
+            ctxM.fillRect(upperX + 5, centerY - boxH + 5, boxW - 10, boxH - 5);
+
+            // Shear Plane Line (Red if failed)
+            ctxM.beginPath();
+            ctxM.moveTo(startX, centerY);
+            ctxM.lineTo(startX + boxW + displacement, centerY);
+            ctxM.strokeStyle = isFailed ? '#ef4444' : 'rgba(255,255,255,0.2)';
+            ctxM.lineWidth = isFailed ? 3 : 1;
+            ctxM.stroke();
+
+            // Draw Normal Force Arrow (sigma)
+            if(sigma > 0) {
+                ctxM.fillStyle = '#38bdf8';
+                ctxM.strokeStyle = '#38bdf8';
+                let nH = Math.min((sigma / 200) * 30, 30) + 10; // Visual length
+                drawArrow(ctxM, upperX + boxW/2, centerY - boxH - nH - 10, upperX + boxW/2, centerY - boxH - 2, 8);
+                ctxM.font = 'bold 10px sans-serif';
+                ctxM.textAlign = 'center';
+                ctxM.fillText('σ', upperX + boxW/2 + 15, centerY - boxH - nH/2);
+            }
+
+            // Draw Shear Force Arrow (tau)
+            if(tauApp > 0) {
+                ctxM.fillStyle = '#ef4444';
+                ctxM.strokeStyle = '#ef4444';
+                let tL = Math.min((tauApp / 300) * 40, 40) + 10;
+                drawArrow(ctxM, upperX - tL - 10, centerY - boxH/2, upperX - 2, centerY - boxH/2, 8);
+                ctxM.fillText('τ', upperX - tL/2 - 5, centerY - boxH/2 - 10);
+            }
+
+            // Draw Failure Crack in soil if failed
+            if(isFailed) {
+                ctxM.beginPath();
+                ctxM.moveTo(startX + boxW/2, centerY);
+                ctxM.lineTo(startX + boxW/2 - 10, centerY - 15);
+                ctxM.lineTo(startX + boxW/2 + 5, centerY - 25);
+                ctxM.strokeStyle = '#1e293b';
+                ctxM.lineWidth = 2;
+                ctxM.stroke();
+            }
+
+
+            // --- 2. Microscopic Grain View ---
+            microCanvas.width = microCanvas.parentElement.clientWidth;
+            microCanvas.height = microCanvas.parentElement.clientHeight;
+            const ctxMi = microCanvas.getContext('2d');
+            const wMi = microCanvas.width;
+            const hMi = microCanvas.height;
+
+            ctxMi.clearRect(0, 0, wMi, hMi);
+
+            // Visual parameters based on properties
+            const r = 20; // Grain radius
+            // High phi means grains interlock deeper.
+            const interlockDepth = (phi / 45) * 8; 
+            // High sigma presses them slightly more
+            const pressDepth = (sigma / 200) * 4;
+            
+            const baseCenterY = hMi / 2;
+            const bottomY = baseCenterY + r - interlockDepth;
+            let topY = baseCenterY - r + interlockDepth + pressDepth;
+
+            // Microscopic Displacement
+            let microDisp = 0;
+            if(!isFailed) {
+                microDisp = (tauApp / tauF) * 6; // Stretch elastically
+            } else {
+                microDisp = 20 + ((tauApp - tauF) * 0.5); // Slide
+                // DILATANCY: Grains must lift up to ride over the bottom grains!
+                // Simulate riding over humps based on friction angle
+                let hump = Math.abs(Math.sin(microDisp * 0.15)) * (phi / 45) * 15;
+                topY -= hump; 
+            }
+
+            // Grains Layout (3 bottom, 2 top)
+            const bottomGrains = [
+                {x: wMi/2 - r*2.2, y: bottomY},
+                {x: wMi/2, y: bottomY},
+                {x: wMi/2 + r*2.2, y: bottomY}
+            ];
+            
+            const topGrains = [
+                {x: wMi/2 - r*1.1 + microDisp, y: topY},
+                {x: wMi/2 + r*1.1 + microDisp, y: topY}
+            ];
+
+            // Draw Cohesive Bonds (Glue) if c > 0
+            if(c > 0) {
+                ctxMi.lineWidth = (c / 100) * 8 + 1; // Thickness based on cohesion
+                
+                topGrains.forEach(tg => {
+                    bottomGrains.forEach(bg => {
+                        let dist = Math.hypot(tg.x - bg.x, tg.y - bg.y);
+                        // Only connect if close enough
+                        if(dist < r * 2.8) {
+                            ctxMi.beginPath();
+                            ctxMi.moveTo(tg.x, tg.y);
+                            ctxMi.lineTo(bg.x, bg.y);
+                            
+                            if(!isFailed) {
+                                // Stretching glue
+                                ctxMi.strokeStyle = `rgba(168, 85, 247, ${1 - dist/(r*3)})`; // Purple
+                            } else {
+                                // Broken glue (snaps visually)
+                                if(dist < r*2.2) {
+                                    ctxMi.strokeStyle = `rgba(239, 68, 68, 0.5)`; // Red snap
+                                } else {
+                                    ctxMi.strokeStyle = 'transparent';
+                                }
+                            }
+                            ctxMi.stroke();
+                        }
+                    });
+                });
+            }
+
+            // Draw Bottom Grains
+            bottomGrains.forEach(g => {
+                drawGrain(ctxMi, g.x, g.y, r, phi);
+            });
+            // Draw Top Grains
+            topGrains.forEach(g => {
+                drawGrain(ctxMi, g.x, g.y, r, phi);
+            });
+
+            // Applied Shear Micro Arrow
+            if(tauApp > 0) {
+                ctxMi.fillStyle = 'rgba(239, 68, 68, 0.5)';
+                ctxMi.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+                drawArrow(ctxMi, wMi/2 - 40 + microDisp, topY - r - 5, wMi/2 + 20 + microDisp, topY - r - 5, 5);
+            }
+
+            requestAnimationFrame(renderCanvases);
+        }
+
+        // Helper: Draw standard arrow
+        function drawArrow(ctx, fromx, fromy, tox, toy, headlen) {
+            const dx = tox - fromx;
+            const dy = toy - fromy;
+            const angle = Math.atan2(dy, dx);
+            ctx.beginPath();
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.lineTo(tox, toy);
+            ctx.fill();
+        }
+
+        // Helper: Draw a grain (becomes more angular/rough if phi is high)
+        function drawGrain(ctx, cx, cy, r, phi) {
+            ctx.beginPath();
+            
+            if(phi > 15) {
+                // Angular grain (rough)
+                let points = 8 + Math.floor((45 - phi) / 10); // Less points = more angular
+                for(let i=0; i<points; i++) {
+                    let angle = (i * 2 * Math.PI) / points;
+                    // Add jaggedness based on phi
+                    let rad = r - (Math.random() * (phi/45) * 5); 
+                    // To keep animation stable, use pseudo-random based on angle
+                    rad = r - (Math.sin(angle * 5) * (phi/45) * 4);
+                    
+                    let x = cx + rad * Math.cos(angle);
+                    let y = cy + rad * Math.sin(angle);
+                    if(i===0) ctx.moveTo(x,y);
+                    else ctx.lineTo(x,y);
+                }
+                ctx.closePath();
+            } else {
+                // Smooth round grain
+                ctx.arc(cx, cy, r, 0, Math.PI*2);
+            }
+
+            let grd = ctx.createRadialGradient(cx - r/3, cy - r/3, r/4, cx, cy, r);
+            grd.addColorStop(0, '#fcd34d'); // Sand bright
+            grd.addColorStop(1, '#b45309'); // Sand dark
+            ctx.fillStyle = grd;
+            ctx.fill();
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = '#451a03';
+            ctx.stroke();
+        }
+
+        // Event Listeners
+        elSigma.addEventListener('input', updatePhysics);
+        elC.addEventListener('input', updatePhysics);
+        elPhi.addEventListener('input', updatePhysics);
+        elTau.addEventListener('input', updatePhysics);
+        window.addEventListener('resize', updatePhysics);
+
+        // Init
+        updatePhysics();
+        renderCanvases(); 
+
+    </script>
+</body>
+</html>
+

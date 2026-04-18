@@ -1,0 +1,568 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realistic Simulation: Terzaghi's Effective Stress</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- MathJax for proper Engineering Symbols -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        
+        /* Custom Sliders */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; border-radius: 3px; }
+        
+        #wt-slider::-webkit-slider-thumb { background: #38bdf8; }
+        #wt-slider::-webkit-slider-runnable-track { background: #1e3a8a; }
+        
+        #load-slider::-webkit-slider-thumb { background: #f43f5e; }
+        #load-slider::-webkit-slider-runnable-track { background: #881337; }
+
+        #depth-slider::-webkit-slider-thumb { background: #10b981; }
+        #depth-slider::-webkit-slider-runnable-track { background: #064e3b; }
+
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .canvas-container { position: relative; width: 100%; height: 100%; border-radius: 0.5rem; overflow: hidden; }
+        
+        /* Loksewa Print Section */
+        .exam-section { background-color: #ffffff; color: #0f172a; }
+    </style>
+</head>
+<body class="p-4 md:p-6 min-h-screen flex flex-col items-center">
+
+    <div class="max-w-7xl w-full space-y-6">
+        
+        <!-- Dashboard Header -->
+        <header class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center shadow-2xl">
+            <div>
+                <h1 class="text-3xl font-bold text-white tracking-tight">Terzaghi's Principle of Effective Stress</h1>
+                <p class="text-slate-400 mt-1">Practical Engineering Simulation & Microscopic Analysis</p>
+            </div>
+            <div class="mt-4 md:mt-0 bg-slate-800 border border-slate-600 px-6 py-3 rounded-xl shadow-inner">
+                <p class="text-xl font-bold text-emerald-400">
+                    Governing Equation: <span class="text-white">\( \sigma' = \sigma - u \)</span>
+                </p>
+            </div>
+        </header>
+
+        <!-- Main Interface -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Controls (Left) -->
+            <div class="lg:col-span-3 space-y-4">
+                <div class="glass-panel p-5 rounded-2xl">
+                    <h2 class="text-lg font-bold text-slate-200 mb-4 flex items-center border-b border-slate-700 pb-2">
+                        <svg class="w-5 h-5 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        Site Parameters
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Surcharge Load -->
+                        <div>
+                            <label class="flex justify-between text-sm font-semibold text-slate-300 mb-1">
+                                <span>Building Surcharge (\( q \))</span>
+                                <span id="val-q" class="text-rose-400">50 kPa</span>
+                            </label>
+                            <input type="range" id="load-slider" min="0" max="150" step="5" value="50">
+                        </div>
+
+                        <!-- Water Table -->
+                        <div>
+                            <label class="flex justify-between text-sm font-semibold text-slate-300 mb-1">
+                                <span>Water Table Depth (\( z_w \))</span>
+                                <span id="val-wt" class="text-sky-400">3.0 m</span>
+                            </label>
+                            <input type="range" id="wt-slider" min="0" max="10" step="0.5" value="3.0">
+                        </div>
+
+                        <!-- Sensor Depth -->
+                        <div>
+                            <label class="flex justify-between text-sm font-semibold text-slate-300 mb-1">
+                                <span>Analysis Depth (\( z \))</span>
+                                <span id="val-z" class="text-emerald-400">8.0 m</span>
+                            </label>
+                            <input type="range" id="depth-slider" min="0" max="10" step="0.5" value="8.0">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-700 space-y-2 text-xs text-slate-400">
+                        <p class="flex justify-between"><span>Soil Dry Unit Wt (\( \gamma_d \)):</span> <span>16 kN/m³</span></p>
+                        <p class="flex justify-between"><span>Soil Sat Unit Wt (\( \gamma_{sat} \)):</span> <span>20 kN/m³</span></p>
+                        <p class="flex justify-between"><span>Water Unit Wt (\( \gamma_w \)):</span> <span>9.81 kN/m³</span></p>
+                    </div>
+                </div>
+
+                <!-- Live Data Readout -->
+                <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-emerald-500">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Stresses at Depth z</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-rose-400 font-semibold">Total Stress (\( \sigma \)):</span>
+                            <span id="out-sigma" class="font-mono font-bold text-lg text-white">0.0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sky-400 font-semibold">Pore Pressure (\( u \)):</span>
+                            <span id="out-u" class="font-mono font-bold text-lg text-white">0.0</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-700">
+                            <span class="text-emerald-400 font-bold">Effective Stress (\( \sigma' \)):</span>
+                            <span id="out-sigmadash" class="font-mono font-bold text-2xl text-emerald-400">0.0</span>
+                        </div>
+                    </div>
+
+                    <!-- Soil Strength Indicator -->
+                    <div class="mt-4">
+                        <div class="text-xs text-slate-400 mb-1 flex justify-between">
+                            <span>Soil Frictional Strength</span>
+                            <span id="strength-status" class="font-bold">Normal</span>
+                        </div>
+                        <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                            <div id="strength-bar" class="bg-emerald-500 h-full transition-all duration-300 w-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Simulations (Middle) -->
+            <div class="lg:col-span-5 flex flex-col gap-4">
+                
+                <!-- Macroscopic Practical View -->
+                <div class="glass-panel p-4 rounded-2xl flex flex-col items-center h-full relative">
+                    <h2 class="text-sm font-bold mb-2 text-slate-300 uppercase tracking-wide">Macroscopic Site Profile</h2>
+                    <div class="canvas-container bg-slate-900 border border-slate-700" style="min-height: 350px;">
+                        <canvas id="soilCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Microscopic Grain View -->
+                <div class="glass-panel p-4 rounded-2xl flex flex-col items-center relative overflow-hidden">
+                    <h2 class="text-sm font-bold mb-2 text-slate-300 uppercase tracking-wide">Microscopic Intergranular View</h2>
+                    <div class="canvas-container bg-slate-950 border border-slate-700 rounded-lg" style="height: 200px;">
+                        <canvas id="microCanvas"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Stress Distribution Graph (Right) -->
+            <div class="lg:col-span-4 glass-panel p-4 rounded-2xl flex flex-col">
+                <h2 class="text-sm font-bold mb-2 text-center text-slate-300 uppercase tracking-wide">Stress Distribution Profile</h2>
+                <div class="flex-grow relative w-full min-h-[400px] bg-slate-900 rounded-xl p-2 border border-slate-700">
+                    <canvas id="stressChart"></canvas>
+                </div>
+                <p class="text-xs text-slate-400 text-center mt-2">Notice how \( \sigma' \) decreases when water table rises, reducing the bearing capacity.</p>
+            </div>
+        </div>
+
+        <!-- 5-Mark Exam Guide (Loksewa Format) -->
+        <div class="exam-section p-8 rounded-2xl shadow-xl mt-8 border-t-8 border-emerald-600">
+            <h3 class="text-2xl font-bold text-slate-900 mb-6 border-b pb-2">Explain Terzaghi's Principle of Effective Stress (5 Marks)</h3>
+            
+            <div class="space-y-6 text-slate-800 leading-relaxed text-sm md:text-base">
+                
+                <div>
+                    <h4 class="text-lg font-bold text-emerald-800 mb-1">1. Definition & Core Concept (1.5 Marks)</h4>
+                    <p>According to Karl Terzaghi (1936), the total vertical stress applied to a saturated soil mass is carried in two parts: by the solid soil skeleton (grains) and by the water occupying the void spaces. <br>
+                    <strong>"All measurable effects of a change of stress, such as compression, distortion, and a change of shearing resistance, are exclusively due to changes in the effective stress."</strong></p>
+                </div>
+
+                <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                    <h4 class="text-lg font-bold text-emerald-800 mb-2">2. Mathematical Formulation (1.5 Marks)</h4>
+                    <div class="text-center text-2xl font-bold text-slate-900 my-3">
+                        \( \sigma' = \sigma - u \)
+                    </div>
+                    <ul class="list-disc pl-6 space-y-1">
+                        <li><strong>Total Stress (\( \sigma \)):</strong> The total pressure on a horizontal plane due to the weight of soil, water, and any external surcharge (e.g., buildings) above it.</li>
+                        <li><strong>Pore Water Pressure (\( u \)):</strong> The hydrostatic pressure exerted by water in the voids. It acts equally in all directions (neutral stress) and does not press soil grains together.</li>
+                        <li><strong>Effective Stress (\( \sigma' \)):</strong> The actual intergranular contact pressure between soil particles. It cannot be measured physically; it must be calculated.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-bold text-emerald-800 mb-1">3. Physical Mechanism (1 Mark)</h4>
+                    <p>As visualized in the interactive microscopic view, effective stress (\( \sigma' \)) is the sum of the vertical components of normal forces developed at the grain-to-grain contact points, divided by the total area. When the water table rises, the buoyant pore pressure (\( u \)) increases, physically pushing the particles apart and reducing the contact friction (\( \sigma' \)).</p>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-bold text-emerald-800 mb-1">4. Practical Engineering Significance (1 Mark)</h4>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Bearing Capacity & Shear Strength:</strong> Soil fails in shear. According to Coulomb's equation (\( \tau = c' + \sigma' \tan \phi' \)), shear strength depends entirely on effective stress. A drop in \( \sigma' \) (e.g., during a flood) drastically weakens the soil, potentially causing foundation failure.</li>
+                        <li><strong>Settlement Analysis:</strong> Squeezing water out of voids transfers load to the soil skeleton. Consolidation and settlement <em>only</em> happen when effective stress increases (\( \Delta\sigma' > 0 \)).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Simulation Logic -->
+    <script>
+        // Engineering Constants
+        const H = 10; // Total Depth (m)
+        const gamma_d = 16;   // Dry unit weight (kN/m³)
+        const gamma_sat = 20; // Saturated unit weight (kN/m³)
+        const gamma_w = 9.81; // Unit weight of water (kN/m³)
+
+        // State Variables
+        let q = 50;   // Surcharge (kPa)
+        let z_w = 3;  // Water table depth (m)
+        let z = 8;    // Depth of interest (m)
+
+        // DOM Elements
+        const elQ = document.getElementById('load-slider');
+        const elWt = document.getElementById('wt-slider');
+        const elZ = document.getElementById('depth-slider');
+        
+        const valQ = document.getElementById('val-q');
+        const valWt = document.getElementById('val-wt');
+        const valZ = document.getElementById('val-z');
+
+        const outSigma = document.getElementById('out-sigma');
+        const outU = document.getElementById('out-u');
+        const outSigmaDash = document.getElementById('out-sigmadash');
+        
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthStatus = document.getElementById('strength-status');
+
+        const soilCanvas = document.getElementById('soilCanvas');
+        const microCanvas = document.getElementById('microCanvas');
+
+        // Chart Setup
+        const ctxChart = document.getElementById('stressChart').getContext('2d');
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = 'Inter';
+        
+        const stressChart = new Chart(ctxChart, {
+            type: 'line',
+            data: {
+                datasets: [
+                    { label: 'Total Stress (σ)', borderColor: '#f43f5e', backgroundColor: '#f43f5e', borderWidth: 2, pointRadius: 3, data: [] },
+                    { label: 'Pore Pressure (u)', borderColor: '#38bdf8', backgroundColor: '#38bdf8', borderWidth: 2, pointRadius: 3, data: [] },
+                    { label: 'Effective Stress (σ\')', borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 3, pointRadius: 4, data: [] }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 0 }, // Instant update for slider smoothness
+                scales: {
+                    y: { 
+                        type: 'linear', position: 'left', reverse: true, min: 0, max: H,
+                        title: { display: true, text: 'Depth z (m)', color: '#cbd5e1' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    },
+                    x: { 
+                        position: 'top', min: 0, max: 400,
+                        title: { display: true, text: 'Stress (kPa)', color: '#cbd5e1' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, color: '#cbd5e1' } }
+                }
+            }
+        });
+
+        // Animation Time tracking
+        let time = 0;
+
+        // Core Calculation Logic
+        function calcStressAtDepth(depth) {
+            let sigma = q;
+            let u = 0;
+            
+            if (depth <= z_w) {
+                sigma += depth * gamma_d;
+            } else {
+                sigma += (z_w * gamma_d) + ((depth - z_w) * gamma_sat);
+                u = (depth - z_w) * gamma_w;
+            }
+            
+            return {
+                sigma: sigma,
+                u: u,
+                sigmadash: sigma - u,
+                depth: depth
+            };
+        }
+
+        function updateSimulation() {
+            // Read state
+            q = parseFloat(elQ.value);
+            z_w = parseFloat(elWt.value);
+            z = parseFloat(elZ.value);
+
+            // Update text labels
+            valQ.innerText = q + " kPa";
+            valWt.innerText = z_w.toFixed(1) + " m";
+            valZ.innerText = z.toFixed(1) + " m";
+
+            // Calculate for Chart (3 points: Surface, WT, Bottom)
+            const ptSurface = calcStressAtDepth(0);
+            const ptWT = calcStressAtDepth(z_w);
+            const ptBottom = calcStressAtDepth(H);
+
+            // Update Chart Data
+            stressChart.data.datasets[0].data = [{x: ptSurface.sigma, y: 0}, {x: ptWT.sigma, y: z_w}, {x: ptBottom.sigma, y: H}];
+            stressChart.data.datasets[1].data = [{x: ptSurface.u, y: 0}, {x: ptWT.u, y: z_w}, {x: ptBottom.u, y: H}];
+            stressChart.data.datasets[2].data = [{x: ptSurface.sigmadash, y: 0}, {x: ptWT.sigmadash, y: z_w}, {x: ptBottom.sigmadash, y: H}];
+            stressChart.update();
+
+            // Calculate for specific sensor depth 'z'
+            const targetData = calcStressAtDepth(z);
+            outSigma.innerText = targetData.sigma.toFixed(1);
+            outU.innerText = targetData.u.toFixed(1);
+            outSigmaDash.innerText = targetData.sigmadash.toFixed(1);
+
+            // Strength Indicator Logic
+            // Max possible effective stress at bottom with max load, no water
+            const maxSigDash = 150 + (10 * gamma_d); 
+            const strengthRatio = Math.max(0, Math.min(100, (targetData.sigmadash / maxSigDash) * 150)); // Scaled for visual
+            
+            strengthBar.style.width = strengthRatio + "%";
+            if(strengthRatio < 20) {
+                strengthBar.className = "h-full transition-all duration-300 w-full bg-rose-500";
+                strengthStatus.innerText = "CRITICAL / LIQUEFACTION RISK";
+                strengthStatus.className = "font-bold text-rose-500";
+            } else if (strengthRatio < 40) {
+                strengthBar.className = "h-full transition-all duration-300 w-full bg-amber-500";
+                strengthStatus.innerText = "WEAK";
+                strengthStatus.className = "font-bold text-amber-500";
+            } else {
+                strengthBar.className = "h-full transition-all duration-300 w-full bg-emerald-500";
+                strengthStatus.innerText = "STABLE";
+                strengthStatus.className = "font-bold text-emerald-500";
+            }
+        }
+
+        // Render Graphics Function
+        function renderGraphics() {
+            time += 0.05;
+
+            // --- 1. Macroscopic View (Building + Soil Profile) ---
+            soilCanvas.width = soilCanvas.parentElement.clientWidth;
+            soilCanvas.height = soilCanvas.parentElement.clientHeight;
+            const sCtx = soilCanvas.getContext('2d');
+            const w = soilCanvas.width;
+            const h = soilCanvas.height;
+
+            const scaleY = h / H; // pixels per meter
+
+            sCtx.clearRect(0, 0, w, h);
+
+            // Draw Soil Base
+            const grdSoil = sCtx.createLinearGradient(0, 0, 0, h);
+            grdSoil.addColorStop(0, '#854d0e'); // Dry brown
+            grdSoil.addColorStop(1, '#451a03'); // Deep brown
+            sCtx.fillStyle = grdSoil;
+            sCtx.fillRect(0, 0, w, h);
+
+            // Draw Water Table
+            const waterY = z_w * scaleY;
+            sCtx.fillStyle = 'rgba(2, 132, 199, 0.4)'; // Blue tint
+            sCtx.fillRect(0, waterY, w, h - waterY);
+
+            // Draw Animated Water Line (Waves)
+            sCtx.beginPath();
+            sCtx.moveTo(0, waterY);
+            for(let x = 0; x <= w; x += 10) {
+                let wave = Math.sin(x * 0.05 + time) * 3;
+                sCtx.lineTo(x, waterY + wave);
+            }
+            sCtx.strokeStyle = '#38bdf8';
+            sCtx.lineWidth = 2;
+            sCtx.stroke();
+
+            // Draw Foundation/Building (Surcharge q)
+            const fWidth = w * 0.6;
+            const fHeight = Math.min((q / 150) * 80, 80); // Scale height visually based on load
+            const fX = (w - fWidth) / 2;
+            
+            if (q > 0) {
+                // Foundation Block
+                sCtx.fillStyle = '#64748b';
+                sCtx.fillRect(fX, 0, fWidth, fHeight);
+                sCtx.strokeStyle = '#475569';
+                sCtx.lineWidth = 3;
+                sCtx.strokeRect(fX, 0, fWidth, fHeight);
+                
+                // Downward Arrows for Load
+                sCtx.fillStyle = '#f43f5e';
+                for(let i=1; i<=3; i++) {
+                    let ax = fX + (fWidth/4)*i;
+                    drawArrow(sCtx, ax, fHeight - 20, ax, fHeight + 10, 8);
+                }
+                sCtx.fillStyle = 'white';
+                sCtx.font = 'bold 12px sans-serif';
+                sCtx.textAlign = 'center';
+                sCtx.fillText(`Load: ${q} kPa`, w/2, fHeight / 2 + 5);
+            }
+
+            // Draw Sensor Depth Line & Target
+            const sensorY = z * scaleY;
+            sCtx.beginPath();
+            sCtx.moveTo(0, sensorY);
+            sCtx.lineTo(w, sensorY);
+            sCtx.strokeStyle = '#10b981';
+            sCtx.setLineDash([5, 5]);
+            sCtx.lineWidth = 2;
+            sCtx.stroke();
+            sCtx.setLineDash([]);
+
+            // Sensor Reticle
+            sCtx.beginPath();
+            sCtx.arc(w/2, sensorY, 8, 0, Math.PI*2);
+            sCtx.fillStyle = '#10b981';
+            sCtx.fill();
+            sCtx.strokeStyle = 'white';
+            sCtx.stroke();
+            
+            // Text Label for Depth
+            sCtx.fillStyle = 'white';
+            sCtx.textAlign = 'left';
+            sCtx.fillText(`Sensor: z = ${z.toFixed(1)}m`, 10, sensorY - 10);
+
+
+            // --- 2. Microscopic View (Grain Interaction) ---
+            microCanvas.width = microCanvas.parentElement.clientWidth;
+            microCanvas.height = microCanvas.parentElement.clientHeight;
+            const mCtx = microCanvas.getContext('2d');
+            const mw = microCanvas.width;
+            const mh = microCanvas.height;
+
+            mCtx.clearRect(0, 0, mw, mh);
+
+            // Get live stresses at sensor depth
+            const liveData = calcStressAtDepth(z);
+            
+            // Background water color intensity based on pore pressure
+            // Max logical pore pressure = 10 * 9.81 ~ 100
+            const uRatio = Math.min(liveData.u / 100, 1);
+            mCtx.fillStyle = `rgba(2, 132, 199, ${uRatio * 0.7})`;
+            mCtx.fillRect(0, 0, mw, mh);
+
+            // Grain Setup
+            const cx = mw/2;
+            const cy = mh/2;
+            const r = 35; // Grain radius
+
+            // Calculate separation distance based on effective stress
+            // High effective stress = grains tightly packed. Low effective stress = grains separate.
+            const maxSigDash = 150 + (10 * gamma_d); 
+            const sigRatio = Math.min(liveData.sigmadash / maxSigDash, 1);
+            
+            // Inverse mapping: Low stress = high separation
+            const separation = (1 - sigRatio) * 10; 
+
+            // 3 Grains
+            const grains = [
+                {x: cx, y: cy - r - separation/2 + 10}, 
+                {x: cx - r - separation, y: cy + r - 10}, 
+                {x: cx + r + separation, y: cy + r - 10}  
+            ];
+
+            // Draw Voids/Water Flow (Animated Particles if under water)
+            if (liveData.u > 0) {
+                mCtx.fillStyle = '#38bdf8';
+                for(let i=0; i<15; i++) {
+                    let px = (cx - 50) + ((i*37 + time*20) % 100);
+                    let py = (cy - 50) + ((i*53 - time*30) % 100);
+                    mCtx.beginPath(); mCtx.arc(px, py, 2, 0, Math.PI*2); mCtx.fill();
+                }
+            }
+
+            // Draw Grains
+            grains.forEach((g, idx) => {
+                mCtx.beginPath();
+                mCtx.arc(g.x, g.y, r, 0, Math.PI * 2);
+                let grd = mCtx.createRadialGradient(g.x - r/3, g.y - r/3, r/5, g.x, g.y, r);
+                grd.addColorStop(0, '#fcd34d');
+                grd.addColorStop(1, '#b45309');
+                mCtx.fillStyle = grd;
+                mCtx.fill();
+                mCtx.lineWidth = 2;
+                mCtx.strokeStyle = '#451a03';
+                mCtx.stroke();
+            });
+
+            // Draw Forces
+            // 1. Effective Stress (Red Arrows pushing inward)
+            const contactForceLen = sigRatio * 30; // Scale visual
+            mCtx.strokeStyle = '#10b981'; // Green for effective strength
+            mCtx.fillStyle = '#10b981';
+            mCtx.lineWidth = 3;
+
+            if (contactForceLen > 2) {
+                // Top to Bottom Left
+                drawOpposingArrows(mCtx, (grains[0].x + grains[1].x)/2, (grains[0].y + grains[1].y)/2, Math.PI/4, contactForceLen);
+                // Top to Bottom Right
+                drawOpposingArrows(mCtx, (grains[0].x + grains[2].x)/2, (grains[0].y + grains[2].y)/2, -Math.PI/4, contactForceLen);
+            }
+
+            // 2. Pore Pressure (Blue Arrows pushing outward from center void)
+            const poreForceLen = uRatio * 25;
+            if (poreForceLen > 2) {
+                mCtx.strokeStyle = '#38bdf8';
+                mCtx.fillStyle = '#38bdf8';
+                mCtx.lineWidth = 3;
+                
+                drawArrow(mCtx, cx, cy, cx, cy - poreForceLen, 6); // Up
+                drawArrow(mCtx, cx, cy, cx - poreForceLen, cy + poreForceLen*0.5, 6); // Down-Left
+                drawArrow(mCtx, cx, cy, cx + poreForceLen, cy + poreForceLen*0.5, 6); // Down-Right
+            }
+
+            requestAnimationFrame(renderGraphics);
+        }
+
+        // Helper: Draw standard arrow
+        function drawArrow(ctx, fromx, fromy, tox, toy, headlen) {
+            const dx = tox - fromx;
+            const dy = toy - fromy;
+            const angle = Math.atan2(dy, dx);
+            ctx.beginPath();
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.lineTo(tox, toy);
+            ctx.fill();
+        }
+
+        // Helper: Draw opposing arrows representing compression contact
+        function drawOpposingArrows(ctx, cx, cy, angle, length) {
+            const dx = Math.cos(angle) * length;
+            const dy = Math.sin(angle) * length;
+            // Pointing inward
+            drawArrow(ctx, cx + dx, cy + dy, cx + dx*0.2, cy + dy*0.2, 5);
+            drawArrow(ctx, cx - dx, cy - dy, cx - dx*0.2, cy - dy*0.2, 5);
+        }
+
+        // Event Listeners
+        elQ.addEventListener('input', updateSimulation);
+        elWt.addEventListener('input', updateSimulation);
+        elZ.addEventListener('input', updateSimulation);
+        window.addEventListener('resize', updateSimulation);
+
+        // Init
+        updateSimulation();
+        renderGraphics(); // Starts animation loop
+
+    </script>
+</body>
+</html>
+

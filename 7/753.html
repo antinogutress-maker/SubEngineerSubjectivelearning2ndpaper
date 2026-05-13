@@ -8,15 +8,17 @@
         :root {
             --primary: #4f46e5;
             --primary-hover: #4338ca;
-            --bg: #f3f4f6;
+            --bg: #f8fafc;
             --surface: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
             --error-bg: #fef2f2;
             --error-text: #b91c1c;
             --success-bg: #f0fdf4;
             --success-text: #15803d;
+            --accent: #eff6ff;
+            --accent-border: #bfdbfe;
         }
 
         * {
@@ -29,36 +31,37 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
-            line-height: 1.5;
+            line-height: 1.6;
             padding: 2rem 1rem;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
         .card {
             background: var(--surface);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
             overflow: hidden;
         }
 
         .header {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
             color: white;
-            padding: 1.5rem;
+            padding: 2rem;
             text-align: center;
         }
 
         .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
         }
 
         .header p {
-            font-size: 0.9rem;
+            font-size: 1rem;
             opacity: 0.9;
             margin-top: 0.5rem;
         }
@@ -69,7 +72,7 @@
 
         .input-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -87,17 +90,19 @@
         }
 
         input {
-            padding: 0.75rem 1rem;
+            padding: 0.875rem 1rem;
             font-size: 1rem;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 8px;
             transition: all 0.2s;
             outline: none;
+            background-color: #f8fafc;
         }
 
         input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         }
 
         button {
@@ -105,12 +110,17 @@
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 1rem;
-            font-size: 1rem;
+            padding: 1.125rem;
+            font-size: 1.125rem;
             font-weight: 600;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: transform 0.1s, background-color 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        button:active {
+            transform: scale(0.99);
         }
 
         button:hover {
@@ -120,9 +130,10 @@
         .message {
             margin-top: 1.5rem;
             padding: 1rem;
-            border-radius: 6px;
-            font-size: 0.9rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
             display: none;
+            font-weight: 500;
         }
 
         .message.error {
@@ -139,49 +150,112 @@
             display: block;
         }
 
-        .results {
-            margin-top: 2rem;
+        /* Modern Calculation Process Styles */
+        .process-container {
+            margin-top: 2.5rem;
             display: none;
+        }
+
+        .process-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .process-step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .step-title {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .step-logic {
+            background: var(--accent);
+            border: 1px dashed var(--accent-border);
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.9rem;
+            color: #1e3a8a;
+            margin-bottom: 0.75rem;
+        }
+
+        .step-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .highlight-value {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Final Summary Styles */
+        .results {
+            margin-top: 2.5rem;
+            display: none;
+            background: #f1f5f9;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
         }
 
         .results h2 {
             font-size: 1.25rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
         }
 
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1rem;
         }
 
         .result-item {
-            background: var(--bg);
-            padding: 1rem;
-            border-radius: 6px;
+            background: var(--surface);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
 
         .result-label {
-            font-size: 0.875rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .result-value {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-main);
+            font-size: 1.1rem;
         }
 
         .status-badge {
             padding: 0.25rem 0.75rem;
             border-radius: 999px;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .status-ok {
@@ -195,15 +269,15 @@
 <div class="container">
     <div class="card">
         <div class="header">
-            <h1>Dog-Legged Stair Calculator</h1>
-            <p>Calculate exact structural dimensions for standardized staircases.</p>
+            <h1>Dog-Legged Stair Design</h1>
+            <p>Interactive Structural Calculation Process</p>
         </div>
         
         <div class="content">
             <div class="input-grid">
                 <div class="input-group">
-                    <label for="height">Floor Height (m)</label>
-                    <input type="number" id="height" step="0.01" placeholder="e.g., 3.6" min="0.1">
+                    <label for="height">Total Floor Height (m)</label>
+                    <input type="number" id="height" step="0.01" placeholder="e.g., 3.0" min="0.1">
                 </div>
                 <div class="input-group">
                     <label for="length">Room Length (m)</label>
@@ -215,13 +289,17 @@
                 </div>
             </div>
 
-            <button onclick="calculateStairs()">Calculate Dimensions</button>
+            <button onclick="calculateStairs()">Compute Structural Process</button>
             <div id="msg-container" class="message"></div>
 
+            <div id="process-container" class="process-container">
+                <h2 class="process-header">📝 Calculation Process</h2>
+                <div id="process-steps"></div>
+            </div>
+
             <div class="results" id="results">
-                <h2>Design Specifications</h2>
-                <div class="results-grid" id="results-grid">
-                    </div>
+                <h2>🎯 Final Design Specifications</h2>
+                <div class="results-grid" id="results-grid"></div>
             </div>
         </div>
     </div>
@@ -240,6 +318,16 @@
         msgContainer.innerText = '';
     }
 
+    function createProcessStep(stepNumber, title, logicHTML, description) {
+        return `
+            <div class="process-step">
+                <div class="step-title">Step ${stepNumber}: ${title}</div>
+                <div class="step-logic">${logicHTML}</div>
+                <div class="step-desc">${description}</div>
+            </div>
+        `;
+    }
+
     function createResultItem(label, value, badgeText = null) {
         let badgeHTML = badgeText ? `<span class="status-badge status-ok">${badgeText}</span>` : '';
         return `
@@ -256,6 +344,7 @@
         const B_m = parseFloat(document.getElementById('breadth').value);
         
         hideMessage();
+        document.getElementById('process-container').style.display = 'none';
         document.getElementById('results').style.display = 'none';
 
         if (!H_m || !L_m || !B_m) {
@@ -263,78 +352,111 @@
             return;
         }
 
-        // Hidden constraints
         if (H_m > 7 || L_m > 7 || B_m > 7) {
             showMessage("System Error: Dimensions exceed allowable processing limits.", "error");
             return;
         }
 
-        // Convert to mm
+        // 1. Initial Conversion
         const H = H_m * 1000;
         const L = L_m * 1000;
         const B = B_m * 1000;
 
-        const stairWidth = 1000;
-        const landingWidth = 1000;
+        const stairWidth = 1000; // standard width
+        const landingWidth = 1000; // standard landing
 
         if (B < stairWidth * 2) {
-            showMessage("Error: Room breadth must be at least 2.0m (2000mm) to fit a standard dog-legged stair.", "error");
+            showMessage(`Error: Room breadth (${B}mm) must be at least ${stairWidth*2}mm to fit a dog-legged stair (two ${stairWidth}mm flights).`, "error");
             return;
         }
 
-        const flightHeight = H / 2;
+        let processHTML = "";
 
-        // Accurate Riser Calculation (150mm to 170mm constraint)
-        const min_N = Math.ceil(flightHeight / 170);
-        const max_N = Math.floor(flightHeight / 150);
+        processHTML += createProcessStep(
+            1, 
+            "Data Conversion & Base Assumptions",
+            `H = ${H_m}m &times; 1000 = ${H} mm<br>L = ${L} mm, B = ${B} mm<br>Assumed Flight Width = ${stairWidth} mm`,
+            "We convert all dimensions to millimeters for structural precision. We assume a standard staircase width and landing width of 1000mm."
+        );
+
+        // 2. Flight Height
+        const flightHeight = H / 2;
+        
+        processHTML += createProcessStep(
+            2, 
+            "Calculate Flight Height",
+            `Height per Flight = Total Height / 2<br>Flight Height = ${H} / 2 = <span class="highlight-value">${flightHeight} mm</span>`,
+            "A dog-legged stair consists of two equal flights. The total floor height is divided equally between them."
+        );
+
+        // 3. Riser Calculation
+        const idealRiser = 150;
+        const maxRiser = 170;
+        const min_N = Math.ceil(flightHeight / maxRiser);
+        const max_N = Math.floor(flightHeight / idealRiser);
         
         let risersPerFlight;
-        
         if (min_N <= max_N) {
-            // Pick max_N because it provides a riser height closest to the ideal 150mm
             risersPerFlight = max_N; 
         } else {
-            // Fallback if height prevents an exact integer match between 150-170mm
-            risersPerFlight = Math.round(flightHeight / 150);
+            risersPerFlight = Math.round(flightHeight / idealRiser);
         }
 
         const R_exact = flightHeight / risersPerFlight;
-        
-        if (R_exact < 150 || R_exact > 170) {
-            showMessage(`Warning: Unable to fit exact riser between 150-170mm. Adjusted to ${R_exact.toFixed(1)}mm.`, "warning");
-        }
 
+        processHTML += createProcessStep(
+            3, 
+            "Determine Risers (R)",
+            `Target Riser (R) &approx; 150mm to 170mm<br>Estimated Risers = ${flightHeight} / 150 = ${parseFloat((flightHeight/150).toFixed(2))}<br>Adopted Risers per flight = <span class="highlight-value">${risersPerFlight} nos.</span><br>Exact R = ${flightHeight} / ${risersPerFlight} = <span class="highlight-value">${R_exact.toFixed(2)} mm</span>`,
+            `We aim for an ergonomic riser height of around 150mm. Dividing the flight height by 150 gives us the rough number of steps. We round to a whole number (${risersPerFlight}) and recalculate the exact Riser (R) height.`
+        );
+
+        // 4. Tread Calculation
         const treadsPerFlight = risersPerFlight - 1;
-
-        // Empirical Rule T + 2R = 600
         const T = 600 - (2 * R_exact);
 
-        // Space calculations
+        processHTML += createProcessStep(
+            4, 
+            "Determine Treads (T) via Empirical Rule",
+            `Treads per flight = Risers - 1 = ${risersPerFlight} - 1 = <span class="highlight-value">${treadsPerFlight} nos.</span><br>Empirical Rule: T + 2R = 600<br>T = 600 - (2 &times; ${R_exact.toFixed(2)})<br>Exact T = <span class="highlight-value">${T.toFixed(2)} mm</span>`,
+            "The number of treads in a flight is always one less than the number of risers because the landing serves as the final step. We use the standard empirical rule (T + 2R = 600) to find the ideal tread depth for comfort."
+        );
+
+        // 5. Space Verification
         const spaceOccupiedByTreads = treadsPerFlight * T;
-        const spaceLeft = L - spaceOccupiedByTreads - landingWidth;
+        const totalLengthRequired = spaceOccupiedByTreads + landingWidth;
+        const spaceLeft = L - totalLengthRequired;
 
-        if (spaceLeft < 0) {
-            showMessage("Warning: The room length is too short to accommodate this stair design. Passage space is negative.", "warning");
-        }
+        processHTML += createProcessStep(
+            5, 
+            "Space Verification Check",
+            `Total Required Length = (Treads &times; T) + Landing<br>Required = (${treadsPerFlight} &times; ${T.toFixed(2)}) + ${landingWidth} = ${totalLengthRequired.toFixed(2)} mm<br>Space Left = Total Room Length - Required Length<br>Space Left = ${L} - ${totalLengthRequired.toFixed(2)} = <span class="highlight-value">${spaceLeft.toFixed(2)} mm</span>`,
+            spaceLeft >= 0 
+                ? "The structural design fits within the provided room length safely." 
+                : "<span style='color:var(--error-text); font-weight:bold;'>Warning: The required length exceeds the available room length. Design adjustment required.</span>"
+        );
 
+        document.getElementById('process-steps').innerHTML = processHTML;
+
+        // Populate Summary Results
         const totalRisers = risersPerFlight * 2;
         const totalTreads = treadsPerFlight * 2;
 
-        // Populate Results
         let gridHTML = createResultItem("Stair Type", "Dog-Legged");
-        gridHTML += createResultItem("Width of Stairs / Landing", `${landingWidth} mm`);
-        gridHTML += createResultItem("Height of Each Flight", `${flightHeight.toFixed(0)} mm`);
-        gridHTML += createResultItem("Exact Riser Height (R)", `${R_exact.toFixed(2)} mm`);
-        gridHTML += createResultItem("Exact Tread Width (T)", `${T.toFixed(2)} mm`);
+        gridHTML += createResultItem("Exact Riser (R)", `${R_exact.toFixed(2)} mm`);
+        gridHTML += createResultItem("Exact Tread (T)", `${T.toFixed(2)} mm`);
         gridHTML += createResultItem("Risers per Flight", `${risersPerFlight} nos.`);
         gridHTML += createResultItem("Treads per Flight", `${treadsPerFlight} nos.`);
-        gridHTML += createResultItem("Total Risers (Whole Stair)", `${totalRisers}`);
-        gridHTML += createResultItem("Total Treads (Whole Stair)", `${totalTreads}`);
+        gridHTML += createResultItem("Total Risers", `${totalRisers}`);
+        gridHTML += createResultItem("Total Treads", `${totalTreads}`);
         
-        let spaceBadge = spaceLeft >= 0 ? "OK" : null;
-        gridHTML += createResultItem("Space Left for Passage", `${spaceLeft.toFixed(2)} mm`, spaceBadge);
+        let spaceBadge = spaceLeft >= 0 ? "OK" : "ERROR";
+        gridHTML += createResultItem("Passage Space Left", `${spaceLeft.toFixed(2)} mm`, spaceBadge);
 
         document.getElementById('results-grid').innerHTML = gridHTML;
+        
+        // Show sections
+        document.getElementById('process-container').style.display = 'block';
         document.getElementById('results').style.display = 'block';
     }
 </script>

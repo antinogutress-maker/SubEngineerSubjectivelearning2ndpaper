@@ -1,0 +1,1260 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NBC 202 Quantity Estimator</title>
+    <!-- PDF Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #0ea5e9;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --calc-bg: rgba(0, 0, 0, 0.35);
+            --blueprint-bg: #0f172a;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            background: -webkit-linear-gradient(45deg, var(--secondary), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 900px;
+            margin: 25px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 50px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 600px) {
+            .input-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-family: 'Space Grotesk', sans-serif;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            background: rgba(0, 0, 0, 0.5);
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            margin-top: 15px;
+            font-size: 1.25rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 10px rgba(14, 165, 233, 0.3);
+        }
+
+        .error-box {
+            display: none;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--danger);
+            border-left: 5px solid var(--danger);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            color: #fca5a5;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        #results {
+            display: none;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TABS */
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 14px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 1.05rem;
+            border-radius: 10px;
+            border: 1px solid var(--secondary);
+            background: transparent;
+            color: var(--secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .tab-btn.active {
+            background: var(--secondary);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .pdf-btn {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+            flex: 0.5;
+        }
+
+        /* Step View Styles */
+        .step-box {
+            background: var(--calc-bg);
+            border-left: 5px solid var(--primary);
+            padding: 22px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 22px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        .step-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #0ea5e9;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .math-line {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 1.15rem; 
+            font-weight: 500; 
+            color: #ffffff; 
+            margin-bottom: 10px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .math-result {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(255,255,255,0.2);
+        }
+        
+        .note {
+            font-size: 1rem;
+            color: var(--secondary);
+            margin-top: 12px;
+            font-style: italic;
+            font-weight: 600;
+            background: rgba(14, 165, 233, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        /* Table View Styles */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1rem;
+            min-width: 800px;
+        }
+
+        th {
+            background: rgba(14, 165, 233, 0.2);
+            color: #fff;
+            font-weight: 700;
+            padding: 15px 10px;
+            text-align: center;
+            border-bottom: 2px solid var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            color: #e2e8f0;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(0,0,0,0.15);
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .tr-group-title td {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--secondary);
+            font-weight: 700;
+            text-align: left;
+            border-bottom: 1px solid var(--primary);
+        }
+
+        .tr-subtotal td {
+            font-weight: 700;
+            color: var(--accent);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* BOM Styles */
+        .bom-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 600px) {
+            .bom-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .bom-item {
+            background: rgba(0,0,0,0.4);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .bom-label {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .bom-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Blueprints */
+        .blueprint-container {
+            width: 100%;
+            background: var(--blueprint-bg);
+            border: 2px solid rgba(14, 165, 233, 0.3);
+            border-radius: 12px;
+            margin-top: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .blueprint-title {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            color: var(--secondary);
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        svg.blueprint {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .dim-line { stroke: rgba(255,255,255,0.6); stroke-width: 1.5; }
+        .dim-text { fill: var(--accent); font-family: 'Space Grotesk'; font-weight: 700; font-size: 18px; }
+        .wall-fill { fill: rgba(99, 102, 241, 0.15); stroke: var(--secondary); stroke-width: 2.5; transition: all 0.3s ease; }
+        .conc-fill { fill: rgba(16, 185, 129, 0.2); stroke: var(--accent); stroke-width: 2; transition: all 0.3s ease; }
+        .band-fill { fill: rgba(239, 68, 68, 0.2); stroke: #f87171; stroke-width: 2; transition: all 0.3s ease;}
+        .label-text { fill: #fff; font-family: 'Space Grotesk'; font-weight: 600; font-size: 16px; transition: all 0.3s ease;}
+
+        /* --- PDF PRINT OVERRIDES (Critical for preventing cutoffs & styling) --- */
+        .pdf-mode {
+            width: 1000px !important; 
+            max-width: 1000px !important;
+            margin: 0 auto !important;
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+            padding: 20px !important;
+            box-sizing: border-box !important;
+        }
+
+        .pdf-mode .table-responsive {
+            overflow: visible !important; 
+            border: none !important;
+        }
+        
+        .pdf-mode table {
+            min-width: 100% !important; 
+            font-size: 0.95rem !important; 
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .pdf-mode .card {
+            box-shadow: none !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            margin-bottom: 25px !important;
+        }
+
+        /* Strict Page Break Rules for PDF */
+        .pdf-mode .card,
+        .pdf-mode .step-box,
+        .pdf-mode tr, 
+        .pdf-mode .bom-item,
+        .pdf-mode .blueprint-container {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>NBC 202 | Quantity Estimator</h1>
+    </div>
+
+    <div class="container">
+        
+        <div id="errorBox" class="error-box"></div>
+
+        <!-- Input Section -->
+        <div class="card">
+            <h2 class="card-title">1. Site Parameters</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>External Length (m) [Min: 5.0m]</label>
+                    <input type="number" id="lExt" value="8.0" step="0.1" min="5.0">
+                </div>
+                <div class="input-group">
+                    <label>External Breadth (m) [Min: 2.5m]</label>
+                    <input type="number" id="bExt" value="4.0" step="0.1" min="2.5">
+                </div>
+                <div class="input-group">
+                    <label>Storey Height (Above Plinth) [Max: 3.2m]</label>
+                    <input type="number" id="hStorey" value="3.0" step="0.1" max="3.2">
+                </div>
+                <div class="input-group">
+                    <label>Roof Overhang (m)</label>
+                    <input type="number" id="overhang" value="0.5" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label>Soil Type (NBC Base Widths)</label>
+                    <select id="soilType">
+                        <option value="Hard">Hard Soil (Base Width: 0.45m)</option>
+                        <option value="Medium">Medium Soil (Base Width: 0.55m)</option>
+                        <option value="Soft" selected>Soft Soil (Base Width: 0.65m)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Centered Doors (Front side, Qty: 2)</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="doorW" value="1.0" step="0.1" placeholder="W (m)">
+                        <input type="number" id="doorH" value="2.1" step="0.1" placeholder="H (m)">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Centered Windows (Outer sides/Back, Qty: 4)</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="winW" value="1.2" step="0.1" placeholder="W (m)">
+                        <input type="number" id="winH" value="1.2" step="0.1" placeholder="H (m)">
+                    </div>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="executeTakeoff()">Execute Quantity Takeoff</button>
+        </div>
+
+        <!-- Output Section -->
+        <div id="results">
+            
+            <div class="controls-row">
+                <button class="tab-btn active" id="btn-step" onclick="switchTab('step')">Center-Line Method View</button>
+                <button class="tab-btn" id="btn-table" onclick="switchTab('table')">Long / Short Wall Table</button>
+                <button class="tab-btn pdf-btn" onclick="exportPDF()">Download PDF Report</button>
+            </div>
+
+            <!-- Print Container ensures everything renders to PDF perfectly -->
+            <div id="print-container">
+                
+                <div class="card">
+                    <h2 class="card-title">2. Center-Line Geometry</h2>
+                    <div id="geoDetails"></div>
+                </div>
+
+                <!-- View 1: Center-Line Step by Step -->
+                <div class="card" id="view-step">
+                    <h2 class="card-title">3. Itemized Calculations (Center-Line Total Length Method)</h2>
+                    <div id="calcSteps"></div>
+                </div>
+
+                <!-- View 2: Tabular BOQ -->
+                <div class="card" id="view-table" style="display:none;">
+                    <h2 class="card-title">3. Tabular Estimation (Long & Short Wall Method)</h2>
+                    <div class="table-responsive">
+                        <table id="boqTable">
+                            <thead>
+                                <tr>
+                                    <th>S.N</th>
+                                    <th style="text-align:left;">Particulars</th>
+                                    <th>No</th>
+                                    <th>Unit</th>
+                                    <th>L (m)</th>
+                                    <th>W (m)</th>
+                                    <th>H (m)</th>
+                                    <th>Quantity</th>
+                                    <th style="width: 25%;">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="boqTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Final Bill of Materials -->
+                <div class="card" style="border-color: rgba(16, 185, 129, 0.4);">
+                    <h2 class="card-title" style="color: var(--accent);">4. Final Material Extraction</h2>
+                    <div id="bomDetails"></div>
+                </div>
+
+                <!-- Dynamic Drawings -->
+                <div class="card">
+                    <h2 class="card-title">5. Engineering Drawings (Schematic)</h2>
+                    
+                    <!-- Plan SVG -->
+                    <div class="blueprint-container">
+                        <div class="blueprint-title">Plan View (Symmetrical Layout)</div>
+                        <svg viewBox="0 0 800 450" class="blueprint">
+                            <defs>
+                                <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.6)" />
+                                </marker>
+                            </defs>
+                            <path d="M150,100 L700,100 L700,350 L150,350 Z" class="wall-fill"/>
+                            <path d="M170,120 L680,120 L680,330 L170,330 Z" fill="#0f172a" stroke="var(--secondary)" stroke-width="2"/>
+                            <rect x="415" y="120" width="20" height="210" class="wall-fill"/>
+                            
+                            <line x1="150" y1="60" x2="700" y2="60" class="dim-line" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+                            <text x="425" y="45" text-anchor="middle" class="dim-text" id="svg-plan-lext">L_ext</text>
+                            
+                            <line x1="90" y1="100" x2="90" y2="350" class="dim-line" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+                            <text x="75" y="225" text-anchor="middle" class="dim-text" transform="rotate(-90 75,225)" id="svg-plan-bext">B_ext</text>
+
+                            <line x1="700" y1="380" x2="680" y2="380" class="dim-line"/>
+                            <text x="690" y="405" text-anchor="middle" class="label-text">Wall 0.23m</text>
+
+                            <text x="292.5" y="225" text-anchor="middle" class="label-text" fill="#94a3b8">ROOM 1</text>
+                            <text x="557.5" y="225" text-anchor="middle" class="label-text" fill="#94a3b8">ROOM 2</text>
+                            
+                            <!-- Doors -->
+                            <rect x="265" y="330" width="55" height="20" fill="var(--blueprint-bg)" stroke="#ef4444" stroke-width="2"/>
+                            <text x="292.5" y="365" text-anchor="middle" class="label-text" fill="#ef4444" id="svg-plan-d1">D</text>
+                            <rect x="530" y="330" width="55" height="20" fill="var(--blueprint-bg)" stroke="#ef4444" stroke-width="2"/>
+                            <text x="557.5" y="365" text-anchor="middle" class="label-text" fill="#ef4444" id="svg-plan-d2">D</text>
+
+                            <!-- Windows -->
+                            <rect x="270" y="100" width="45" height="20" fill="var(--blueprint-bg)" stroke="var(--accent)" stroke-width="2"/>
+                            <text x="292.5" y="90" text-anchor="middle" class="label-text" fill="var(--accent)" id="svg-plan-w1">W</text>
+                            <rect x="535" y="100" width="45" height="20" fill="var(--blueprint-bg)" stroke="var(--accent)" stroke-width="2"/>
+                            <text x="557.5" y="90" text-anchor="middle" class="label-text" fill="var(--accent)" id="svg-plan-w2">W</text>
+                            <rect x="150" y="202.5" width="20" height="45" fill="var(--blueprint-bg)" stroke="var(--accent)" stroke-width="2"/>
+                            <text x="135" y="230" text-anchor="end" class="label-text" fill="var(--accent)" id="svg-plan-w3">W</text>
+                            <rect x="680" y="202.5" width="20" height="45" fill="var(--blueprint-bg)" stroke="var(--accent)" stroke-width="2"/>
+                            <text x="715" y="230" text-anchor="start" class="label-text" fill="var(--accent)" id="svg-plan-w4">W</text>
+                        </svg>
+                    </div>
+
+                    <!-- Section SVG -->
+                    <div class="blueprint-container">
+                        <div class="blueprint-title">Sectional Elevation (Dynamic Foundations)</div>
+                        <svg viewBox="0 0 600 950" class="blueprint">
+                            <line x1="50" y1="720" x2="550" y2="720" stroke="#f59e0b" stroke-dasharray="8,4" stroke-width="3"/>
+                            <text x="60" y="710" fill="#f59e0b" font-weight="700" font-family="Space Grotesk">GROUND LEVEL (GL)</text>
+
+                            <!-- FOUNDATION GROUP -->
+                            <g id="svg-foundation">
+                                <rect id="svg-pcc" class="conc-fill"/>
+                                <text id="svg-pcc-text" text-anchor="middle" class="label-text"></text>
+                                <rect id="svg-step1" class="wall-fill"/>
+                                <text id="svg-step1-text" text-anchor="middle" class="label-text"></text>
+                                <rect id="svg-step2" class="wall-fill"/>
+                                <text id="svg-step2-text" text-anchor="middle" class="label-text"></text>
+                                <rect id="svg-foundwall" class="wall-fill"/>
+                                <text id="svg-foundwall-text" text-anchor="middle" class="label-text">Fnd Wall: 0.23m</text>
+                                <rect id="svg-plinthband" class="conc-fill"/>
+                                <text id="svg-plinthband-text" text-anchor="middle" class="label-text" fill="#fff">Plinth Band</text>
+                            </g>
+
+                            <rect x="265" y="520" width="70" height="110" class="wall-fill"/>
+                            <rect x="265" y="500" width="70" height="20" class="band-fill"/>
+                            <text x="350" y="515" text-anchor="start" class="label-text" fill="#f87171">← Sill Band</text>
+
+                            <!-- WINDOW SECTION -->
+                            <rect x="280" y="370" width="40" height="130" fill="rgba(14, 165, 233, 0.1)" stroke="var(--secondary)" stroke-width="2"/>
+                            <line x1="300" y1="370" x2="300" y2="500" stroke="var(--secondary)" stroke-width="2" stroke-dasharray="5,2"/>
+                            <text x="250" y="440" text-anchor="end" class="label-text" fill="var(--secondary)" font-weight="700">Window →</text>
+
+                            <rect x="265" y="340" width="70" height="30" class="band-fill"/>
+                            <text x="350" y="360" text-anchor="start" class="label-text" fill="#f87171">← Lintel Band</text>
+                            <rect x="265" y="270" width="70" height="70" class="wall-fill"/>
+                            <rect x="265" y="230" width="70" height="40" class="conc-fill"/>
+                            <text x="350" y="255" text-anchor="start" class="label-text" fill="var(--accent)">← Roof Beam</text>
+                            <rect x="160" y="200" width="280" height="30" class="conc-fill"/>
+                            <text x="300" y="222" text-anchor="middle" class="label-text">RCC Slab: 0.125m</text>
+                            <rect x="265" y="100" width="70" height="100" class="wall-fill"/>
+                            <rect x="265" y="80" width="70" height="20" class="conc-fill"/>
+                            <text x="300" y="140" text-anchor="middle" class="label-text" transform="rotate(-90 300,140)">Parapet 0.7m</text>
+
+                            <line x1="150" y1="720" x2="150" y2="880" class="dim-line" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+                            <text x="140" y="805" text-anchor="end" class="dim-text">Depth 0.8m</text>
+
+                            <line x1="150" y1="630" x2="150" y2="720" class="dim-line" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+                            <text x="140" y="680" text-anchor="end" class="dim-text">0.45m</text>
+
+                            <line x1="150" y1="270" x2="150" y2="630" class="dim-line" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+                            <text x="140" y="450" text-anchor="end" class="dim-text" id="svg-sec-hstorey">H = 3.0m</text>
+
+                            <!-- Horizontal Dimensions -->
+                            <line x1="160" y1="170" x2="265" y2="170" class="dim-line" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+                            <text x="212" y="160" text-anchor="middle" class="dim-text" id="svg-sec-oh-left">0.5m</text>
+
+                            <line x1="335" y1="170" x2="440" y2="170" class="dim-line" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+                            <text x="387" y="160" text-anchor="middle" class="dim-text" id="svg-sec-oh-right">0.5m</text>
+                        </svg>
+                    </div>
+                </div>
+            </div> <!-- End Print Container -->
+        </div>
+    </div>
+
+<script>
+    // Tab Navigation logic
+    function switchTab(viewName) {
+        document.getElementById('btn-step').classList.remove('active');
+        document.getElementById('btn-table').classList.remove('active');
+        document.getElementById('view-step').style.display = 'none';
+        document.getElementById('view-table').style.display = 'none';
+
+        if(viewName === 'step') {
+            document.getElementById('btn-step').classList.add('active');
+            document.getElementById('view-step').style.display = 'block';
+        } else {
+            document.getElementById('btn-table').classList.add('active');
+            document.getElementById('view-table').style.display = 'block';
+        }
+    }
+
+    // Advanced PDF Export Logic ensuring NOTHING is cut off
+    function exportPDF() {
+        const element = document.getElementById('print-container');
+        
+        // Add PDF rendering class for explicit widths and background
+        element.classList.add('pdf-mode');
+        
+        // Force BOTH views to show temporarily so the PDF gets the full report
+        const stepView = document.getElementById('view-step');
+        const tableView = document.getElementById('view-table');
+        const stepWasHidden = stepView.style.display === 'none';
+        const tableWasHidden = tableView.style.display === 'none';
+        
+        stepView.style.display = 'block';
+        tableView.style.display = 'block';
+
+        const opt = {
+            margin:       [0.3, 0.3, 0.3, 0.3], 
+            filename:     'NBC202_Detailed_Quantity_Estimation.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true,
+                backgroundColor: '#0f172a',
+                windowWidth: 1000 // Force canvas to render as wide desktop to prevent table wrap/SVG cutoff
+            },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
+            pagebreak:    { mode: ['css', 'legacy'] }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            // Restore UI state after download completes
+            element.classList.remove('pdf-mode');
+            if(stepWasHidden) stepView.style.display = 'none';
+            if(tableWasHidden) tableView.style.display = 'none';
+        });
+    }
+
+    function showError(msg) {
+        const errBox = document.getElementById('errorBox');
+        errBox.innerHTML = `⚠️ <strong>NBC VALIDATION ERROR:</strong><br>${msg}`;
+        errBox.style.display = 'block';
+        document.getElementById('results').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Table Helper (Long/Short Wall)
+    let tableRowsHTML = '';
+    function addTableRow(sn, particular, no, unit, l, w, h, qty, remarks, isTitle = false, isSubtotal = false) {
+        let cls = isTitle ? 'class="tr-group-title"' : (isSubtotal ? 'class="tr-subtotal"' : '');
+        let pCol = isTitle ? `<td colspan="8">${particular}</td>` : `<td style="text-align:left;">${particular}</td><td>${no}</td><td>${unit}</td><td>${l}</td><td>${w}</td><td>${h}</td><td>${qty}</td><td>${remarks}</td>`;
+        
+        tableRowsHTML += `
+            <tr ${cls}>
+                <td>${sn}</td>
+                ${pCol}
+            </tr>
+        `;
+    }
+
+    function executeTakeoff() {
+        // --- Input Retrieval ---
+        const L_ext = parseFloat(document.getElementById('lExt').value);
+        const B_ext = parseFloat(document.getElementById('bExt').value);
+        const H_above_plinth = parseFloat(document.getElementById('hStorey').value);
+        const overhang = parseFloat(document.getElementById('overhang').value);
+        const soilType = document.getElementById('soilType').value;
+        const dW = parseFloat(document.getElementById('doorW').value);
+        const dH = parseFloat(document.getElementById('doorH').value);
+        const wW = parseFloat(document.getElementById('winW').value);
+        const wH = parseFloat(document.getElementById('winH').value);
+
+        // --- STRICT NBC VALIDATION ---
+        document.getElementById('errorBox').style.display = 'none'; 
+        
+        if (L_ext < 5.0 || B_ext < 2.5) {
+            return showError("Impossible dimensions. Minimum External Length must be 5.0m (to fit 2 rooms) and Breadth 2.5m for a functional load-bearing structure.");
+        }
+        if (L_ext > (3 * B_ext)) {
+            return showError("Length of building block cannot exceed 3 times its width (L ≤ 3B) to avoid torsional effects (NBC 202).");
+        }
+        if (H_above_plinth > 3.2 || H_above_plinth < 2.0) {
+            return showError("Storey height for load-bearing masonry must not exceed 3.2m (NBC 202: Table 1-1).");
+        }
+        if ((B_ext - 0.46) > 4.5) {
+            return showError("Clear span of any room cannot exceed 4.5m. Please reduce external breadth.");
+        }
+
+        // --- Fixed Constants (NBC) ---
+        const wallThick = 0.23;
+        const plinthH = 0.45;
+        const trenchD = 0.8;
+        const pccThick = 0.1;
+        
+        // --- Phase 2: Center-Line Geo ---
+        const L_cc = L_ext - wallThick;
+        const B_cc = B_ext - wallThick;
+        
+        // TOTAL CENTER LINE LENGTH (2 Rooms = 2 Long Walls, 3 Short Walls)
+        const L_total = (2 * L_cc) + (3 * B_cc);
+
+        document.getElementById('geoDetails').innerHTML = `
+            <div class="step-box" style="margin-bottom:0;">
+                <div class="math-line">L_cc = External Length - Wall Thickness = ${L_ext} - ${wallThick} = <strong style="color:var(--accent);">${L_cc.toFixed(3)}m</strong></div>
+                <div class="math-line">B_cc = External Breadth - Wall Thickness = ${B_ext} - ${wallThick} = <strong style="color:var(--accent);">${B_cc.toFixed(3)}m</strong></div>
+                <div class="math-line" style="margin-top: 15px; font-style: italic;"> 2 rooms: 2 Long Walls, 3 Short Walls</div>
+                <div class="math-line" style="color: var(--secondary); margin-top: 15px; font-weight: 700;">TOTAL CENTER-LINE LENGTH (L_total):</div>
+                <div class="math-line" style="padding-left:15px;">L_total = (2 × L_cc) + (3 × B_cc)</div>
+                <div class="math-line" style="padding-left:15px;">L_total = (2 × ${L_cc.toFixed(3)}) + (3 × ${B_cc.toFixed(3)}) = <strong style="color:var(--accent);">${L_total.toFixed(3)}m</strong></div>
+            </div>
+        `;
+
+        function calcLongShort(w) {
+            let lw = L_cc + w;
+            let sw = B_cc - w;
+            return { lw, sw };
+        }
+
+        let calcHTML = '';
+        tableRowsHTML = ''; // Reset Table
+
+        // --- Core Setup ---
+        let excWidth = 0;
+        let plinthBandThick = 0;
+        let stepsData = [];
+
+        if (soilType === 'Soft') {
+            excWidth = 0.65; plinthBandThick = 0.15;
+            stepsData.push({ name: "Step 1", width: 0.58, height: 0.24 });
+            stepsData.push({ name: "Step 2", width: 0.35, height: 0.24 });
+        } else if (soilType === 'Medium') {
+            excWidth = 0.55; plinthBandThick = 0.15;
+            stepsData.push({ name: "Step 1", width: 0.46, height: 0.24 });
+            stepsData.push({ name: "Step 2", width: 0.35, height: 0.24 });
+        } else if (soilType === 'Hard') {
+            excWidth = 0.45; plinthBandThick = 0.075;
+            stepsData.push({ name: "Step 1", width: 0.35, height: 0.24 });
+        }
+
+        let totalStepHeights = stepsData.reduce((sum, s) => sum + s.height, 0);
+        let trenchRemainder = trenchD - pccThick - totalStepHeights;
+        let plinthRemainder = plinthH - plinthBandThick;
+        let hFoundWall = trenchRemainder + plinthRemainder;
+        stepsData.push({ name: "Foundation Wall", width: 0.23, height: hFoundWall });
+
+        // --- STEP 1: Earthwork ---
+        let geoExc = calcLongShort(excWidth);
+        let volExcLw = 2 * geoExc.lw * excWidth * trenchD;
+        let volExcSw = 3 * geoExc.sw * excWidth * trenchD;
+        let volExcTable = volExcLw + volExcSw;
+        
+        let volExcCL = L_total * excWidth * trenchD;
+        
+        calcHTML += `
+            <div class="step-box">
+                <div class="step-title">1. Earthwork in Excavation</div>
+                <div class="math-line">Vol = L_total × Width × Depth</div>
+                <div class="math-line">Vol = ${L_total.toFixed(3)} × ${excWidth} × ${trenchD} = ${volExcCL.toFixed(3)} m³</div>
+                <div class="math-result">Total Earthwork Vol = ${volExcCL.toFixed(3)} m³</div>
+                <div class="note">NBC 202 Note: Depth 0.8m. Base width ${excWidth}m matched for ${soilType} soil.</div>
+            </div>`;
+            
+        addTableRow("1", "Earthwork in Excavation", "", "", "", "", "", "", "", true);
+        addTableRow("", "- Long Wall", 2, "m³", geoExc.lw.toFixed(3), excWidth, trenchD, volExcLw.toFixed(3), `NBC 202: Base ${excWidth}m (${soilType} Soil)`);
+        addTableRow("", "- Short Wall", 3, "m³", geoExc.sw.toFixed(3), excWidth, trenchD, volExcSw.toFixed(3), "");
+        addTableRow("", "Total Earthwork", "", "m³", "", "", "", volExcTable.toFixed(3), "", false, true);
+
+        // --- STEP 2: Soling ---
+        let areaSolingLw = 2 * geoExc.lw * excWidth;
+        let areaSolingSw = 3 * geoExc.sw * excWidth;
+        let areaSolingTable = areaSolingLw + areaSolingSw;
+        
+        let areaSolingCL = L_total * excWidth;
+
+        calcHTML += `
+            <div class="step-box">
+                <div class="step-title">2. Flat Brick Soling (Area)</div>
+                <div class="math-line">Area = L_total × Width</div>
+                <div class="math-line">Area = ${L_total.toFixed(3)} × ${excWidth} = ${areaSolingCL.toFixed(3)} m²</div>
+                <div class="math-result">Total Soling Area = ${areaSolingCL.toFixed(3)} m²</div>
+                <div class="note">NBC 202 Note: Laid horizontally across the full trench width.</div>
+            </div>`;
+
+        addTableRow("2", "Flat Brick Soling", "", "", "", "", "", "", "", true);
+        addTableRow("", "- Long Wall", 2, "m²", geoExc.lw.toFixed(3), excWidth, "-", areaSolingLw.toFixed(3), "");
+        addTableRow("", "- Short Wall", 3, "m²", geoExc.sw.toFixed(3), excWidth, "-", areaSolingSw.toFixed(3), "");
+        addTableRow("", "Total Soling", "", "m²", "", "", "", areaSolingTable.toFixed(3), "", false, true);
+
+        // --- STEP 3: PCC ---
+        let volPccLw = areaSolingLw * pccThick;
+        let volPccSw = areaSolingSw * pccThick;
+        let volPccTable = volPccLw + volPccSw;
+        
+        let volPccCL = areaSolingCL * pccThick;
+
+        calcHTML += `
+            <div class="step-box">
+                <div class="step-title">3. PCC in Foundation Bed</div>
+                <div class="math-line">Vol = Soling Area × Thickness</div>
+                <div class="math-line">Vol = ${areaSolingCL.toFixed(3)} × ${pccThick} = ${volPccCL.toFixed(3)} m³</div>
+                <div class="math-result">Total PCC Volume = ${volPccCL.toFixed(3)} m³</div>
+                <div class="note">NBC 202 Note: 100mm thick M20 grade concrete.</div>
+            </div>`;
+
+        addTableRow("3", "PCC in Foundation", "", "", "", "", "", "", "", true);
+        addTableRow("", "- Long Wall", 2, "m³", geoExc.lw.toFixed(3), excWidth, pccThick, volPccLw.toFixed(3), "M20 Grade");
+        addTableRow("", "- Short Wall", 3, "m³", geoExc.sw.toFixed(3), excWidth, pccThick, volPccSw.toFixed(3), "");
+        addTableRow("", "Total PCC", "", "m³", "", "", "", volPccTable.toFixed(3), "", false, true);
+
+        // --- STEP 4: Substructure Brickwork ---
+        addTableRow("4", "Brickwork in Foundation (up to Plinth)", "", "", "", "", "", "", "", true);
+        let totalSubBrickTable = 0;
+        let totalSubBrickCL = 0;
+        let foundHTML = '';
+        
+        stepsData.forEach((step) => {
+            // Table Math
+            let geo = calcLongShort(step.width);
+            let volLw = 2 * geo.lw * step.width * step.height;
+            let volSw = 3 * geo.sw * step.width * step.height;
+            let volT = volLw + volSw;
+            totalSubBrickTable += volT;
+            
+            // Center Line Math
+            let volCL = L_total * step.width * step.height;
+            totalSubBrickCL += volCL;
+
+            let heightCalcStr = "";
+            let remark = "";
+            if(step.name === "Foundation Wall") {
+                let numSteps = stepsData.length - 1;
+                let stepMath = numSteps > 0 ? `${numSteps} × 0.24` : `0`;
+                heightCalcStr = `<div class="math-line" style="padding-left:15px; color:#fca5a5;">Height = (${trenchD} - ${pccThick}(PCC) - ${stepMath}) + (${plinthH} - ${plinthBandThick}) = ${step.height.toFixed(3)}m</div>`;
+                remark = `H=(${trenchD}-${pccThick}-${stepMath})+(${plinthH}-${plinthBandThick})`;
+            }
+
+            foundHTML += `
+                <div class="math-line" style="color:var(--secondary); font-weight:700; margin-top:10px;">${step.name}:</div>
+                ${heightCalcStr}
+                <div class="math-line" style="padding-left:15px;">Vol = L_total × W × H = ${L_total.toFixed(3)} × ${step.width} × ${step.height.toFixed(3)} = ${volCL.toFixed(3)} m³</div>
+            `;
+            
+            addTableRow("", `- ${step.name} (LW)`, 2, "m³", geo.lw.toFixed(3), step.width, step.height.toFixed(3), volLw.toFixed(3), remark);
+            addTableRow("", `- ${step.name} (SW)`, 3, "m³", geo.sw.toFixed(3), step.width, step.height.toFixed(3), volSw.toFixed(3), "");
+        });
+        
+        addTableRow("", "Total Foundation Brickwork", "", "m³", "", "", "", totalSubBrickTable.toFixed(3), "", false, true);
+
+        calcHTML += `
+            <div class="step-box">
+                <div class="step-title">4. Substructure Brickwork (Stepped Footing)</div>
+                ${foundHTML}
+                <div class="math-result">Total Substructure Vol = ${totalSubBrickCL.toFixed(3)} m³</div>
+                <div class="note">NBC 202 Note: Exact offsets calculated for ${soilType} soil stability.</div>
+            </div>`;
+
+        // --- STEP 5: Plinth Band ---
+        let geoWall = calcLongShort(wallThick);
+        let volPbLw = 2 * geoWall.lw * wallThick * plinthBandThick;
+        let volPbSw = 3 * geoWall.sw * wallThick * plinthBandThick;
+        let volPbTable = volPbLw + volPbSw;
+        
+        let volPbCL = L_total * wallThick * plinthBandThick;
+
+        calcHTML += `
+            <div class="step-box">
+                <div class="step-title">5. Plinth Band (DPC Concrete)</div>
+                <div class="math-line">Vol = L_total × W × H = ${L_total.toFixed(3)} × ${wallThick} × ${plinthBandThick} = ${volPbCL.toFixed(3)} m³</div>
+                <div class="math-result">Total Plinth Band Vol = ${volPbCL.toFixed(3)} m³</div>
+                <div class="note">NBC 202 Note: Width is wall thickness. Depth is ${plinthBandThick*1000}mm based on soil type.</div>
+            </div>`;
+
+        addTableRow("5", "Plinth Band (DPC)", "", "", "", "", "", "", "", true);
+        addTableRow("", "- Long Wall", 2, "m³", geoWall.lw.toFixed(3), wallThick, plinthBandThick, volPbLw.toFixed(3), "NBC 202 compliant");
+        addTableRow("", "- Short Wall", 3, "m³", geoWall.sw.toFixed(3), wallThick, plinthBandThick, volPbSw.toFixed(3), "");
+        addTableRow("", "Total Plinth Band", "", "m³", "", "", "", volPbTable.toFixed(3), "", false, true);
+
+        // --- STEP 6: Superstructure ---
+        let volSuperLw = 2 * geoWall.lw * wallThick * H_above_plinth;
+        let volSuperSw = 3 * geoWall.sw * wallThick * H_above_plinth;
+        let volSuperTable = volSuperLw + volSuperSw;
+        
+        let volSuperCL = L_total * wallThick * H_above_plinth;
+
+        calcHTML += `
+            <div class="step-box">
+                <div class="step-title">6. Gross Superstructure Brickwork</div>
+                <div class="math-line">Vol = L_total × W × H = ${L_total.toFixed(3)} × ${wallThick} × ${H_above_plinth} = ${volSuperCL.toFixed(3)} m³</div>
+                <div class="math-result">Total Gross Wall Volume = ${volSuperCL.toFixed(3)} m³</div>
+                <div class="note">NBC 202 Note: Solid wall volume calculated before window/door deductions.</div>
+            </div>`;
+
+        addTableRow("6", "Superstructure Brickwork", "", "", "", "", "", "", "", true);
+        addTableRow("", "- Long Wall", 2, "m³", geoWall.lw.toFixed(3), wallThick, H_above_plinth, volSuperLw.toFixed(3), "Gross Volume");
+        addTableRow("", "- Short Wall", 3, "m³", geoWall.sw.toFixed(3), wallThick, H_above_plinth, volSuperSw.toFixed(3), "");
+        addTableRow("", "Total Gross Superstructure", "", "m³", "", "", "", volSuperTable.toFixed(3), "", false, true);
+
+        // --- STEP 7 & 8: Deductions & Bands ---
+        let lintelThick = wW <= 1.25 ? 0.075 : 0.15;
+        let volDoors = 2 * (dW * wallThick * dH);
+        let volWindows = 4 * (wW * wallThick * wH);
+        
+        // Table Method
+        let volSillLw = 2 * geoWall.lw * wallThick * 0.075;
+        let volSillSw = 3 * geoWall.sw * wallThick * 0.075;
+        let volSillTable = volSillLw + volSillSw;
+        
+        let volLintelLw = 2 * geoWall.lw * wallThick * lintelThick;
+        let volLintelSw = 3 * geoWall.sw * wallThick * lintelThick;
+        let volLintelTable = volLintelLw + volLintelSw;
+
+        let totalDeductTable = volDoors + volWindows + volSillTable + volLintelTable;
+        let totalBandTable = volSillTable + volLintelTable;
+
+        // Center Line Method
+        let volSillCL = L_total * wallThick * 0.075;
+        let volLintelCL = L_total * wallThick * lintelThick;
+        let totalDeductCL = volDoors + volWindows + volSillCL + volLintelCL;
+        let totalBandCL = volSillCL + volLintelCL;
+
+        calcHTML += `
+            <div class="step-box">
+                <div class="step-title">7 & 8. Deductions & Band Concrete Replacements</div>
+                <div class="math-line" style="color:var(--secondary); font-weight:700;">Openings (Voids):</div>
+                <div class="math-line" style="padding-left:20px;">Doors Vol = 2 × ${dW} × ${wallThick} × ${dH} = ${volDoors.toFixed(3)} m³</div>
+                <div class="math-line" style="padding-left:20px;">Windows Vol = 4 × ${wW} × ${wallThick} × ${wH} = ${volWindows.toFixed(3)} m³</div>
+                
+                <div class="math-line" style="color:var(--secondary); font-weight:700; margin-top:10px;">Sill Band (0.075m thick):</div>
+                <div class="math-line" style="padding-left:20px;">Vol = L_total × W × H = ${L_total.toFixed(3)} × ${wallThick} × 0.075 = ${volSillCL.toFixed(3)} m³</div>
+                
+                <div class="math-line" style="color:var(--secondary); font-weight:700; margin-top:10px;">Lintel Band (${lintelThick}m thick):</div>
+                <div class="math-line" style="padding-left:20px;">Vol = L_total × W × H = ${L_total.toFixed(3)} × ${wallThick} × ${lintelThick} = ${volLintelCL.toFixed(3)} m³</div>
+                
+                <div class="math-result" style="color:var(--danger);">Total Brickwork Deduction = ${totalDeductCL.toFixed(3)} m³</div>
+                <div class="math-result" style="margin-top:5px;">Total Band Concrete (Added to M20) = ${totalBandCL.toFixed(3)} m³</div>
+            </div>`;
+
+        addTableRow("7", "Deductions (Openings & Bands)", "", "", "", "", "", "", "", true);
+        addTableRow("", "- Doors", 2, "m³", dW, wallThick, dH, `-${volDoors.toFixed(3)}`, "");
+        addTableRow("", "- Windows", 4, "m³", wW, wallThick, wH, `-${volWindows.toFixed(3)}`, "");
+        addTableRow("", "- Sill Band (LW)", 2, "m³", geoWall.lw.toFixed(3), wallThick, "0.075", `-${volSillLw.toFixed(3)}`, "Deducted from brick");
+        addTableRow("", "- Sill Band (SW)", 3, "m³", geoWall.sw.toFixed(3), wallThick, "0.075", `-${volSillSw.toFixed(3)}`, "");
+        addTableRow("", "- Lintel Band (LW)", 2, "m³", geoWall.lw.toFixed(3), wallThick, lintelThick, `-${volLintelLw.toFixed(3)}`, "");
+        addTableRow("", "- Lintel Band (SW)", 3, "m³", geoWall.sw.toFixed(3), wallThick, lintelThick, `-${volLintelSw.toFixed(3)}`, "");
+        addTableRow("", "Total Deductions", "", "m³", "", "", "", `-${totalDeductTable.toFixed(3)}`, "", false, true);
+
+        addTableRow("8", "Concrete in Bands (Sill + Lintel)", "", "", "", "", "", "", "", true);
+        addTableRow("", "Total Band Concrete", "-", "m³", "-", "-", "-", totalBandTable.toFixed(3), "M20 Grade", false, true);
+
+        // --- STEP 9: Roof Beam ---
+        let volRbLw = 2 * geoWall.lw * wallThick * 0.3;
+        let volRbSw = 3 * geoWall.sw * wallThick * 0.3;
+        let volRoofBeamTable = volRbLw + volRbSw;
+
+        let volRoofBeamCL = L_total * wallThick * 0.3;
+
+        calcHTML += `
+            <div class="step-box">
+                <div class="step-title">9. RCC Roof Beam</div>
+                <div class="math-line">Vol = L_total × W × H = ${L_total.toFixed(3)} × ${wallThick} × 0.3 = ${volRoofBeamCL.toFixed(3)} m³</div>
+                <div class="math-result">Total Roof Beam = ${volRoofBeamCL.toFixed(3)} m³</div>
+            </div>`;
+
+        addTableRow("9", "RCC Roof Beam", "", "", "", "", "", "", "", true);
+        addTableRow("", "- Long Wall", 2, "m³", geoWall.lw.toFixed(3), wallThick, 0.3, volRbLw.toFixed(3), "");
+        addTableRow("", "- Short Wall", 3, "m³", geoWall.sw.toFixed(3), wallThick, 0.3, volRbSw.toFixed(3), "");
+        addTableRow("", "Total Roof Beam", "", "m³", "", "", "", volRoofBeamTable.toFixed(3), "", false, true);
+
+        // --- STEP 10: Slab ---
+        let sL = L_ext + (2 * overhang);
+        let sB = B_ext + (2 * overhang);
+        let volSlabGross = sL * sB * 0.125;
+        // NO OVERLAP DEDUCTION
+        
+        calcHTML += `
+            <div class="step-box">
+                <div class="step-title">10. RCC Slab (with overhang)</div>
+                <div class="math-line">Slab Length = L_ext + (2 × Overhang) = ${sL.toFixed(3)}m</div>
+                <div class="math-line">Slab Breadth = B_ext + (2 × Overhang) = ${sB.toFixed(3)}m</div>
+                <div class="math-line" style="color:var(--secondary); font-weight:700; margin-top:10px;">Volume Calculation:</div>
+                <div class="math-line" style="padding-left:20px;">Vol = L × B × H = ${sL.toFixed(3)} × ${sB.toFixed(3)} × 0.125 = ${volSlabGross.toFixed(3)} m³</div>
+                <div class="math-result">Total RCC Slab Vol = ${volSlabGross.toFixed(3)} m³</div>
+                <div class="note">NBC Note: Slab calculated as full rectangular plate resting on beams.</div>
+            </div>`;
+
+        addTableRow("10", "RCC Slab (with overhang)", "", "", "", "", "", "", "", true);
+        addTableRow("", "Full RCC Slab", 1, "m³", sL.toFixed(3), sB.toFixed(3), "0.125", volSlabGross.toFixed(3), `Overhang: ${overhang}m`);
+        addTableRow("", "Total RCC Slab", "", "m³", "", "", "", volSlabGross.toFixed(3), "No beam deduction", false, true);
+
+        // --- STEP 11: Parapet ---
+        let pPerim = 2 * (sL + sB);
+        let volParapetGross = pPerim * wallThick * 0.7;
+        let volParapetBand = pPerim * wallThick * 0.075;
+        let volParapetBrick = volParapetGross - volParapetBand;
+        
+        calcHTML += `
+            <div class="step-box">
+                <div class="step-title">11. Parapet Wall & Top Band</div>
+                <div class="math-line">Perimeter (Outer Slab Edge) = 2 × (${sL.toFixed(3)} + ${sB.toFixed(3)}) = ${pPerim.toFixed(3)}m</div>
+                <div class="math-line" style="color:var(--secondary); font-weight:700; margin-top:10px;">Gross Brickwork:</div>
+                <div class="math-line" style="padding-left:20px;">Vol = Perimeter × W × H = ${pPerim.toFixed(3)} × ${wallThick} × 0.7 = ${volParapetGross.toFixed(3)} m³</div>
+                <div class="math-line" style="color:var(--secondary); font-weight:700; margin-top:10px;">Parapet Band Deduction (Concrete):</div>
+                <div class="math-line" style="padding-left:20px;">Vol = Perimeter × W × 0.075 = ${volParapetBand.toFixed(3)} m³</div>
+                <div class="math-result">Net Parapet Brickwork = ${volParapetBrick.toFixed(3)} m³</div>
+            </div>`;
+
+        addTableRow("11", "Parapet Wall & Top Band", "", "", "", "", "", "", "", true);
+        addTableRow("", "Parapet Brickwork", 1, "m³", pPerim.toFixed(3), wallThick, 0.7, volParapetGross.toFixed(3), "Perimeter calculated");
+        addTableRow("", "Deduct Parapet Band", 1, "m³", pPerim.toFixed(3), wallThick, 0.075, `-${volParapetBand.toFixed(3)}`, "");
+        addTableRow("", "Net Parapet Brickwork", "", "m³", "", "", "", volParapetBrick.toFixed(3), "", false, true);
+
+        // Render Views
+        document.getElementById('calcSteps').innerHTML = calcHTML;
+        document.getElementById('boqTableBody').innerHTML = tableRowsHTML;
+
+        // --- Phase 4: Material Extraction Engine ---
+        // Using Table (Long/Short Wall) values for highest accuracy in extraction
+        let extract_totalWetConc = volPccTable + volPbTable + totalBandTable + volRoofBeamTable + volSlabGross + volParapetBand;
+        let extract_dryConc = extract_totalWetConc * 1.54;
+        let extract_cementConc = (extract_dryConc / 5.5) * 1;
+        let extract_sandConc = (extract_dryConc / 5.5) * 1.5;
+        let extract_aggConc = (extract_dryConc / 5.5) * 3;
+
+        let extract_totalWetBrick = totalSubBrickTable + volSuperTable + volParapetBrick - totalDeductTable;
+        let extract_nominalBricks = extract_totalWetBrick * 534;
+        let extract_finalBricks = Math.ceil(extract_nominalBricks * 1.05); // 5% waste
+        
+        let extract_solidBrickVol = extract_finalBricks * (0.23 * 0.11 * 0.055);
+        let extract_wetMortar = extract_totalWetBrick - extract_solidBrickVol;
+        if(extract_wetMortar < 0) extract_wetMortar = 0;
+        let extract_dryMortar = extract_wetMortar * 1.30;
+        
+        let extract_cementMortar = (extract_dryMortar / 7) * 1;
+        let extract_sandMortar = (extract_dryMortar / 7) * 6;
+
+        // Grand Totals
+        let extract_totalCementBags = Math.ceil((extract_cementConc + extract_cementMortar) * 30);
+        let extract_totalSand = (extract_sandConc + extract_sandMortar).toFixed(2);
+        let extract_totalAgg = extract_aggConc.toFixed(2);
+
+        let bomSteps = `
+            <div class="step-box" style="border-color: var(--secondary);">
+                <div class="step-title">A. Concrete Extraction (M20 | 1:1.5:3)</div>
+                <div class="math-line" style="color: var(--secondary); font-weight:700;">1. Summing Wet Concrete Volumes:</div>
+                <div class="math-line">PCC (${volPccTable.toFixed(3)}) + Plinth Band (${volPbTable.toFixed(3)}) + Sill/Lintel Bands (${totalBandTable.toFixed(3)}) + Roof Beam (${volRoofBeamTable.toFixed(3)}) + Slab (${volSlabGross.toFixed(3)}) + Parapet Band (${volParapetBand.toFixed(3)})</div>
+                <div class="math-line" style="font-weight: 700; color: #fff; font-size: 1.4rem; margin-top: 10px;">Total Wet Concrete = ${extract_totalWetConc.toFixed(3)} m³</div>
+                <div class="math-line" style="color: var(--secondary); font-weight:700; margin-top: 20px;">2. Applying Constants:</div>
+                <div class="math-line">Dry Volume (+54%) = ${extract_totalWetConc.toFixed(3)} * 1.54 = ${extract_dryConc.toFixed(3)} m³</div>
+                <div class="math-line">Sum of Ratio = 1 (Cement) + 1.5 (Sand) + 3 (Aggregate) = 5.5</div>
+                <div class="math-line" style="color: #cbd5e1; margin-top: 15px;">Cement Volume = (${extract_dryConc.toFixed(3)} / 5.5) * 1 = ${extract_cementConc.toFixed(3)} m³</div>
+                <div class="math-line">Sand = (${extract_dryConc.toFixed(3)} / 5.5) * 1.5 = ${extract_sandConc.toFixed(3)} m³</div>
+                <div class="math-line">Aggregate = (${extract_dryConc.toFixed(3)} / 5.5) * 3 = ${extract_aggConc.toFixed(3)} m³</div>
+            </div>
+            <div class="step-box" style="border-color: var(--secondary);">
+                <div class="step-title">B. Brickwork Extraction (1:6 Mortar)</div>
+                <div class="math-line" style="color: var(--secondary); font-weight:700;">1. Summing Wet Brickwork Volumes:</div>
+                <div class="math-line">Substructure (${totalSubBrickTable.toFixed(3)}) + Superstructure (${volSuperTable.toFixed(3)}) + Parapet (${volParapetBrick.toFixed(3)}) - Deductions (${totalDeductTable.toFixed(3)})</div>
+                <div class="math-line" style="font-weight: 700; color: #fff; font-size: 1.4rem; margin-top: 10px;">Total Wet Brickwork = ${extract_totalWetBrick.toFixed(3)} m³</div>
+                <div class="math-line" style="color: var(--secondary); font-weight:700; margin-top: 20px;">2. Brick Calculation:</div>
+                <div class="math-line">Raw Bricks (534/m³) = ${extract_totalWetBrick.toFixed(3)} * 534 = ${extract_nominalBricks.toFixed(0)}</div>
+                <div class="math-line">Bricks + 5% Wastage = ${extract_nominalBricks.toFixed(0)} * 1.05 = ${extract_finalBricks} Nos</div>
+                <div class="math-line" style="color: var(--secondary); font-weight:700; margin-top: 20px;">3. Mortar Calculation:</div>
+                <div class="math-line">Solid Brick Vol = ${extract_finalBricks} * (0.23 * 0.11 * 0.055) = ${extract_solidBrickVol.toFixed(3)} m³</div>
+                <div class="math-line">Wet Mortar Vol = ${extract_totalWetBrick.toFixed(3)} - ${extract_solidBrickVol.toFixed(3)} = ${extract_wetMortar.toFixed(3)} m³</div>
+                <div class="math-line">Dry Mortar (+30%) = ${extract_wetMortar.toFixed(3)} * 1.30 = ${extract_dryMortar.toFixed(3)} m³</div>
+                <div class="math-line">Sum of Ratio = 1 (Cement) + 6 (Sand) = 7</div>
+                <div class="math-line" style="color: #cbd5e1; margin-top: 15px;">Cement Volume = (${extract_dryMortar.toFixed(3)} / 7) * 1 = ${extract_cementMortar.toFixed(3)} m³</div>
+                <div class="math-line">Sand = (${extract_dryMortar.toFixed(3)} / 7) * 6 = ${extract_sandMortar.toFixed(3)} m³</div>
+            </div>
+            <div class="step-box" style="border-color: var(--primary);">
+                <div class="step-title" style="color: #fff;">C. Total Cement Calculation</div>
+                <div class="math-line">Total Cement Volume = ${extract_cementConc.toFixed(3)} (Concrete) + ${extract_cementMortar.toFixed(3)} (Mortar) = ${(extract_cementConc + extract_cementMortar).toFixed(3)} m³</div>
+                <div class="math-result">Total Cement Bags = Total Volume of Cement × 30 = ${(extract_cementConc + extract_cementMortar).toFixed(3)} × 30 = ${extract_totalCementBags} Bags</div>
+            </div>
+        `;
+
+        document.getElementById('bomDetails').innerHTML = bomSteps + `
+            <div class="bom-grid">
+                <div class="bom-item"><span class="bom-label">Total Cement</span><span class="bom-value">${extract_totalCementBags} Bags</span></div>
+                <div class="bom-item"><span class="bom-label">Total Sand</span><span class="bom-value">${extract_totalSand} m³</span></div>
+                <div class="bom-item"><span class="bom-label">Total Aggregate</span><span class="bom-value">${extract_totalAgg} m³</span></div>
+                <div class="bom-item"><span class="bom-label">Total Bricks</span><span class="bom-value">${extract_finalBricks} Nos</span></div>
+            </div>
+        `;
+
+        // --- UPDATE DYNAMIC DRAWINGS ---
+        document.getElementById('svg-plan-lext').textContent = `L_ext = ${L_ext.toFixed(2)}m`;
+        document.getElementById('svg-plan-bext').textContent = `B_ext = ${B_ext.toFixed(2)}m`;
+        document.getElementById('svg-plan-w1').textContent = `W: ${wW}x${wH}`;
+        document.getElementById('svg-plan-w2').textContent = `W: ${wW}x${wH}`;
+        document.getElementById('svg-plan-w3').textContent = `W: ${wW}x${wH}`;
+        document.getElementById('svg-plan-w4').textContent = `W: ${wW}x${wH}`;
+        document.getElementById('svg-plan-d1').textContent = `D: ${dW}x${dH}`;
+        document.getElementById('svg-plan-d2').textContent = `D: ${dW}x${dH}`;
+
+        const scaleY = 200;
+        const scaleX = 300;
+        const centerX = 300;
+        const GL = 720;
+        const trenchY = GL + 0.8 * scaleY;
+
+        // PCC
+        const pccNode = document.getElementById('svg-pcc');
+        pccNode.setAttribute('width', excWidth * scaleX);
+        pccNode.setAttribute('height', pccThick * scaleY);
+        pccNode.setAttribute('x', centerX - (excWidth * scaleX) / 2);
+        pccNode.setAttribute('y', trenchY - (pccThick * scaleY));
+        
+        document.getElementById('svg-pcc-text').textContent = `PCC Width: ${excWidth}m`;
+        document.getElementById('svg-pcc-text').setAttribute('x', centerX);
+        document.getElementById('svg-pcc-text').setAttribute('y', trenchY - (pccThick * scaleY) + 15);
+
+        let currentY = trenchY - (pccThick * scaleY);
+
+        // Step 1
+        const step1 = stepsData[0];
+        const step1Node = document.getElementById('svg-step1');
+        step1Node.setAttribute('width', step1.width * scaleX);
+        step1Node.setAttribute('height', step1.height * scaleY);
+        step1Node.setAttribute('x', centerX - (step1.width * scaleX) / 2);
+        step1Node.setAttribute('y', currentY - (step1.height * scaleY));
+
+        document.getElementById('svg-step1-text').textContent = `${step1.name}: ${step1.width}m`;
+        document.getElementById('svg-step1-text').setAttribute('x', centerX);
+        document.getElementById('svg-step1-text').setAttribute('y', currentY - (step1.height * scaleY) / 2 + 5);
+
+        currentY -= (step1.height * scaleY);
+
+        // Step 2
+        const step2Node = document.getElementById('svg-step2');
+        const step2Text = document.getElementById('svg-step2-text');
+        
+        if (stepsData.length > 2) { 
+            const step2 = stepsData[1];
+            step2Node.style.display = 'block';
+            step2Text.style.display = 'block';
+            step2Node.setAttribute('width', step2.width * scaleX);
+            step2Node.setAttribute('height', step2.height * scaleY);
+            step2Node.setAttribute('x', centerX - (step2.width * scaleX) / 2);
+            step2Node.setAttribute('y', currentY - (step2.height * scaleY));
+
+            step2Text.textContent = `${step2.name}: ${step2.width}m`;
+            step2Text.setAttribute('x', centerX);
+            step2Text.setAttribute('y', currentY - (step2.height * scaleY) / 2 + 5);
+            currentY -= (step2.height * scaleY);
+        } else {
+            step2Node.style.display = 'none';
+            step2Text.style.display = 'none';
+        }
+
+        // Plinth Band & Found Wall
+        const pbNode = document.getElementById('svg-plinthband');
+        let pbH = plinthBandThick * scaleY;
+        pbNode.setAttribute('width', wallThick * scaleX);
+        pbNode.setAttribute('height', pbH);
+        pbNode.setAttribute('x', centerX - (wallThick * scaleX) / 2);
+        pbNode.setAttribute('y', GL - (plinthH * scaleY));
+        document.getElementById('svg-plinthband-text').setAttribute('x', centerX);
+        document.getElementById('svg-plinthband-text').setAttribute('y', GL - (plinthH * scaleY) + pbH / 2 + 5);
+
+        const fwNode = document.getElementById('svg-foundwall');
+        let fwTop = GL - (plinthH * scaleY) + pbH;
+        let fwHeight = currentY - fwTop;
+        fwNode.setAttribute('width', wallThick * scaleX);
+        fwNode.setAttribute('height', fwHeight);
+        fwNode.setAttribute('x', centerX - (wallThick * scaleX) / 2);
+        fwNode.setAttribute('y', fwTop);
+
+        document.getElementById('svg-foundwall-text').setAttribute('x', centerX);
+        document.getElementById('svg-foundwall-text').setAttribute('y', fwTop + fwHeight / 2 + 5);
+
+        document.getElementById('svg-sec-hstorey').textContent = `H = ${H_above_plinth.toFixed(2)}m`;
+        document.getElementById('svg-sec-oh-left').textContent = `${overhang}m`;
+        document.getElementById('svg-sec-oh-right').textContent = `${overhang}m`;
+
+        document.getElementById('results').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+    }
+</script>
+</body>
+</html>
+
+

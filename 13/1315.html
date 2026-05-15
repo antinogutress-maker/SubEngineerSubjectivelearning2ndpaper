@@ -1,0 +1,562 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Compressive Strength of Cement</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --panel-bg: #ffffff;
+            --text-main: #0f172a;
+            --primary: #475569; /* Cement Gray */
+            --primary-dark: #1e293b;
+            --secondary: #0ea5e9; /* Water/Curing Blue */
+            --lcd-bg: #020617;
+            --lcd-text: #34d399; /* Green digital text */
+            --lcd-alert: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center; padding: 20px 10px;
+        }
+
+        .container {
+            width: 100%; max-width: 1100px; background-color: var(--panel-bg);
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        header {
+            background-color: #0f172a; color: white; padding: 25px; text-align: center;
+            border-bottom: 5px solid var(--primary);
+            background-image: linear-gradient(to right, #0f172a, #1e293b);
+        }
+
+        header h1 { font-size: 2.2rem; margin-bottom: 8px; color: #e2e8f0; letter-spacing: 1px;}
+        header p { font-size: 1.1rem; color: #94a3b8; }
+
+        /* Theory Section */
+        .theory-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 25px;
+            background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;
+        }
+        @media (max-width: 768px) { .theory-grid { grid-template-columns: 1fr; } }
+
+        .theory-box {
+            background: white; padding: 20px; border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid var(--primary);
+        }
+        .theory-box.blue { border-top-color: var(--secondary); }
+        .theory-box h2 { color: var(--primary-dark); font-size: 1.25rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+        .theory-box.blue h2 { color: #0369a1; }
+        .theory-box p { color: #334155; line-height: 1.6; font-size: 0.95rem; margin-bottom: 10px; }
+        .theory-box ul, .theory-box ol { padding-left: 20px; color: #334155; line-height: 1.6; font-size: 0.95rem; margin-bottom: 10px; }
+        .theory-box li { margin-bottom: 5px; }
+
+        .highlight-quote {
+            background-color: #f0f9ff; border-left: 4px solid #0ea5e9;
+            padding: 12px 15px; margin-top: 15px; font-weight: bold; color: #0369a1; font-size: 0.95rem;
+            border-radius: 0 8px 8px 0;
+            font-family: monospace;
+            text-align: center;
+        }
+
+        /* Simulation Area */
+        .canvas-wrapper {
+            width: 100%; background: #e2e8f0; display: flex; justify-content: center;
+            position: relative; border-bottom: 3px solid #cbd5e1;
+            background-image: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%);
+        }
+        canvas { width: 100%; max-width: 1000px; height: auto; aspect-ratio: 21/10; display: block; }
+
+        /* Controls & Results */
+        .dashboard { display: flex; flex-wrap: wrap; padding: 20px; background-color: white; gap: 20px; }
+
+        .controls {
+            flex: 1.2; min-width: 300px; display: flex; flex-direction: column; gap: 15px;
+            padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;
+        }
+
+        .controls label { font-weight: bold; color: #334155; font-size: 1.05rem;}
+        .controls select {
+            padding: 12px; border-radius: 6px; border: 1px solid #94a3b8; font-size: 1rem; 
+            outline: none; cursor: pointer; background: white; font-weight: bold; color: #0f172a;
+        }
+
+        .action-btn {
+            padding: 16px; border: none; border-radius: 8px;
+            background-color: var(--primary); color: white; font-weight: bold; font-size: 1.1rem;
+            cursor: pointer; box-shadow: 0 4px 0 var(--primary-dark); transition: all 0.1s;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;
+        }
+        .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--primary-dark); }
+        .action-btn.blue { background-color: var(--secondary); box-shadow: 0 4px 0 #0284c7; }
+        .action-btn.blue:active { box-shadow: 0 0 0 #0284c7; }
+        .action-btn:disabled { background-color: #cbd5e1; color: #64748b; box-shadow: 0 4px 0 #94a3b8; cursor: not-allowed; }
+
+        .status-msg { text-align: center; color: #334155; font-weight: bold; font-size: 1.1rem; min-height: 24px; padding: 10px; background: #f1f5f9; border-radius: 6px; border: 1px solid #cbd5e1;}
+
+        /* Digital LCD Readout */
+        .results {
+            flex: 1; min-width: 280px; padding: 20px; background: #1e293b;
+            border-radius: 12px; border: 3px solid #334155; display: flex; flex-direction: column; justify-content: center;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .results h3 { color: #94a3b8; margin-bottom: 15px; text-align: center; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px;}
+        
+        .lcd-display {
+            background-color: var(--lcd-bg); padding: 15px; border-radius: 6px;
+            border: 2px solid #334155; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .lcd-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;}
+        .lcd-row:last-child { margin-bottom: 0; border-top: 1px dashed #475569; padding-top: 15px;}
+        
+        .lcd-label { color: #94a3b8; font-size: 0.95rem; font-weight: bold; text-transform: uppercase;}
+        
+        .lcd-value { 
+            font-family: 'Courier New', Courier, monospace; font-size: 2.2rem; color: var(--lcd-text); 
+            font-weight: bold; text-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
+        }
+
+        .lcd-unit { font-size: 1.2rem; color: #6ee7b7; margin-left: 5px;}
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Compressive Strength of Cement</h1>
+        <p>Testing Standard 70.6 mm Cement Mortar Cubes</p>
+    </header>
+
+    <div class="theory-grid">
+        <div class="theory-box">
+            <h2>🧱 Preparation & Curing</h2>
+            <ul>
+                <li><strong>Mix Ratio:</strong> 1:3 (Cement : Standard Sand). Dry mix for 1 min, add exact water, then gauge for 3 to 4 minutes.</li>
+                <li><strong>Molding:</strong> Place in a <strong>70.6 mm</strong> cube mold. Compact using a vibration machine (12000 ± 400 vpm) for exactly 2 minutes.</li>
+                <li><strong>Curing:</strong> Keep in a damp room (≥ 90% humidity) for 24 hours. Submerge demolded cubes in clean water until the exact testing day.</li>
+            </ul>
+        </div>
+        <div class="theory-box blue">
+            <h2>📏 Testing & Calculation</h2>
+            <ul>
+                <li><strong>Surface Area:</strong> The 70.6 mm cube has an exact bearing area of <strong>5000 mm²</strong>.</li>
+                <li><strong>Loading:</strong> The load is applied smoothly at a rate of <strong>35 N/mm²/minute</strong>.</li>
+                <li><strong>Result:</strong> Test 3 cubes for a specific age and take the average. Reject any cube that varies by more than ± 10% from the average.</li>
+            </ul>
+            <div class="highlight-quote">
+                Strength (MPa) = Failure Load (N) / 5000 mm²
+            </div>
+        </div>
+    </div>
+
+    <div class="canvas-wrapper">
+        <canvas id="simCanvas" width="1000" height="470"></canvas>
+    </div>
+
+    <div class="dashboard">
+        <div class="controls">
+            <label for="curing-age">Select Concrete Curing Age:</label>
+            <select id="curing-age">
+                <option value="3">3 Days Curing (~ 23 MPa for 43 Grade OPC)</option>
+                <option value="7">7 Days Curing (~ 33 MPa for 43 Grade OPC)</option>
+                <option value="28" selected>28 Days Curing (~ 43 MPa for 43 Grade OPC)</option>
+            </select>
+            
+            <button id="btn-action" class="action-btn">Start Testing Machine</button>
+            <div id="status-msg" class="status-msg">Cube wiped dry and centered on bearing block.</div>
+        </div>
+
+        <div class="results">
+            <h3>CTM Digital Readout</h3>
+            <div class="lcd-display">
+                <div class="lcd-row">
+                    <span class="lcd-label">Cube Area:</span>
+                    <div><span style="color:#e2e8f0; font-family: monospace; font-size: 1.4rem;">5000</span><span class="lcd-unit" style="font-size:0.9rem;">mm²</span></div>
+                </div>
+                <div class="lcd-row">
+                    <span class="lcd-label">Applied Load:</span>
+                    <div><span class="lcd-value" id="lcd-load">000.0</span><span class="lcd-unit">kN</span></div>
+                </div>
+                <div class="lcd-row">
+                    <span class="lcd-label">Compressive Strength:</span>
+                    <div><span class="lcd-value" id="lcd-result" style="color: #38bdf8; text-shadow: 0 0 8px rgba(56,189,248,0.6);">00.00</span><span class="lcd-unit" style="color:#bae6fd;">MPa</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const btnAction = document.getElementById('btn-action');
+    const selectAge = document.getElementById('curing-age');
+    const lcdLoad = document.getElementById('lcd-load');
+    const lcdResult = document.getElementById('lcd-result');
+    const statusMsg = document.getElementById('status-msg');
+
+    // Standard Cement Cube area in mm2 (70.6mm x 70.6mm ~ 4984.36 mm2, standard uses exactly 5000 mm2)
+    const areaMM2 = 5000;
+
+    // Expected Strengths in MPa for 43 Grade OPC Cement based on IS codes
+    const ageData = { 
+        '3': { min: 22.0, max: 25.0 }, 
+        '7': { min: 32.0, max: 36.0 }, 
+        '28': { min: 43.0, max: 48.0 } 
+    };
+
+    // Physics & State Variables
+    let state = 0; // 0: Idle, 1: Pressing down, 2: Loading, 3: Failed
+    let currentLoadKN = 0; 
+    let failureLoadKN = 0; 
+    let time = 0;
+    let shakeIntensity = 0;
+    
+    // Geometry
+    const mX = 500; // Center X
+    
+    // 70.6mm Cube dimensions (visual mapping)
+    const cW = 100; // Scaled for visibility
+    const cH = 100;
+    const cY = 380 - cH; // Base plate is at 380
+    
+    // Top Platen
+    let platenY = 120; // Starts high up
+    let targetPlatenY = cY; // Top of the cement cube
+
+    // Cracks & Dust
+    let crackPaths = [];
+    let dustParticles = [];
+
+    /**
+     * DRAWING FUNCTIONS
+     */
+    function drawScene() {
+        ctx.save();
+        
+        // Screen Shake Effect on Failure
+        if (shakeIntensity > 0) {
+            let dx = (Math.random() - 0.5) * shakeIntensity;
+            let dy = (Math.random() - 0.5) * shakeIntensity;
+            ctx.translate(dx, dy);
+            shakeIntensity -= 1; 
+            if (shakeIntensity < 0) shakeIntensity = 0;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawBackground();
+        drawMachine();
+        drawCementCube();
+        drawDust();
+
+        ctx.restore();
+    }
+
+    function drawBackground() {
+        // Lab wall
+        ctx.fillStyle = '#e2e8f0'; ctx.fillRect(0, 0, 1000, 470);
+        // Desk/Table
+        ctx.fillStyle = '#94a3b8'; ctx.fillRect(0, 420, 1000, 50);
+        ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
+        for(let i=0; i<1000; i+=50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 420); ctx.stroke(); }
+    }
+
+    function drawMachine() {
+        // CTM Frame Base
+        ctx.fillStyle = '#0f172a'; ctx.fillRect(mX - 220, 420, 440, 50);
+        ctx.fillStyle = '#020617'; ctx.fillRect(mX - 230, 450, 460, 20);
+        
+        // Fixed Bottom Bearing Block
+        ctx.fillStyle = '#475569'; ctx.fillRect(mX - 100, 380, 200, 40);
+        ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2; ctx.strokeRect(mX - 100, 380, 200, 40);
+
+        // Heavy Side Pillars
+        let pGrad = ctx.createLinearGradient(mX - 180, 0, mX - 140, 0);
+        pGrad.addColorStop(0, '#1e293b'); pGrad.addColorStop(0.5, '#475569'); pGrad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = pGrad;
+        ctx.fillRect(mX - 180, 50, 40, 370); // Left pillar
+        ctx.fillRect(mX + 140, 50, 40, 370); // Right pillar
+
+        // Top Fixed Crosshead
+        ctx.fillStyle = '#0f172a'; ctx.fillRect(mX - 220, 20, 440, 40);
+
+        // Moving Hydraulic Ram (Top Platen)
+        // Ram Cylinder
+        ctx.fillStyle = '#94a3b8'; ctx.fillRect(mX - 30, 60, 60, platenY - 60);
+        ctx.strokeStyle = '#334155'; ctx.lineWidth=2; ctx.strokeRect(mX - 30, 60, 60, platenY - 60);
+        
+        // Platen Head
+        ctx.fillStyle = '#475569'; ctx.fillRect(mX - 100, platenY - 20, 200, 20);
+        ctx.strokeRect(mX - 100, platenY - 20, 200, 20);
+    }
+
+    function drawCementCube() {
+        let isCrushed = (state === 3);
+        
+        // Slight visual compression squash if loading
+        let squash = (state === 2) ? (currentLoadKN / failureLoadKN) * 2 : 0; 
+        let currentY = cY + squash;
+        let currentH = cH - squash;
+
+        // Cube Body (70.6mm mortar)
+        ctx.fillStyle = '#94a3b8'; // Cement mortar gray
+        ctx.fillRect(mX - cW/2, currentY, cW, currentH);
+        ctx.strokeStyle = '#475569'; ctx.lineWidth = 2;
+        ctx.strokeRect(mX - cW/2, currentY, cW, currentH);
+
+        // Mortar Texture (Fine sand grains)
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        for(let i=0; i<80; i++) {
+            let px = mX - cW/2 + 2 + ((i*17) % (cW-4));
+            let py = currentY + 2 + ((i*23) % (currentH-4));
+            ctx.beginPath(); ctx.arc(px, py, 1, 0, Math.PI*2); ctx.fill();
+        }
+
+        // Draw Cracks if Failed
+        if (isCrushed) {
+            ctx.strokeStyle = '#020617'; ctx.lineWidth = 2;
+            crackPaths.forEach(path => {
+                ctx.beginPath();
+                ctx.moveTo(mX - cW/2 + path[0].x, currentY + path[0].y);
+                for(let i=1; i<path.length; i++) {
+                    ctx.lineTo(mX - cW/2 + path[i].x, currentY + path[i].y);
+                }
+                ctx.stroke();
+            });
+
+            // Draw shattered edge chunk falling away
+            ctx.fillStyle = '#64748b';
+            ctx.beginPath();
+            ctx.moveTo(mX + cW/2, currentY + 20);
+            ctx.lineTo(mX + cW/2 + 15, currentY + 40);
+            ctx.lineTo(mX + cW/2, currentY + 70);
+            ctx.fill();
+        }
+        
+        // Dimensions Label
+        if (state === 0) {
+            ctx.fillStyle = '#334155'; ctx.font = '12px Arial'; ctx.textAlign = 'center';
+            ctx.fillText("70.6 mm", mX, cY + cH/2 + 5);
+        }
+    }
+
+    function drawDust() {
+        ctx.fillStyle = '#cbd5e1'; // Cement dust
+        dustParticles.forEach(p => {
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+        });
+    }
+
+    /**
+     * PHYSICS & ANIMATION ENGINE
+     */
+    function updatePhysics(deltaTime) {
+        time += deltaTime;
+
+        if (state === 1) {
+            // Platen moves down freely to touch the cube
+            platenY += 80 * deltaTime;
+            if (platenY >= targetPlatenY) {
+                platenY = targetPlatenY;
+                state = 2; // Begin loading
+                statusMsg.innerText = "Applying Load at 35 N/mm²/minute...";
+                statusMsg.style.backgroundColor = '#fef3c7'; // yellow
+                statusMsg.style.borderColor = '#fde047';
+                statusMsg.style.color = '#b45309';
+            }
+        } 
+        else if (state === 2) {
+            // Loading phase
+            // Increase load rapidly for simulation (real life takes ~1 min, we take ~3s)
+            currentLoadKN += (failureLoadKN / 3.5) * deltaTime;
+            
+            // Calculate Compressive Strength: Load(N) / Area(mm2)
+            // Load(N) = currentLoadKN * 1000
+            // Area = 5000 mm2
+            // Strength (MPa) = (KN * 1000) / 5000 = KN / 5
+            let currentStrengthMPa = currentLoadKN / 5;
+
+            // Update LCD
+            lcdLoad.innerText = currentLoadKN.toFixed(1).padStart(5, '0');
+            lcdResult.innerText = currentStrengthMPa.toFixed(2).padStart(5, '0');
+
+            // Platen moves down microscopically
+            platenY = targetPlatenY + ((currentLoadKN / failureLoadKN) * 2); 
+
+            if (currentLoadKN >= failureLoadKN) {
+                // CEMENT CUBE FAILS!
+                currentLoadKN = 0; 
+                state = 3;
+                shakeIntensity = 15; 
+                generateCracks();
+                finalizeTest(currentStrengthMPa);
+            }
+        }
+        else if (state === 3) {
+            // Update flying dust
+            for(let i=dustParticles.length-1; i>=0; i--) {
+                let p = dustParticles[i];
+                p.x += p.vx * deltaTime;
+                p.y += p.vy * deltaTime;
+                p.vy += 600 * deltaTime; // Gravity
+                
+                // Bounce on bottom platen (Y=380)
+                if (p.y > 380) {
+                    p.y = 380;
+                    p.vy *= -0.3;
+                    p.vx *= 0.5;
+                }
+                
+                p.life -= deltaTime;
+                if(p.life <= 0) dustParticles.splice(i, 1);
+            }
+        }
+    }
+
+    function generateCracks() {
+        crackPaths = [];
+        // Generate random jagged cracks forming the classic hourglass failure pattern
+        for(let c=0; c<4; c++) {
+            let path = [];
+            // Start cracks from corners towards center
+            let cx = (c%2 === 0) ? Math.random() * 20 : cW - Math.random() * 20;
+            let cy = (c < 2) ? 0 : cH;
+            path.push({x: cx, y: cy});
+            
+            for(let steps=0; steps<5; steps++) {
+                cy += (c < 2) ? 10 + Math.random()*10 : -(10 + Math.random()*10);
+                cx += (cx < cW/2) ? 5 + Math.random()*10 : -(5 + Math.random()*10); 
+                path.push({x: cx, y: cy});
+            }
+            crackPaths.push(path);
+        }
+
+        // Generate dust explosion
+        dustParticles = [];
+        for(let i=0; i<30; i++) {
+            dustParticles.push({
+                x: mX + (Math.random() - 0.5) * cW,
+                y: cY + Math.random() * cH,
+                vx: (Math.random() - 0.5) * 300,
+                vy: (Math.random() - 1.0) * 150,
+                r: 1 + Math.random() * 2,
+                life: 1.5 + Math.random() * 1.5
+            });
+        }
+    }
+
+    function finalizeTest(finalStrengthMPa) {
+        btnAction.disabled = false;
+        btnAction.innerText = "Reset Machine & Test New Cube";
+        btnAction.classList.add('blue');
+        
+        statusMsg.innerText = `💥 CUBE CRUSHED! Strength: ${finalStrengthMPa.toFixed(2)} MPa. (Avg of 3 required for final result).`;
+        statusMsg.style.backgroundColor = '#f0fdf4'; 
+        statusMsg.style.borderColor = '#86efac';
+        statusMsg.style.color = '#166534';
+
+        // Lock in the final load failure state on LCD
+        lcdLoad.innerText = "000.0";
+        lcdLoad.style.color = 'var(--lcd-alert)';
+        
+        // Flash Strength Result
+        lcdResult.innerText = finalStrengthMPa.toFixed(2).padStart(5, '0');
+        lcdResult.style.color = '#34d399'; // Green
+        lcdResult.style.textShadow = '0 0 8px rgba(52, 211, 153, 0.6)';
+        document.querySelector('.lcd-display').style.borderColor = '#22c55e';
+    }
+
+    /**
+     * CONTROLS
+     */
+    btnAction.addEventListener('click', () => {
+        if (state === 0) {
+            // Start Test
+            state = 1;
+            currentLoadKN = 0;
+            time = 0;
+            crackPaths = [];
+            dustParticles = [];
+            
+            btnAction.disabled = true;
+            btnAction.innerText = "Machine Operating...";
+            
+            statusMsg.innerText = "Lowering Platen...";
+            statusMsg.style.backgroundColor = '#e0f2fe';
+            statusMsg.style.borderColor = '#bae6fd';
+            statusMsg.style.color = '#0284c7';
+            
+            document.querySelector('.lcd-display').style.borderColor = '#334155';
+            lcdResult.style.color = '#38bdf8';
+            lcdResult.style.textShadow = '0 0 8px rgba(56, 189, 248, 0.6)';
+            lcdLoad.style.color = 'var(--lcd-text)';
+            
+            // Calculate Failure Load based on selected curing age
+            // Load (kN) = Strength (MPa) * Area(5000) / 1000 = Strength * 5
+            let age = ageData[selectAge.value];
+            let targetMPa = Math.random() * (age.max - age.min) + age.min;
+            failureLoadKN = targetMPa * 5;
+
+        } else if (state === 3) {
+            // Reset
+            state = 0;
+            platenY = 120;
+            currentLoadKN = 0;
+            crackPaths = [];
+            dustParticles = [];
+            
+            lcdLoad.innerText = "000.0";
+            lcdResult.innerText = "00.00";
+            
+            document.querySelector('.lcd-display').style.borderColor = '#334155';
+            lcdResult.style.color = '#38bdf8';
+            lcdResult.style.textShadow = '0 0 8px rgba(56, 189, 248, 0.6)';
+            lcdLoad.style.color = 'var(--lcd-text)';
+            
+            btnAction.innerText = "Start Testing Machine";
+            btnAction.classList.remove('blue');
+            
+            statusMsg.innerText = "Cube wiped dry and centered on bearing block.";
+            statusMsg.style.backgroundColor = '#f1f5f9';
+            statusMsg.style.borderColor = '#cbd5e1';
+            statusMsg.style.color = '#334155';
+        }
+    });
+
+    selectAge.addEventListener('change', () => {
+        if (state === 3) btnAction.click(); // Auto reset if changing age after a test
+    });
+
+    /**
+     * ANIMATION LOOP
+     */
+    let lastTime = 0;
+    function animate(timestamp) {
+        let deltaTime = (timestamp - lastTime) / 1000;
+        if (!lastTime) deltaTime = 0;
+        lastTime = timestamp;
+        if (deltaTime > 0.1) deltaTime = 0.1; // Cap dt
+
+        updatePhysics(deltaTime);
+        drawScene();
+
+        requestAnimationFrame(animate);
+    }
+
+    // Initialize
+    requestAnimationFrame(animate);
+
+</script>
+</body>
+</html>

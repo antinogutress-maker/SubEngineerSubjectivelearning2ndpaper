@@ -1,0 +1,566 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aggregate Impact Value (AIV) Test Simulation</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --panel-bg: #ffffff;
+            --text-main: #0f172a;
+            --primary: #ea580c; /* Construction Orange */
+            --primary-dark: #c2410c;
+            --secondary: #334155;
+            --machine-steel: #64748b;
+            --hammer-yellow: #eab308;
+            --lcd-bg: #0f172a;
+            --lcd-text: #38bdf8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center; padding: 20px 10px;
+        }
+
+        .container {
+            width: 100%; max-width: 1000px; background-color: var(--panel-bg);
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        header {
+            background-color: #1e293b; color: white; padding: 25px; text-align: center;
+            border-bottom: 5px solid var(--primary);
+        }
+
+        header h1 { font-size: 2rem; margin-bottom: 8px; color: #fef08a; letter-spacing: 1px;}
+        header p { font-size: 1.1rem; color: #cbd5e1; }
+
+        /* Theory Section */
+        .theory-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 25px;
+            background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;
+        }
+        @media (max-width: 768px) { .theory-grid { grid-template-columns: 1fr; } }
+
+        .theory-box {
+            background: white; padding: 20px; border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid var(--primary);
+        }
+        .theory-box h2 { color: var(--primary-dark); font-size: 1.25rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+        .theory-box p { color: #334155; line-height: 1.6; font-size: 0.95rem; margin-bottom: 10px; }
+        .theory-box ul, .theory-box ol { padding-left: 20px; color: #334155; line-height: 1.6; font-size: 0.95rem; margin-bottom: 10px; }
+        .theory-box li { margin-bottom: 5px; }
+
+        /* Simulation Area */
+        .canvas-wrapper {
+            width: 100%; background: #e2e8f0; display: flex; justify-content: center;
+            position: relative; border-bottom: 3px solid #cbd5e1;
+            background-image: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%);
+        }
+        canvas { width: 100%; max-width: 1000px; height: auto; aspect-ratio: 21/9; display: block; }
+
+        /* Controls & Results */
+        .dashboard { display: flex; flex-wrap: wrap; padding: 20px; background-color: white; gap: 20px; }
+
+        .controls {
+            flex: 1.2; min-width: 300px; display: flex; flex-direction: column; gap: 15px;
+            padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;
+        }
+
+        .controls label { font-weight: bold; color: #334155; font-size: 1.05rem;}
+        .controls select {
+            padding: 12px; border-radius: 6px; border: 1px solid #94a3b8; font-size: 1rem; 
+            outline: none; cursor: pointer; background: white; font-weight: bold;
+        }
+
+        .action-btn {
+            padding: 16px; border: none; border-radius: 8px;
+            background-color: var(--primary); color: white; font-weight: bold; font-size: 1.1rem;
+            cursor: pointer; box-shadow: 0 4px 0 var(--primary-dark); transition: all 0.1s;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;
+        }
+        .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--primary-dark); }
+        .action-btn.secondary { background-color: #0284c7; box-shadow: 0 4px 0 #0369a1; }
+        .action-btn.secondary:active { box-shadow: 0 0 0 #0369a1; }
+        .action-btn:disabled { background-color: #cbd5e1; color: #64748b; box-shadow: 0 4px 0 #94a3b8; cursor: not-allowed; }
+
+        .status-msg { text-align: center; color: var(--primary-dark); font-weight: bold; font-size: 1.1rem; min-height: 24px;}
+
+        /* Digital LCD Readout */
+        .results {
+            flex: 1; min-width: 250px; padding: 20px; background: #1e293b;
+            border-radius: 12px; border: 3px solid #334155; display: flex; flex-direction: column; justify-content: center;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .results h3 { color: #94a3b8; margin-bottom: 10px; text-align: center; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px;}
+        
+        .lcd-display {
+            background-color: var(--lcd-bg); padding: 15px; border-radius: 6px;
+            border: 2px solid #334155; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .lcd-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;}
+        .lcd-row:last-child { margin-bottom: 0; border-top: 1px dashed #475569; padding-top: 10px; margin-top: 10px;}
+        
+        .lcd-label { color: #94a3b8; font-size: 0.85rem; font-weight: bold; text-transform: uppercase;}
+        .lcd-value { 
+            font-family: 'Courier New', Courier, monospace; font-size: 1.8rem; color: var(--lcd-text); 
+            font-weight: bold; text-shadow: 0 0 5px rgba(56, 189, 248, 0.4);
+        }
+        .lcd-value.highlight { color: #facc15; text-shadow: 0 0 5px rgba(250, 204, 21, 0.4); font-size: 2.2rem;}
+
+        .lcd-unit { font-size: 1rem; color: #7dd3fc; margin-left: 5px;}
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Aggregate Impact Value (AIV)</h1>
+        <p>Measuring the Toughness of Aggregates against Sudden Shocks</p>
+    </header>
+
+    <div class="theory-grid">
+        <div class="theory-box">
+            <h2>⚙️ Apparatus & Preparation</h2>
+            <ul>
+                <li><strong>Machine:</strong> Steel frame with a hammer weighing exactly <strong>13.5 to 14 kg</strong>.</li>
+                <li><strong>The Drop:</strong> Hammer drops from a strict height of <strong>380 mm</strong> (± 5 mm).</li>
+                <li><strong>IS Sieves:</strong> 12.5 mm, 10 mm, and 2.36 mm.</li>
+                <li><strong>Sample Prep:</strong> Aggregates passing 12.5 mm but retained on 10 mm are oven-dried.</li>
+                <li><strong>Filling:</strong> The cylindrical cup is filled in 3 layers, each tamped 25 times. The total weight is <strong>W₁</strong>.</li>
+            </ul>
+        </div>
+        <div class="theory-box">
+            <h2>💥 Procedure & Calculation</h2>
+            <ol>
+                <li>Place the cup in the machine. Raise the hammer to 380 mm and let it drop freely.</li>
+                <li>Deliver exactly <strong>15 blows</strong>.</li>
+                <li>Remove the crushed sample and sieve it through the <strong>2.36 mm</strong> IS Sieve.</li>
+                <li>Weigh the dust that passes through the sieve. This is <strong>W₂</strong>.</li>
+            </ol>
+            <p style="text-align: center; margin-top: 10px; font-weight: bold; font-size: 1.1rem; color: #c2410c;">
+                AIV = (W₂ / W₁) × 100 %
+            </p>
+        </div>
+    </div>
+
+    <div class="canvas-wrapper">
+        <canvas id="simCanvas" width="1000" height="420"></canvas>
+    </div>
+
+    <div class="dashboard">
+        <div class="controls">
+            <label for="aggregate-type">Select Aggregate Quality:</label>
+            <select id="aggregate-type">
+                <option value="tough" selected>Strong & Tough (Good for Highways)</option>
+                <option value="medium">Medium Strength (Standard Concrete)</option>
+                <option value="weak">Weak / Brittle (Poor Quality)</option>
+            </select>
+            
+            <button id="btn-action" class="action-btn">Start Impact Test (15 Blows)</button>
+            <div id="status-msg" class="status-msg">Cup filled with sample (W₁). Ready to test.</div>
+        </div>
+
+        <div class="results">
+            <h3>Laboratory Data</h3>
+            <div class="lcd-display">
+                <div class="lcd-row">
+                    <span class="lcd-label">Blows:</span>
+                    <div><span class="lcd-value" id="lcd-blows" style="color: #fca5a5;">00</span><span class="lcd-unit">/15</span></div>
+                </div>
+                <div class="lcd-row">
+                    <span class="lcd-label">Total Sample (W₁):</span>
+                    <div><span class="lcd-value">350</span><span class="lcd-unit">g</span></div>
+                </div>
+                <div class="lcd-row">
+                    <span class="lcd-label">Passing 2.36mm (W₂):</span>
+                    <div><span class="lcd-value" id="lcd-w2">---</span><span class="lcd-unit">g</span></div>
+                </div>
+                <div class="lcd-row">
+                    <span class="lcd-label">Impact Value (AIV):</span>
+                    <div><span class="lcd-value highlight" id="lcd-aiv">--.-</span><span class="lcd-unit">%</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const btnAction = document.getElementById('btn-action');
+    const selectAgg = document.getElementById('aggregate-type');
+    const lcdBlows = document.getElementById('lcd-blows');
+    const lcdW2 = document.getElementById('lcd-w2');
+    const lcdAIV = document.getElementById('lcd-aiv');
+    const statusMsg = document.getElementById('status-msg');
+
+    // Aggregate Data Mapping
+    const aggData = {
+        tough: { minW2: 45, maxW2: 55, color: '#475569' },    // AIV ~ 12-15% (Very Tough)
+        medium: { minW2: 85, maxW2: 100, color: '#64748b' },  // AIV ~ 24-28% (Medium)
+        weak: { minW2: 130, maxW2: 155, color: '#9ca3af' }    // AIV ~ 37-44% (Weak/Brittle)
+    };
+
+    // Constant W1 weight for the cup
+    const W1 = 350; 
+    let finalW2 = 0;
+
+    // Simulation State
+    // 0: Idle, 1: Impacting, 2: Ready to Sieve, 3: Sieving, 4: Done
+    let state = 0; 
+    let blows = 0;
+    
+    // Machine Geometry
+    const mX = 400; // Machine center X
+    const mY = 50;  // Machine top Y
+    const baseWidth = 240;
+    const baseHeight = 60;
+    const cupW = 80;
+    const cupH = 60;
+    const cupY = 360 - cupH;
+    
+    // Hammer Physics
+    let hammerY = 120; // Starts at top (380mm drop scale)
+    let hammerDropY = cupY - 50; // Hammer height is 50, so bottom touches cup top
+    let hammerVy = 0;
+    let hammerPhase = 'up'; // 'up', 'down', 'hit'
+    let shakeIntensity = 0;
+
+    // Aggregate Particles Array
+    let particles = [];
+
+    function initParticles() {
+        particles = [];
+        let color = aggData[selectAgg.value].color;
+        // Fill cup with large particles
+        for(let i=0; i<40; i++) {
+            particles.push({
+                x: mX - cupW/2 + 10 + Math.random()*(cupW-20),
+                y: cupY + 10 + Math.random()*(cupH-15),
+                r: 6 + Math.random()*3,
+                color: color,
+                crushed: false
+            });
+        }
+    }
+
+    /**
+     * DRAWING FUNCTIONS
+     */
+    function drawScene() {
+        ctx.save();
+
+        // Screen Shake Effect on Impact
+        if (shakeIntensity > 0) {
+            let dx = (Math.random() - 0.5) * shakeIntensity;
+            let dy = (Math.random() - 0.5) * shakeIntensity;
+            ctx.translate(dx, dy);
+            shakeIntensity -= 2; // Fade out shake
+            if (shakeIntensity < 0) shakeIntensity = 0;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (state < 3) {
+            drawImpactMachine();
+            drawAggregatesInCup();
+        } else {
+            drawSievingProcess();
+        }
+
+        ctx.restore();
+    }
+
+    function drawImpactMachine() {
+        // Concrete Base Pedestal
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(mX - baseWidth/2 - 20, 360, baseWidth + 40, 60);
+        ctx.strokeStyle = '#475569'; ctx.lineWidth = 3;
+        ctx.strokeRect(mX - baseWidth/2 - 20, 360, baseWidth + 40, 60);
+
+        // Steel Base
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(mX - baseWidth/2, 340, baseWidth, 20);
+
+        // Vertical Guide Columns
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(mX - 90, mY, 15, 290);
+        ctx.fillRect(mX + 75, mY, 15, 290);
+
+        // Top Crossbar
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(mX - 110, mY - 20, 220, 30);
+        
+        // Pulley / Release Mech
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath(); ctx.arc(mX, mY - 15, 15, 0, Math.PI*2); ctx.fill();
+
+        // Lifting Cable
+        ctx.strokeStyle = '#475569'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(mX, mY); ctx.lineTo(mX, hammerY); ctx.stroke();
+
+        // --- CYLINDRICAL CUP ---
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(mX - cupW/2, cupY, cupW, cupH);
+        ctx.strokeStyle = '#475569'; ctx.lineWidth = 4;
+        ctx.strokeRect(mX - cupW/2, cupY, cupW, cupH);
+        // Cup Rim
+        ctx.beginPath(); ctx.ellipse(mX, cupY, cupW/2, 8, 0, 0, Math.PI*2); ctx.stroke();
+
+        // --- HAMMER (14 kg) ---
+        ctx.fillStyle = '#eab308'; // Yellow heavy hammer
+        ctx.beginPath(); ctx.roundRect(mX - 60, hammerY, 120, 50, 4); ctx.fill();
+        ctx.strokeStyle = '#a16207'; ctx.lineWidth = 3; ctx.stroke();
+        
+        // Hammer guides (sliding on columns)
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(mX - 95, hammerY + 10, 25, 30);
+        ctx.fillRect(mX + 70, hammerY + 10, 25, 30);
+
+        // 380mm Height Marker
+        ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(mX + 100, 120); ctx.lineTo(mX + 160, 120); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(mX + 100, cupY); ctx.lineTo(mX + 160, cupY); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(mX + 130, 120); ctx.lineTo(mX + 130, cupY); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#ef4444'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'left';
+        ctx.fillText("380 mm", mX + 140, 220);
+        ctx.fillText("Drop Height", mX + 140, 240);
+    }
+
+    function drawAggregatesInCup() {
+        particles.forEach(p => {
+            ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 1; ctx.stroke();
+        });
+    }
+
+    function drawSievingProcess() {
+        // Draw Sieve (2.36mm)
+        const sX = 500, sY = 200, sW = 160, sH = 30;
+        
+        ctx.fillStyle = '#cd7f32'; // Brass sieve frame
+        ctx.fillRect(sX - sW/2, sY, sW, sH);
+        ctx.strokeStyle = '#8b4513'; ctx.lineWidth = 4; ctx.strokeRect(sX - sW/2, sY, sW, sH);
+        
+        // Sieve Mesh
+        ctx.strokeStyle = '#475569'; ctx.lineWidth = 1;
+        for(let i = sX - sW/2 + 5; i < sX + sW/2; i+=5) {
+            ctx.beginPath(); ctx.moveTo(i, sY + sH); ctx.lineTo(i, sY + sH + 10); ctx.stroke();
+        }
+
+        ctx.fillStyle = 'white'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'center';
+        ctx.fillText("2.36 mm IS Sieve", sX, sY + 20);
+
+        // Draw Pan below sieve
+        ctx.fillStyle = '#94a3b8';
+        ctx.beginPath(); ctx.moveTo(sX - sW/2 + 10, sY + 120); ctx.lineTo(sX + sW/2 - 10, sY + 120); ctx.lineTo(sX + sW/2, sY + 160); ctx.lineTo(sX - sW/2, sY + 160); ctx.fill();
+
+        // Draw aggregates bouncing on sieve and dust falling
+        particles.forEach(p => {
+            ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+        });
+    }
+
+    /**
+     * PHYSICS & ANIMATION ENGINE
+     */
+    function updatePhysics(deltaTime) {
+        if (state === 1) {
+            // Impact Machine Running
+            if (hammerPhase === 'up') {
+                hammerY -= 150 * deltaTime; // Winch pulls up
+                if (hammerY <= 120) {
+                    hammerY = 120;
+                    hammerPhase = 'down';
+                }
+            } else if (hammerPhase === 'down') {
+                hammerVy += 3000 * deltaTime; // Gravity acceleration
+                hammerY += hammerVy * deltaTime;
+                
+                if (hammerY >= hammerDropY) {
+                    // IMPACT!
+                    hammerY = hammerDropY;
+                    hammerVy = 0;
+                    hammerPhase = 'hit';
+                    shakeIntensity = 15; // Trigger screen shake
+                    
+                    blows++;
+                    lcdBlows.innerText = blows.toString().padStart(2, '0');
+                    
+                    crushAggregates();
+
+                    if (blows >= 15) {
+                        state = 2; // Finished 15 blows
+                        btnAction.disabled = false;
+                        btnAction.innerText = "Step 2: Sieve & Calculate";
+                        btnAction.className = "action-btn secondary";
+                        statusMsg.innerText = "15 blows completed. Sample crushed. Ready to sieve.";
+                    } else {
+                        // Small pause before lifting again
+                        setTimeout(() => { if(state === 1) hammerPhase = 'up'; }, 200);
+                    }
+                }
+            }
+        } 
+        else if (state === 3) {
+            // Sieving Animation
+            // Move particles down onto sieve
+            particles.forEach(p => {
+                p.vy += 800 * deltaTime; // gravity
+                p.y += p.vy * deltaTime;
+
+                // Hit the sieve (Y = 200)
+                if (p.y >= 200 && p.y <= 210) {
+                    if (p.crushed) {
+                        // Dust passes through (2.36mm simulated by 'crushed' flag)
+                        p.vy *= 0.5; // Slow down slightly through mesh
+                    } else {
+                        // Large particles stay on top
+                        p.y = 195 - Math.random()*10;
+                        p.vy = 0;
+                        p.x += (Math.random()-0.5)*2; // Jiggle
+                    }
+                }
+
+                // Hit the pan (Y = 320)
+                if (p.crushed && p.y >= 315) {
+                    p.y = 315 - Math.random()*10;
+                    p.vy = 0;
+                    p.x += (Math.random()-0.5)*2;
+                }
+            });
+        }
+    }
+
+    function crushAggregates() {
+        // The weaker the aggregate, the more particles crush into dust per blow
+        let type = selectAgg.value;
+        let crushChance = type === 'weak' ? 0.2 : (type === 'medium' ? 0.12 : 0.06);
+
+        let newDust = [];
+        for(let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            if (!p.crushed && Math.random() < crushChance) {
+                // Break large particle into 3 small dust particles
+                p.crushed = true;
+                p.r = 2; // Shrink original
+                
+                newDust.push({ x: p.x + 5, y: p.y, r: 2, color: p.color, crushed: true, vy: 0 });
+                newDust.push({ x: p.x - 5, y: p.y, r: 2, color: p.color, crushed: true, vy: 0 });
+            }
+        }
+        particles = particles.concat(newDust);
+    }
+
+    /**
+     * CONTROLS
+     */
+    btnAction.addEventListener('click', () => {
+        if (state === 0 || state === 4) {
+            // Start Impact Test
+            state = 1;
+            blows = 0;
+            hammerPhase = 'up';
+            hammerVy = 0;
+            initParticles();
+            
+            lcdBlows.innerText = "00";
+            lcdW2.innerText = "---";
+            lcdAIV.innerText = "--.-";
+            lcdAIV.style.color = 'var(--lcd-text)';
+            
+            btnAction.disabled = true;
+            btnAction.innerText = "Hammer Dropping...";
+            statusMsg.innerText = "Applying sudden shocks to test toughness...";
+        } 
+        else if (state === 2) {
+            // Start Sieving
+            state = 3;
+            btnAction.disabled = true;
+            btnAction.innerText = "Sieving...";
+            statusMsg.innerText = "Separating crushed dust passing through 2.36mm sieve...";
+
+            // Setup particles for falling animation
+            particles.forEach(p => {
+                p.x = 500 + (Math.random()*80 - 40);
+                p.y = 50 + Math.random()*50;
+                p.vy = 0;
+            });
+
+            // Calculate final W2 based on quality
+            let data = aggData[selectAgg.value];
+            finalW2 = Math.floor(Math.random() * (data.maxW2 - data.minW2 + 1) + data.minW2);
+
+            // Wait for animation to finish, then show results
+            setTimeout(() => {
+                state = 4;
+                showResults();
+            }, 2500);
+        }
+    });
+
+    selectAgg.addEventListener('change', () => {
+        if (state === 0 || state === 4) {
+            initParticles();
+            drawScene(); // Update color immediately
+        }
+    });
+
+    function showResults() {
+        lcdW2.innerText = finalW2.toString();
+        
+        let aiv = (finalW2 / W1) * 100;
+        lcdAIV.innerText = aiv.toFixed(1);
+        
+        // Color code AIV Result
+        if (aiv < 20) {
+            lcdAIV.style.color = '#34d399'; // Green (Tough)
+            statusMsg.innerText = "✅ Result: AIV < 20%. Exceptionally strong. Perfect for road surfaces.";
+        } else if (aiv < 30) {
+            lcdAIV.style.color = '#facc15'; // Yellow (Medium)
+            statusMsg.innerText = "✅ Result: AIV < 30%. Good strength. Acceptable for standard concrete.";
+        } else {
+            lcdAIV.style.color = '#f87171'; // Red (Weak)
+            statusMsg.innerText = "❌ Result: AIV > 30%. Weak and brittle. Not recommended for heavy loads.";
+        }
+
+        btnAction.disabled = false;
+        btnAction.innerText = "Reset & Test Another Sample";
+        btnAction.className = "action-btn";
+    }
+
+    /**
+     * ANIMATION LOOP
+     */
+    let lastTime = 0;
+    function animate(timestamp) {
+        let deltaTime = (timestamp - lastTime) / 1000;
+        if (!lastTime) deltaTime = 0;
+        lastTime = timestamp;
+        if (deltaTime > 0.1) deltaTime = 0.1; // Cap dt
+
+        updatePhysics(deltaTime);
+        drawScene();
+
+        requestAnimationFrame(animate);
+    }
+
+    // Initialize
+    initParticles();
+    requestAnimationFrame(animate);
+
+</script>
+</body>
+</html>

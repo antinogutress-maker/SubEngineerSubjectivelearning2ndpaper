@@ -1,0 +1,605 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Softening Point of Bitumen (Ring and Ball Test)</title>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --panel-bg: #ffffff;
+            --text-main: #0f172a;
+            --primary: #ca8a04; /* Brass/Amber */
+            --primary-dark: #a16207;
+            --secondary: #0284c7; /* Science Blue */
+            --bitumen: #020617; /* Deep Black */
+            --lcd-bg: #020617;
+            --lcd-text: #ef4444; /* Red digital text */
+            --lcd-green: #22c55e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center; padding: 20px 10px;
+        }
+
+        .container {
+            width: 100%; max-width: 1050px; background-color: var(--panel-bg);
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        header {
+            background-color: #0f172a; color: white; padding: 25px; text-align: center;
+            border-bottom: 5px solid var(--primary);
+            background-image: linear-gradient(to right, #0f172a, #1e293b);
+        }
+
+        header h1 { font-size: 2.2rem; margin-bottom: 8px; color: #fef08a; letter-spacing: 1px;}
+        header p { font-size: 1.1rem; color: #cbd5e1; }
+
+        /* Theory Section */
+        .theory-grid {
+            display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; padding: 25px;
+            background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;
+        }
+        @media (max-width: 768px) { .theory-grid { grid-template-columns: 1fr; } }
+
+        .theory-box {
+            background: white; padding: 20px; border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid var(--primary);
+        }
+        .theory-box.blue { border-top-color: var(--secondary); }
+        .theory-box h2 { color: var(--primary-dark); font-size: 1.3rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+        .theory-box.blue h2 { color: #0369a1; }
+        .theory-box p { color: #334155; line-height: 1.6; font-size: 0.95rem; margin-bottom: 10px; }
+        .theory-box ul { padding-left: 20px; color: #334155; line-height: 1.6; font-size: 0.95rem; margin-bottom: 10px; }
+        .theory-box li { margin-bottom: 5px; }
+
+        .highlight-quote {
+            background-color: #fffbeb; border-left: 4px solid #f59e0b;
+            padding: 12px 15px; margin-top: 15px; font-style: italic; color: #92400e; font-size: 0.95rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Simulation Area */
+        .canvas-wrapper {
+            width: 100%; background: #e2e8f0; display: flex; justify-content: center;
+            position: relative; border-bottom: 3px solid #cbd5e1;
+            background-image: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%);
+        }
+        canvas { width: 100%; max-width: 1000px; height: auto; aspect-ratio: 21/10; display: block; }
+
+        /* Controls & Results */
+        .dashboard { display: flex; flex-wrap: wrap; padding: 20px; background-color: white; gap: 20px; }
+
+        .controls {
+            flex: 1.2; min-width: 300px; display: flex; flex-direction: column; gap: 15px;
+            padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;
+        }
+
+        .controls label { font-weight: bold; color: #334155; font-size: 1.05rem;}
+        .controls select {
+            padding: 12px; border-radius: 6px; border: 1px solid #94a3b8; font-size: 1rem; 
+            outline: none; cursor: pointer; background: white; font-weight: bold; color: #0f172a;
+        }
+
+        .action-btn {
+            padding: 16px; border: none; border-radius: 8px;
+            background-color: var(--primary); color: white; font-weight: bold; font-size: 1.1rem;
+            cursor: pointer; box-shadow: 0 4px 0 var(--primary-dark); transition: all 0.1s;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;
+        }
+        .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--primary-dark); }
+        .action-btn:disabled { background-color: #cbd5e1; color: #64748b; box-shadow: 0 4px 0 #94a3b8; cursor: not-allowed; }
+
+        .status-msg { text-align: center; color: var(--primary-dark); font-weight: bold; font-size: 1.1rem; min-height: 24px; padding: 10px; background: #fef3c7; border-radius: 6px; border: 1px solid #fde047;}
+
+        /* Digital LCD Readout */
+        .results {
+            flex: 1; min-width: 280px; padding: 20px; background: #1e293b;
+            border-radius: 12px; border: 3px solid #334155; display: flex; flex-direction: column; justify-content: center;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .results h3 { color: #94a3b8; margin-bottom: 15px; text-align: center; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px;}
+        
+        .lcd-display {
+            background-color: var(--lcd-bg); padding: 15px; border-radius: 6px;
+            border: 2px solid #334155; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .lcd-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;}
+        .lcd-row:last-child { margin-bottom: 0; border-top: 1px dashed #475569; padding-top: 15px;}
+        
+        .lcd-label { color: #94a3b8; font-size: 0.95rem; font-weight: bold; text-transform: uppercase;}
+        
+        .lcd-value { 
+            font-family: 'Courier New', Courier, monospace; font-size: 2.2rem; color: var(--lcd-text); 
+            font-weight: bold; text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+        .lcd-time {
+            font-family: 'Courier New', Courier, monospace; font-size: 1.5rem; color: var(--lcd-green); 
+            font-weight: bold; text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+        }
+
+        .lcd-unit { font-size: 1.2rem; color: #fca5a5; margin-left: 5px;}
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Softening Point of Bitumen</h1>
+        <p>Ring and Ball Test (Thermoplastic Behavior Analysis)</p>
+    </header>
+
+    <div class="theory-grid">
+        <div class="theory-box blue">
+            <h2>☀️ Why We Do It (The Field Reality)</h2>
+            <p>Bitumen is <strong>thermoplastic</strong>; it doesn't melt instantly like ice, it gradually softens as temperature rises.</p>
+            <p>During summer in the Terai region, road surface temperatures can exceed 55°C. If bitumen softens at a lower temperature (e.g., 45°C), heavy trucks will push the aggregates around, causing deep <strong>ruts (tire tracks)</strong> and <strong>"bleeding"</strong> (liquid bitumen rising to the surface).</p>
+        </div>
+        <div class="theory-box">
+            <h2>🔬 Apparatus & Procedure</h2>
+            <ul>
+                <li><strong>Apparatus:</strong> Brass frame, tapered brass rings, two 3.5g steel balls, liquid bath, thermometer, and a magnetic stirrer.</li>
+                <li><strong>Assembly:</strong> Bitumen is poured flush into the rings. A steel ball is placed perfectly in the center.</li>
+                <li><strong>Heating (Crucial):</strong> The strict rule is heating the water at exactly <strong>5°C per minute</strong>. Stirring ensures uniform heat.</li>
+            </ul>
+            <div class="highlight-quote">
+                <strong>The "Experienced" Interview Answer:</strong><br>"Sir, the Softening Point is the exact temperature recorded at the moment the sagging bitumen, pushed by the steel ball, touches the bottom metal plate exactly 25.4 mm below the ring."
+            </div>
+        </div>
+    </div>
+
+    <div class="canvas-wrapper">
+        <canvas id="simCanvas" width="1000" height="470"></canvas>
+    </div>
+
+    <div class="dashboard">
+        <div class="controls">
+            <label for="bitumen-grade">Select Bitumen Grade to Test:</label>
+            <select id="bitumen-grade">
+                <option value="vg10">VG-10 (Soft Grade - Expected ~40°C)</option>
+                <option value="vg30" selected>VG-30 (Standard Highway - Expected ~50°C)</option>
+                <option value="vg40">VG-40 (Hard/Heavy Duty - Expected ~60°C)</option>
+            </select>
+            
+            <button id="btn-action" class="action-btn">Start Test (Heat at 5°C/min)</button>
+            <div id="status-msg" class="status-msg">Apparatus submerged in 5°C water bath. Ready.</div>
+        </div>
+
+        <div class="results">
+            <h3>Laboratory Readout</h3>
+            <div class="lcd-display">
+                <div class="lcd-row">
+                    <span class="lcd-label">Elapsed Time:</span>
+                    <div class="lcd-time" id="lcd-time">00:00</div>
+                </div>
+                <div class="lcd-row">
+                    <span class="lcd-label">Bath Temp:</span>
+                    <div><span class="lcd-value" id="lcd-temp">05.0</span><span class="lcd-unit">°C</span></div>
+                </div>
+                <div class="lcd-row">
+                    <span class="lcd-label">Softening Point:</span>
+                    <div><span class="lcd-value" id="lcd-result" style="color: #38bdf8; text-shadow: 0 0 8px rgba(56,189,248,0.6);">--.-</span><span class="lcd-unit" style="color:#bae6fd;">°C</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const btnAction = document.getElementById('btn-action');
+    const selectGrade = document.getElementById('bitumen-grade');
+    const lcdTemp = document.getElementById('lcd-temp');
+    const lcdTimeDisplay = document.getElementById('lcd-time');
+    const lcdResult = document.getElementById('lcd-result');
+    const statusMsg = document.getElementById('status-msg');
+
+    // Expected Mean Temperatures per Grade
+    const gradeData = { vg10: { mean: 40 }, vg30: { mean: 50 }, vg40: { mean: 60 } };
+
+    // Physics & State Variables
+    let state = 0; // 0: Idle, 1: Heating, 2: Done
+    let temperature = 5.0; 
+    let targetSP = 0; 
+    let simTime = 0; // Used for animation sine waves
+    
+    // Distances
+    const bX = 500; // Center X
+    const bY = 400; // Bottom of beaker
+    const plateTopY = 220; // Y of the plate holding the rings
+    const ringH = 10;
+    const basePlateY = plateTopY + ringH + 95; // 25.4mm scaled to 95px drop
+    const maxSagDist = 95; // Max distance bitumen can drop below ring
+
+    let currentSag1 = 0;
+    let currentSag2 = 0;
+    
+    // Magnetic Stirrer angle
+    let stirrerAngle = 0;
+
+    /**
+     * DRAWING FUNCTIONS
+     */
+    function drawScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawHeater();
+        drawBeakerAndWater();
+        drawTestFrame();
+        drawThermometer();
+        drawBitumenAndBalls();
+        drawStirrer();
+        drawLabels();
+    }
+
+    function drawHeater() {
+        // Hot plate base
+        ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.roundRect(bX - 180, bY + 10, 360, 40, 5); ctx.fill();
+        ctx.fillStyle = '#1e293b'; ctx.fillRect(bX - 170, bY, 340, 15);
+        
+        // Heating coils glowing
+        let glow = state === 1 ? (Math.sin(simTime*8)*0.3 + 0.7) : 0;
+        ctx.fillStyle = `rgba(239, 68, 68, ${glow})`;
+        ctx.fillRect(bX - 140, bY, 280, 5);
+
+        // Control knob
+        ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(bX + 130, bY + 30, 10, 0, Math.PI*2); ctx.fill();
+    }
+
+    function drawBeakerAndWater() {
+        let waterLevel = 60;
+        
+        // Water Body
+        let wGrad = ctx.createLinearGradient(0, waterLevel, 0, bY);
+        wGrad.addColorStop(0, 'rgba(56, 189, 248, 0.3)');
+        wGrad.addColorStop(1, 'rgba(2, 132, 199, 0.5)');
+        ctx.fillStyle = wGrad;
+        ctx.fillRect(bX - 160, waterLevel, 320, bY - waterLevel);
+        
+        // Surface Line
+        ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(bX - 160, waterLevel); ctx.lineTo(bX + 160, waterLevel); ctx.stroke();
+
+        // Water currents from stirrer
+        if (state === 1) {
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
+            for(let i=0; i<3; i++) {
+                let offset = (simTime * 20 + i*15) % 40;
+                ctx.beginPath(); ctx.ellipse(bX, bY - 30 - offset, 80 + offset, 10 + offset*0.5, 0, 0, Math.PI*2); ctx.stroke();
+            }
+        }
+
+        // Beaker Glass (Cylindrical)
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'; ctx.lineWidth = 5;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.beginPath();
+        ctx.moveTo(bX - 160, 30);
+        ctx.lineTo(bX - 160, bY);
+        ctx.quadraticCurveTo(bX, bY+15, bX + 160, bY);
+        ctx.lineTo(bX + 160, 30);
+        ctx.stroke(); ctx.fill();
+        
+        // Glass Glare
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.fillRect(bX - 150, 40, 15, bY - 60);
+    }
+
+    function drawTestFrame() {
+        ctx.strokeStyle = '#ca8a04'; // Brass Color
+        ctx.lineWidth = 8;
+        
+        // Side vertical rods
+        ctx.beginPath(); ctx.moveTo(bX - 90, 70); ctx.lineTo(bX - 90, basePlateY); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(bX + 90, 70); ctx.lineTo(bX + 90, basePlateY); ctx.stroke();
+        
+        // Top crossbar
+        ctx.lineWidth = 10;
+        ctx.beginPath(); ctx.moveTo(bX - 100, 70); ctx.lineTo(bX + 100, 70); ctx.stroke();
+
+        // Base plate (Exactly 25.4mm scaled below the rings)
+        ctx.fillStyle = '#fef08a'; // Lighter brass plate
+        ctx.fillRect(bX - 100, basePlateY, 200, 12);
+        ctx.strokeStyle = '#a16207'; ctx.lineWidth = 2;
+        ctx.strokeRect(bX - 100, basePlateY, 200, 12);
+        
+        // Middle Plate holding the rings
+        ctx.fillRect(bX - 100, plateTopY, 200, 12);
+        ctx.strokeRect(bX - 100, plateTopY, 200, 12);
+
+        // Ring Holes (Cutouts)
+        ctx.fillStyle = '#e0f2fe'; // See through water color
+        ctx.fillRect(bX - 60, plateTopY, 40, 12); // Left hole
+        ctx.fillRect(bX + 20, plateTopY, 40, 12); // Right hole
+
+        // Tapered Brass Rings
+        ctx.fillStyle = '#eab308';
+        // Left Ring
+        ctx.beginPath(); ctx.moveTo(bX - 60, plateTopY); ctx.lineTo(bX - 20, plateTopY); ctx.lineTo(bX - 25, plateTopY + ringH); ctx.lineTo(bX - 55, plateTopY + ringH); ctx.fill();
+        // Right Ring
+        ctx.beginPath(); ctx.moveTo(bX + 20, plateTopY); ctx.lineTo(bX + 60, plateTopY); ctx.lineTo(bX + 55, plateTopY + ringH); ctx.lineTo(bX + 25, plateTopY + ringH); ctx.fill();
+    }
+
+    function drawThermometer() {
+        let tY = 40;
+        
+        // Glass tube
+        ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.roundRect(bX - 6, tY, 12, plateTopY - tY + 5, 6); ctx.fill(); ctx.stroke();
+        
+        // Bulb placed exactly at the level of the rings
+        ctx.beginPath(); ctx.arc(bX, plateTopY + 5, 12, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+        // Mercury / Red Alcohol
+        let maxH = plateTopY - tY - 15;
+        let fillH = Math.min((temperature / 100) * maxH, maxH); // Scale to 100C max
+        
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(bX - 2, plateTopY - 5 - fillH, 4, fillH);
+        ctx.beginPath(); ctx.arc(bX, plateTopY + 5, 8, 0, Math.PI*2); ctx.fill();
+
+        // Scale markings
+        ctx.fillStyle = '#0f172a'; ctx.font = '9px Arial'; ctx.textAlign = 'left';
+        for(let i=20; i<=80; i+=20) {
+            let y = plateTopY - 5 - ((i/100)*maxH);
+            ctx.fillRect(bX + 6, y, 4, 1);
+            ctx.fillText(i, bX + 12, y + 3);
+        }
+    }
+
+    function drawBitumenAndBalls() {
+        let ballR = 9;
+        let ringInnerW = 30; // Top inner width
+
+        // Calculate X centers for the two rings
+        let cx1 = bX - 40; 
+        let cx2 = bX + 40;
+
+        drawTeardropSag(cx1, plateTopY, ringInnerW, currentSag1, ballR);
+        drawTeardropSag(cx2, plateTopY, ringInnerW, currentSag2, ballR);
+    }
+
+    function drawTeardropSag(cx, ringY, w, sag, ballR) {
+        // Y position of ball center (sinks as sag increases)
+        // Before sag, ball rests on top. With sag, ball sinks into the pocket.
+        let ballY = ringY - ballR + sag;
+        
+        // Draw the Bitumen
+        ctx.fillStyle = 'var(--bitumen)';
+        ctx.beginPath();
+        
+        // Start top left inner ring
+        ctx.moveTo(cx - w/2, ringY);
+        
+        // Top surface dips slightly
+        let dip = Math.min(sag, ringH);
+        ctx.quadraticCurveTo(cx, ringY + dip, cx + w/2, ringY);
+        
+        // Down the right inner taper
+        ctx.lineTo(cx + w/2 - 2, ringY + ringH);
+        
+        // The Sagging Bottom (The Teardrop)
+        if (sag > 0) {
+            let bottomY = ringY + ringH + sag;
+            // The "neck" of the sag narrows as it stretches
+            let stretchFactor = Math.min(sag / maxSagDist, 0.8);
+            let neckW = (w/2 - 2) * (1 - stretchFactor); 
+            
+            // Right side of teardrop
+            ctx.bezierCurveTo(
+                cx + neckW, ringY + ringH + sag*0.4, // Control 1
+                cx + ballR + 2, bottomY - ballR,     // Control 2 (bulges around ball)
+                cx, bottomY                          // End exactly at bottom center
+            );
+            
+            // Left side of teardrop
+            ctx.bezierCurveTo(
+                cx - ballR - 2, bottomY - ballR,     // Control 1
+                cx - neckW, ringY + ringH + sag*0.4, // Control 2
+                cx - w/2 + 2, ringY + ringH          // End at left ring bottom
+            );
+        } else {
+            // Flat bottom if no sag
+            ctx.lineTo(cx - w/2 + 2, ringY + ringH);
+        }
+        
+        ctx.closePath();
+        ctx.fill();
+
+        // Highlight for 3D volume
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Draw Steel Ball (3.5g)
+        let ballGrad = ctx.createRadialGradient(cx - 3, ballY - 3, 2, cx, ballY, ballR);
+        ballGrad.addColorStop(0, '#ffffff');
+        ballGrad.addColorStop(0.3, '#94a3b8');
+        ballGrad.addColorStop(1, '#1e293b');
+        
+        ctx.fillStyle = ballGrad;
+        ctx.beginPath(); ctx.arc(cx, ballY, ballR, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#020617'; ctx.lineWidth = 1; ctx.stroke();
+    }
+
+    function drawStirrer() {
+        // Magnetic stirrer pill at the bottom of the beaker
+        ctx.save();
+        ctx.translate(bX, bY - 8);
+        if (state === 1) stirrerAngle += 0.3; // Spin rapidly
+        ctx.rotate(stirrerAngle);
+        
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath(); ctx.roundRect(-15, -4, 30, 8, 4); ctx.fill();
+        ctx.strokeStyle = '#94a3b8'; ctx.lineWidth=1; ctx.stroke();
+        
+        ctx.restore();
+    }
+
+    function drawLabels() {
+        ctx.fillStyle = '#334155'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'left';
+        
+        // 25.4 mm Dimension Line
+        let dimX = bX + 140;
+        ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(dimX - 10, plateTopY + ringH); ctx.lineTo(dimX + 10, plateTopY + ringH); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(dimX - 10, basePlateY); ctx.lineTo(dimX + 10, basePlateY); ctx.stroke();
+        
+        // Arrow line
+        ctx.beginPath(); ctx.moveTo(dimX, plateTopY + ringH); ctx.lineTo(dimX, basePlateY); ctx.stroke();
+        
+        // Arrows
+        ctx.fillStyle = '#dc2626';
+        ctx.beginPath(); ctx.moveTo(dimX, plateTopY + ringH); ctx.lineTo(dimX - 4, plateTopY + ringH + 6); ctx.lineTo(dimX + 4, plateTopY + ringH + 6); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(dimX, basePlateY); ctx.lineTo(dimX - 4, basePlateY - 6); ctx.lineTo(dimX + 4, basePlateY - 6); ctx.fill();
+
+        ctx.fillText("25.4 mm", dimX + 10, plateTopY + ringH + maxSagDist/2 + 5);
+
+        // Component Labels
+        ctx.fillStyle = '#1e293b';
+        ctx.fillText("Thermometer", bX - 170, 70);
+        ctx.beginPath(); ctx.moveTo(bX - 90, 65); ctx.lineTo(bX - 15, 65); ctx.stroke();
+
+        ctx.fillText("Steel Ball & Bitumen", bX + 140, plateTopY - 10);
+        ctx.beginPath(); ctx.moveTo(bX + 135, plateTopY - 15); ctx.lineTo(bX + 60, plateTopY - 5); ctx.stroke();
+
+        ctx.fillText("Magnetic Stirrer", bX + 130, bY - 5);
+    }
+
+    /**
+     * PHYSICS & ANIMATION ENGINE
+     */
+    function updatePhysics(deltaTime) {
+        simTime += deltaTime;
+
+        if (state === 1) {
+            // Heating Physics (Accelerated for simulation, but maintains logic)
+            // Real test: 5°C per min. We simulate this faster. Let's do 1 real sec = 1 min simulation
+            let tempIncreaseRate = 5.0; // 5 deg per sec (representing 5 deg/min)
+            temperature += tempIncreaseRate * deltaTime; 
+            
+            // Update Digital Thermometer
+            lcdTemp.innerText = temperature.toFixed(1).padStart(4, '0');
+
+            // Update Real-Time Clock Simulator (Assuming start at 05.0 C = Time 00:00)
+            let elapsedMinutes = (temperature - 5.0) / 5.0;
+            let mins = Math.floor(elapsedMinutes);
+            let secs = Math.floor((elapsedMinutes - mins) * 60);
+            lcdTimeDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            // Sag Physics (Thermoplastic behavior)
+            // Bitumen yields gradually. Sag starts about 15°C before target Softening Point.
+            let sagStartTemp = targetSP - 15;
+            
+            if (temperature > sagStartTemp) {
+                // Non-linear softening curve (cubic function for realistic slow start, fast drop)
+                let progress = (temperature - sagStartTemp) / 15.0; // Approaches 1 at targetSP
+                
+                // Slight variance between the two rings for realism
+                currentSag1 = Math.pow(progress, 3) * maxSagDist;
+                currentSag2 = Math.pow(progress, 2.8) * maxSagDist; 
+
+                // Check termination condition: Did any sag touch the 25.4mm plate?
+                if (currentSag1 >= maxSagDist || currentSag2 >= maxSagDist) {
+                    currentSag1 = Math.min(currentSag1, maxSagDist);
+                    currentSag2 = Math.min(currentSag2, maxSagDist);
+                    
+                    state = 2; // Finished
+                    finalizeTest();
+                }
+            }
+        }
+    }
+
+    function finalizeTest() {
+        btnAction.disabled = false;
+        btnAction.innerText = "Reset & Test Another Grade";
+        btnAction.style.backgroundColor = '#0284c7'; 
+        btnAction.style.boxShadow = '0 4px 0 #0369a1';
+        
+        statusMsg.innerText = "🛑 Test Complete! Bitumen touched the 25.4mm base plate.";
+        statusMsg.style.backgroundColor = '#dcfce7'; 
+        statusMsg.style.borderColor = '#10b981';
+
+        // Lock in the exact temperature
+        lcdResult.innerText = temperature.toFixed(1);
+
+        // Flash UI
+        document.querySelector('.lcd-display').style.borderColor = '#22c55e';
+    }
+
+    /**
+     * CONTROLS
+     */
+    btnAction.addEventListener('click', () => {
+        if (state === 0) {
+            // Start Heating
+            state = 1;
+            btnAction.disabled = true;
+            btnAction.innerText = "Heating in Progress...";
+            statusMsg.innerText = "🔥 Heating water exactly at 5°C per minute...";
+            statusMsg.style.backgroundColor = '#fef3c7';
+            statusMsg.style.borderColor = '#fde047';
+            document.querySelector('.lcd-display').style.borderColor = '#334155';
+            
+            // Calculate randomized target softening point based on grade
+            let mean = gradeData[selectGrade.value].mean;
+            targetSP = mean + (Math.random() * 3 - 1.5); // Slight variance
+
+        } else if (state === 2) {
+            // Reset
+            state = 0;
+            temperature = 5.0;
+            currentSag1 = 0;
+            currentSag2 = 0;
+            simTime = 0;
+            
+            lcdTemp.innerText = "05.0";
+            lcdResult.innerText = "--.-";
+            lcdTimeDisplay.innerText = "00:00";
+            document.querySelector('.lcd-display').style.borderColor = '#334155';
+            
+            btnAction.innerText = "Start Test (Heat at 5°C/min)";
+            btnAction.style.backgroundColor = 'var(--primary)';
+            btnAction.style.boxShadow = '0 4px 0 var(--primary-dark)';
+            statusMsg.innerText = "Apparatus submerged in 5°C water bath. Ready.";
+            statusMsg.style.backgroundColor = '#fef3c7';
+            statusMsg.style.borderColor = '#fde047';
+        }
+    });
+
+    selectGrade.addEventListener('change', () => {
+        if (state === 2) btnAction.click(); // Auto reset if changing grade after a test
+    });
+
+    /**
+     * ANIMATION LOOP
+     */
+    let lastTime = 0;
+    function animate(timestamp) {
+        let deltaTime = (timestamp - lastTime) / 1000;
+        if (!lastTime) deltaTime = 0;
+        lastTime = timestamp;
+        if (deltaTime > 0.1) deltaTime = 0.1; // Cap dt
+
+        updatePhysics(deltaTime);
+        drawScene();
+
+        requestAnimationFrame(animate);
+    }
+
+    // Initialize
+    requestAnimationFrame(animate);
+
+</script>
+</body>
+</html>
+

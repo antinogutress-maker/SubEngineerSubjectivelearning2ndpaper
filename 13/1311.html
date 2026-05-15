@@ -1,0 +1,524 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rebound Hammer Test (NDT) Simulation</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --panel-bg: #ffffff;
+            --text-main: #0f172a;
+            --primary: #f59e0b; /* Safety Orange/Yellow */
+            --primary-dark: #d97706;
+            --secondary: #334155;
+            --concrete-poor: #9ca3af;
+            --concrete-good: #64748b;
+            --concrete-excellent: #475569;
+            --accent-blue: #0284c7;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center; padding: 20px 10px;
+        }
+
+        .container {
+            width: 100%; max-width: 1000px; background-color: var(--panel-bg);
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        header {
+            background-color: #1e293b; color: white; padding: 25px; text-align: center;
+            border-bottom: 5px solid var(--primary);
+        }
+
+        header h1 { font-size: 2rem; margin-bottom: 8px; color: #fde68a; letter-spacing: 1px;}
+        header p { font-size: 1.1rem; color: #cbd5e1; }
+
+        /* Theory Section */
+        .theory-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 25px;
+            background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;
+        }
+        @media (max-width: 768px) { .theory-grid { grid-template-columns: 1fr; } }
+
+        .theory-box {
+            background: white; padding: 20px; border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid var(--primary);
+        }
+        .theory-box h2 { color: #b45309; font-size: 1.3rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+        .theory-box p { color: #334155; line-height: 1.6; font-size: 1rem; margin-bottom: 10px; }
+        .theory-box ul { padding-left: 20px; color: #334155; line-height: 1.6; font-size: 1rem; margin-bottom: 10px; }
+        .theory-box li { margin-bottom: 5px; }
+        .theory-box strong { color: var(--accent-blue); }
+
+        /* Simulation Area */
+        .canvas-wrapper {
+            width: 100%; background: #e2e8f0; display: flex; justify-content: center;
+            position: relative; border-bottom: 3px solid #cbd5e1;
+            background-image: radial-gradient(circle at 50% 50%, #f1f5f9 0%, #cbd5e1 100%);
+        }
+        canvas { width: 100%; max-width: 1000px; height: auto; aspect-ratio: 21/9; display: block; }
+
+        /* Controls & Results */
+        .dashboard { display: flex; flex-wrap: wrap; padding: 20px; background-color: white; gap: 20px; }
+
+        .controls {
+            flex: 1.5; min-width: 300px; display: flex; flex-direction: column; gap: 15px;
+            padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;
+        }
+
+        .controls label { font-weight: bold; color: #334155; font-size: 1.1rem;}
+        .controls select {
+            padding: 12px; border-radius: 6px; border: 1px solid #94a3b8; font-size: 1.05rem; 
+            outline: none; cursor: pointer; background: white;
+        }
+
+        .action-btn {
+            padding: 16px; border: none; border-radius: 8px;
+            background-color: var(--primary); color: white; font-weight: bold; font-size: 1.1rem;
+            cursor: pointer; box-shadow: 0 4px 0 var(--primary-dark); transition: all 0.1s;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;
+        }
+        .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--primary-dark); }
+        .action-btn:disabled { background-color: #cbd5e1; color: #64748b; box-shadow: 0 4px 0 #94a3b8; cursor: not-allowed; }
+
+        .status-msg { text-align: center; color: var(--accent-blue); font-weight: bold; font-size: 1.1rem; min-height: 24px;}
+
+        .results {
+            flex: 1; min-width: 250px; padding: 20px; background: #f0fdfa;
+            border-radius: 8px; border: 1px solid #5eead4; display: flex; flex-direction: column; justify-content: center;
+        }
+
+        .results h3 { color: #0f766e; margin-bottom: 15px; text-align: center; border-bottom: 2px solid #99f6e4; padding-bottom: 10px; font-size: 1.3rem;}
+        
+        .result-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.1rem; align-items: center;}
+        .result-label { font-weight: bold; color: #115e59; }
+        .result-value { 
+            font-family: monospace; font-size: 1.8rem; color: #0369a1; font-weight: bold; 
+            background: white; padding: 8px 15px; border-radius: 6px; border: 1px solid #bae6fd; 
+            min-width: 100px; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Schmidt Rebound Hammer Test</h1>
+        <p>Non-Destructive Testing (NDT) of Concrete</p>
+    </header>
+
+    <div class="theory-grid">
+        <div class="theory-box">
+            <h2>❓ Why is it done?</h2>
+            <p>During construction, concrete samples (cubes or cylinders) are tested in a lab. <strong>If the lab cubes fail</strong>, or if we need to check the structural integrity of an old building, we cannot simply destroy the existing columns or slabs to test them.</p>
+            <p>We use <strong>Non-Destructive Testing (NDT)</strong> to estimate the strength of the concrete <em>in-situ</em> (on site) without causing any damage to the structure.</p>
+        </div>
+        <div class="theory-box">
+            <h2>⚙️ How does it work?</h2>
+            <ul>
+                <li><strong>Energy Transfer:</strong> The hammer contains a spring-loaded mass. When pushed against the wall, the mass strikes the plunger with a fixed amount of energy.</li>
+                <li><strong>Hard vs. Weak:</strong> If the concrete is <strong>weak/porous</strong>, it absorbs the energy (crushing slightly on a microscopic level), causing a low bounce back. If the concrete is <strong>hard/dense</strong>, it reflects the energy, causing a high bounce.</li>
+                <li>The bounce distance is recorded as the <strong>Rebound Number (R)</strong>, which correlates to the Compressive Strength in MPa.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="canvas-wrapper">
+        <canvas id="simCanvas" width="1000" height="420"></canvas>
+    </div>
+
+    <div class="dashboard">
+        <div class="controls">
+            <label for="concrete-type">Select Concrete Surface Quality:</label>
+            <select id="concrete-type">
+                <option value="poor">Poor Concrete (Honeycombed, Weak)</option>
+                <option value="good" selected>Good Concrete (Standard RCC Building)</option>
+                <option value="excellent">Excellent Concrete (High Grade, Bridge Pier)</option>
+            </select>
+            
+            <button id="btn-test" class="action-btn">Push Hammer against Wall</button>
+            <div id="status-msg" class="status-msg">Waiting to test...</div>
+        </div>
+
+        <div class="results">
+            <h3>Digital Readout</h3>
+            <div class="result-row">
+                <span class="result-label">Rebound No. (R):</span>
+                <span class="result-value" id="res-rebound">--</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Est. Strength:</span>
+                <span class="result-value" id="res-strength">--</span>
+            </div>
+            <div style="text-align: center; font-size: 0.9rem; color: #64748b; margin-top: 5px;">*Estimated in MPa (N/mm²)</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const btnTest = document.getElementById('btn-test');
+    const selectConcrete = document.getElementById('concrete-type');
+    const resRebound = document.getElementById('res-rebound');
+    const resStrength = document.getElementById('res-strength');
+    const statusMsg = document.getElementById('status-msg');
+
+    // Concrete Properties
+    const concreteData = {
+        poor: { color: '#9ca3af', dark: '#6b7280', cracks: true, baseR: 20 },       // Est ~12 MPa
+        good: { color: '#64748b', dark: '#475569', cracks: false, baseR: 38 },      // Est ~30 MPa
+        excellent: { color: '#475569', dark: '#334155', cracks: false, baseR: 52 }  // Est ~50 MPa
+    };
+
+    // Simulation State
+    let state = 'idle'; // idle, pushing, striking, rebounding, settling, done
+    
+    // Mechanics Geometry
+    const wallX = 850;
+    
+    // Hammer Body
+    let hX = 400; // X position of the hammer outer body
+    const hY = 160;
+    const hW = 380;
+    const hH = 90;
+    
+    // Plunger
+    let pX = hX + hW + 80; // Plunger tip touches wall. Body pushes forward.
+    const pW = 100;
+    
+    // Internal Striking Mass
+    let massX = hX + 40; // Rests at the back of the hammer body
+    
+    // Indicator Needle
+    let needlePixelX = hX + 60; // Initial needle position
+    let needleR = 0; // Value 0-100
+    
+    // Test Results
+    let targetR = 0;
+    let pushProgress = 0;
+
+    // Generate random aggregate positions once so they don't flicker
+    const aggregates = [];
+    for(let i=0; i<200; i++) {
+        aggregates.push({
+            x: 860 + Math.random() * 140,
+            y: Math.random() * 420,
+            r: 2 + Math.random() * 6,
+            sides: 3 + Math.floor(Math.random() * 4)
+        });
+    }
+
+    /**
+     * DRAWING FUNCTIONS
+     */
+    function drawScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawConcreteWall();
+        drawHammer();
+        drawAnnotations();
+    }
+
+    function drawConcreteWall() {
+        let type = selectConcrete.value;
+        let data = concreteData[type];
+
+        // Wall Body
+        ctx.fillStyle = data.color;
+        ctx.fillRect(wallX, 0, canvas.width - wallX, canvas.height);
+        
+        // 3D Edge
+        ctx.fillStyle = data.dark;
+        ctx.fillRect(wallX, 0, 10, canvas.height);
+        ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(wallX, 0); ctx.lineTo(wallX, canvas.height); ctx.stroke();
+
+        // Texture/Aggregates
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        aggregates.forEach(agg => {
+            ctx.beginPath();
+            for(let i=0; i<agg.sides; i++) {
+                let angle = (i / agg.sides) * Math.PI * 2;
+                let ax = agg.x + Math.cos(angle) * agg.r;
+                let ay = agg.y + Math.sin(angle) * agg.r;
+                if(i===0) ctx.moveTo(ax, ay); else ctx.lineTo(ax, ay);
+            }
+            ctx.closePath(); ctx.fill();
+        });
+
+        // Cracks for poor concrete
+        if (data.cracks) {
+            ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(wallX + 10, 120); ctx.lineTo(wallX + 50, 140); ctx.lineTo(wallX + 70, 90); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(wallX + 10, 280); ctx.lineTo(wallX + 60, 290); ctx.lineTo(wallX + 100, 360); ctx.stroke();
+        }
+
+        // Label
+        ctx.fillStyle = 'white'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center';
+        ctx.fillText("RCC Structure", wallX + 75, 40);
+        ctx.font = '14px Arial'; ctx.fillStyle = '#cbd5e1';
+        ctx.fillText(`(${type.toUpperCase()})`, wallX + 75, 60);
+    }
+
+    function drawHammer() {
+        // --- 1. PLUNGER (The rod hitting the wall) ---
+        // Draw the plunger shaft (static relative to wall during push)
+        let plungerLeft = pX - pW;
+        
+        let pGrad = ctx.createLinearGradient(0, hY+30, 0, hY+60);
+        pGrad.addColorStop(0, '#94a3b8'); pGrad.addColorStop(0.5, '#f8fafc'); pGrad.addColorStop(1, '#64748b');
+        ctx.fillStyle = pGrad;
+        ctx.fillRect(plungerLeft, hY + 35, pW, 20); 
+        ctx.strokeStyle = '#475569'; ctx.lineWidth = 2; ctx.strokeRect(plungerLeft, hY + 35, pW, 20);
+        
+        // Plunger Tip
+        ctx.fillStyle = '#334155'; ctx.beginPath(); ctx.roundRect(pX - 15, hY + 20, 15, 50, 4); ctx.fill();
+
+        // Impact Flange (inside hammer, stops the mass)
+        ctx.fillStyle = '#475569'; ctx.fillRect(plungerLeft, hY + 25, 10, 40);
+
+        // --- 2. MAIN CASING (Cutaway 3D Cylinder) ---
+        let cGrad = ctx.createLinearGradient(0, hY, 0, hY+hH);
+        cGrad.addColorStop(0, 'rgba(251, 191, 36, 0.4)'); // Light orange
+        cGrad.addColorStop(0.5, 'rgba(217, 119, 6, 0.2)');
+        cGrad.addColorStop(1, 'rgba(180, 83, 9, 0.5)'); // Dark orange
+        
+        ctx.fillStyle = cGrad;
+        ctx.beginPath(); ctx.roundRect(hX, hY, hW, hH, 10); ctx.fill();
+        ctx.strokeStyle = '#b45309'; ctx.lineWidth = 3; ctx.stroke();
+
+        // Top solid cap
+        ctx.fillStyle = '#1e293b'; ctx.beginPath(); ctx.roundRect(hX - 25, hY - 10, 35, hH + 20, 8); ctx.fill();
+
+        // --- 3. INTERNAL MAIN SPRING ---
+        // Compresses as user pushes hammer body forward (distance from cap hX to mass)
+        drawSpring(hX + 10, hY + hH/2, massX, hY + hH/2, 12, 18, '#64748b');
+
+        // --- 4. IMPACT SPRING (Buffer spring in front) ---
+        if (massX + 45 < plungerLeft) {
+            drawSpring(massX + 45, hY + hH/2, plungerLeft, hY + hH/2, 6, 10, '#94a3b8');
+        }
+
+        // --- 5. STRIKING MASS ---
+        let mGrad = ctx.createLinearGradient(0, hY+15, 0, hY+75);
+        mGrad.addColorStop(0, '#475569'); mGrad.addColorStop(0.5, '#94a3b8'); mGrad.addColorStop(1, '#1e293b');
+        ctx.fillStyle = mGrad;
+        ctx.beginPath(); ctx.roundRect(massX, hY + 15, 45, 60, 5); ctx.fill(); ctx.stroke();
+        
+        // Striking nose
+        ctx.fillStyle = '#e2e8f0'; ctx.fillRect(massX + 45, hY + 40, 10, 10); 
+
+        // --- 6. SCALE & INDICATOR NEEDLE ---
+        // Scale window cutout
+        ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+        ctx.fillRect(hX + 60, hY - 30, 250, 25); ctx.strokeRect(hX + 60, hY - 30, 250, 25);
+        
+        // Scale ticks (0-100 maps to 250px)
+        ctx.fillStyle = '#0f172a'; ctx.font = '11px Arial'; ctx.textAlign = 'center';
+        for(let i=0; i<=100; i+=10) {
+            let tx = hX + 60 + (i * 2.5);
+            ctx.beginPath(); ctx.moveTo(tx, hY - 5); ctx.lineTo(tx, hY - 15); ctx.stroke();
+            if (i % 20 === 0) ctx.fillText(i, tx, hY - 35);
+        }
+
+        // The Needle
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath(); 
+        ctx.moveTo(needlePixelX, hY - 5); 
+        ctx.lineTo(needlePixelX - 6, hY - 25); 
+        ctx.lineTo(needlePixelX + 6, hY - 25); 
+        ctx.fill();
+    }
+
+    function drawSpring(x1, y1, x2, y2, coils, amplitude, color) {
+        ctx.strokeStyle = color; ctx.lineWidth = 4; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        let dist = x2 - x1;
+        let step = dist / coils;
+        for(let i=0; i<coils; i++) {
+            let midX = x1 + (i * step) + (step/2);
+            let sign = (i % 2 === 0) ? 1 : -1;
+            ctx.lineTo(midX, y1 + (amplitude * sign));
+            ctx.lineTo(x1 + ((i+1)*step), y1);
+        }
+        ctx.stroke();
+    }
+
+    function drawAnnotations() {
+        ctx.fillStyle = '#334155'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'left';
+        
+        ctx.fillText("Striking Mass", massX - 20, hY + 115);
+        ctx.beginPath(); ctx.moveTo(massX + 22, hY + 100); ctx.lineTo(massX + 22, hY + 75); ctx.strokeStyle = '#334155'; ctx.lineWidth=2; ctx.stroke();
+
+        ctx.fillText("Main Spring", hX + 60, hY + 115);
+
+        ctx.fillText("Readout Scale", hX + 130, hY - 60);
+
+        ctx.fillText("Plunger", pX - 50, hY + 115);
+        ctx.beginPath(); ctx.moveTo(pX - 20, hY + 100); ctx.lineTo(pX - 20, hY + 65); ctx.stroke();
+    }
+
+    /**
+     * PHYSICS & ANIMATION ENGINE
+     */
+    function updatePhysics(deltaTime) {
+        let plungerLeftLimit = wallX - pW; // Plunger is fixed against wall
+        pX = wallX;
+
+        if (state === 'idle') {
+            hX = 350;
+            massX = hX + 40; 
+            needlePixelX = hX + 60; // Zero on scale
+        } 
+        else if (state === 'pushing') {
+            // User pushes hammer body right
+            pushProgress += deltaTime * 0.7; // Speed of push
+            if (pushProgress >= 1) {
+                pushProgress = 1;
+                state = 'striking';
+                statusMsg.innerText = "💥 Latch released! Mass striking...";
+                
+                // Calculate concrete reaction
+                let baseR = concreteData[selectConcrete.value].baseR;
+                targetR = baseR + (Math.random() * 4 - 2); 
+            }
+
+            // Move body forward (compressing the spring against fixed plunger)
+            let maxPushDist = 140;
+            hX = 350 + (pushProgress * maxPushDist);
+            
+            // Mass is locked to back of hammer during push
+            massX = hX + 40;
+            // Needle stays at zero relative to body
+            needlePixelX = hX + 60;
+        } 
+        else if (state === 'striking') {
+            // Spring releases, mass shoots forward relative to body
+            massX += 2000 * deltaTime; // Very fast
+            
+            let strikePoint = plungerLeftLimit - 45; // Width of mass
+            if (massX >= strikePoint) {
+                massX = strikePoint;
+                state = 'rebounding';
+                statusMsg.innerText = "↩️ Energy reflected! Rebounding...";
+            }
+        } 
+        else if (state === 'rebounding') {
+            // Mass bounces back left
+            let strikePoint = plungerLeftLimit - 45;
+            let maxReboundDist = strikePoint - (hX + 40); // Max possible travel
+            
+            // Rebound physics: 100 R = full return to back
+            let bounceDist = (targetR / 100) * maxReboundDist;
+            let targetMassX = strikePoint - bounceDist;
+
+            massX -= 600 * deltaTime; // Slower than strike
+            
+            // Needle logic: Slider dragged by mass
+            let currentTravelFromStrike = strikePoint - massX;
+            let currentR = (currentTravelFromStrike / maxReboundDist) * 100;
+            let targetNeedlePixelX = hX + 60 + (currentR * 2.5);
+            
+            // Needle only moves if mass pushes it
+            if (targetNeedlePixelX > needlePixelX) {
+                needlePixelX = targetNeedlePixelX;
+            }
+
+            if (massX <= targetMassX) {
+                massX = targetMassX;
+                state = 'settling';
+            }
+        }
+        else if (state === 'settling') {
+            // Mass settles slightly after bounce, but needle stays at max
+            massX += 50 * deltaTime;
+            let settlePoint = massX + 20;
+            if(massX > hX + 100) {
+                state = 'done';
+                showResults();
+            }
+        }
+    }
+
+    function showResults() {
+        btnTest.disabled = false;
+        btnTest.innerText = "Reset & Test Again";
+        statusMsg.innerText = "✅ Test Complete. View Results below.";
+        
+        let finalR = Math.round(targetR);
+        resRebound.innerText = finalR;
+
+        // Estimate Compressive Strength (Empirical formula roughly)
+        let fc = 0;
+        if (finalR < 20) fc = "< 10"; // Very poor
+        else if (finalR < 30) fc = Math.round(finalR * 0.6); 
+        else if (finalR < 40) fc = Math.round(finalR * 0.8); 
+        else fc = Math.round(finalR * 1.1); 
+
+        resStrength.innerText = fc + " MPa";
+        
+        // Color code results
+        if(finalR < 25) resRebound.style.color = '#ef4444'; // Red
+        else if(finalR < 40) resRebound.style.color = '#f59e0b'; // Yellow
+        else resRebound.style.color = '#10b981'; // Green
+    }
+
+    /**
+     * CONTROLS
+     */
+    btnTest.addEventListener('click', () => {
+        if (state === 'idle' || state === 'done') {
+            state = 'pushing';
+            pushProgress = 0;
+            btnTest.disabled = true;
+            btnTest.innerText = "Testing in progress...";
+            statusMsg.innerText = "Pushing hammer against wall...";
+            
+            resRebound.innerText = "--";
+            resStrength.innerText = "--";
+            resRebound.style.color = '#0369a1';
+        }
+    });
+
+    selectConcrete.addEventListener('change', () => {
+        drawScene();
+        if (state === 'done') {
+            state = 'idle';
+            btnTest.innerText = "Push Hammer against Wall";
+            resRebound.innerText = "--";
+            resStrength.innerText = "--";
+            statusMsg.innerText = "Ready to test new concrete surface.";
+        }
+    });
+
+    /**
+     * ANIMATION LOOP
+     */
+    let lastTime = 0;
+    function animate(timestamp) {
+        let deltaTime = (timestamp - lastTime) / 1000;
+        if (!lastTime) deltaTime = 0;
+        lastTime = timestamp;
+        if (deltaTime > 0.1) deltaTime = 0.1;
+
+        updatePhysics(deltaTime);
+        drawScene();
+
+        requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+
+</script>
+</body>
+</html>

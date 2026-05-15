@@ -1,0 +1,631 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Standard Consistency Test of Cement</title>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --panel-bg: #ffffff;
+            --text-main: #0f172a;
+            --primary: #0284c7; /* Science Blue */
+            --primary-dark: #0369a1;
+            --secondary: #64748b; /* Cement Grey */
+            --brass: #ca8a04;
+            --steel: #94a3b8;
+            --lcd-bg: #020617;
+            --lcd-text: #38bdf8; 
+            --lcd-success: #22c55e;
+            --lcd-warn: #f59e0b;
+            --lcd-fail: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center; padding: 20px 10px;
+        }
+
+        .container {
+            width: 100%; max-width: 1100px; background-color: var(--panel-bg);
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        header {
+            background-color: #0f172a; color: white; padding: 25px; text-align: center;
+            border-bottom: 5px solid var(--secondary);
+            background-image: linear-gradient(to right, #0f172a, #1e293b);
+        }
+
+        header h1 { font-size: 2.2rem; margin-bottom: 8px; color: #e2e8f0; letter-spacing: 1px;}
+        header p { font-size: 1.1rem; color: #94a3b8; }
+
+        /* Theory Section */
+        .theory-grid {
+            display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; padding: 25px;
+            background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;
+        }
+        @media (max-width: 768px) { .theory-grid { grid-template-columns: 1fr; } }
+
+        .theory-box {
+            background: white; padding: 20px; border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid var(--secondary);
+        }
+        .theory-box.blue { border-top-color: var(--primary); }
+        .theory-box h2 { color: #334155; font-size: 1.25rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+        .theory-box.blue h2 { color: var(--primary-dark); }
+        .theory-box p, .theory-box li { color: #334155; line-height: 1.6; font-size: 0.95rem; margin-bottom: 8px; }
+        .theory-box ol, .theory-box ul { padding-left: 20px; margin-bottom: 10px; }
+
+        .highlight-quote {
+            background-color: #f0fdfa; border-left: 4px solid #0d9488;
+            padding: 12px 15px; margin-top: 15px; font-style: italic; color: #0f766e; font-size: 0.95rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Simulation Area */
+        .canvas-wrapper {
+            width: 100%; background: #e2e8f0; display: flex; justify-content: center;
+            position: relative; border-bottom: 3px solid #cbd5e1;
+            background-image: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%);
+        }
+        canvas { width: 100%; max-width: 1000px; height: auto; aspect-ratio: 21/10; display: block; }
+
+        /* Controls & Results */
+        .dashboard { display: flex; flex-wrap: wrap; padding: 20px; background-color: white; gap: 20px; }
+
+        .controls {
+            flex: 1.2; min-width: 300px; display: flex; flex-direction: column; justify-content: space-between; gap: 15px;
+            padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;
+        }
+
+        .slider-group { display: flex; flex-direction: column; gap: 8px; }
+        .slider-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.05rem; color: #334155;}
+        
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 10px; background: #cbd5e1; border-radius: 5px; }
+        input[type=range]::-webkit-slider-thumb {
+            height: 28px; width: 28px; border-radius: 50%; background: var(--primary); cursor: pointer;
+            -webkit-appearance: none; margin-top: -9px; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .btn-group { display: flex; gap: 10px; }
+
+        .action-btn {
+            flex: 1; padding: 14px; border: none; border-radius: 8px;
+            background-color: var(--secondary); color: white; font-weight: bold; font-size: 1.05rem;
+            cursor: pointer; box-shadow: 0 4px 0 #475569; transition: all 0.1s;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #475569; }
+        .action-btn.primary { background-color: var(--primary); box-shadow: 0 4px 0 var(--primary-dark); }
+        .action-btn.primary:active { box-shadow: 0 0 0 var(--primary-dark); }
+        .action-btn:disabled { background-color: #cbd5e1; color: #64748b; box-shadow: 0 4px 0 #94a3b8; cursor: not-allowed; }
+
+        .status-msg { text-align: center; color: #334155; font-weight: bold; font-size: 1.1rem; min-height: 24px; padding: 10px; background: #e2e8f0; border-radius: 6px; border: 1px solid #cbd5e1;}
+
+        /* Digital LCD Readout */
+        .results {
+            flex: 1; min-width: 280px; padding: 20px; background: #1e293b;
+            border-radius: 12px; border: 3px solid #334155; display: flex; flex-direction: column; justify-content: center;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .results h3 { color: #94a3b8; margin-bottom: 15px; text-align: center; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px;}
+        
+        .lcd-display {
+            background-color: var(--lcd-bg); padding: 15px; border-radius: 6px;
+            border: 2px solid #334155; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .lcd-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;}
+        .lcd-row:last-child { margin-bottom: 0; border-top: 1px dashed #475569; padding-top: 15px;}
+        
+        .lcd-label { color: #94a3b8; font-size: 0.95rem; font-weight: bold; text-transform: uppercase;}
+        
+        .lcd-value { 
+            font-family: 'Courier New', Courier, monospace; font-size: 2.2rem; color: var(--lcd-text); 
+            font-weight: bold; text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+        }
+        .lcd-unit { font-size: 1.2rem; color: #94a3b8; margin-left: 5px;}
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Standard Consistency of Cement</h1>
+        <p>Finding the Baseline Water Content (P) using Vicat Apparatus</p>
+    </header>
+
+    <div class="theory-grid">
+        <div class="theory-box">
+            <h2>⚙️ Apparatus & Procedure</h2>
+            <ol>
+                <li>Take exactly <strong>400g</strong> of dry cement.</li>
+                <li>Add a measured percentage of water and mix thoroughly for exactly <strong>3 to 5 minutes</strong>.</li>
+                <li>Fill the brass <strong>Vicat mold</strong> with the cement paste, resting it on a non-porous glass plate, and smooth the top.</li>
+                <li>Attach the standard plunger (<strong>10mm diameter, 50mm length</strong>). Lower it to the paste surface.</li>
+                <li><strong>Release it quickly</strong>, allowing it to sink under its own weight (300g total moving mass).</li>
+            </ol>
+        </div>
+        <div class="theory-box blue">
+            <h2>🎯 The Target Result</h2>
+            <p>If the paste is too dry, the plunger won't sink deeply. If it's too wet, it will sink all the way to the bottom plate (40 mm).</p>
+            <div class="highlight-quote">
+                <strong>Standard Consistency (P)</strong> is achieved ONLY when the plunger penetrates exactly <strong>33 mm to 35 mm from the top</strong> (which is 5 mm to 7 mm from the bottom).
+            </div>
+            <p>This "P" value is crucial because it acts as the baseline water content for subsequent tests like Initial/Final Setting Time and Soundness tests.</p>
+        </div>
+    </div>
+
+    <div class="canvas-wrapper">
+        <canvas id="simCanvas" width="1000" height="470"></canvas>
+    </div>
+
+    <div class="dashboard">
+        <div class="controls">
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span>Add Water (% by weight of cement)</span>
+                    <span id="water-readout" style="color: #0284c7; font-size: 1.2rem;">25.0%</span>
+                </div>
+                <input type="range" id="water-slider" min="20" max="35" step="0.5" value="25.0">
+            </div>
+            
+            <div class="btn-group">
+                <button id="btn-mix" class="action-btn">Mix & Fill Mold</button>
+                <button id="btn-release" class="action-btn primary" disabled>Release Plunger</button>
+            </div>
+            <div id="status-msg" class="status-msg">Select water percentage and click 'Mix & Fill Mold'.</div>
+        </div>
+
+        <div class="results">
+            <h3>Vicat Scale Readout</h3>
+            <div class="lcd-display">
+                <div class="lcd-row">
+                    <span class="lcd-label">Water Added:</span>
+                    <div><span class="lcd-value" id="lcd-water" style="color:#cbd5e1; text-shadow: none;">25.0</span><span class="lcd-unit">%</span></div>
+                </div>
+                <div class="lcd-row">
+                    <span class="lcd-label">Penetration (From Top):</span>
+                    <div><span class="lcd-value" id="lcd-pen">00.0</span><span class="lcd-unit">mm</span></div>
+                </div>
+                <div class="lcd-row" style="text-align: center; display: block; margin-top: 10px;">
+                    <span class="lcd-label" id="lcd-status" style="color: #94a3b8; font-size: 1rem;">Waiting for test...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const btnMix = document.getElementById('btn-mix');
+    const btnRelease = document.getElementById('btn-release');
+    const sliderWater = document.getElementById('water-slider');
+    const readoutWater = document.getElementById('water-readout');
+    
+    const lcdWater = document.getElementById('lcd-water');
+    const lcdPen = document.getElementById('lcd-pen');
+    const lcdStatus = document.getElementById('lcd-status');
+    const statusMsg = document.getElementById('status-msg');
+
+    // Simulation Mathematics
+    // A standard cement sample might have P = 29.5%
+    // Let's randomize P slightly between 28.0% and 31.0% each time the page loads for a real test feel
+    const targetP = (Math.random() * 3 + 28).toFixed(1); 
+    
+    // Physics & State
+    // 0: Idle, 1: Mixing/Filling, 2: Ready to Release, 3: Dropping, 4: Done
+    let state = 0; 
+    let selectedWater = 25.0;
+    let currentPenetration = 0; // in mm (0 to 40)
+    let finalPenetration = 0;
+    let time = 0;
+    
+    // Visual Geometry Scaling
+    // Real mold is 40mm high. Let's make it 160 pixels high visually. (Scale = 4 px/mm)
+    const scalePx = 4;
+    const mX = 500; // Center X
+    
+    const plateY = 420; // Glass plate top surface
+    const moldH = 40 * scalePx; // 160px
+    const moldTopY = plateY - moldH; // 260
+    
+    const moldBaseW = 180; // Represents 80mm
+    const moldTopW = 150;  // Represents 70mm
+
+    const plungerW = 22; // 10mm diameter scaled
+    const plungerH = 50 * scalePx; // 50mm length = 200px
+    
+    // Y position of plunger tip
+    let plungerY = moldTopY - 40; // Starts raised above mold
+
+    let mixProgress = 0; // For mixing animation
+
+    /**
+     * CALCULATION LOGIC
+     */
+    function calculatePenetration(waterPercent) {
+        // Logistic curve mapping Water % to Penetration (0 to 40mm)
+        // We want W = targetP to result in exactly 34mm penetration.
+        // If W is much lower, penetration is near 0. If much higher, it bottoms out at 40.
+        
+        let w = parseFloat(waterPercent);
+        let pTarget = parseFloat(targetP);
+        
+        // Difference from target
+        let diff = w - pTarget;
+        
+        // Tune the curve:
+        // When diff = 0, penetration = 34mm
+        // Let's build a piecewise or fine-tuned logistic curve
+        let pen = 0;
+
+        if (diff > 1.5) {
+            pen = 40; // Too runny, hits bottom
+        } else if (diff < -4) {
+            pen = Math.max(0, 5 + diff); // Very stiff
+        } else {
+            // Sigmoid-like transition ensuring f(0) = 34
+            // We'll use a manually mapped polynomial for tight control
+            // Let's just use an empirical mapping based on proximity to targetP
+            if (diff >= 0) {
+                // diff from 0 to 1.5 -> pen from 34 to 40
+                pen = 34 + (diff / 1.5) * 6;
+            } else {
+                // diff from -4 to 0 -> pen from ~5 to 34
+                // A cubic curve gives that sudden softening characteristic of cement
+                let normalized = 1 - (Math.abs(diff) / 4); // 0 to 1
+                pen = 5 + Math.pow(normalized, 2) * 29; 
+            }
+        }
+        
+        // Clamp bounds
+        if (pen > 40) pen = 40;
+        if (pen < 0) pen = 0;
+        
+        return pen;
+    }
+
+    /**
+     * DRAWING FUNCTIONS
+     */
+    function drawScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawApparatusBack();
+        if (state >= 2 || state === 1) drawPasteAndMold();
+        drawApparatusFront();
+        drawScaleAndPointer();
+        
+        // Draw Mixing overlay if in state 1
+        if (state === 1) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fillRect(mX - 150, moldTopY - 50, 300, 250);
+            
+            ctx.fillStyle = '#0369a1'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center';
+            let dots = ".".repeat(Math.floor(time * 5) % 4);
+            ctx.fillText("Mixing 3-5 mins" + dots, mX, moldTopY + 40);
+            
+            // Progress bar
+            ctx.fillStyle = '#cbd5e1'; ctx.fillRect(mX - 100, moldTopY + 60, 200, 10);
+            ctx.fillStyle = '#0284c7'; ctx.fillRect(mX - 100, moldTopY + 60, 200 * mixProgress, 10);
+        }
+    }
+
+    function drawApparatusBack() {
+        // Main C-Frame Stand
+        ctx.fillStyle = '#334155';
+        ctx.beginPath(); ctx.roundRect(mX - 180, 50, 60, 380, 10); ctx.fill(); // Vertical pillar
+        ctx.beginPath(); ctx.roundRect(mX - 180, 40, 220, 40, 10); ctx.fill(); // Top arm
+        ctx.beginPath(); ctx.roundRect(mX - 180, 430, 250, 30, 10); ctx.fill(); // Base
+        
+        // Details/Shadows
+        ctx.fillStyle = '#1e293b'; ctx.fillRect(mX - 160, 50, 10, 380);
+
+        // Non-porous Glass Plate
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.fillRect(mX - 120, plateY, 240, 10);
+        ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+        ctx.strokeRect(mX - 120, plateY, 240, 10);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'; ctx.fillRect(mX - 110, plateY, 220, 4); // Glare
+
+        // Guide tube for the rod
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(mX - 25, 80, 50, 80);
+    }
+
+    function drawPasteAndMold() {
+        // Cement Paste Inside
+        // Darken color slightly if it's very wet
+        let wetness = selectedWater / 35; 
+        let r = 100 - (wetness * 20);
+        let g = 110 - (wetness * 20);
+        let b = 120 - (wetness * 10);
+        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+        
+        ctx.beginPath();
+        ctx.moveTo(mX - moldTopW/2 + 2, moldTopY);
+        ctx.lineTo(mX + moldTopW/2 - 2, moldTopY);
+        ctx.lineTo(mX + moldBaseW/2 - 2, plateY);
+        ctx.lineTo(mX - moldBaseW/2 + 2, plateY);
+        ctx.fill();
+
+        // Top surface of paste
+        ctx.fillStyle = `rgb(${r+15}, ${g+15}, ${b+15})`;
+        ctx.beginPath(); ctx.ellipse(mX, moldTopY, moldTopW/2 - 2, 8, 0, 0, Math.PI*2); ctx.fill();
+
+        // Brass Vicat Mold (Truncated Cone - Outer Shell)
+        ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 8;
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(mX - moldTopW/2, moldTopY);
+        ctx.lineTo(mX - moldBaseW/2, plateY);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(mX + moldTopW/2, moldTopY);
+        ctx.lineTo(mX + moldBaseW/2, plateY);
+        ctx.stroke();
+
+        // Top and Bottom Brass Rims
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(mX - moldTopW/2 - 5, moldTopY - 5, moldTopW + 10, 10);
+        ctx.fillRect(mX - moldBaseW/2 - 5, plateY - 10, moldBaseW + 10, 10);
+        
+        ctx.strokeStyle = '#a16207'; ctx.lineWidth = 2;
+        ctx.strokeRect(mX - moldTopW/2 - 5, moldTopY - 5, moldTopW + 10, 10);
+        ctx.strokeRect(mX - moldBaseW/2 - 5, plateY - 10, moldBaseW + 10, 10);
+    }
+
+    function drawApparatusFront() {
+        // The Moving Rod & Plunger
+        // Shaft
+        ctx.fillStyle = '#e2e8f0'; ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2;
+        let shaftY = plungerY - plungerH - 120; // Goes up into the guide
+        ctx.fillRect(mX - 6, shaftY, 12, 120 + plungerH);
+        ctx.strokeRect(mX - 6, shaftY, 12, 120 + plungerH);
+
+        // Release Screw/Weight at top
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(mX - 20, shaftY, 40, 20);
+
+        // Plunger (10mm dia, 50mm length)
+        let pTop = plungerY - plungerH;
+        let pGrad = ctx.createLinearGradient(mX - plungerW/2, 0, mX + plungerW/2, 0);
+        pGrad.addColorStop(0, '#cbd5e1'); pGrad.addColorStop(0.5, '#ffffff'); pGrad.addColorStop(1, '#94a3b8');
+        
+        ctx.fillStyle = pGrad;
+        ctx.fillRect(mX - plungerW/2, pTop, plungerW, plungerH);
+        ctx.strokeRect(mX - plungerW/2, pTop, plungerW, plungerH);
+
+        // If plunger is penetrated, draw a mask over it to look embedded
+        if (state >= 3 && currentPenetration > 0) {
+            let pDepthPx = currentPenetration * scalePx;
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)'; // Dark paste overlay
+            
+            // Draw a slight depression/hole shape where it entered
+            ctx.beginPath(); ctx.ellipse(mX, moldTopY, plungerW/2 + 2, 4, 0, 0, Math.PI*2); ctx.fill();
+            
+            // Mask the submerged part
+            ctx.fillRect(mX - plungerW/2 - 1, moldTopY, plungerW + 2, pDepthPx);
+        }
+    }
+
+    function drawScaleAndPointer() {
+        // Graduated Scale attached to frame
+        const scaleX = mX - 50;
+        const scaleYTop = moldTopY - (40 * scalePx); // 0mm mark (top of scale = bottom of stroke)
+        const scaleYBot = moldTopY; // 40mm mark (bottom of scale = top of stroke)
+        // Wait, standard Vicat: 0 at top, 40 at bottom, OR 0 at bottom, 40 at top. 
+        // IS code reads penetration FROM TOP. Let's make Top = 0, Bottom = 40.
+        // So scale starts at Y = 100, ends at Y = 260.
+
+        ctx.fillStyle = '#f8fafc'; ctx.strokeStyle = '#475569'; ctx.lineWidth = 2;
+        ctx.fillRect(scaleX - 30, moldTopY - 180, 25, 200);
+        ctx.strokeRect(scaleX - 30, moldTopY - 180, 25, 200);
+
+        ctx.fillStyle = '#0f172a'; ctx.font = '10px Arial'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        
+        // Draw scale ticks (0 to 40mm)
+        // 0mm is at moldTopY - 160 (When plunger is at surface, pointer is at 0)
+        // 40mm is at moldTopY (When plunger hits bottom, pointer is at 40)
+        let pointerZeroY = moldTopY - 160;
+
+        for(let i=0; i<=40; i+=5) {
+            let y = pointerZeroY + (i * scalePx);
+            ctx.beginPath(); ctx.moveTo(scaleX - 10, y); ctx.lineTo(scaleX - 5, y); ctx.stroke();
+            if (i % 10 === 0) ctx.fillText(i, scaleX - 12, y);
+        }
+        
+        // Indicator Needle attached to rod
+        // Position relative to plunger tip: Tip is at plungerY.
+        // If plungerY == moldTopY, pointer should be at pointerZeroY.
+        // Offset = moldTopY - pointerZeroY = 160.
+        let pointerY = plungerY - 160;
+
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath(); ctx.moveTo(mX - 6, pointerY); ctx.lineTo(scaleX - 5, pointerY - 4); ctx.lineTo(scaleX - 5, pointerY + 4); ctx.fill();
+    }
+
+    /**
+     * PHYSICS & ANIMATION ENGINE
+     */
+    function updatePhysics(deltaTime) {
+        time += deltaTime;
+
+        if (state === 1) {
+            // Mixing Phase
+            mixProgress += deltaTime * 0.8;
+            if (mixProgress >= 1) {
+                mixProgress = 1;
+                state = 2; // Ready
+                plungerY = moldTopY; // Lower plunger to surface
+                
+                btnRelease.disabled = false;
+                btnMix.innerText = "Empty & Remix";
+                btnMix.classList.remove('primary');
+                
+                statusMsg.innerText = "Mold filled. Plunger touches surface. Ready to release.";
+                statusMsg.style.backgroundColor = '#e0f2fe';
+                statusMsg.style.borderColor = '#bae6fd';
+                statusMsg.style.color = '#0369a1';
+            }
+        } 
+        else if (state === 3) {
+            // Dropping Phase
+            // Smooth ease out to final penetration
+            // Target Y = moldTopY + (finalPenetration * scalePx)
+            let targetY = moldTopY + (finalPenetration * scalePx);
+            
+            // Deceleration physics
+            let diff = targetY - plungerY;
+            plungerY += diff * 5 * deltaTime; // Smoothly approach target
+            
+            // Current penetration mapped back to mm
+            currentPenetration = (plungerY - moldTopY) / scalePx;
+            
+            // Update LCD Live
+            lcdPen.innerText = currentPenetration.toFixed(1).padStart(4, '0');
+
+            if (Math.abs(diff) < 0.5) {
+                plungerY = targetY;
+                currentPenetration = finalPenetration;
+                state = 4; // Done
+                finalizeTest();
+            }
+        }
+    }
+
+    function finalizeTest() {
+        lcdPen.innerText = currentPenetration.toFixed(1).padStart(4, '0');
+        
+        let msg = "";
+        let color = "";
+        let shadow = "";
+
+        if (currentPenetration >= 33 && currentPenetration <= 35) {
+            msg = `✅ STANDARD CONSISTENCY ACHIEVED! P = ${selectedWater.toFixed(1)}%`;
+            color = 'var(--lcd-success)';
+            shadow = '0 0 8px rgba(34, 197, 94, 0.6)';
+            
+            statusMsg.innerText = "Excellent! You found the exact water requirement (P).";
+            statusMsg.style.backgroundColor = '#dcfce7'; statusMsg.style.borderColor = '#10b981'; statusMsg.style.color = '#047857';
+        } 
+        else if (currentPenetration < 33) {
+            msg = "❌ PASTE TOO DRY. Add more water.";
+            color = 'var(--lcd-warn)';
+            shadow = '0 0 8px rgba(245, 158, 11, 0.6)';
+            
+            statusMsg.innerText = "Penetration did not reach 33mm. The mix is too stiff.";
+            statusMsg.style.backgroundColor = '#fef3c7'; statusMsg.style.borderColor = '#fde047'; statusMsg.style.color = '#b45309';
+        } 
+        else {
+            msg = "❌ PASTE TOO WET. Add less water.";
+            color = 'var(--lcd-fail)';
+            shadow = '0 0 8px rgba(239, 68, 68, 0.6)';
+            
+            statusMsg.innerText = "Plunger sank too deep (past 35mm). The mix is too runny.";
+            statusMsg.style.backgroundColor = '#fef2f2'; statusMsg.style.borderColor = '#fecaca'; statusMsg.style.color = '#991b1b';
+        }
+
+        lcdStatus.innerText = msg;
+        lcdStatus.style.color = color;
+        lcdPen.style.color = color;
+        lcdPen.style.textShadow = shadow;
+
+        btnMix.disabled = false; // Allow testing again
+    }
+
+    /**
+     * CONTROLS
+     */
+    sliderWater.addEventListener('input', (e) => {
+        selectedWater = parseFloat(e.target.value);
+        readoutWater.innerText = selectedWater.toFixed(1) + "%";
+        lcdWater.innerText = selectedWater.toFixed(1);
+        
+        if (state === 2 || state === 4) {
+            // Need to remix if water changed
+            btnRelease.disabled = true;
+            statusMsg.innerText = "Water content changed. Please mix and fill mold again.";
+            statusMsg.style.backgroundColor = '#e2e8f0'; statusMsg.style.borderColor = '#cbd5e1'; statusMsg.style.color = '#334155';
+            
+            // Reset visual
+            plungerY = moldTopY - 40;
+            state = 0;
+            
+            lcdPen.innerText = "00.0";
+            lcdPen.style.color = 'var(--lcd-text)';
+            lcdPen.style.textShadow = '0 0 8px rgba(56, 189, 248, 0.6)';
+            lcdStatus.innerText = "Waiting for test...";
+            lcdStatus.style.color = '#94a3b8';
+        }
+    });
+
+    btnMix.addEventListener('click', () => {
+        state = 1;
+        mixProgress = 0;
+        time = 0;
+        plungerY = moldTopY - 40; // Raise plunger
+        currentPenetration = 0;
+        
+        btnMix.innerText = "Mixing...";
+        btnRelease.disabled = true;
+        
+        lcdPen.innerText = "00.0";
+        lcdPen.style.color = 'var(--lcd-text)';
+        lcdPen.style.textShadow = '0 0 8px rgba(56, 189, 248, 0.6)';
+        lcdStatus.innerText = "Preparing paste...";
+        lcdStatus.style.color = '#38bdf8';
+        
+        statusMsg.innerText = "Mixing cement and water... filling the Vicat mold.";
+        statusMsg.style.backgroundColor = '#f8fafc'; statusMsg.style.borderColor = '#e2e8f0'; statusMsg.style.color = '#334155';
+    });
+
+    btnRelease.addEventListener('click', () => {
+        if (state === 2) {
+            state = 3;
+            btnRelease.disabled = true;
+            btnMix.disabled = true;
+            
+            // Calculate where it should stop
+            finalPenetration = calculatePenetration(selectedWater);
+            
+            statusMsg.innerText = "Plunger released! Measuring penetration depth...";
+            statusMsg.style.backgroundColor = '#fef3c7'; statusMsg.style.borderColor = '#fde047'; statusMsg.style.color = '#b45309';
+            lcdStatus.innerText = "Testing...";
+        }
+    });
+
+    /**
+     * ANIMATION LOOP
+     */
+    let lastTime = 0;
+    function animate(timestamp) {
+        let deltaTime = (timestamp - lastTime) / 1000;
+        if (!lastTime) deltaTime = 0;
+        lastTime = timestamp;
+        if (deltaTime > 0.1) deltaTime = 0.1; // Cap dt
+
+        updatePhysics(deltaTime);
+        drawScene();
+
+        requestAnimationFrame(animate);
+    }
+
+    // Initialize
+    requestAnimationFrame(animate);
+
+</script>
+</body>
+</html>

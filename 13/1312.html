@@ -1,0 +1,519 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ultrasonic Pulse Velocity (UPV) Test Simulation</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --panel-bg: #ffffff;
+            --text-main: #0f172a;
+            --primary: #0284c7; /* Science Blue */
+            --primary-dark: #0369a1;
+            --secondary: #3b82f6;
+            --lcd-bg: #064e3b;
+            --lcd-text: #34d399;
+            --concrete-color: #64748b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center; padding: 20px 10px;
+        }
+
+        .container {
+            width: 100%; max-width: 1000px; background-color: var(--panel-bg);
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        header {
+            background-color: #0f172a; color: white; padding: 25px; text-align: center;
+            border-bottom: 5px solid var(--primary);
+        }
+
+        header h1 { font-size: 2rem; margin-bottom: 8px; color: #bae6fd; letter-spacing: 1px;}
+        header p { font-size: 1.1rem; color: #cbd5e1; }
+
+        /* Theory Section */
+        .theory-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 25px;
+            background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;
+        }
+        @media (max-width: 768px) { .theory-grid { grid-template-columns: 1fr; } }
+
+        .theory-box {
+            background: white; padding: 20px; border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid var(--primary);
+        }
+        .theory-box h2 { color: var(--primary-dark); font-size: 1.3rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+        .theory-box p { color: #334155; line-height: 1.6; font-size: 1rem; margin-bottom: 10px; }
+        .theory-box ul { padding-left: 20px; color: #334155; line-height: 1.6; font-size: 1rem; margin-bottom: 10px; }
+        .theory-box li { margin-bottom: 5px; }
+
+        /* Simulation Area */
+        .canvas-wrapper {
+            width: 100%; background: #e2e8f0; display: flex; justify-content: center;
+            position: relative; border-bottom: 3px solid #cbd5e1;
+            background-image: radial-gradient(circle at 50% 50%, #f1f5f9 0%, #cbd5e1 100%);
+        }
+        canvas { width: 100%; max-width: 1000px; height: auto; aspect-ratio: 21/9; display: block; }
+
+        /* Controls & Results */
+        .dashboard { display: flex; flex-wrap: wrap; padding: 20px; background-color: white; gap: 20px; }
+
+        .controls {
+            flex: 1.5; min-width: 300px; display: flex; flex-direction: column; gap: 15px;
+            padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;
+        }
+
+        .controls label { font-weight: bold; color: #334155; font-size: 1.1rem;}
+        .controls select {
+            padding: 12px; border-radius: 6px; border: 1px solid #94a3b8; font-size: 1.05rem; 
+            outline: none; cursor: pointer; background: white;
+        }
+
+        .action-btn {
+            padding: 16px; border: none; border-radius: 8px;
+            background-color: var(--primary); color: white; font-weight: bold; font-size: 1.1rem;
+            cursor: pointer; box-shadow: 0 4px 0 var(--primary-dark); transition: all 0.1s;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;
+        }
+        .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--primary-dark); }
+        .action-btn:disabled { background-color: #cbd5e1; color: #64748b; box-shadow: 0 4px 0 #94a3b8; cursor: not-allowed; }
+
+        .status-msg { text-align: center; color: var(--primary-dark); font-weight: bold; font-size: 1.1rem; min-height: 24px;}
+
+        /* Digital LCD Readout */
+        .results {
+            flex: 1; min-width: 250px; padding: 20px; background: #1e293b;
+            border-radius: 12px; border: 3px solid #334155; display: flex; flex-direction: column; justify-content: center;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .results h3 { color: #94a3b8; margin-bottom: 10px; text-align: center; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px;}
+        
+        .lcd-display {
+            background-color: var(--lcd-bg); padding: 15px; border-radius: 6px;
+            border: 2px solid #065f46; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .lcd-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;}
+        .lcd-row:last-child { margin-bottom: 0; border-top: 1px dashed #047857; padding-top: 10px;}
+        
+        .lcd-label { color: #6ee7b7; font-size: 0.9rem; font-weight: bold; text-transform: uppercase;}
+        .lcd-value { 
+            font-family: 'Courier New', Courier, monospace; font-size: 2rem; color: var(--lcd-text); 
+            font-weight: bold; text-shadow: 0 0 5px rgba(52, 211, 153, 0.5);
+        }
+
+        .lcd-unit { font-size: 1rem; color: #a7f3d0; margin-left: 5px;}
+        .quality-text { text-align: center; margin-top: 10px; font-weight: bold; font-size: 1.2rem; color: white;}
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Ultrasonic Pulse Velocity (UPV) Test</h1>
+        <p>Internal Quality Assessment of Concrete (NDT)</p>
+    </header>
+
+    <div class="theory-grid">
+        <div class="theory-box">
+            <h2>❓ Why is it done?</h2>
+            <p>The Rebound Hammer only tests the <strong>surface</strong> of the concrete. But what if the inside is full of holes, cracks, or honeycombing? We need a way to check the <strong>internal health</strong> of the structure.</p>
+            <p>The UPV test acts like a medical ultrasound for buildings. It helps engineers detect internal flaws, voids, and measure the overall uniformity and quality of the concrete without destroying it.</p>
+        </div>
+        <div class="theory-box">
+            <h2>⚙️ How does it work?</h2>
+            <ul>
+                <li><strong>Transducers:</strong> Two probes are placed on opposite sides of the concrete: a Transmitter (Tx) and a Receiver (Rx).</li>
+                <li><strong>The Pulse:</strong> The Tx sends a high-frequency sound wave through the concrete. The machine measures the exact Time (T) it takes to reach the Rx.</li>
+                <li><strong>The Math:</strong> Velocity (V) = Distance (L) / Time (T). </li>
+                <li><strong>The Logic:</strong> Sound travels fast in dense, solid concrete (> 4.5 km/s). If there are cracks or air voids, the sound wave has to travel <em>around</em> them, taking more time, resulting in a low velocity (< 3.0 km/s).</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="canvas-wrapper">
+        <canvas id="simCanvas" width="1000" height="350"></canvas>
+    </div>
+
+    <div class="dashboard">
+        <div class="controls">
+            <label for="concrete-internal">Select Internal Concrete Condition:</label>
+            <select id="concrete-internal">
+                <option value="excellent" selected>Excellent (Dense, Solid, No Flaws)</option>
+                <option value="good">Good (Minor porosity, standard)</option>
+                <option value="poor">Poor (Large internal void / Honeycombing)</option>
+            </select>
+            
+            <button id="btn-test" class="action-btn">Transmit Ultrasonic Pulse</button>
+            <div id="status-msg" class="status-msg">Transducers aligned. Ready to pulse.</div>
+        </div>
+
+        <div class="results">
+            <h3>UPV Instrument Display</h3>
+            <div class="lcd-display">
+                <div class="lcd-row">
+                    <span class="lcd-label">Path Length (L):</span>
+                    <div><span class="lcd-value">400</span><span class="lcd-unit">mm</span></div>
+                </div>
+                <div class="lcd-row">
+                    <span class="lcd-label">Transit Time (T):</span>
+                    <div><span class="lcd-value" id="lcd-time">000.0</span><span class="lcd-unit">μs</span></div>
+                </div>
+                <div class="lcd-row">
+                    <span class="lcd-label">Velocity (V):</span>
+                    <div><span class="lcd-value" id="lcd-velocity">0.00</span><span class="lcd-unit">km/s</span></div>
+                </div>
+            </div>
+            <div id="quality-verdict" class="quality-text">--</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const btnTest = document.getElementById('btn-test');
+    const selectInternal = document.getElementById('concrete-internal');
+    const lcdTime = document.getElementById('lcd-time');
+    const lcdVelocity = document.getElementById('lcd-velocity');
+    const qualityVerdict = document.getElementById('quality-verdict');
+    const statusMsg = document.getElementById('status-msg');
+
+    // Test Parameters
+    const pathLengthMm = 400; // 400 mm width of concrete
+
+    // Concrete Properties Data
+    // Target Velocities (km/s): Excellent > 4.5, Good 3.5-4.5, Poor < 3.0
+    const testData = {
+        excellent: { targetVel: 4.65, hasVoid: false, waveSpeed: 800 },
+        good: { targetVel: 3.80, hasVoid: false, waveSpeed: 600 },
+        poor: { targetVel: 2.45, hasVoid: true, waveSpeed: 350 } // Slows down immensely
+    };
+
+    // Simulation State
+    let state = 'idle'; // idle, pulsing, done
+    let time = 0;
+    
+    // Geometry
+    const cX = 300; // Concrete start X
+    const cW = 400; // Concrete width (represents 400mm)
+    const cY = 75;
+    const cH = 200;
+
+    const txX = cX - 40; // Transmitter
+    const rxX = cX + cW; // Receiver
+    const transY = cY + cH/2 - 30;
+    const transH = 60;
+
+    // Void geometry (for poor condition)
+    const voidX = cX + cW/2;
+    const voidY = cY + cH/2;
+    const voidR = 60;
+
+    // Wave variables
+    let waveX = txX + 40;
+    let waveTimeCounter = 0; // Represents microseconds
+    let waveParticles = [];
+
+    // Pre-generate aggregates
+    const aggregates = [];
+    for(let i=0; i<150; i++) {
+        aggregates.push({
+            x: cX + Math.random() * cW,
+            y: cY + Math.random() * cH,
+            r: 3 + Math.random() * 6,
+            sides: 3 + Math.floor(Math.random() * 4)
+        });
+    }
+
+    function initWaveParticles() {
+        waveParticles = [];
+        // Create a vertical line of particles representing the wave front
+        for(let y = cY + 10; y < cY + cH - 10; y += 8) {
+            waveParticles.push({ x: waveX, y: y, baseY: y });
+        }
+    }
+
+    /**
+     * DRAWING FUNCTIONS
+     */
+    function drawScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawWires();
+        drawConcrete();
+        drawTransducers();
+        
+        if (state === 'pulsing' || state === 'done') {
+            drawWave();
+        }
+    }
+
+    function drawConcrete() {
+        let condition = selectInternal.value;
+
+        // Concrete Body
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(cX, cY, cW, cH);
+        
+        // 3D outline
+        ctx.strokeStyle = '#334155'; ctx.lineWidth = 4;
+        ctx.strokeRect(cX, cY, cW, cH);
+
+        // Aggregates
+        ctx.fillStyle = 'rgba(0,0,0,0.15)';
+        aggregates.forEach(agg => {
+            // Don't draw aggregates inside the void if it exists
+            if (condition === 'poor' && Math.hypot(agg.x - voidX, agg.y - voidY) < voidR) return;
+            
+            ctx.beginPath();
+            for(let i=0; i<agg.sides; i++) {
+                let angle = (i / agg.sides) * Math.PI * 2;
+                let ax = agg.x + Math.cos(angle) * agg.r;
+                let ay = agg.y + Math.sin(angle) * agg.r;
+                if(i===0) ctx.moveTo(ax, ay); else ctx.lineTo(ax, ay);
+            }
+            ctx.closePath(); ctx.fill();
+        });
+
+        // Draw Void (Honeycombing/Crack)
+        if (condition === 'poor') {
+            ctx.fillStyle = '#1e293b'; // Dark void
+            ctx.beginPath();
+            
+            // Jagged irregular void shape
+            for(let i=0; i<Math.PI*2; i+=0.3) {
+                let r = voidR - 10 + Math.random()*20;
+                let vx = voidX + Math.cos(i) * r;
+                let vy = voidY + Math.sin(i) * r;
+                if(i===0) ctx.moveTo(vx, vy); else ctx.lineTo(vx, vy);
+            }
+            ctx.closePath(); ctx.fill();
+            
+            ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '12px Arial'; ctx.textAlign = 'center';
+            ctx.fillText("Internal Void", voidX, voidY + 5);
+        }
+
+        // Dimensional Line
+        ctx.strokeStyle = '#475569'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(cX, cY - 20); ctx.lineTo(cX + cW, cY - 20); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cX, cY - 25); ctx.lineTo(cX, cY - 15); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cX + cW, cY - 25); ctx.lineTo(cX + cW, cY - 15); ctx.stroke();
+        ctx.fillStyle = '#334155'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'center';
+        ctx.fillText("L = 400 mm", cX + cW/2, cY - 28);
+    }
+
+    function drawTransducers() {
+        // Transmitter (Tx)
+        ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.roundRect(txX, transY, 40, transH, 4); ctx.fill();
+        ctx.fillStyle = '#1e293b'; ctx.fillRect(txX + 40, transY + 10, 5, transH - 20); // Coupling gel/plate
+        ctx.fillStyle = 'white'; ctx.font = 'bold 16px Arial'; ctx.textAlign = 'center'; ctx.fillText("Tx", txX + 20, transY + 35);
+
+        // Receiver (Rx)
+        ctx.fillStyle = '#10b981'; ctx.beginPath(); ctx.roundRect(rxX, transY, 40, transH, 4); ctx.fill();
+        ctx.fillStyle = '#1e293b'; ctx.fillRect(rxX - 5, transY + 10, 5, transH - 20);
+        ctx.fillStyle = 'white'; ctx.font = 'bold 16px Arial'; ctx.textAlign = 'center'; ctx.fillText("Rx", rxX + 20, transY + 35);
+    }
+
+    function drawWires() {
+        ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 4;
+        
+        // Tx Wire
+        ctx.beginPath(); ctx.moveTo(txX, transY + transH/2);
+        ctx.bezierCurveTo(txX - 100, transY + transH/2, txX - 100, 300, 100, 300); ctx.stroke();
+
+        // Rx Wire
+        ctx.beginPath(); ctx.moveTo(rxX + 40, transY + transH/2);
+        ctx.bezierCurveTo(rxX + 140, transY + transH/2, rxX + 140, 300, 900, 300); ctx.stroke();
+    }
+
+    function drawWave() {
+        let condition = selectInternal.value;
+        
+        ctx.save();
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 10;
+
+        waveParticles.forEach(p => {
+            // Draw particle as a glowing pulse segment
+            ctx.fillStyle = '#bae6fd';
+            ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI*2); ctx.fill();
+            
+            // Trailing effect
+            ctx.globalAlpha = 0.4;
+            ctx.beginPath(); ctx.arc(p.x - 10, p.y, 2, 0, Math.PI*2); ctx.fill();
+            ctx.globalAlpha = 1.0;
+        });
+
+        ctx.restore();
+
+        // Radiating arcs from Tx (Visual flair)
+        if (state === 'pulsing' && waveX < cX + 100) {
+            ctx.strokeStyle = `rgba(56, 189, 248, ${1 - (waveX - cX)/100})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(cX, transY + transH/2, waveX - cX, -Math.PI/4, Math.PI/4); ctx.stroke();
+        }
+    }
+
+    /**
+     * PHYSICS & ANIMATION ENGINE
+     */
+    function updatePhysics(deltaTime) {
+        if (state !== 'pulsing') return;
+
+        let condition = selectInternal.value;
+        let data = testData[condition];
+        
+        // Base visual speed
+        let currentSpeed = data.waveSpeed;
+
+        // Wave Particle Movement Logic
+        let hitRx = false;
+
+        waveParticles.forEach(p => {
+            // Basic forward movement
+            let pSpeed = currentSpeed;
+
+            if (condition === 'poor') {
+                // If there's a void, the wave must travel AROUND it
+                let distToVoidCenter = Math.hypot(p.x - voidX, p.y - voidY);
+                
+                if (distToVoidCenter < voidR + 20) {
+                    pSpeed = currentSpeed * 0.3; // Slows down immensely inside/near void
+                    
+                    // Deflect wave around the void (Scattering effect)
+                    if (p.x < voidX) {
+                        // Push up or down depending on position relative to center
+                        if (p.y < voidY) p.y -= 100 * deltaTime;
+                        else p.y += 100 * deltaTime;
+                    }
+                } else {
+                    // Try to return to baseline Y after passing void
+                    p.y += (p.baseY - p.y) * 2 * deltaTime; 
+                }
+            }
+
+            p.x += pSpeed * deltaTime;
+            
+            if (p.x >= rxX) {
+                p.x = rxX;
+                hitRx = true;
+            }
+        });
+
+        // Update lead wave position for logic
+        waveX = waveParticles[0].x;
+
+        // LCD Display Logic (Incrementing time)
+        // Expected Time in microseconds = Distance (mm) / Velocity (km/s)
+        let expectedTime = pathLengthMm / data.targetVel;
+        
+        // Map actual physical X to expected Time
+        let progress = (waveX - cX) / cW;
+        if (progress < 0) progress = 0;
+        if (progress > 1) progress = 1;
+
+        waveTimeCounter = progress * expectedTime;
+
+        // Update LCD while pulsing
+        lcdTime.innerText = waveTimeCounter.toFixed(1).padStart(5, '0');
+        lcdVelocity.innerText = (pathLengthMm / waveTimeCounter).toFixed(2);
+
+        // Completion
+        if (hitRx || progress >= 1) {
+            state = 'done';
+            finalizeResults(data.targetVel, expectedTime);
+        }
+    }
+
+    function finalizeResults(finalVel, finalTime) {
+        btnTest.disabled = false;
+        btnTest.innerText = "Reset & Test Again";
+        statusMsg.innerText = "✅ Pulse received! Analyzing results...";
+        
+        lcdTime.innerText = finalTime.toFixed(1).padStart(5, '0');
+        lcdVelocity.innerText = finalVel.toFixed(2);
+
+        // Verdict logic based on IS 516 (Part 5) standards roughly
+        if (finalVel >= 4.5) {
+            qualityVerdict.innerText = "CONCRETE QUALITY: EXCELLENT";
+            qualityVerdict.style.color = '#34d399'; // Green
+            document.querySelector('.lcd-display').style.borderColor = '#047857';
+        } else if (finalVel >= 3.5) {
+            qualityVerdict.innerText = "CONCRETE QUALITY: GOOD";
+            qualityVerdict.style.color = '#fde047'; // Yellow
+            document.querySelector('.lcd-display').style.borderColor = '#ca8a04';
+        } else {
+            qualityVerdict.innerText = "CONCRETE QUALITY: POOR / DOUBTFUL";
+            qualityVerdict.style.color = '#f87171'; // Red
+            document.querySelector('.lcd-display').style.borderColor = '#b91c1c';
+        }
+    }
+
+    /**
+     * CONTROLS
+     */
+    btnTest.addEventListener('click', () => {
+        if (state === 'idle' || state === 'done') {
+            state = 'pulsing';
+            waveX = txX + 40;
+            initWaveParticles();
+            
+            btnTest.disabled = true;
+            btnTest.innerText = "Pulsing...";
+            statusMsg.innerText = "⚡ Transmitting ultrasonic pulse...";
+            
+            lcdTime.innerText = "000.0";
+            lcdVelocity.innerText = "0.00";
+            qualityVerdict.innerText = "--";
+            document.querySelector('.lcd-display').style.borderColor = '#065f46';
+        }
+    });
+
+    selectInternal.addEventListener('change', () => {
+        drawScene();
+        if (state === 'done') {
+            state = 'idle';
+            btnTest.innerText = "Transmit Ultrasonic Pulse";
+            lcdTime.innerText = "000.0";
+            lcdVelocity.innerText = "0.00";
+            qualityVerdict.innerText = "--";
+            document.querySelector('.lcd-display').style.borderColor = '#065f46';
+            statusMsg.innerText = "Transducers aligned. Ready to pulse.";
+        }
+    });
+
+    /**
+     * ANIMATION LOOP
+     */
+    let lastTime = 0;
+    function animate(timestamp) {
+        let deltaTime = (timestamp - lastTime) / 1000;
+        if (!lastTime) deltaTime = 0;
+        lastTime = timestamp;
+        if (deltaTime > 0.1) deltaTime = 0.1;
+
+        updatePhysics(deltaTime);
+        drawScene();
+
+        requestAnimationFrame(animate);
+    }
+
+    // Initialize
+    initWaveParticles();
+    drawScene();
+    requestAnimationFrame(animate);
+
+</script>
+</body>
+</html>

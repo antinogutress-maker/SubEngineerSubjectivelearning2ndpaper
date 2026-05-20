@@ -1,284 +1,271 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bending Equation Derivation</title>
+    <title>Loksewa Mastery: Simple Strut Theory (Visual Edition)</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --surface-color: #1e1e1e;
-            --surface-variant: #2d2d2d;
-            --text-primary: #e3e3e3;
-            --text-secondary: #a0a0a0;
-            --accent-blue: #8ab4f8;
-            --accent-red: #f28b82;
-            --border-color: #444;
+            --red-critical: #E74C3C;
+            --green-correct: #27AE60;
+            --blue-concept: #2980B9;
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-dark: #2c3e50;
+            --text-light: #5a6c7d;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-primary);
-            line-height: 1.7;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* App Header simulating a Note App */
-        .app-header {
-            background-color: var(--surface-color);
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .app-header h1 {
-            font-size: 1.2rem;
-            margin: 0;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        /* Main Content Container */
-        .notebook-container {
-            max-width: 750px;
-            margin: 0 auto;
-            padding: 30px 20px 80px 20px;
-        }
-
-        h2 {
-            font-size: 1.8rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-top: 40px;
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            font-size: 1.3rem;
-            color: var(--accent-blue);
-            margin-top: 35px;
-        }
-
-        p, li {
-            font-size: 1.05rem;
-            color: var(--text-primary);
-        }
-
-        ul {
-            padding-left: 25px;
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
-
-        /* Math Equation Boxes */
-        .math-box {
-            background-color: var(--surface-variant);
+            color: var(--text-dark);
+            line-height: 1.6;
             padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-            overflow-x: auto;
             display: flex;
             justify-content: center;
-            align-items: center;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
-
-        /* Diagram Containers */
-        .diagram-container {
-            background-color: var(--surface-variant);
+        .app-container {
+            background-color: var(--card-bg);
+            max-width: 850px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #ecf0f1;
+            padding-bottom: 25px;
+        }
+        .meta-info {
+            display: inline-block;
+            background: #e8f4f8;
+            color: var(--blue-concept);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .eng { display: block; font-size: 1.15rem; margin-bottom: 6px; font-weight: 500; }
+        .nep { display: block; font-size: 1.1rem; color: var(--text-light); font-style: italic; margin-bottom: 22px; }
+        .critical { color: var(--red-critical); font-weight: bold; }
+        .correct { color: var(--green-correct); font-weight: bold; }
+        .concept { color: var(--blue-concept); font-weight: bold; }
+        h2 { color: var(--text-dark); display: flex; align-items: center; gap: 12px; margin-top: 35px; font-size: 1.5rem; border-bottom: 2px dashed #ecf0f1; padding-bottom: 10px; }
+        .section { margin-bottom: 25px; padding: 25px; background: #fafcff; border-left: 5px solid var(--blue-concept); border-radius: 0 10px 10px 0; transition: transform 0.2s ease;}
+        .section:hover { transform: translateX(5px); background: #f1f6fc; }
+        .list-item { margin-bottom: 15px; padding-left: 15px; border-left: 2px solid #bdc3c7; }
+        .input-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+        input[type="text"] { flex: 1; min-width: 250px; padding: 14px; border: 2px solid #bdc3c7; border-radius: 8px; font-size: 1.05rem; }
+        input[type="text"]:focus { outline: none; border-color: var(--blue-concept); }
+        button { background-color: var(--blue-concept); color: white; border: none; padding: 14px 28px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.05rem; transition: background 0.3s; }
+        button:hover { background-color: #1a5276; }
+        #feedback { margin-top: 15px; padding: 15px; border-radius: 8px; display: none; background: #fdfefe; border: 1px solid #d5dbdb; }
+        
+        /* SVG Animation Styles */
+        .visual-box {
+            background: #111827; /* Dark background to make glow pop */
             border-radius: 12px;
             padding: 20px;
-            margin: 25px 0;
+            margin: 20px 0;
             text-align: center;
+            overflow: hidden;
         }
-
-        .diagram-caption {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 15px;
-            font-weight: 500;
+        .buckle-anim {
+            animation: buckle 3s infinite alternate ease-in-out;
         }
-
-        svg {
-            max-width: 100%;
-            height: auto;
+        @keyframes buckle {
+            0% { d: path('M 200 90 Q 200 170 200 250'); }
+            100% { d: path('M 200 90 Q 300 170 200 250'); }
         }
-
-        .highlight {
-            color: var(--accent-blue);
-            font-weight: 600;
+        .load-anim {
+            animation: loadPress 3s infinite alternate ease-in-out;
+        }
+        @keyframes loadPress {
+            0% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
     </style>
-
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            },
-            svg: {
-                fontCache: 'global'
-            }
-        };
-    </script>
-    <script type="text/javascript" id="MathJax-script" async
-      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
-    </script>
 </head>
 <body>
 
-    <header class="app-header">
-        <h1>Bending Equation Derivation (Detailed Notes)</h1>
-    </header>
+<div class="app-container">
+    <div class="header">
+        <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#2980B9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20"></path>
+            <path d="M8 2h8"></path>
+            <path d="M8 22h8"></path>
+            <path d="M12 2c3 5 3 15 0 20" stroke="#E74C3C" stroke-dasharray="2 2"></path>
+            <circle cx="12" cy="2" r="1" fill="#2c3e50"></circle>
+            <circle cx="12" cy="22" r="1" fill="#2c3e50"></circle>
+            <path d="M12 6l-3 -3"></path>
+        </svg>
+        <div class="meta-info">Mechanics of Structure: Compression Members & Strut</div>
+        <h1>Assumptions of Simple Strut Theory</h1>
+        <span class="eng">Mastering Euler's Column Theory for Loksewa</span>
+        <span class="nep">लोकसेवाको लागि युलरको खम्बा सिद्धान्तमा निपुणता</span>
+    </div>
 
-    <div class="notebook-container">
+    <div class="section">
+        <h2>🧠 The Core Concept</h2>
+        <span class="eng">The <span class="concept">Simple Strut Theory</span> (Euler's theory) predicts the maximum axial load a long column can carry before bending, by assuming an ideal, mathematically perfect scenario.</span>
+        <span class="nep"><span class="concept">साधारण स्ट्रट सिद्धान्त</span> (युलरको सिद्धान्त) ले एक आदर्श, गणितीय रूपमा सिद्ध परिदृश्य मानेर, एउटा लामो खम्बा बाङ्गिनु अघि बोक्न सक्ने अधिकतम अक्षीय भारको भविष्यवाणी गर्दछ।</span>
+        <span class="eng">It provides a theoretical baseline for design, even though real-world columns always have slight imperfections and eccentricities.</span>
+        <span class="nep">वास्तविक संसारका खम्बाहरूमा सधैं थोरै अपूर्णताहरू र विकेन्द्रितता (eccentricities) भए तापनि, यसले डिजाइनको लागि सैद्धान्तिक आधार प्रदान गर्दछ।</span>
+    </div>
+
+    <div class="section">
+        <h2>👶 The Feynman Translation</h2>
+        <span class="eng">Imagine trying to push a long, completely perfect, unbroken strand of dry spaghetti straight down.</span>
+        <span class="nep">एउटा लामो, पूर्णतया सिद्ध, नभाँचिएको सुक्खा चाउचाउको त्यान्द्रोलाई सीधा तल धकेल्ने प्रयास गरेको कल्पना गर्नुहोस्।</span>
+        <span class="eng">The theory assumes this spaghetti is flawlessly straight from the start, is made of the exact same dough everywhere, and will simply pop into a beautiful bow shape when pressed too hard, without getting squashed flat at the top or bottom.</span>
+        <span class="nep">यो सिद्धान्तले मान्छ कि यो चाउचाउ सुरुदेखि नै पूर्णतया सीधा छ, जताततै ठ्याक्कै उस्तै पीठोले बनेको छ, र धेरै कडा थिच्दा माथि वा तलतिर चेप्टो नभइकन केवल एउटा सुन्दर धनुषको आकारमा बाङ्गिनेछ।</span>
+    </div>
+
+    <div class="section">
+        <h2>🤪 The Weird Memory Trick</h2>
+        <span class="eng">Remember the superhero acronym: "Super <span class="correct">S.H.A.P.E.</span>"</span>
+        <span class="nep">सुपरहिरोको यो संक्षिप्त रूप याद राख्नुहोस्: "सुपर <span class="correct">S.H.A.P.E.</span>"</span>
+        <span class="eng">**S**traight initially, **H**omogeneous material, **A**xial load exactly in center, **P**rismatic (uniform cross-section), **E**lastic (follows Hooke's law).</span>
+        <span class="nep">**S**traight (सुरुमा सीधा), **H**omogeneous (सजातीय सामग्री), **A**xial (ठ्याक्कै केन्द्रमा अक्षीय भार), **P**rismatic (एकसमान क्रस-सेक्सन), **E**lastic (हुकको नियम पालना गर्ने)।</span>
+        <span class="eng">Picture a muscular superhero holding a perfectly straight, glowing ruler and screaming "SHAPE!" at a building to stop it from falling.</span>
+        <span class="nep">एउटा मांसपेशी भएको सुपरहिरोले पूर्ण रूपमा सीधा, चम्किलो रुलर समातेर एउटा भवनलाई ढल्नबाट रोक्न "SHAPE!" भनेर कराइरहेको कल्पना गर्नुहोस्।</span>
+    </div>
+
+    <div class="section">
+        <h2>🏗️ The Real-World Analogy</h2>
+        <span class="eng">It's like calculating a sports car's top speed in a vacuum on a perfectly flat, endless runway.</span>
+        <span class="nep">यो भनेको पूर्ण रूपमा समतल, अनन्त धावनमार्गमा निर्वात अवस्थामा स्पोर्ट्स कारको उच्च गतिको गणना गरे जस्तै हो।</span>
+        <span class="eng">It tells you the absolute <span class="correct">mathematical limit</span> of the engine, but in reality, wind resistance, potholes, and tire friction (just like real-world structural imperfections) mean the car will never actually go that fast safely.</span>
+        <span class="nep">यसले तपाईंलाई इन्जिनको निरपेक्ष <span class="correct">गणितीय सीमा</span> बताउँछ, तर वास्तविकतामा, हावाको प्रतिरोध, खाल्डाखुल्डी, र टायरको घर्षण (ठ्याक्कै वास्तविक संसारको संरचनात्मक अपूर्णताहरू जस्तै) को कारणले कार वास्तवमा कहिल्यै त्यति छिटो सुरक्षित रूपमा कुद्न सक्दैन।</span>
+    </div>
+
+    <div class="section">
+        <h2>👁️ Visual Association</h2>
+        <span class="eng">Visualize a towering, glowing <span class="concept">blue glass pillar</span> that is initially laser-straight.</span>
+        <span class="nep">सुरुमा लेजर जस्तै सीधा भएको एउटा अग्लो, चम्किलो <span class="concept">निलो सिसाको खम्बा</span>को कल्पना गर्नुहोस्।</span>
+        <span class="eng">A massive iron anvil is placed exactly on its dead center line (<span class="critical">Axial Load</span>), causing the glass pillar to elegantly bend outward like an archer's drawn bow (<span class="concept">Buckling</span>), rather than shattering or crushing. Watch the simulation below!</span>
+        <span class="nep">यसको ठ्याक्कै केन्द्र रेखामा (<span class="critical">अक्षीय भार</span>) एउटा विशाल फलामको अचानो राखिएको छ, जसले गर्दा सिसाको खम्बा चकनाचुर हुने वा किचिनुको सट्टा धनुर्धारीले तानेको धनुष जस्तै (<span class="concept">बकलिङ</span>) सुन्दर ढङ्गले बाहिरतिर बाङ्गिन्छ। तलको सिमुलेसन हेर्नुहोस्!</span>
         
-        <h2>Derivation of the Flexural Formula</h2>
-
-        <h3>1. Fundamental Assumptions</h3>
-        <p>Before proceeding with the mathematical derivation, the following assumptions must be strictly established. These dictate the limits of our formula.</p>
-        <ul>
-            <li>The material of the beam is <b>homogeneous</b> (uniform physical properties throughout) and <b>isotropic</b> (elastic properties are the same in all directions).</li>
-            <li>The beam is initially straight and possesses a uniform cross-section.</li>
-            <li><b>Transverse sections</b> which are plane before bending remain plane after bending (Bernoulli's assumption). This implies strain is directly proportional to the distance from the Neutral Axis.</li>
-            <li>The material obeys <b>Hooke's Law</b> ($\sigma \propto \epsilon$) and is stressed within the elastic limit.</li>
-            <li>The Modulus of Elasticity ($E$) is identical in both tension and compression.</li>
-            <li>The beam is subjected to <b>pure bending</b>, meaning the shear force is zero across the section being analyzed.</li>
-        </ul>
-
-        <h3>2. Part 1: Relationship between Strain, Stress, and Radius</h3>
-        <p>Consider a small segment of the beam of length $dx$. Upon the application of a bending moment, this segment deforms into a circular arc with a center of curvature $O$ and a radius of curvature $R$.</p>
-
-        <div class="diagram-container">
-            <svg viewBox="0 0 400 300" width="400">
-                <circle cx="200" cy="280" r="4" fill="#e3e3e3" />
-                <text x="185" y="295" fill="#e3e3e3" font-style="italic" font-size="16">O</text>
-                
-                <line x1="200" y1="280" x2="80" y2="80" stroke="#a0a0a0" stroke-dasharray="5,5" />
-                <line x1="200" y1="280" x2="320" y2="80" stroke="#a0a0a0" stroke-dasharray="5,5" />
-                <text x="195" y="240" fill="#e3e3e3" font-style="italic" font-size="18">θ</text>
-                
-                <path d="M 80 80 Q 200 120 320 80" fill="none" stroke="#e3e3e3" stroke-width="2" />
-                <path d="M 130 180 Q 200 200 270 180" fill="none" stroke="#e3e3e3" stroke-width="2" />
-                <line x1="80" y1="80" x2="130" y2="180" stroke="#e3e3e3" stroke-width="2" />
-                <line x1="320" y1="80" x2="270" y2="180" stroke="#e3e3e3" stroke-width="2" />
-                
-                <path d="M 105 130 Q 200 160 295 130" fill="none" stroke="#f28b82" stroke-dasharray="8,4" stroke-width="3" />
-                <text x="305" y="135" fill="#f28b82" font-weight="bold">N.A.</text>
-                <text x="50" y="135" fill="#f28b82" font-style="italic">L = Rθ</text>
-                
-                <path d="M 90 100 Q 200 135 310 100" fill="none" stroke="#8ab4f8" stroke-width="3" />
-                <text x="320" y="105" fill="#8ab4f8" font-weight="bold">Fiber L'</text>
-
-                <line x1="200" y1="280" x2="200" y2="145" stroke="#e3e3e3" marker-end="url(#arrow-white)" />
-                <text x="210" y="220" fill="#e3e3e3" font-style="italic" font-size="16">R</text>
-                
-                <line x1="200" y1="145" x2="200" y2="117" stroke="#8ab4f8" marker-end="url(#arrow-blue)" />
-                <text x="210" y="135" fill="#8ab4f8" font-style="italic" font-size="16">y</text>
-
+        <!-- Live Visual Memory Graphic -->
+        <div class="visual-box">
+            <svg width="100%" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <marker id="arrow-white" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-                        <polygon points="0 0, 8 4, 0 8" fill="#e3e3e3" />
-                    </marker>
-                    <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-                        <polygon points="0 0, 8 4, 0 8" fill="#8ab4f8" />
+                    <!-- Blue Glow Filter -->
+                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <!-- Red Glow Filter -->
+                    <filter id="red-glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <!-- Arrowhead -->
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#E74C3C" />
                     </marker>
                 </defs>
-            </svg>
-            <div class="diagram-caption">Fig 1: Longitudinal geometry of the bent beam segment.</div>
-        </div>
 
-        <p><b>1. Original Length ($L$):</b> The Neutral Axis (N.A.) neither elongates nor compresses. Its length is defined by the arc formula (Radius × Angle).<br>
-        $$ L = R\theta $$
-        </p>
-        
-        <p><b>2. Extended Length ($L'$):</b> Consider a longitudinal fiber located at a distance $y$ from the Neutral Axis. Its new radius is $(R+y)$.<br>
-        $$ L' = (R + y)\theta $$
-        </p>
+                <!-- Ground/Base -->
+                <rect x="100" y="250" width="200" height="15" rx="5" fill="#7f8c8d" />
+                <text x="200" y="285" fill="#bdc3c7" font-size="14" text-anchor="middle" font-family="sans-serif">Fixed Base (जग)</text>
 
-        <p><b>3. Strain ($\epsilon$):</b> Engineering strain is the change in length divided by the original length.<br>
-        $$ \epsilon = \frac{L' - L}{L} = \frac{(R + y)\theta - R\theta}{R\theta} = \frac{y\theta}{R\theta} $$
-        
-        <div class="math-box">
-            $$ \epsilon = \frac{y}{R} $$
-        </div>
-        </p>
+                <!-- Initial Straight State (Dashed Line) - Assumption 1: Straight initially -->
+                <line x1="200" y1="90" x2="200" y2="250" stroke="#5a6c7d" stroke-width="4" stroke-dasharray="8 8" />
+                <text x="190" y="170" fill="#5a6c7d" font-size="12" text-anchor="end" font-family="sans-serif">Ideal Straightness</text>
 
-        <p><b>4. Stress ($\sigma$):</b> By Hooke's Law within the elastic limit, Stress equals Young's Modulus ($E$) times Strain.<br>
-        $$ \sigma = E \cdot \epsilon $$
-        Substituting the value of $\epsilon$ derived above:
-        $$ \sigma = E \cdot \left(\frac{y}{R}\right) $$
-        
-        <div class="math-box">
-            $$ \frac{\sigma}{y} = \frac{E}{R} \quad \dots \text{(Equation i)} $$
-        </div>
-        </p>
-
-        <h3>3. Part 2: Relationship between Moment and Radius</h3>
-        <p>For the beam to remain in static equilibrium, the internal resisting moment created by the material's stress must perfectly balance the external bending moment ($M$) applied to the section.</p>
-
-        <div class="diagram-container">
-            <svg viewBox="0 0 350 250" width="350">
-                <rect x="50" y="30" width="100" height="180" fill="none" stroke="#e3e3e3" stroke-width="2" />
+                <!-- Bending Blue Pillar (Animated) - Assumption 5: Elastic Buckling -->
+                <path class="buckle-anim" d="M 200 90 Q 200 170 200 250" fill="none" stroke="#3498db" stroke-width="16" stroke-linecap="round" filter="url(#glow)" />
                 
-                <line x1="20" y1="120" x2="300" y2="120" stroke="#f28b82" stroke-dasharray="8,4" stroke-width="3" />
-                <text x="310" y="125" fill="#f28b82" font-weight="bold">N.A.</text>
+                <!-- Group for Load & Anvil (Animated pressing down) -->
+                <g class="load-anim">
+                    <!-- Red Axial Load Arrow - Assumption 3: Axial load exactly in center -->
+                    <line x1="200" y1="10" x2="200" y2="45" stroke="#E74C3C" stroke-width="6" marker-end="url(#arrowhead)" filter="url(#red-glow)" />
+                    <text x="220" y="25" fill="#E74C3C" font-size="16" font-weight="bold" font-family="sans-serif" filter="url(#red-glow)">Axial Load (P)</text>
+                    
+                    <!-- Massive Iron Anvil -->
+                    <path d="M 160 50 Q 180 50 180 70 L 220 70 Q 220 50 240 50 L 240 80 Q 220 80 220 90 L 180 90 Q 180 80 160 80 Z" fill="#95a5a6" stroke="#bdc3c7" stroke-width="2"/>
+                </g>
 
-                <rect x="50" y="70" width="100" height="15" fill="#8ab4f8" opacity="0.6" />
-                <text x="160" y="83" fill="#8ab4f8" font-style="italic" font-weight="bold">Area = dA</text>
-                
-                <line x1="100" y1="120" x2="100" y2="85" stroke="#8ab4f8" marker-end="url(#arrow-blue)" />
-                <text x="110" y="105" fill="#8ab4f8" font-style="italic" font-size="16">y</text>
-
-                <line x1="220" y1="77" x2="280" y2="77" stroke="#e3e3e3" stroke-width="2" marker-end="url(#arrow-white)" />
-                <text x="290" y="82" fill="#e3e3e3">dF = σ·dA</text>
+                <!-- Labels for Memory Tricks -->
+                <text x="310" y="170" fill="#3498db" font-size="14" font-weight="bold" text-anchor="start" font-family="sans-serif">Buckling</text>
+                <text x="310" y="190" fill="#3498db" font-size="12" text-anchor="start" font-family="sans-serif">(बकलिङ)</text>
             </svg>
-            <div class="diagram-caption">Fig 2: Cross-section showing elemental area dA.</div>
         </div>
-
-        <p><b>1. Elemental Force ($dF$):</b> Consider an infinitesimally small area $dA$ at distance $y$ from the N.A. The force on this area is stress times area.<br>
-        $$ dF = \sigma \cdot dA $$
-        </p>
-
-        <p><b>2. Elemental Moment ($dM$):</b> The moment of this internal force about the Neutral Axis is Force × perpendicular distance.<br>
-        $$ dM = dF \cdot y = (\sigma \cdot dA) \cdot y $$
-        </p>
-
-        <p><b>3. Substitution:</b> From Equation (i), we know that $\sigma = \frac{E}{R} \cdot y$. Substitute this into the moment equation:<br>
-        $$ dM = \left( \frac{E}{R} \cdot y \right) \cdot dA \cdot y $$
-        $$ dM = \frac{E}{R} \cdot y^2 \cdot dA $$
-        </p>
-
-        <p><b>4. Total Bending Moment ($M$):</b> To find the total internal resisting moment, we integrate $dM$ over the entire cross-sectional area. Because $E$ (material property) and $R$ (radius of curvature) are constant for a specific cross-section, they can be pulled outside the integral.<br>
-        <div class="math-box">
-            $$ M = \frac{E}{R} \int y^2 \, dA $$
-        </div>
-        </p>
-
-        <p><b>5. Moment of Inertia ($I$):</b> In mechanics, the integral term $\int y^2 \, dA$ is the standard definition for the Second Moment of Area, commonly known as the <b>Moment of Inertia ($I$)</b> of the section about the Neutral Axis.<br>
-        $$ M = \frac{E}{R} \cdot I $$
-        Rearranging this establishes the second half of our relationship:
-        <div class="math-box">
-            $$ \frac{M}{I} = \frac{E}{R} \quad \dots \text{(Equation ii)} $$
-        </div>
-        </p>
-
-        <h3>4. Final Combined Equation</h3>
-        <p>By logically combining the findings from geometric strain <b>(Equation i)</b> and static equilibrium <b>(Equation ii)</b>, we arrive at the complete, detailed derivation of the Flexural Formula:</p>
-        
-        <div class="math-box" style="border: 2px solid var(--accent-blue); background-color: #1a2332;">
-            $$ \frac{M}{I} = \frac{\sigma}{y} = \frac{E}{R} $$
-        </div>
-
     </div>
+
+    <div class="section">
+        <h2>💥 The Fatal Failure (High Stakes)</h2>
+        <span class="eng">If an engineer applies this theory to a short, thick column without realizing Euler assumes failure <span class="critical">ONLY by buckling</span>, the results will be deadly.</span>
+        <span class="nep">यदि कुनै इन्जिनियरले युलरले विफलता <span class="critical">बकलिङबाट मात्र</span> हुन्छ भन्ने मान्छ भन्ने कुरा महसुस नगरी छोटो, मोटो खम्बामा यो सिद्धान्त लागू गर्छ भने, परिणाम घातक हुनेछ।</span>
+        <span class="eng">The short column will experience a sudden <span class="critical">crushing failure</span> under immense weight long before the calculated buckling load is reached, causing an explosive, unpredicted collapse of the entire bridge or floor.</span>
+        <span class="nep">छोटो खम्बाले गणना गरिएको बकलिङ भारमा पुग्नु भन्दा धेरै अघि नै अत्यधिक तौल अन्तर्गत अचानक <span class="critical">क्रसिङ विफलता (किचिने विफलता)</span> अनुभव गर्नेछ, जसले सम्पूर्ण पुल वा तलाको विस्फोटक, अप्रत्याशित पतन निम्त्याउँछ।</span>
+    </div>
+
+    <div class="section">
+        <h2>📝 Loksewa Long-Answer Application</h2>
+        <div class="list-item">
+            <span class="eng">• **List the Assumptions Clearly:** Begin your answer by listing the 5 ideal assumptions (Initial straightness, axial loading, homogeneous/isotropic material, uniform prismatic section, and valid Hooke's law limit).</span>
+            <span class="nep">• **मान्यताहरू स्पष्ट रूपमा सूचीबद्ध गर्नुहोस्:** ५ वटा आदर्श मान्यताहरू (सुरुको सीधापन, अक्षीय लोडिङ, सजातीय/आइसोट्रोपिक सामग्री, एकसमान प्रिज्मीय खण्ड, र मान्य हुकको नियम सीमा) सूचीबद्ध गरेर आफ्नो उत्तर सुरु गर्नुहोस्।</span>
+        </div>
+        <div class="list-item">
+            <span class="eng">• **State the Critical Formula:** Write down the Euler's Buckling Load formula (<span class="correct">Pe = &pi;&sup2;EI / Le&sup2;</span>) to demonstrate mathematical competence, defining each term (E, I, Le).</span>
+            <span class="nep">• **क्रिटिकल सूत्र बताउनुहोस्:** गणितीय क्षमता प्रदर्शन गर्न प्रत्येक पद (E, I, Le) लाई परिभाषित गर्दै युलरको बकलिङ भार सूत्र (<span class="correct">Pe = &pi;&sup2;EI / Le&sup2;</span>) लेख्नुहोस्।</span>
+        </div>
+        <div class="list-item">
+            <span class="eng">• **Critique the Limitations:** Secure top marks by explaining that because the theory ignores <span class="critical">direct crushing stress</span>, it is only applicable for long columns (where slenderness ratio is large), while Rankine's formula is needed for real-world intermediate columns.</span>
+            <span class="nep">• **सीमितताहरूको आलोचना गर्नुहोस्:** यस सिद्धान्तले <span class="critical">प्रत्यक्ष किचिने दबाब (direct crushing stress)</span> लाई बेवास्ता गर्ने भएकाले, यो लामो खम्बाहरू (जहाँ स्लेन्डरनेस अनुपात ठूलो हुन्छ) को लागि मात्र लागू हुन्छ, जबकि वास्तविक संसारका मध्यवर्ती खम्बाहरूको लागि र्यान्काइनको सूत्र आवश्यक पर्छ भनेर व्याख्या गरी उच्च अंक सुरक्षित गर्नुहोस्।</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>⚡ Active Recall Challenge</h2>
+        <span class="eng">According to the assumptions of Simple Strut Theory, the column fails purely due to bending/buckling. Because of this, which specific type of material failure is completely <span class="critical">ignored</span> by Euler?</span>
+        <span class="nep">साधारण स्ट्रट सिद्धान्तका मान्यताहरू अनुसार, खम्बा शुद्ध रूपमा बाङ्गिएर/बकलिङको कारणले असफल हुन्छ। यस कारणले गर्दा, युलरले कुन विशेष प्रकारको सामग्री विफलतालाई पूर्ण रूपमा <span class="critical">बेवास्ता</span> गरेका छन्?</span>
+        
+        <div class="input-group">
+            <input type="text" id="answerInput" placeholder="Type your answer here... (आफ्नो उत्तर यहाँ लेख्नुहोस्...)">
+            <button onclick="checkRecall()">Check Answer (उत्तर जाँच्नुहोस्)</button>
+        </div>
+        <div id="feedback"></div>
+    </div>
+</div>
+
+<script>
+    function checkRecall() {
+        const input = document.getElementById('answerInput').value.toLowerCase().trim();
+        const feedback = document.getElementById('feedback');
+        feedback.style.display = 'block';
+        
+        // Checking for combinations of correct English and Nepali keywords
+        if(input.includes('crush') || input.includes('crushing') || input.includes('किचिने') || input.includes('क्रसिङ') || input.includes('compressive') || input.includes('yield')) {
+            feedback.innerHTML = '<span class="eng correct">🏆 Exactly right! (एकदम सही!) Euler ignores <span style="text-decoration:underline;">Crushing Failure</span> (or direct crushing stress). This is why the theory only works safely for long columns.</span><span class="nep correct">युलरले <span style="text-decoration:underline;">क्रसिङ विफलता (किचिने विफलता)</span> लाई बेवास्ता गर्छन्। यसैकारण यो सिद्धान्त लामो खम्बाहरूको लागि मात्र सुरक्षित रूपमा काम गर्दछ।</span>';
+            feedback.style.borderColor = "var(--green-correct)";
+            feedback.style.backgroundColor = "#eafaf1";
+        } else {
+            feedback.innerHTML = '<span class="eng critical">⚠️ Not quite. (खासै मिलेन।) Hint: Think about what happens when you step heavily on a short, empty soda can straight down. Try again!</span><span class="nep critical">सुझाव: एउटा छोटो, खाली सोडाको बट्टामा सीधा तल भारी रूपमा टेक्दा के हुन्छ भनेर सोच्नुहोस्। फेरि प्रयास गर्नुहोस्!</span>';
+            feedback.style.borderColor = "var(--red-critical)";
+            feedback.style.backgroundColor = "#fdedec";
+        }
+    }
+
+    // Allow pressing "Enter" to submit
+    document.getElementById("answerInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            checkRecall();
+        }
+    });
+</script>
 
 </body>
 </html>
